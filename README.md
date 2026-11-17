@@ -41,3 +41,7 @@ Cloudflare Pages 构建与数据库配置见 [`DEPLOY.md`](DEPLOY.md) 和 [`depl
 ## 联系
 
 站点：<https://cognispect.tech>
+
+## AI4S 可复现科研案例
+
+[影像噪声及 ROI 轮廓变化对定量测量稳定性的影响](examples/ai4s-roi-stability/README.md)复用当前网站的计算核心，包含 300 幅合成影像、900 次测量、原始表、独立 NumPy/SciPy 核算与科研图表。Node.js 可直接运行批处理，研究不依赖在线 AI。
