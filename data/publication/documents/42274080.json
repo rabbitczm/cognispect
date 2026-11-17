@@ -1,0 +1,1954 @@
+{
+  "key": "42274080",
+  "body_available": true,
+  "title": "Side-level versus patient-level evaluation in four-view mammography classification: a comprehensive benchmark on the CMMD dataset",
+  "source_url": "https://europepmc.org/articles/PMC13271282",
+  "license": {
+    "text": "This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (http://creativecommons.org/licenses/by-nc/4.0/), which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. The terms on which this article has been published allow the posting of the Accepted Manuscript in a repository by the author(s) or with their consent.",
+    "urls": [
+      "https://creativecommons.org/licenses/by-nc/4.0/"
+    ],
+    "eligibility": "eligible_noncommercial",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Mohamed A Mabrok"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Author(s). Published by Informa UK Limited, trading as Taylor & Francis Group",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2026",
+        "month": "6",
+        "day": "11"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "S0002",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-p1",
+          "reference_ids": [
+            "CIT0001",
+            "CIT0002",
+            "CIT0003"
+          ],
+          "en": "Computer-aided detection and diagnosis (CAD) systems for the analysis of mammographic images have advanced rapidly with the adoption of deep learning [1,2]. Recent studies report area under the receiver operating characteristic curve (AUC) values exceeding 0.95 for malignancy detection, sometimes approaching or surpassing expert radiologists. However, these impressive numbers often obscure fundamental inconsistencies in how performance is measured and reported. Beyond reporting consistency, recent reviews have identified broader implementation challenges—reproducibility, evidentiary standards, technological maturity, user trust, and ethical and legal frameworks—that must be resolved before AI is safely adopted in breast cancer screening programs [3].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-p2",
+          "reference_ids": [],
+          "en": "A critical but underappreciated source of variability lies in the evaluation granularity. In four-view mammographic acquisition, each patient has four images: craniocaudal (CC) and mediolateral oblique (MLO) views of both the left and right breasts. This four-view acquisition creates a natural ambiguity in evaluation: should the model be assessed at the side level (treating left and right breast predictions as independent samples, effectively doubling the test set) or at the patient level (aggregating the per-side outputs into a single per-patient prediction)?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-p3",
+          "reference_ids": [
+            "CIT0004",
+            "CIT0005"
+          ],
+          "en": "Side-level evaluation is more common in the literature [4,5] because it is simpler to implement and produces larger effective sample sizes. However, it can artificially inflate performance metrics because symmetric patients (those with the same pathology on both sides) contribute two correlated predictions rather than one independent assessment. For asymmetric patients, the model receives credit for correctly classifying the easier side even when it fails on the harder one.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-p4",
+          "reference_ids": [],
+          "en": "In this paper, we present a systematic benchmark designed to quantify empirically how much evaluation granularity matters, and to contextualize this effect against the impact of model architecture choices. This study makes several contributions. We provide a comprehensive evaluation of six backbone architectures and three multi-view fusion strategies (16 configurations total) using five-fold stratified cross-validation on the biopsy-confirmed CMMD dataset; to our knowledge this is among the broadest cross-architecture, cross-fusion comparisons reported on CMMD. We quantitatively demonstrate that side-level evaluation exceeds patient-level AUC by an average of 17.5 percentage points—a gap far larger than any architectural difference observed on this dataset—and show that absolute CNN-vs-CNN AUC differences are small (<3 points), and the conservative 5-fold Wilcoxon test cannot resolve them, although a higher-power DeLong paired test on pooled per-case scores does identify some significant CNN-vs-CNN differences. We further demonstrate that the standard probability-averaging aggregation rule for patient-level multi-class BI-RADS evaluation is mathematically incompatible with the prevailing label definition under bilateral asymmetry, and we propose concrete decision-level alternatives, and that ViT-B/16 substantially underperforms all CNN variants, consistent with the established observation that vision transformers require larger training sets for medical imaging tasks. Finally, our per-case error analysis reveals that misclassification aligns with clinical severity (BI-RADS category), that inter-model error overlap is higher among CNNs than between CNNs and ViT, and that the extreme patient-level class imbalance intrinsic to this enriched diagnostic cohort (96.2% malignant) renders all models unable to identify benign patients at the patient level—an additional reporting confound masked by seemingly balanced side-level distributions. We emphasize that absolute performance numbers reported here pertain to a biopsy-confirmed enrichment cohort and should not be extrapolated to population screening settings, where prevalence is several orders of magnitude lower.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0003",
+      "title": "Related work",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0003-S2001",
+      "title": "Deep learning for mammography",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0003-S2001-p1",
+          "reference_ids": [
+            "CIT0006",
+            "CIT0007",
+            "CIT0004",
+            "CIT0008",
+            "CIT0009"
+          ],
+          "en": "Deep learning approaches to mammographic analysis have evolved substantially over the past decade [6]. Early work focused on single-view classification using standard convolutional architectures [7], treating each mammographic image independently. The transition to multi-view architectures, which jointly process all available views for a given patient, marked a significant advancement. Wu et al. [4] demonstrated that multi-view models outperform single-view baselines by leveraging complementary information between CC and MLO projections, establishing a paradigm that subsequent work has largely followed. The GMIC model [8] introduced globally-aware attention mechanisms that enable the network to focus on clinically relevant regions, improving both performance and interpretability. More recently, transformer-based architectures have been explored for mammographic analysis [9], though their effectiveness on small medical datasets remains the subject of ongoing debate due to their need for large-scale pretraining data. Despite this rapid architectural progress, comparatively little attention has been paid to ensuring that the evaluation methodologies used to measure progress are themselves consistent and reliable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0003-S2002",
+      "title": "Multi-view fusion strategies",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0003-S2002-p1",
+          "reference_ids": [
+            "CIT0004",
+            "CIT0010",
+            "CIT0011"
+          ],
+          "en": "Fusion of multiple mammographic views has been approached through various strategies. Simple concatenation of view-level features remains a strong baseline [4]. Bilateral asymmetry modeling, inspired by clinical practice in which radiologists compare left and right breasts, has been explored by several groups [10]. Cross-view attention mechanisms that allow views to exchange information during feature extraction have shown promise in recent work [11].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0003-S2003",
+      "title": "Evaluation methodology in medical imaging",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0003-S2003-p1",
+          "reference_ids": [
+            "CIT0012",
+            "CIT0013"
+          ],
+          "en": "The importance of consistent evaluation in medical imaging has been highlighted by several meta-analyses [12,13]. However, specific analysis of how evaluation granularity (side-level vs. patient-level) affects reported performance in mammography has received limited attention. This gap motivates the systematic benchmark presented in this work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0003-S2004",
+      "title": "The CMMD dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0003-S2004-p1",
+          "reference_ids": [
+            "CIT0014",
+            "S0004-S2001"
+          ],
+          "en": "The Chinese Mammography Database (CMMD) [14] is a publicly available dataset containing mammographic images with both diagnosis labels (biopsy-confirmed benign or normal contralateral vs. biopsy-confirmed malignant) and BI-RADS assessments. Unlike proprietary datasets used in many studies, CMMD enables reproducible research, making it well-suited for benchmarking purposes. We emphasize, however, that CMMD is a biopsy-confirmed diagnostic enrichment cohort rather than a population screening cohort: cases are referred for biopsy following an imaging finding, so the dataset is heavily enriched for malignancy (96.2% at the patient level in the four-view subset analyzed here, see Section 3.1). This composition is appropriate for cross-model benchmarking—all configurations face the same prior—but absolute performance numbers reported on CMMD do not transfer to population-screening settings, where prevalence is on the order of 0.5%.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004",
+      "title": "Methodology",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-p1",
+          "reference_ids": [
+            "F0001"
+          ],
+          "en": "An overview of the full evaluation pipeline—from raw four-view inputs through preprocessing, fold assignment, the shared backbone, the three fusion strategies, the dual-head classifier, and the side-level and patient-level metrics—is shown in Figure 1. Each stage is described in detail in the corresponding subsection below.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2001",
+      "title": "Dataset and preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2001-p1",
+          "reference_ids": [],
+          "en": "We use the CMMD dataset, restricting to patients with all four views available (L_CC, L_MLO, R_CC, R_MLO) to ensure consistent multi-view evaluation. This restriction yields 706 patients from the original ∼1,360 patients in the dataset. Each patient has independent labels for the left and right breast, enabling both side-level and patient-level evaluation. Throughout this paper, we use the term benign to refer to biopsy-confirmed benign pathology, normal contralateral to refer to an unaffected side at BI-RADS 0 belonging to a patient whose other side is biopsied, and nonmalignant when both categories are referenced collectively. We avoid the compound expression “benign/normal” that appeared in the original draft.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2001-p2",
+          "reference_ids": [],
+          "en": "We evaluate two tasks: binary diagnosis, which distinguishes nonmalignant (class 0) from malignant (class 1), and BI-RADS assessment, a five-class classification problem (BI-RADS 1–5, mapped to classes 0–4).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2001-S3001",
+      "title": "Class distribution",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2001-S3001-p1",
+          "reference_ids": [],
+          "en": "The four-view subset exhibits severe class imbalance. At the patient level, 679 of 706 patients (96.2%) have at least one malignant side, while only 27 patients (3.8%) are bilaterally benign. Most patients are unilaterally affected: 352 have malignancy on the left only, 324 on the right only, 3 are bilaterally malignant, and 27 are bilaterally benign. At the side level (1,412 breasts), 682 (48.3%) are malignant and 730 (51.7%) are benign—a near-balanced distribution that contrasts sharply with the patient-level imbalance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2001-S3001-p2",
+          "reference_ids": [
+            "t0001"
+          ],
+          "en": "For BI-RADS, the side-level distribution spans five classes: 683 sides are BI-RADS 0 (normal contralateral), 16 are BI-RADS 1, 86 are BI-RADS 2, 225 are BI-RADS 3, and 402 are BI-RADS 4. Table 1 presents the cross-tabulation of diagnosis and BI-RADS labels, confirming the expected clinical alignment: all malignant sides carry BI-RADS ≥2, while benign sides concentrate at BI-RADS 0–2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2001-S3001-p3",
+          "reference_ids": [
+            "S0005-S2009"
+          ],
+          "en": "This asymmetry between side-level and patient-level class balance has important implications for interpreting model performance, which we analyze in detail in Section 4.9.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2001-S3002",
+      "title": "Preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2001-S3002-p1",
+          "reference_ids": [
+            "CIT0014"
+          ],
+          "en": "Following the established protocol of [14], each mammogram (stored as a NumPy array) is normalized to [0, 1] on a per-image basis (each image is rescaled by its own min and max), resized to 384×384 pixels as a tensor, and replicated to three channels. No ImageNet normalization is applied, as the grayscale medical images occupy a different intensity distribution from natural images. Data augmentation consists of random affine transformations (rotation ±10°, translation ±5%, scale 0.95–1.05) and random horizontal flipping.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2001-S3002-p2",
+          "reference_ids": [
+            "S0006-S2007",
+            "S0005-S2005"
+          ],
+          "en": "Three clarifications regarding this protocol are warranted. (i) Train-only fitting: the preprocessing pipeline does not estimate any dataset-wide statistics. Per-image min–max normalization, deterministic resizing, and channel replication are all fit-free; consequently, no statistic crosses the train/validation/test boundary, and the cross-validation procedure cannot leak preprocessing-derived information. (ii) Resolution choice: the 384×384 input was selected because it is natively supported by all six pretrained backbones in our comparison and therefore enables a like-for-like architectural evaluation; it is also a common operating point for medical imaging benchmarks. We acknowledge that this resolution may attenuate features at the scale of microcalcifications, which can be small relative to the original mammogram, and that higher-resolution or multi-scale pipelines may yield improved absolute performance. However, the central object of this paper—the side-vs-patient evaluation gap—is a property of the evaluation protocol and is not expected to depend on the input resolution; we discuss this further in Section 5.7. (iii) Horizontal flipping: the random horizontal flip was applied independently to each of the four views (the default behavior of torchvision.transforms.RandomHorizontalFlip). This implementation does not preserve the left/right correspondence between paired views and is therefore suboptimal for explicit bilateral asymmetry modeling. Importantly, because the bilateral fusion subtracts the (averaged) left feature from the (averaged) right feature, independent flipping injects noise into the asymmetry vector and would tend to attenuate, not inflate, any benefit attributable to bilateral fusion. We therefore expect the small but consistent advantage we report for bilateral fusion (Section 4.5) to be a conservative estimate; we recommend that future work apply paired (per-patient) flipping or omit the flip entirely.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2002",
+      "title": "Backbone architectures",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2002-p1",
+          "reference_ids": [],
+          "en": "We evaluate six backbone architectures spanning different design families. On the CNN side, we include ResNet-18 (512-d, 11.2 M parameters) and ResNet-50 (2048-d, 23.5 M parameters) as residual network baselines, EfficientNet-B0 (1280-d, 4.0 M parameters) as a compound-scaled efficient architecture, DenseNet-121 (1024-d, 7.0 M parameters) with its dense connectivity pattern, and ConvNeXt-Tiny (768-d, 28.6 M parameters) as a modernized ConvNet design. To contrast with these CNN-based models, we also evaluate ViT-B/16 (768-d, 86.6 M parameters), a Vision Transformer that serves as a representative of attention-based architectures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2002-p2",
+          "reference_ids": [],
+          "en": "All backbones are initialized with ImageNet-pretrained weights. A single shared backbone processes all four views through weight sharing, which is standard practice for multi-view mammography models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2003",
+      "title": "Fusion strategies",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2003-p1",
+          "reference_ids": [],
+          "en": "We evaluate three fusion strategies applied identically across all backbones.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2003-S3001",
+      "title": "Concatenation (Concat)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2003-S3001-p1",
+          "reference_ids": [],
+          "en": "The simplest baseline: four view features are concatenated into a single vector of dimension 4×d, where d is the backbone’s feature dimension after global average pooling (GAP).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2003-S3002",
+      "title": "Bilateral asymmetry fusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2003-S3002-p1",
+          "reference_ids": [],
+          "en": "Inspired by clinical practice, we compute explicit bilateral asymmetry features:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2003-S3002-p2",
+          "reference_ids": [],
+          "en": "The fused representation concatenates all four individual view features with the ipsilateral averages and the asymmetry vector: [fL_CC,fL_MLO,fR_CC,fR_MLO,fleft,fright,fasym], yielding dimension 7d.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2003-S3003",
+      "title": "Cross-view spatial attention",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2003-S3003-p1",
+          "reference_ids": [],
+          "en": "We inject multi-head cross-attention between views at the penultimate convolutional layer, before global average pooling. Each view’s spatial feature tokens attend to all other views’ tokens:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2003-S3003-p2",
+          "reference_ids": [],
+          "en": "where fv denotes the spatial tokens of view v, fv is the concatenation of all other views’ tokens, and MHA denotes multi-head attention. The attended features then pass through the backbone’s final convolutional block before GAP and bilateral fusion. This strategy applies only to CNN backbones where intermediate spatial features are accessible; for ViT-B/16, it defaults to bilateral fusion (as ViT lacks standard spatial feature maps at intermediate layers).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2004",
+      "title": "Classification head",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2004-p1",
+          "reference_ids": [],
+          "en": "All configurations share the same classification head: the fused feature vector passes through a two-layer MLP (fused_dim→512→256 with ReLU and dropout), followed by separate linear heads for left and right breast predictions. The training loss is the sum of cross-entropy losses for both sides:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2005",
+      "title": "Training protocol",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2005-p1",
+          "reference_ids": [],
+          "en": "We use an identical training recipe for all configurations to ensure fair comparison: AdamW optimizer with learning rate 10−4 and weight decay 0.1, cosine annealing learning rate schedule, gradient clipping at 1.0, batch size 8, maximum 50 epochs with early stopping (patience 15 on validation AUC). No label smoothing, mixup, or other regularization techniques are used. All hyperparameters were fixed in advance based on standard practice for fine-tuning ImageNet-pretrained backbones on small medical-imaging datasets; no cross-validation-based hyperparameter search was performed, so cross-validation is used purely to estimate generalization performance and not to tune the training recipe.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2006",
+      "title": "Evaluation protocol",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0004-S2006-S3001",
+      "title": "Cross-validation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2006-S3001-p1",
+          "reference_ids": [],
+          "en": "We use five-fold stratified cross-validation, stratifying by pathology pattern (the tuple of left and right labels). Within each fold, the training set is further split 80/20 for training and validation (used for early stopping). The same fold assignments are used across all configurations. The cross-validation operates on patient-level samples (each sample bundles all four views of a single patient), so all four views of a given patient are guaranteed by construction to share a fold; the 80/20 train/validation split within each fold is likewise performed at the patient level. There is therefore no cross-fold or train/validation leakage of either views or patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2006-S3002",
+      "title": "Side-level metrics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2006-S3002-p1",
+          "reference_ids": [],
+          "en": "Left and right breast predictions are pooled as 2 N independent samples, where N is the number of patients. We report AUC (binary or macro-averaged one-vs-rest for multi-class), accuracy, F1-score, sensitivity, and specificity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2006-S3003",
+      "title": "Patient-level metrics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2006-S3003-p1",
+          "reference_ids": [
+            "t0003",
+            "S0005-S2008-S3001",
+            "S0006-S2005"
+          ],
+          "en": "The patient-level label is defined under any-malignancy semantics, ypatient=max(yleft,yright), which corresponds to the clinical question “does this patient have malignancy on at least one side?”. For binary diagnosis, the patient-level malignancy score is ppatient=max(pleft,pright) (the OR-semantics aggregator that matches the label), and the patient-level prediction at threshold τ=0.5 is y^patient=1[ppatient>τ]. Patient-level AUC, accuracy, F1, sensitivity and specificity are then computed against ypatient in the standard way. We note that the original draft of this manuscript reported a different patient-level accuracy, namely 1[both sides classified correctly], which is a strict bilateral exact-match criterion rather than a patient-level criterion and is moreover inconsistent with the patient-level AUC definition. Table 3 now reports the corrected metrics; the AUC column is unchanged because it was already correctly computed against ypatient. For BI-RADS, the prevailing convention in the literature is to obtain patient-level probabilities by averaging left and right probability vectors and to take the patient label as the maximum of both sides. We deliberately retain this prevailing rule in our main analysis to expose its pathological behavior under bilateral asymmetry (Section 4.8.1) and recommend alternatives in Section 5.5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2006-S3004",
+      "title": "Statistical testing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2006-S3004-p1",
+          "reference_ids": [
+            "CIT0015"
+          ],
+          "en": "We use the Wilcoxon signed-rank test on per-fold AUC values for pairwise model comparison. With five folds, the minimum achievable p-value is 0.0625; the Wilcoxon test on five paired observations is therefore conservative by construction. To complement this, we also report DeLong’s paired AUC test [15] on the pooled per-case scores within each task. DeLong does not suffer from the 5-fold p-value floor and is the standard test for paired AUC comparison; however, its independence assumption is mildly violated by within-patient correlation (left/right sides). We therefore present both tests and view their conjunction as more informative than either in isolation. We additionally report bootstrap 95% confidence intervals on AUC computed by resampling patients within each fold (B=2,000, percentile interval) to characterize the magnitude—rather than only the significance—of pairwise differences (Supplementary Table S1).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005",
+      "title": "Experimental results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0005-S2001",
+      "title": "Configuration completion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2001-p1",
+          "reference_ids": [],
+          "en": "Of the planned 21 configurations (7 backbones × 3 fusions), 16 completed successfully for both tasks. Cross-view attention failed for EfficientNet-B0 and ConvNeXt-Tiny due to architectural incompatibilities in extracting intermediate spatial features, and Swin-Tiny failed entirely due to feature extraction issues. This itself highlights a practical finding: cross-view spatial attention is primarily applicable to ResNet-family architectures where clean layer-level feature extraction is straightforward.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2002",
+      "title": "Diagnosis: side-level results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2002-p1",
+          "reference_ids": [
+            "t0002"
+          ],
+          "en": "Table 2 presents side-level results for binary malignancy diagnosis. The top-performing configuration is ConvNeXt-Tiny with concatenation fusion (AUC 0.975±0.008), followed closely by ResNet-50 with bilateral fusion (AUC 0.973±0.007). All CNN-based configurations achieve side-level AUC between 0.950 and 0.975, a remarkably narrow range given the diversity of architectures evaluated.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2002-p2",
+          "reference_ids": [],
+          "en": "ViT-B/16 is a clear outlier, achieving only AUC 0.864–0.880 across fusion strategies—approximately 8–10% lower than its CNN counterparts despite having 87–89 M parameters (6–10× more than the CNNs). This result confirms that vision transformers require substantially larger training sets to compete with CNNs in medical imaging settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2003",
+      "title": "Diagnosis: patient-level results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2003-p1",
+          "reference_ids": [
+            "t0003",
+            "S0004-S2006-S3003",
+            "S0006-S2006"
+          ],
+          "en": "Table 3 presents the same configurations evaluated at the patient level under the corrected definitions of Section 3.6.3 (ypatient=max(yL,yR), y^patient=1[max(pL,pR)>0.5]). Compared with the original draft, the AUC column is unchanged (it was already computed correctly), whereas the ACC, F1, sensitivity, and specificity columns have been re-derived from the saved per-case predictions and reflect any-malignancy patient-level classification rather than the bilateral exact-match criterion. Several important observations emerge. First, patient-level AUC drops dramatically relative to side-level AUC: the best configuration (EfficientNet-B0 bilateral, AUC 0.842) would rank last among the CNN side-level results. Second, patient-level specificity is near zero for most configurations (mean 0.04–0.22), indicating that the models almost never correctly identify patients who are nonmalignant on both sides—they default to predicting malignancy on at least one side. Third, patient-level sensitivity remains extremely high (>0.93), revealing a strong bias toward positive predictions; this bias—combined with the 96.2% malignancy prevalence—is what produces the high corrected accuracy values, and it should be interpreted in light of the prevalence-shift discussion in Section 5.6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2004",
+      "title": "The side-level vs. patient-level gap",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2004-p1",
+          "reference_ids": [
+            "F0002"
+          ],
+          "en": "Figure 2 presents the central finding of this paper. Every model configuration lies well below the y=x diagonal, demonstrating a systematic and substantial gap between side-level and patient-level AUC.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2004-p2",
+          "reference_ids": [
+            "t0004",
+            "t0003"
+          ],
+          "en": "Table 4 quantifies this gap. The average AUC difference from side-level to patient-level evaluation is +0.175 (17.5 percentage points). The gap ranges from +0.127 (EfficientNet-B0 bilateral) to +0.224 (ConvNeXt-Tiny concat). For accuracy, the original draft reported a gap of +3.6% under the (now-corrected) bilateral exact-match criterion; under the corrected any-malignancy criterion (Table 3), patient-level accuracy is actually higher than side-level accuracy on average (∼0.93 vs. ∼0.88), because in this enriched cohort the trivial “always-malignant” classifier already attains ∼0.96 accuracy at the patient level. This crossover further reinforces the message that single-number accuracy comparisons across granularities are uninformative without prevalence context. Critically, the magnitude of this evaluation gap (in AUC terms) exceeds the entire range of performance differences between CNN architectures (which spans only ∼2.5% at side level).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2004-p3",
+          "reference_ids": [],
+          "en": "To put this in perspective: a researcher comparing a study that reports side-level AUC of 0.975 with one that reports patient-level AUC of 0.842 might conclude that the first system is substantially superior, when in fact both numbers could come from the same model evaluated at different granularities. This observation has direct implications for systematic reviews and meta-analyses in mammographic image classification, where heterogeneous evaluation protocols make it difficult to draw reliable conclusions about the state of the art.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2004-p4",
+          "reference_ids": [],
+          "en": "Two caveats are warranted in the interpretation of Δ. First, side-level and patient-level AUC are not two views of a single estimand: they are computed against different label vectors (yside for 2 N pooled sides versus ypatient for N patients), they involve different class priors (∼48% vs. 96.2% malignant), and they use different sample units. The 17.5-point gap should therefore be read as the empirical performance gap a researcher would observe by switching reporting protocols on the same trained model, rather than as a bias measure of either AUC individually; both estimands are valid AUCs with their own scientific interpretations. Second, the absolute magnitude of Δ depends on dataset prevalence: on a more class-balanced dataset the side-vs-patient gap would be smaller. The qualitative finding—that side-level and patient-level evaluation give materially different headline numbers, and that the choice should be reported—is, however, mechanism-driven and is expected to generalize.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2005",
+      "title": "Backbone and fusion comparison",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2005-p1",
+          "reference_ids": [
+            "F0003"
+          ],
+          "en": "Figure 3 shows side-level AUC grouped by backbone and fusion strategy. Averaged across all backbones, the three fusion strategies perform nearly identically: concat (0.948), bilateral (0.950), and crossview (0.936). The bilateral asymmetry approach provides a marginal benefit (+0.2% over concat), while cross-view attention slightly underperforms, possibly due to the additional parameters without sufficient training data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2005-p2",
+          "reference_ids": [],
+          "en": "Averaged across fusion strategies, backbone performance ranks as: ResNet-50 (0.966) > EfficientNet-B0 (0.965) > ConvNeXt-Tiny (0.962) > ResNet-18 (0.960) > DenseNet-121 (0.959) ≫ ViT-B/16 (0.874). The top five CNNs are within 0.7% of each other, while ViT-B/16 trails by approximately 9%.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2006",
+      "title": "Cross-fold stability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2006-p1",
+          "reference_ids": [
+            "F0004"
+          ],
+          "en": "Figure 4 shows the distribution of AUC across five folds for each configuration. Several configurations exhibit substantial fold-level instability: ConvNeXt-Tiny bilateral drops from AUC 0.989 (fold 1) to 0.833 (fold 4) at side level. This ∼15% swing from a single fold assignment underscores the unreliability of single train/test split evaluations and the necessity of cross-validation for trustworthy comparison.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2007",
+      "title": "Statistical significance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2007-p1",
+          "reference_ids": [],
+          "en": "No pairwise comparison between any two configurations reaches statistical significance at p<0.05 using the Wilcoxon signed-rank test on per-fold AUCs. This is primarily a power limitation (with 5 folds, the minimum achievable p-value is 0.0625). The closest comparisons to significance (all at p=0.0625) are consistently CNN vs. ViT-B/16 pairs, confirming that ViT is the only meaningfully different architecture at the resolution provided by this conservative test.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2007-p2",
+          "reference_ids": [],
+          "en": "To overcome the 0.0625 floor and to reduce ambiguity, we additionally computed DeLong’s paired AUC test on the pooled side-level per-case scores (N=1,412 sides) for every pair of configurations on the diagnosis task. This higher-power analysis paints a more nuanced picture: 77 of 120 pairs reach p<0.05, and 56 of 120 reach p<0.001. All 39 CNN-vs-ViT pairs are highly significant (median p<10−12), confirming that ViT is meaningfully separated from the CNN cluster. Among the 78 CNN-vs-CNN pairs, 38 (49%) reach p<0.05 and the median p-value is 0.062. The most strongly significant CNN-vs-CNN comparisons involve DenseNet-121 concat (the weakest CNN at AUC 0.942 on pooled sides) vs. stronger CNNs such as ResNet-50 bilateral and ConvNeXt-T concat (AUC differences of 0.022–0.030; p as low as 4.6×10−10); whereas adjacent-performing pairs such as ResNet-18 concat vs. ResNet-50 concat are not separated (p≳0.6). The qualitative conclusion is therefore unchanged in substance but should be stated more precisely than in the original draft: the absolute magnitude of CNN-vs-CNN AUC differences is small (≤0.030) compared with the side-vs-patient gap (0.175), and adjacent-performing CNNs are statistically indistinguishable; however, well-separated CNNs do reach formal significance under DeLong, and the original blanket statement that “no CNN-vs-CNN comparison reaches p<0.05“ was a property of the conservative 5-fold Wilcoxon test rather than of the underlying performance difference. Bootstrap 95% CIs on AUC for every configuration are reported in Supplementary Table S1; the side-level CIs are tight (typical width 0.014–0.020) while the patient-level CIs are wider (typical width 0.10–0.18), which is itself useful information about the reliability of patient-level estimates on this dataset size.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2008",
+      "title": "BI-RADS assessment",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2008-p1",
+          "reference_ids": [],
+          "en": "Supplementary Table S2 presents BI-RADS results at side level. Performance is substantially lower than binary diagnosis, with the best configuration (DenseNet-121 crossview) achieving AUC 0.846±0.015. This reflects the difficulty of five-class classification with severe class imbalance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2008-S3001",
+      "title": "Probability averaging is invalid for patient-level multi-class BI-RADS evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2008-S3001-p1",
+          "reference_ids": [],
+          "en": "When the prevailing label/aggregation rule (label max(yL,yR), score = mean of per-side probability vectors) is applied to BI-RADS, every configuration we evaluated returns a patient-level macro-AUC of exactly 0.000. An AUC of exactly zero across all models is a red flag and warrants explicit explanation: this number is not a model-performance result but a demonstration that the chosen aggregation rule is incompatible with the chosen label definition. Investigation reveals a compounding of two effects. First, 98.9% of patients have different BI-RADS scores on their left and right breasts, with the dominant patterns being (BI-RADS 5, BI-RADS 1) and vice versa. Second, probability averaging destroys the discriminative signal. When a patient has left = BI-RADS 1 (normal) and right = BI-RADS 5 (malignant), the model correctly predicts each side individually. However, averaging the probability vectors (e.g., [0.85, 0.02, 0.03, 0.05, 0.05] and [0.05, 0.02, 0.03, 0.10, 0.80]) yields [0.45, 0.02, 0.03, 0.075, 0.425], which peaks at class 0 (BI-RADS 1), while the patient label max(0,4)=4 never equals 0. Consequently, 99.6% of patient-level predictions are class 0, whereas class 0 never appears in the ground truth (since max(left,right) is always ≥1 for patients with at least one abnormal side). Probability averaging is fundamentally incompatible with patient-level multi-class evaluation when bilateral asymmetry is prevalent; the 0.000 AUC is therefore best read as a sanity-check failure of the metric/aggregation pair, not as a measurement of model capability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2008-S3001-p2",
+          "reference_ids": [
+            "S0006-S2005"
+          ],
+          "en": "This result is not merely an artifact of the CMMD dataset; it generalizes to any bilateral medical imaging scenario where (a) the two sides can have different multi-class labels, (b) patient-level labels are defined as the maximum of both sides, and (c) patient-level probabilities are obtained by averaging per-side probability vectors. The mathematical mechanism is straightforward: averaging two peaked distributions over different classes produces a flat distribution that peaks at neither class. We therefore do not interpret the 0.000 figures as a model-comparison result and we advise against using the (label-max, score-mean) rule. Concrete alternatives are developed in Section 5.5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2009",
+      "title": "Per-case error analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2009-p1",
+          "reference_ids": [],
+          "en": "To understand whether different models fail on the same cases and how errors relate to clinical severity, we analyze per-case predictions across all 16 configurations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2009-S3001",
+      "title": "Inter-model error consistency",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2009-S3001-p1",
+          "reference_ids": [],
+          "en": "Of 706 patients, 356 (50.4%) are correctly classified by all 16 model configurations, while only 7 (1.0%) are misclassified by every model. The remaining 343 patients (48.6%) are correctly classified by some models but not others, revealing substantial model-specific variation in error patterns. Supplementary Table S3 summarizes the distribution.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2009-S3001-p2",
+          "reference_ids": [],
+          "en": "The pairwise error overlap, measured by Jaccard similarity on misclassified patient sets, reveals an important architectural distinction. CNN-to-CNN Jaccard similarity averages 0.42 (range 0.31–0.55), while CNN-to-ViT similarity averages only 0.29 (range 0.21–0.39). This confirms that CNNs make systematically similar errors to each other, while ViT-B/16 fails on a partially different patient population—a finding relevant for potential ensemble strategies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2009-S3002",
+      "title": "Error rates by BI-RADS category",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2009-S3002-p1",
+          "reference_ids": [],
+          "en": "Side-level error rates show a clear gradient aligned with clinical severity (Supplementary Table S4). For malignant sides, error rates decrease monotonically with increasing BI-RADS: 22.9% for BI-RADS 2, 17.5% for BI-RADS 3, and 8.7% for BI-RADS 4. This is clinically intuitive—higher BI-RADS lesions have more prominent imaging features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2009-S3002-p2",
+          "reference_ids": [],
+          "en": "For benign sides, the pattern is reversed: benign sides with BI-RADS 0 (normal contralateral) have a low error rate (9.3%), but the rare benign sides with elevated BI-RADS scores (1–3) are misclassified 38–48% of the time. These represent clinically ambiguous cases where benign tissue presents with suspicious imaging features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2009-S3003",
+      "title": "The benign patient problem",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2009-S3003-p1",
+          "reference_ids": [],
+          "en": "The most concerning finding from the per-case analysis is that no benign patient is correctly classified by all models. The 27 bilaterally benign patients have a mean error rate of 88.4% across all configurations (i.e., on average, 14.1 out of 16 models misclassify each benign patient). Four benign patients are misclassified by every single model. By contrast, malignant patients have a mean error rate of only 12.9%, with 52.4% of malignant patients correctly classified by all 16 models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2009-S3003-p2",
+          "reference_ids": [],
+          "en": "Patient-level error rates stratified by both diagnosis and BI-RADS (Supplementary Table S5) reveal the compounding effect: benign patients with low BI-RADS scores are misclassified by nearly all models (≥12/16 on average), while malignant patients with high BI-RADS are relatively easy (≤1.4/16 wrong on average).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2009-S3004",
+      "title": "Cross-task error alignment",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2009-S3004-p1",
+          "reference_ids": [],
+          "en": "For each model configuration, we examine whether patients misclassified on the diagnosis task are also misclassified on the BI-RADS task. The overall agreement rate is 60.3%: when diagnosis is wrong, BI-RADS is also wrong 84.9% of the time (1,509 of 1,779 cases). However, when diagnosis is correct, BI-RADS is still wrong 44.3% of the time (4,211 of 9,517 cases). This asymmetry confirms that BI-RADS classification is a strictly harder task that fails on a superset of the cases where diagnosis fails, plus many additional cases where the binary decision is correct but the fine-grained severity assessment is not.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0006-S2001",
+      "title": "Evaluation granularity as a confound",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2001-p1",
+          "reference_ids": [],
+          "en": "Our central finding—that the side-vs-patient evaluation gap (17.5% AUC on CMMD) dwarfs all architectural differences (<3% among CNNs in absolute AUC)—has important implications for the mammography classification literature. A study reporting side-level AUC of 0.975 and another reporting patient-level AUC of 0.842 may in fact be evaluating nearly identical models. Without standardized evaluation protocols, cross-study comparison is unreliable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2001-p2",
+          "reference_ids": [],
+          "en": "The inflation mechanism involves three distinct factors. First, side-level evaluation pools left and right predictions as independent samples, but they share the same patient context and model weights; the statistical independence assumption underlying AUC computation is therefore violated. Second, for symmetric patients (same pathology on both sides), both predictions are effectively the same case counted twice, inflating apparent sample size without adding information. Third, for asymmetric patients, the model receives credit for correctly classifying the easier side even when it fails on the harder one—a partial success that is rewarded at side level but penalized at patient level.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2001-p3",
+          "reference_ids": [],
+          "en": "This finding has practical consequences beyond academic benchmarking. Regulatory submissions for CAD systems, clinical validation studies, and purchasing decisions by healthcare institutions all rely on reported performance metrics. If the evaluation granularity is not explicitly specified, stakeholders may draw misleading conclusions about system capabilities. We therefore recommend that all future mammography classification studies report both side-level and patient-level metrics, and explicitly state which granularity is used for primary comparison.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2001-p4",
+          "reference_ids": [
+            "S0005-S2008-S3001"
+          ],
+          "en": "It is worth distinguishing here between findings directly supported by our experiments on CMMD and broader generalizations that follow as conjectures. (i) Directly supported on CMMD: the absolute 17.5-point side-vs-patient AUC gap; the empirical ranking of the 16 configurations; the fact that the 5-fold Wilcoxon test resolves no CNN-vs-CNN pair while DeLong on pooled scores resolves about half (median p≈0.06); and the bootstrap CI widths reported in Supplementary Table S1. (ii) Mechanism-driven and therefore portable: the symmetric-patient double-counting effect, the asymmetric-patient partial-credit effect, and the BI-RADS averaging-incompatibility argument of Section 4.8.1 all follow from the structure of the metric and label rather than from properties of CMMD; we expect them to apply, with possibly different magnitudes, to any bilateral medical-imaging task with comparable label structure. (iii) Conjectural extensions: the magnitude of the gap is expected to shrink on more class-balanced datasets, and the relative ranking of architectures may change with substantially more training data—these statements are reasonable expectations but cannot be verified from CMMD alone.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2002",
+      "title": "The diminishing returns of architectural complexity",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2002-p1",
+          "reference_ids": [],
+          "en": "Our results support a growing body of evidence that architectural complexity provides diminishing returns on small medical imaging datasets. The simplest CNN backbone (ResNet-18, 11.2 M parameters) achieves AUC within 0.7% of the most complex CNN (ConvNeXt-Tiny, 28.6 M parameters) at side level. EfficientNet-B0 achieves the best patient-level AUC with only 4.0 M backbone parameters. This suggests that, for datasets of this scale, the primary bottleneck is the quantity and quality of training data, not the representational capacity of the model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2002-p2",
+          "reference_ids": [
+            "CIT0016"
+          ],
+          "en": "The dramatic underperformance of ViT-B/16 (AUC ∼0.87 vs. ∼0.96 for CNNs) is consistent with the established finding that vision transformers require large-scale datasets to learn effective representations [16]. With only ∼560 training patients per fold, the inductive biases of CNNs (translation equivariance, local connectivity) provide a critical advantage that cannot be overcome by the transformer’s greater theoretical flexibility. Notably, our per-case error analysis reveals that ViT-B/16 not only performs worse overall but also fails on a partially different patient population than CNNs (Jaccard similarity 0.29 vs. 0.42 for CNN-CNN pairs). This complementarity suggests that CNN-ViT ensembles could be beneficial if sufficient data were available for the transformer component to achieve competitive individual performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2002-p3",
+          "reference_ids": [],
+          "en": "From a practical standpoint, these findings suggest that researchers working with small medical imaging datasets (<1,000 patients) should prioritize data collection and curation over architectural innovation. A well-tuned ResNet-18 with careful data preprocessing may outperform a state-of-the-art architecture trained on the same limited data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2003",
+      "title": "Bilateral asymmetry: marginal but consistent",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2003-p1",
+          "reference_ids": [],
+          "en": "The bilateral fusion strategy provides a small but consistent benefit: averaged across backbones, it improves side-level AUC by 0.2% over concatenation and patient-level AUC by a more meaningful margin (e.g., EfficientNet-B0 bilateral achieves the highest patient-level AUC at 0.842). The clinical motivation—that radiologists diagnose by comparing bilateral symmetry—appears to translate into a modest computational advantage, primarily at the patient level where bilateral relationships matter most.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2004",
+      "title": "Cross-view attention: limited benefit",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2004-p1",
+          "reference_ids": [],
+          "en": "Cross-view spatial attention, despite its computational elegance, provides no consistent improvement over simpler fusion strategies. On this dataset, the additional parameters and architectural complexity may introduce optimization difficulties that offset any representational advantage. Moreover, the approach is limited to architectures with accessible intermediate spatial features, failing for EfficientNet and ConvNeXt variants.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2005",
+      "title": "Valid alternatives for patient-level multi-class aggregation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2005-p1",
+          "reference_ids": [
+            "S0005-S2008-S3001"
+          ],
+          "en": "The patient-level BI-RADS result of Section 4.8.1 reveals a methodological trap: probability-averaging across laterally asymmetric predictions can produce structurally degenerate metric values. We therefore propose three concrete alternative aggregation strategies, ordered from drop-in fixes that require no retraining to architectural changes that require a new model. Throughout, pL,pR∈ΔC−1 denote per-side probability vectors over C BI-RADS classes, yL,yR the per-side labels, and ypatient=max(yL,yR) the prevailing patient-level label.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2005-S3001",
+      "title": "Decision-level max-class (drop-in)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2005-S3001-p1",
+          "reference_ids": [],
+          "en": "Take the per-side argmax and aggregate at the label space:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2005-S3001-p2",
+          "reference_ids": [],
+          "en": "Patient-level performance is then evaluated as a C-class classification problem with predictions c^patient against ypatient, using accuracy, macro-F1, and per-class confusion matrices. AUC is sidestepped (or computed in a one-vs-rest fashion on a synthesized score, see (B)). This rule is the simplest fix because it requires no retraining and operates only on saved per-side outputs. It is the patient-level analogue of the binary max(pL,pR) rule we use for diagnosis and is consistent with the any-malignancy interpretation of ypatient.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2005-S3002",
+      "title": "Per-class max-pooling of probabilities (drop-in)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2005-S3002-p1",
+          "reference_ids": [],
+          "en": "Replace probability averaging with element-wise maximum:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2005-S3002-p2",
+          "reference_ids": [],
+          "en": "The resulting vector is generally unnormalized (and often super-stochastic), but it preserves the discriminative signal of whichever side is most confident in each class, which is precisely the semantics that a max-of-both-sides label requires. After re-normalising (divide by ∑cppatient[c]), one can compute one-vs-rest AUC against ypatient in the standard way. This is also a drop-in fix that requires only saved per-side outputs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2005-S3003",
+      "title": "Direct patient-level training",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2005-S3003-p1",
+          "reference_ids": [],
+          "en": "Treat ypatient=max(yL,yR) as the optimization target and add a dedicated patient-level head whose loss is CE(y^patient,ypatient) in addition to (or in place of) the per-side cross-entropies. This is the cleanest formulation because the metric and the loss are aligned, but it requires retraining. For ordinal targets such as BI-RADS, an ordinal-regression head (cumulative-link or proportional-odds parametrisation) over the patient-level label can further exploit the ordering of severity classes; we view this as the most promising direction for future work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2005-S3003-p2",
+          "reference_ids": [],
+          "en": "In all three cases, side-level metrics should continue to be reported alongside patient-level metrics, so that the contribution of the aggregation rule itself can be isolated from the discriminative ability of the underlying model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2006",
+      "title": "Class imbalance and clinical interpretability: a hidden confound",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2006-p1",
+          "reference_ids": [],
+          "en": "The CMMD four-view subset contains 679 malignant patients (96.2%) versus only 27 nonmalignant patients (3.8%). This extreme patient-level imbalance is intrinsic to the design of CMMD as a biopsy-confirmed enrichment cohort, not a screening cohort, and has several important consequences for interpreting our results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2006-p2",
+          "reference_ids": [],
+          "en": "First, the high AUC values (>0.95) at side level are partly sustained by the imbalance. The side-level distribution is near-balanced (48.3% malignant, 51.7% nonmalignant), but this apparent balance is misleading: the 683 normal-contralateral sides at BI-RADS 0 belong to patients whose other side is malignant. Models may learn to exploit correlations between bilateral views rather than truly distinguishing benign from malignant tissue.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2006-p3",
+          "reference_ids": [],
+          "en": "Second, the near-zero patient-level specificity (0.04–0.22 across all configurations) reveals that models have effectively learned to predict malignancy for every patient. With 96.2% of patients being malignant, this strategy yields 96% patient-level accuracy without any discriminative ability for the nonmalignant class. Our per-case analysis confirms this: all 27 nonmalignant patients are misclassified by most models (mean error rate 88.4%), while malignant patients have a mean error rate of only 12.9%.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2006-p4",
+          "reference_ids": [],
+          "en": "Third, and perhaps most importantly, this imbalance represents another dimension of the “how you measure” problem central to our paper. A study reporting side-level AUC of 0.97 appears to demonstrate strong performance, but the model cannot identify nonmalignant cases at the patient level. The contrast between the near-balanced side-level distribution and the extremely imbalanced patient-level distribution creates an additional layer of reporting ambiguity that compounds with the evaluation granularity effect.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2006-p5",
+          "reference_ids": [],
+          "en": "We emphasize that our relative comparisons between architectures remain valid: all models face identical class distributions, and the ranking of configurations is unaffected by prevalence. However, the absolute performance numbers should not be interpreted as evidence of clinical utility without careful consideration of the deployment prevalence, which in screening populations would be far lower than the 96.2% malignancy rate in this dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0006-S2006-p6",
+          "reference_ids": [
+            "t0003",
+            "CIT0003",
+            "CIT0006"
+          ],
+          "en": "To make the prevalence-shift implications concrete, consider a model with sensitivity 0.97 and specificity 0.10 on CMMD (a representative pattern in Table 3). Under the CMMD prior of 96.2% malignancy, the positive predictive value (PPV) is PPV=(0.97·0.962)/(0.97·0.962+0.90·0.038)=0.965, which trivially matches prevalence. Under a screening prior of 0.5% malignancy, the same operating point yields PPV=(0.97·0.005)/(0.97·0.005+0.90·0.995)=0.0054—i.e., only 0.5% of model-flagged patients would actually have malignancy. This is not a flaw of the model so much as a consequence of evaluating at a non-representative prior. The corollary is that AUC and sensitivity/specificity reported on CMMD characterize discriminative ability, not deployment value, and should not be cited as evidence that an AI system is ready for screening use; clinical validation under realistic prevalence is required, in line with the implementation challenges enumerated by Goh et al. [3] and the broader scoping review of Chia et al. [6]. Per-class metrics (sensitivity for the nonmalignant class, in addition to overall AUC) are essential when reporting on enriched cohorts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006-S2007",
+      "title": "Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-S2007-p1",
+          "reference_ids": [
+            "S0004-S2006-S3004",
+            "S0006-S2006"
+          ],
+          "en": "Our study has several limitations. First, the CMMD dataset is relatively small (∼700 four-view patients) and severely class-imbalanced at the patient level (96.2% malignant) as a consequence of being a biopsy-confirmed enrichment cohort rather than a screening cohort, which constrains both the statistical power of pairwise comparisons and the evaluation of specificity. Results may not generalize to larger or more balanced datasets where architectural differences could become significant and models could learn to reliably identify nonmalignant cases. Second, we use only ImageNet pretraining; domain-specific pretraining (e.g., on large mammography corpora) might change the backbone ranking. Third, our cross-view attention module uses a fixed architecture; task-specific attention designs might yield better results. Fourth, the five-fold CV protocol limits the minimum achievable p-value of the Wilcoxon signed-rank test to 0.0625; we have partly addressed this in the revised manuscript by adding DeLong’s paired AUC test and bootstrap CIs (Section 3.6.4, Supplementary Table S1), but a future replication should adopt ≥10-fold CV or repeated CV to obtain stronger fold-level p-values. Fifth, the extreme patient-level class imbalance means that no model in our benchmark achieves meaningful nonmalignant-class sensitivity, limiting the clinical conclusions that can be drawn from absolute performance metrics. Sixth, all images were resized to 384×384 to enable a fair like-for-like comparison across pretrained backbones, but this resolution may attenuate features at the scale of microcalcifications. We expect higher-resolution or multi-scale pipelines to improve absolute performance, although the side-vs-patient evaluation gap that is the central object of this paper is a property of the protocol and is not expected to depend on resolution. Seventh, the random horizontal flip in our augmentation pipeline was applied independently per view (rather than coherently per patient), which disrupts the left/right correspondence used by the bilateral fusion arm; this would tend to attenuate the bilateral-fusion benefit we report, so any advantage attributable to bilateral fusion in this benchmark is conservative. We recommend coherent flipping (or no flipping) in future work. Eighth, we have not benchmarked architectures with weakly supervised localization, multi-scale processing, or patch-based pipelines that are increasingly common in modern mammography AI; while these may change the absolute performance ceiling, none of them is expected to alter the side-vs-patient gap, the BI-RADS averaging incompatibility, or the prevalence-shift caveat developed in Section 5.6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0007",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0007-p1",
+          "reference_ids": [],
+          "en": "We have presented a systematic benchmark of deep learning models for four-view mammography classification, evaluating six backbone architectures, three multi-view fusion strategies, and two evaluation granularities on the CMMD dataset. Through 16 model configurations evaluated with five-fold stratified cross-validation on both binary diagnosis and five-class BI-RADS assessment tasks, we have identified several findings with significant implications for the field.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0007-S2001",
+      "title": "Summary of findings",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0007-S2001-p1",
+          "reference_ids": [],
+          "en": "The most consequential finding is that evaluation methodology matters more than model choice on this dataset. Side-level AUC exceeds patient-level AUC by 17.5% on average—a gap that dwarfs all architectural differences among CNNs (<3%) and represents the single largest source of variability in our benchmark, yet it reflects a reporting choice rather than a model property.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0007-S2001-p2",
+          "reference_ids": [],
+          "en": "At the architectural level, absolute CNN-vs-CNN AUC differences are small (≤0.030 on pooled per-case scores; the conservative 5-fold Wilcoxon test resolves none of them, while higher-power DeLong paired tests resolve approximately half), and the top five CNNs fall within 0.7% AUC of each other at side level. Meanwhile, ViT-B/16 substantially underperforms all CNN variants by approximately 9% AUC, consistent with the established observation that vision transformers require larger training sets than are typically available in medical imaging. The per-case analysis further reveals that ViT fails on a partially different patient population than CNNs (Jaccard overlap 0.29 vs. 0.42 for CNN-CNN pairs), suggesting architectural complementarity despite inferior individual performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0007-S2001-p3",
+          "reference_ids": [
+            "S0006-S2005"
+          ],
+          "en": "On the multi-class evaluation front, the prevailing patient-level aggregation rule for BI-RADS—probability averaging combined with the max-of-sides label—is mathematically incompatible with bilaterally asymmetric ground truth, and we therefore advise against using it as a basis for performance comparison; we propose three concrete alternatives in Section 5.5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0007-S2001-p4",
+          "reference_ids": [],
+          "en": "Two additional methodological concerns emerged from our analysis. Cross-validation proves essential, as single-fold AUC can vary by up to 15% for the same model configuration, meaning that studies relying on single train/test splits cannot provide reliable performance estimates. Furthermore, class imbalance creates a hidden confound: the four-view subset is 96.2% malignant at the patient level but near-balanced at the side level (48.3% malignant), yielding high side-level AUC (>0.95) despite effectively zero ability to identify nonmalignant patients (patient-level specificity <0.22 for all configurations). Per-case error analysis reveals that misclassification aligns with clinical severity—BI-RADS 4 malignant sides have only 8.7% error rate, while low-BI-RADS nonmalignant sides have 38–48% error rate—and no bilaterally nonmalignant patient is correctly classified by all 16 models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0007-S2002",
+      "title": "Recommendations for the community",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0007-S2002-p1",
+          "reference_ids": [
+            "S0004-S2006-S3003",
+            "S0006-S2005",
+            "S0006-S2006"
+          ],
+          "en": "Based on these findings, we propose several concrete recommendations for mammography classification research. First and foremost, all studies should report both side-level and patient-level metrics, clearly distinguishing between the two and identifying which is used for primary comparison; the patient-level metric should use a label/aggregation rule pair that is consistent with the clinical question being answered (Section 3.6.3). Single train/test splits are insufficient for reliable performance estimation on datasets of this scale, so a minimum of five-fold cross-validation should become standard practice, and AUC differences should be characterized by confidence intervals or DeLong-style paired tests rather than fold-level Wilcoxon alone. Researchers should also characterize class distributions at each evaluation level, since the contrast between side-level and patient-level class balance (51.7% vs. 3.8% nonmalignant in our study) can create misleading impressions of model capability. For multi-class bilateral tasks, decision-level aggregation or per-class max-pooling should replace probability-level averaging (see Section 5.5 for explicit formulas). Finally, specificity should be reported alongside AUC, because in highly imbalanced settings, overall AUC can mask a complete inability to identify the minority class—per-class performance metrics are essential for clinical interpretability, and absolute performance numbers reported on enriched cohorts such as CMMD should not be cited as evidence of clinical utility under screening prevalence (Section 5.6).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0007-S2003",
+      "title": "Future work",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0007-S2003-p1",
+          "reference_ids": [],
+          "en": "Several directions emerge from this work. First, evaluating these findings on larger and more balanced mammography datasets (e.g., VinDr-Mammo, DDSM) would determine whether architectural differences become significant at larger scale. Second, investigating class-imbalance mitigation strategies (oversampling, cost-sensitive learning, focal loss) could improve nonmalignant-class sensitivity. Third, the complementary error patterns between CNNs and ViT suggest that heterogeneous ensembles deserve investigation once sufficient data is available. Finally, developing standardized evaluation protocols—potentially as a community-agreed benchmark suite—would directly address the reporting inconsistencies identified in this work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0007-S2003-p2",
+          "reference_ids": [],
+          "en": "We release our complete benchmark code and per-fold, per-case predictions to support reproducibility and to enable the community to build upon these findings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec57",
+      "title": "Supplementary Material",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "Open Access funding provided by the Qatar National Library. The author acknowledges the use of Claude (Anthropic) for assistance with manuscript formatting and language checking. The author contributions reported in this manuscript follow the Contributor Roles Taxonomy (CRediT). M.A. Mabrok: conceptualization, methodology, software, formal analysis, investigation, data curation, writing – original draft, writing – review and editing, visualization, project administration, funding acquisition.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "funding-statement1",
+      "title": "Funding Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "funding-statement1-p1",
+          "reference_ids": [],
+          "en": "This work was supported by the International Research Collaboration Co-Fund (IRCC) between Qatar University and the University of Hyogo (Grant No. IRCC-2025-633).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0009",
+      "title": "Disclosure statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0009-p1",
+          "reference_ids": [],
+          "en": "The author reports no conflicts of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0010",
+      "title": "Data availability statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0010-p1",
+          "reference_ids": [],
+          "en": "The CMMD dataset is publicly available through The Cancer Imaging Archive. The complete benchmark code (benchmark_mammography.py), the post-hoc reanalysis script used in this revision (bootstrap_and_delong.py), and the per-fold and per-case predictions for all 16 configurations on both tasks are publicly available at https://github.com/Minds-R-Lab/side-vs-patient-mammography under the MIT license, with a README documenting how to reproduce every table, figure, and statistical test in this manuscript. A Zenodo DOI for archival citation will be minted prior to camera-ready publication.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ref-list1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ref-list1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "The CMMD dataset is publicly available through The Cancer Imaging Archive. The complete benchmark code (benchmark_mammography.py), the post-hoc reanalysis script used in this revision (bootstrap_and_delong.py), and the per-fold and per-case predictions for all 16 configurations on both tasks are publicly available at https://github.com/Minds-R-Lab/side-vs-patient-mammography under the MIT license, with a README documenting how to reproduce every table, figure, and statistical test in this manuscript. A Zenodo DOI for archival citation will be minted prior to camera-ready publication.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "t0001",
+      "label": "Table 1.",
+      "caption": "Side-level cross-tabulation of diagnosis labels (rows) and BI-RADS categories (columns).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "BR-0",
+          "BR-1",
+          "BR-2",
+          "BR-3",
+          "BR-4",
+          "Total"
+        ],
+        [
+          "Benign",
+          "683",
+          "16",
+          "26",
+          "5",
+          "0",
+          "730"
+        ],
+        [
+          "Malignant",
+          "0",
+          "0",
+          "60",
+          "220",
+          "402",
+          "682"
+        ],
+        [
+          "Total",
+          "683",
+          "16",
+          "86",
+          "225",
+          "402",
+          "1412"
+        ]
+      ],
+      "footnotes": "Each cell shows the number of breast sides.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"t0001\" position=\"float\"><label>Table 1.</label><caption><p>Side-level cross-tabulation of diagnosis labels (rows) and BI-RADS categories (columns).</p></caption><table frame=\"hsides\" rules=\"groups\"><colgroup span=\"1\"><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\"> </th><th align=\"center\" colspan=\"1\" rowspan=\"1\">BR-0</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">BR-1</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">BR-2</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">BR-3</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">BR-4</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Total</th></tr></thead><tbody valign=\"top\"><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Benign</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">683</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">16</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">26</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">5</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">730</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Malignant</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">60</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">220</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">402</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">682</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Total</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">683</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">16</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">86</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">225</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">402</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">1412</td></tr></tbody></table><table-wrap-foot><fn id=\"TF1\"><p>Each cell shows the number of breast sides.</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "t0003",
+      "label": "Table 3.",
+      "caption": "Binary diagnosis results at patient level (5-fold CV, mean ± std).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Backbone",
+          "Fusion",
+          "AUC",
+          "ACC",
+          "F1",
+          "Sens.",
+          "Spec."
+        ],
+        [
+          "ResNet-18",
+          "Concat",
+          ".812 ± .044",
+          ".939",
+          ".967",
+          ".969",
+          ".180"
+        ],
+        [
+          "ResNet-18",
+          "Bilateral",
+          ".761 ± .126",
+          ".932",
+          ".964",
+          ".968",
+          ".040"
+        ],
+        [
+          "ResNet-18",
+          "Crossview",
+          ".792 ± .084",
+          ".941",
+          ".969",
+          ".973",
+          ".113"
+        ],
+        [
+          "ResNet-50",
+          "Concat",
+          ".816 ± .068",
+          ".915",
+          ".956",
+          ".944",
+          ".173"
+        ],
+        [
+          "ResNet-50",
+          "Bilateral",
+          ".796 ± .062",
+          ".919",
+          ".957",
+          ".951",
+          ".100"
+        ],
+        [
+          "ResNet-50",
+          "Crossview",
+          ".795 ± .082",
+          ".938",
+          ".967",
+          ".969",
+          ".160"
+        ],
+        [
+          "EffNet-B0",
+          "Concat",
+          ".799 ± .099",
+          ".933",
+          ".965",
+          ".968",
+          ".080"
+        ],
+        [
+          "EffNet-B0",
+          "Bilateral",
+          ".842 ± .077",
+          ".936",
+          ".967",
+          ".969",
+          ".113"
+        ],
+        [
+          "DenseNet-121",
+          "Concat",
+          ".749 ± .100",
+          ".958",
+          ".978",
+          ".991",
+          ".107"
+        ],
+        [
+          "DenseNet-121",
+          "Bilateral",
+          ".805 ± .045",
+          ".938",
+          ".968",
+          ".972",
+          ".080"
+        ],
+        [
+          "DenseNet-121",
+          "Crossview",
+          ".766 ± .096",
+          ".936",
+          ".967",
+          ".969",
+          ".100"
+        ],
+        [
+          "ConvNeXt-T",
+          "Concat",
+          ".751 ± .071",
+          ".905",
+          ".950",
+          ".932",
+          ".220"
+        ],
+        [
+          "ConvNeXt-T",
+          "Bilateral",
+          ".773 ± .135",
+          ".932",
+          ".964",
+          ".965",
+          ".107"
+        ],
+        [
+          "ViT-B/16",
+          "Concat",
+          ".670 ± .099",
+          ".928",
+          ".961",
+          ".962",
+          ".073"
+        ],
+        [
+          "ViT-B/16",
+          "Bilateral",
+          ".692 ± .100",
+          ".941",
+          ".969",
+          ".972",
+          ".147"
+        ],
+        [
+          "ViT-B/16",
+          "Crossview",
+          ".707 ± .069",
+          ".919",
+          ".957",
+          ".954",
+          ".033"
+        ]
+      ],
+      "footnotes": "AUC and side-level metrics are unchanged from the previous version. ACC, F1, sensitivity, and specificity were recomputed from the saved per-case predictions using y^patient=1[max(pL,pR)>0.5] against ypatient=max(yL,yR) .",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"t0003\" position=\"float\"><label>Table 3.</label><caption><p>Binary diagnosis results at patient level (5-fold CV, mean <inline-formula id=\"ilm0175\">\n<ns0:math id=\"MATH0117\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula> std).</p></caption><table frame=\"hsides\" rules=\"groups\"><colgroup span=\"1\"><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Backbone</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Fusion</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">AUC</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">ACC</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">F1</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Sens.</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Spec.</th></tr></thead><tbody valign=\"top\"><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.812<inline-formula id=\"ilm0176\">\n<ns0:math id=\"MATH0118\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.044</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.939</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.180</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.761<inline-formula id=\"ilm0177\">\n<ns0:math id=\"MATH0119\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.126</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.932</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.964</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.968</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.040</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.792<inline-formula id=\"ilm0178\">\n<ns0:math id=\"MATH0120\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.084</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.941</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.973</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.113</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.816<inline-formula id=\"ilm0179\">\n<ns0:math id=\"MATH0121\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.068</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.915</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.956</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.944</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.173</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.796<inline-formula id=\"ilm0180\">\n<ns0:math id=\"MATH0122\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.062</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.919</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.957</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.951</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.100</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.795<inline-formula id=\"ilm0181\">\n<ns0:math id=\"MATH0123\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.082</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.938</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.160</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.799<inline-formula id=\"ilm0182\">\n<ns0:math id=\"MATH0124\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.099</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.933</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.965</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.968</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.080</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.842<inline-formula id=\"ilm0183\">\n<ns0:math id=\"MATH0125\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.077</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.936</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.113</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.749<inline-formula id=\"ilm0184\">\n<ns0:math id=\"MATH0126\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.100</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.958</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.978</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.991</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.107</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.805<inline-formula id=\"ilm0185\">\n<ns0:math id=\"MATH0127\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.045</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.938</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.968</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.972</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.080</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.766<inline-formula id=\"ilm0186\">\n<ns0:math id=\"MATH0128\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.096</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.936</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.100</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ConvNeXt-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.751<inline-formula id=\"ilm0187\">\n<ns0:math id=\"MATH0129\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.071</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.905</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.950</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.932</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.220</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ConvNeXt-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.773<inline-formula id=\"ilm0188\">\n<ns0:math id=\"MATH0130\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.135</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.932</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.964</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.965</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.107</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.670<inline-formula id=\"ilm0189\">\n<ns0:math id=\"MATH0131\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.099</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.928</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.961</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.962</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.073</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.692<inline-formula id=\"ilm0190\">\n<ns0:math id=\"MATH0132\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.100</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.941</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.972</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.147</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.707<inline-formula id=\"ilm0191\">\n<ns0:math id=\"MATH0133\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.069</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.919</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.957</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.954</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.033</td></tr></tbody></table><table-wrap-foot><fn id=\"TF3\"><p>AUC and side-level metrics are unchanged from the previous version. ACC, F1, sensitivity, and specificity were recomputed from the saved per-case predictions using <inline-formula id=\"ilm0192\">\n<ns0:math id=\"MATH0134\" display=\"inline\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mtext>patient</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mstyle mathvariant=\"bold\" mathsize=\"normal\"><ns0:mn>1</ns0:mn></ns0:mstyle><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mtext>max</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>L</ns0:mi></ns0:msub></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>R</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo><ns0:mo>&gt;</ns0:mo><ns0:mn>0.5</ns0:mn><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula> against <inline-formula id=\"ilm0193\">\n<ns0:math id=\"MATH0135\" display=\"inline\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>patient</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mtext mathvariant=\"normal\">max</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mi>L</ns0:mi></ns0:msub></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mi>R</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "t0002",
+      "label": "Table 2.",
+      "caption": "Binary diagnosis results at side level (5-fold CV, mean ± std).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Backbone",
+          "Fusion",
+          "AUC",
+          "ACC",
+          "F1",
+          "Sens.",
+          "Spec."
+        ],
+        [
+          "ResNet-18",
+          "Concat",
+          ".957 ± .012",
+          ".901 ± .023",
+          ".901 ± .023",
+          ".896 ± .024",
+          ".905 ± .026"
+        ],
+        [
+          "ResNet-18",
+          "Bilateral",
+          ".963 ± .011",
+          ".893 ± .020",
+          ".893 ± .020",
+          ".890 ± .023",
+          ".896 ± .018"
+        ],
+        [
+          "ResNet-18",
+          "Crossview",
+          ".960 ± .011",
+          ".897 ± .013",
+          ".897 ± .013",
+          ".896 ± .019",
+          ".899 ± .013"
+        ],
+        [
+          "ResNet-50",
+          "Concat",
+          ".967 ± .015",
+          ".900 ± .035",
+          ".900 ± .035",
+          ".883 ± .038",
+          ".916 ± .032"
+        ],
+        [
+          "ResNet-50",
+          "Bilateral",
+          ".973 ± .007",
+          ".914 ± .017",
+          ".913 ± .017",
+          ".902 ± .029",
+          ".925 ± .013"
+        ],
+        [
+          "ResNet-50",
+          "Crossview",
+          ".958 ± .010",
+          ".887 ± .025",
+          ".887 ± .025",
+          ".884 ± .027",
+          ".889 ± .026"
+        ],
+        [
+          "EffNet-B0",
+          "Concat",
+          ".962 ± .015",
+          ".895 ± .020",
+          ".895 ± .021",
+          ".893 ± .028",
+          ".897 ± .015"
+        ],
+        [
+          "EffNet-B0",
+          "Bilateral",
+          ".969 ± .012",
+          ".905 ± .025",
+          ".905 ± .025",
+          ".902 ± .029",
+          ".908 ± .023"
+        ],
+        [
+          "DenseNet-121",
+          "Concat",
+          ".950 ± .014",
+          ".876 ± .024",
+          ".876 ± .024",
+          ".883 ± .024",
+          ".870 ± .024"
+        ],
+        [
+          "DenseNet-121",
+          "Bilateral",
+          ".964 ± .013",
+          ".904 ± .020",
+          ".904 ± .020",
+          ".905 ± .030",
+          ".904 ± .012"
+        ],
+        [
+          "DenseNet-121",
+          "Crossview",
+          ".963 ± .016",
+          ".911 ± .024",
+          ".911 ± .024",
+          ".908 ± .025",
+          ".914 ± .027"
+        ],
+        [
+          "ConvNeXt-T",
+          "Concat",
+          ".975 ± .008",
+          ".915 ± .009",
+          ".915 ± .009",
+          ".891 ± .014",
+          ".937 ± .011"
+        ],
+        [
+          "ConvNeXt-T",
+          "Bilateral",
+          ".950 ± .059",
+          ".891 ± .062",
+          ".891 ± .063",
+          ".886 ± .068",
+          ".896 ± .059"
+        ],
+        [
+          "ViT-B/16",
+          "Concat",
+          ".879 ± .030",
+          ".804 ± .028",
+          ".804 ± .028",
+          ".795 ± .029",
+          ".812 ± .027"
+        ],
+        [
+          "ViT-B/16",
+          "Bilateral",
+          ".880 ± .049",
+          ".783 ± .058",
+          ".782 ± .058",
+          ".776 ± .059",
+          ".789 ± .056"
+        ],
+        [
+          "ViT-B/16",
+          "Crossview",
+          ".864 ± .042",
+          ".776 ± .040",
+          ".776 ± .041",
+          ".763 ± .050",
+          ".789 ± .032"
+        ]
+      ],
+      "footnotes": "Best result per metric in bold.",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"t0002\" position=\"float\"><label>Table 2.</label><caption><p>Binary diagnosis results at side level (5-fold CV, mean <inline-formula id=\"ilm0094\">\n<ns0:math id=\"MATH0032\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula> std).</p></caption><table frame=\"hsides\" rules=\"groups\"><colgroup span=\"1\"><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Backbone</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Fusion</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">AUC</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">ACC</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">F1</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Sens.</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Spec.</th></tr></thead><tbody valign=\"top\"><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.957<inline-formula id=\"ilm0095\">\n<ns0:math id=\"MATH0033\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.012</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.901<inline-formula id=\"ilm0096\">\n<ns0:math id=\"MATH0034\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.023</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.901<inline-formula id=\"ilm0097\">\n<ns0:math id=\"MATH0035\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.023</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.896<inline-formula id=\"ilm0098\">\n<ns0:math id=\"MATH0036\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.905<inline-formula id=\"ilm0099\">\n<ns0:math id=\"MATH0037\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.026</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.963<inline-formula id=\"ilm0100\">\n<ns0:math id=\"MATH0038\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.011</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.893<inline-formula id=\"ilm0101\">\n<ns0:math id=\"MATH0039\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.020</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.893<inline-formula id=\"ilm0102\">\n<ns0:math id=\"MATH0040\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.020</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.890<inline-formula id=\"ilm0103\">\n<ns0:math id=\"MATH0041\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.023</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.896<inline-formula id=\"ilm0104\">\n<ns0:math id=\"MATH0042\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.018</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.960<inline-formula id=\"ilm0105\">\n<ns0:math id=\"MATH0043\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.011</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.897<inline-formula id=\"ilm0106\">\n<ns0:math id=\"MATH0044\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.013</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.897<inline-formula id=\"ilm0107\">\n<ns0:math id=\"MATH0045\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.013</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.896<inline-formula id=\"ilm0108\">\n<ns0:math id=\"MATH0046\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.019</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.899<inline-formula id=\"ilm0109\">\n<ns0:math id=\"MATH0047\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.013</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967<inline-formula id=\"ilm0110\">\n<ns0:math id=\"MATH0048\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.015</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.900<inline-formula id=\"ilm0111\">\n<ns0:math id=\"MATH0049\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.035</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.900<inline-formula id=\"ilm0112\">\n<ns0:math id=\"MATH0050\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.035</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.883<inline-formula id=\"ilm0113\">\n<ns0:math id=\"MATH0051\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.038</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.916<inline-formula id=\"ilm0114\">\n<ns0:math id=\"MATH0052\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.032</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.973<inline-formula id=\"ilm0115\">\n<ns0:math id=\"MATH0053\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.007</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.914<inline-formula id=\"ilm0116\">\n<ns0:math id=\"MATH0054\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.017</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.913<inline-formula id=\"ilm0117\">\n<ns0:math id=\"MATH0055\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.017</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.902<inline-formula id=\"ilm0118\">\n<ns0:math id=\"MATH0056\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.029</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.925<inline-formula id=\"ilm0119\">\n<ns0:math id=\"MATH0057\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.013</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.958<inline-formula id=\"ilm0120\">\n<ns0:math id=\"MATH0058\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.010</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.887<inline-formula id=\"ilm0121\">\n<ns0:math id=\"MATH0059\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.025</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.887<inline-formula id=\"ilm0122\">\n<ns0:math id=\"MATH0060\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.025</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.884<inline-formula id=\"ilm0123\">\n<ns0:math id=\"MATH0061\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.027</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.889<inline-formula id=\"ilm0124\">\n<ns0:math id=\"MATH0062\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.026</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.962<inline-formula id=\"ilm0125\">\n<ns0:math id=\"MATH0063\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.015</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.895<inline-formula id=\"ilm0126\">\n<ns0:math id=\"MATH0064\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.020</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.895<inline-formula id=\"ilm0127\">\n<ns0:math id=\"MATH0065\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.021</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.893<inline-formula id=\"ilm0128\">\n<ns0:math id=\"MATH0066\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.028</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.897<inline-formula id=\"ilm0129\">\n<ns0:math id=\"MATH0067\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.015</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969<inline-formula id=\"ilm0130\">\n<ns0:math id=\"MATH0068\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.012</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.905<inline-formula id=\"ilm0131\">\n<ns0:math id=\"MATH0069\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.025</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.905<inline-formula id=\"ilm0132\">\n<ns0:math id=\"MATH0070\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.025</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.902<inline-formula id=\"ilm0133\">\n<ns0:math id=\"MATH0071\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.029</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.908<inline-formula id=\"ilm0134\">\n<ns0:math id=\"MATH0072\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.023</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.950<inline-formula id=\"ilm0135\">\n<ns0:math id=\"MATH0073\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.014</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.876<inline-formula id=\"ilm0136\">\n<ns0:math id=\"MATH0074\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.876<inline-formula id=\"ilm0137\">\n<ns0:math id=\"MATH0075\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.883<inline-formula id=\"ilm0138\">\n<ns0:math id=\"MATH0076\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.870<inline-formula id=\"ilm0139\">\n<ns0:math id=\"MATH0077\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.964<inline-formula id=\"ilm0140\">\n<ns0:math id=\"MATH0078\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.013</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.904<inline-formula id=\"ilm0141\">\n<ns0:math id=\"MATH0079\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.020</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.904<inline-formula id=\"ilm0142\">\n<ns0:math id=\"MATH0080\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.020</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.905<inline-formula id=\"ilm0143\">\n<ns0:math id=\"MATH0081\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.030</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.904<inline-formula id=\"ilm0144\">\n<ns0:math id=\"MATH0082\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.012</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.963<inline-formula id=\"ilm0145\">\n<ns0:math id=\"MATH0083\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.016</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.911<inline-formula id=\"ilm0146\">\n<ns0:math id=\"MATH0084\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.911<inline-formula id=\"ilm0147\">\n<ns0:math id=\"MATH0085\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.024</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.908<inline-formula id=\"ilm0148\">\n<ns0:math id=\"MATH0086\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.025</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.914<inline-formula id=\"ilm0149\">\n<ns0:math id=\"MATH0087\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.027</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ConvNeXt-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">\n<bold>.975</bold>\n<inline-formula id=\"ilm0150\">\n<ns0:math id=\"MATH0088\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>\n<bold>.008</bold>\n</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.<bold>915</bold><inline-formula id=\"ilm0151\">\n<ns0:math id=\"MATH0089\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula><bold>.009</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\">\n<bold>.915</bold>\n<inline-formula id=\"ilm0152\">\n<ns0:math id=\"MATH0090\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>\n<bold>.009</bold>\n</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">\n<bold>.891</bold>\n<inline-formula id=\"ilm0153\">\n<ns0:math id=\"MATH0091\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>\n<bold>.014</bold>\n</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">\n<bold>.937</bold>\n<inline-formula id=\"ilm0154\">\n<ns0:math id=\"MATH0092\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>\n<bold>.011</bold>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ConvNeXt-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.950<inline-formula id=\"ilm0155\">\n<ns0:math id=\"MATH0093\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.059</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.891<inline-formula id=\"ilm0156\">\n<ns0:math id=\"MATH0094\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.062</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.891<inline-formula id=\"ilm0157\">\n<ns0:math id=\"MATH0095\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.063</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.886<inline-formula id=\"ilm0158\">\n<ns0:math id=\"MATH0096\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.068</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.896<inline-formula id=\"ilm0159\">\n<ns0:math id=\"MATH0097\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.059</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.879<inline-formula id=\"ilm0160\">\n<ns0:math id=\"MATH0098\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.030</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.804<inline-formula id=\"ilm0161\">\n<ns0:math id=\"MATH0099\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.028</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.804<inline-formula id=\"ilm0162\">\n<ns0:math id=\"MATH0100\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.028</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.795<inline-formula id=\"ilm0163\">\n<ns0:math id=\"MATH0101\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.029</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.812<inline-formula id=\"ilm0164\">\n<ns0:math id=\"MATH0102\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.027</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.880<inline-formula id=\"ilm0165\">\n<ns0:math id=\"MATH0103\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.049</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.783<inline-formula id=\"ilm0166\">\n<ns0:math id=\"MATH0104\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.058</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.782<inline-formula id=\"ilm0167\">\n<ns0:math id=\"MATH0105\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.058</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.776<inline-formula id=\"ilm0168\">\n<ns0:math id=\"MATH0106\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.059</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.789<inline-formula id=\"ilm0169\">\n<ns0:math id=\"MATH0107\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.056</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.864<inline-formula id=\"ilm0170\">\n<ns0:math id=\"MATH0108\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.042</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.776<inline-formula id=\"ilm0171\">\n<ns0:math id=\"MATH0109\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.040</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.776<inline-formula id=\"ilm0172\">\n<ns0:math id=\"MATH0110\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.041</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.763<inline-formula id=\"ilm0173\">\n<ns0:math id=\"MATH0111\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.050</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.789<inline-formula id=\"ilm0174\">\n<ns0:math id=\"MATH0112\" display=\"inline\"><ns0:mrow><ns0:mo>±</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula>.032</td></tr></tbody></table><table-wrap-foot><fn id=\"TF2\"><p>Best result per metric in bold.</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "t0004",
+      "label": "Table 4.",
+      "caption": "Side-level vs. patient-level AUC gap for binary diagnosis.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Backbone",
+          "Fusion",
+          "Side",
+          "Patient",
+          "Δ"
+        ],
+        [
+          "EffNet-B0",
+          "Bilateral",
+          ".969",
+          ".842",
+          "+.127"
+        ],
+        [
+          "RN-18",
+          "Concat",
+          ".957",
+          ".812",
+          "+.145"
+        ],
+        [
+          "RN-50",
+          "Concat",
+          ".967",
+          ".816",
+          "+.151"
+        ],
+        [
+          "RN-50",
+          "Crossview",
+          ".958",
+          ".795",
+          "+.163"
+        ],
+        [
+          "DN-121",
+          "Bilateral",
+          ".964",
+          ".805",
+          "+.159"
+        ],
+        [
+          "EffNet-B0",
+          "Concat",
+          ".962",
+          ".799",
+          "+.162"
+        ],
+        [
+          "RN-18",
+          "Crossview",
+          ".960",
+          ".792",
+          "+.168"
+        ],
+        [
+          "RN-50",
+          "Bilateral",
+          ".973",
+          ".796",
+          "+.176"
+        ],
+        [
+          "CNX-T",
+          "Bilateral",
+          ".950",
+          ".773",
+          "+.177"
+        ],
+        [
+          "ViT-B/16",
+          "Bilateral",
+          ".880",
+          ".692",
+          "+.188"
+        ],
+        [
+          "DN-121",
+          "Crossview",
+          ".963",
+          ".766",
+          "+.197"
+        ],
+        [
+          "DN-121",
+          "Concat",
+          ".950",
+          ".749",
+          "+.201"
+        ],
+        [
+          "RN-18",
+          "Bilateral",
+          ".963",
+          ".761",
+          "+.202"
+        ],
+        [
+          "ViT-B/16",
+          "Concat",
+          ".879",
+          ".670",
+          "+.209"
+        ],
+        [
+          "CNX-T",
+          "Concat",
+          ".975",
+          ".751",
+          "+.224"
+        ],
+        [
+          "ViT-B/16",
+          "Crossview",
+          ".864",
+          ".707",
+          "+.156"
+        ],
+        [
+          "Average",
+          ".946",
+          ".770",
+          "+.175"
+        ]
+      ],
+      "footnotes": "Δ = side − patient.",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"t0004\" position=\"float\"><label>Table 4.</label><caption><p>Side-level vs. patient-level AUC gap for binary diagnosis.</p></caption><table frame=\"hsides\" rules=\"groups\"><colgroup span=\"1\"><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Backbone</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Fusion</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Side</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Patient</th><th align=\"center\" colspan=\"1\" rowspan=\"1\"> <inline-formula id=\"ilm0194\">\n<ns0:math id=\"MATH0143\" display=\"inline\"><ns0:mrow><ns0:mi>Δ</ns0:mi></ns0:mrow></ns0:math>\n</inline-formula></th></tr></thead><tbody valign=\"top\"><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.969</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.842</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.127</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.957</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.812</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.145</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.967</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.816</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.151</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.958</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.795</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.163</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DN-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.964</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.805</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.159</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EffNet-B0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.962</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.799</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.162</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.960</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.792</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.168</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-50</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.973</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.796</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.176</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">CNX-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.950</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.773</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.177</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.880</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.692</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.188</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DN-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.963</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.766</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.197</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DN-121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.950</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.749</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.201</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">RN-18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bilateral</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.963</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.761</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.202</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.879</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.670</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.209</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">CNX-T</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Concat</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.975</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.751</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.224</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT-B/16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Crossview</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.864</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.707</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.156</td></tr><tr><td colspan=\"2\" align=\"left\" rowspan=\"1\">Average</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.946</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">.770</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">+.175</td></tr></tbody></table><table-wrap-foot><fn id=\"TF4\"><p><inline-formula id=\"ilm0195\">\n<ns0:math id=\"MATH0144\" display=\"inline\"><ns0:mrow><ns0:mo>Δ</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula> = side <inline-formula id=\"ilm0196\">\n<ns0:math id=\"MATH0145\" display=\"inline\"><ns0:mrow><ns0:mo>−</ns0:mo></ns0:mrow></ns0:math>\n</inline-formula> patient.</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "F0001",
+      "label": "Figure 1.",
+      "caption": "Overview of the evaluation pipeline. Inputs (blue) flow through preprocessing and fold assignment (orange), the shared backbone, one of three fusion strategies, and the shared dual-head classifier; outputs are summarized at both the side and patient level (green). All four views of a patient share a fold by construction.",
+      "caption_zh": "",
+      "graphics": [
+        "IFSO_A_2681575_F0001_C.jpg",
+        "IFSO_A_2681575_F0001_C.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0002",
+      "label": "Figure 2.",
+      "caption": "Side-level AUC vs. patient-level AUC for all configurations (diagnosis task). All points fall well below the y=x line, demonstrating systematic inflation of side-level metrics. Error bars show ±1 std across 5 folds.",
+      "caption_zh": "",
+      "graphics": [
+        "IFSO_A_2681575_F0002_C.jpg",
+        "IFSO_A_2681575_F0002_C.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0003",
+      "label": "Figure 3.",
+      "caption": "Side-level (left) and patient-level (right) AUC by backbone and fusion strategy for binary diagnosis. CNN backbones cluster tightly at side level; patient-level reveals greater variance.",
+      "caption_zh": "",
+      "graphics": [
+        "IFSO_A_2681575_F0003_C.jpg",
+        "IFSO_A_2681575_F0003_C.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0004",
+      "label": "Figure 4.",
+      "caption": "Distribution of AUC across 5 folds. Left: side-level, right: patient-level. Note the wider spread at patient level and the catastrophic fold for ConvNeXt-Tiny bilateral.",
+      "caption_zh": "",
+      "graphics": [
+        "IFSO_A_2681575_F0004_C.jpg",
+        "IFSO_A_2681575_F0004_C.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "M0001",
+      "text": "(1)fleft=fL_CC+fL_MLO2, fright=fR_CC+fR_MLO2",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0001\"><label>(1)</label><ns0:math id=\"MATH0012\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>left</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mrow><ns0:mfrac><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">L</ns0:mi><ns0:mo>_</ns0:mo><ns0:mtext>CC</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">L</ns0:mi><ns0:mo>_</ns0:mo><ns0:mtext>MLO</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow></ns0:mrow><ns0:mn>2</ns0:mn></ns0:mfrac></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mo> </ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>right</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mrow><ns0:mfrac><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">R</ns0:mi><ns0:mo>_</ns0:mo><ns0:mtext>CC</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">R</ns0:mi><ns0:mo>_</ns0:mo><ns0:mtext>MLO</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow></ns0:mrow><ns0:mn>2</ns0:mn></ns0:mfrac></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "M0002",
+      "text": "(2)fasym=|fleft−fright|",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0002\"><label>(2)</label><ns0:math id=\"MATH0013\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>asym</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mo>|</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>left</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>−</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">f</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>right</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>|</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "M0003",
+      "text": "(3)fv′=LayerNorm(fv+MHA(fv,fv))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0003\"><label>(3)</label><ns0:math id=\"MATH0015\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mstyle mathvariant=\"bold\" mathsize=\"normal\"><ns0:mi>f</ns0:mi></ns0:mstyle><ns0:mi>v</ns0:mi><ns0:mo>′</ns0:mo></ns0:msubsup></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mtext>LayerNorm</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mstyle mathvariant=\"bold\" mathsize=\"normal\"><ns0:mi>f</ns0:mi></ns0:mstyle><ns0:mi>v</ns0:mi></ns0:msub></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mtext>MHA</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mstyle mathvariant=\"bold\" mathsize=\"normal\"><ns0:mi>f</ns0:mi></ns0:mstyle><ns0:mi>v</ns0:mi></ns0:msub></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mrow><ns0:msub><ns0:mstyle mathvariant=\"bold\" mathsize=\"normal\"><ns0:mi>f</ns0:mi></ns0:mstyle><ns0:mi>v</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "M0004",
+      "text": "(4)L=CE(y^left,yleft)+CE(y^right,yright)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0004\"><label>(4)</label><ns0:math id=\"MATH0019\" display=\"block\"><ns0:mrow><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mo>=</ns0:mo><ns0:mtext>CE</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mtext>left</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>left</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo><ns0:mo>+</ns0:mo><ns0:mtext>CE</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mtext>right</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>right</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "M0005",
+      "text": "(5)c^patient = maxargmaxc pLc, argmaxc pRc.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0005\"><label>(5)</label><ns0:math id=\"MATH0178\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:mrow><ns0:mi>c</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mtext>patient</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo> </ns0:mo><ns0:mo>=</ns0:mo><ns0:mtext> max</ns0:mtext><ns0:mfenced open=\"(\" close=\")\"><ns0:mrow><ns0:mtext>arg</ns0:mtext><ns0:mrow><ns0:munder><ns0:mrow><ns0:mtext>max</ns0:mtext></ns0:mrow><ns0:mi>c</ns0:mi></ns0:munder></ns0:mrow><ns0:mo> </ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>L</ns0:mi></ns0:msub></ns0:mrow><ns0:mfenced close=\"]\" open=\"[\"><ns0:mi>c</ns0:mi></ns0:mfenced><ns0:mo>,</ns0:mo><ns0:mtext> arg</ns0:mtext><ns0:mrow><ns0:munder><ns0:mrow><ns0:mtext>max</ns0:mtext></ns0:mrow><ns0:mi>c</ns0:mi></ns0:munder></ns0:mrow><ns0:mo> </ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>R</ns0:mi></ns0:msub></ns0:mrow><ns0:mfenced close=\"]\" open=\"[\"><ns0:mi>c</ns0:mi></ns0:mfenced></ns0:mrow></ns0:mfenced><ns0:mo>.</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "M0006",
+      "text": "(6)ppatient[c] = max(pL[c], pR[c]), c=1,…,C.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"M0006\"><label>(6)</label><ns0:math id=\"MATH0183\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mrow><ns0:mtext>patient</ns0:mtext></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">[</ns0:mo><ns0:mi>c</ns0:mi><ns0:mo stretchy=\"true\">]</ns0:mo><ns0:mtext>\n</ns0:mtext><ns0:mo>=</ns0:mo><ns0:mtext>\n</ns0:mtext><ns0:mtext mathvariant=\"normal\">max</ns0:mtext><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>L</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">[</ns0:mo><ns0:mi>c</ns0:mi><ns0:mo stretchy=\"true\">]</ns0:mo><ns0:mo>,</ns0:mo><ns0:mtext>\n</ns0:mtext><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>p</ns0:mi></ns0:mrow><ns0:mi>R</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">[</ns0:mo><ns0:mi>c</ns0:mi><ns0:mo stretchy=\"true\">]</ns0:mo></ns0:mrow><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mo> </ns0:mo><ns0:mi>c</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo>,</ns0:mo><ns0:mo>…</ns0:mo><ns0:mo>,</ns0:mo><ns0:mi>C</ns0:mi><ns0:mo>.</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CIT1001",
+      "text": "Please insert the following note immediately below the References heading (before reference [1]): Papers of special note have been highlighted as either of interest (•) or of considerable interest (••) to readers.",
+      "doi": []
+    },
+    {
+      "id": "CIT0001",
+      "text": "1.• • Shen L, Margolies LR, Rothstein JH, et al. Deep learning to improve breast cancer detection on screening mammography. Sci Rep. 2019;9(1):12495. doi: 10.1038/s41598-019-48995-4",
+      "doi": []
+    },
+    {
+      "id": "CIT0002",
+      "text": "2.McKinney SM, Sieniek M, Godbole V, et al. International evaluation of an AI system for breast cancer screening. Nature. 2020;577(7788):89–94. doi: 10.1038/s41586-019-1799-6",
+      "doi": []
+    },
+    {
+      "id": "CIT0003",
+      "text": "3.• • Goh S, Goh RSJ, Chong B, et al. Challenges in implementing artificial intelligence in breast cancer screening programs: systematic review and framework for safe adoption. J Med Internet Res. 2025;27:e62941. doi: 10.2196/62941",
+      "doi": []
+    },
+    {
+      "id": "CIT0004",
+      "text": "4.• • Wu N, Phang J, Park J, et al. Deep neural networks improve radiologists’ performance in breast cancer screening. IEEE Trans Med Imaging. 2020;39(4):1184–1194. doi: 10.1109/TMI.2019.2945514",
+      "doi": []
+    },
+    {
+      "id": "CIT0005",
+      "text": "5.Shu X, Zhang L, Wang Z, et al. Deep neural networks with region-based pooling structures for mammographic image classification. IEEE Trans Med Imaging. 2020;39(6):2246–2255. doi: 10.1109/TMI.2020.2968397",
+      "doi": []
+    },
+    {
+      "id": "CIT0006",
+      "text": "6.• Chia JLL, He GS, Ngiam KY, et al. Harnessing artificial intelligence to enhance global breast cancer care: a scoping review of applications, outcomes, and challenges. Cancers (Basel). 2025;17(2):197. doi: 10.3390/cancers17020197",
+      "doi": []
+    },
+    {
+      "id": "CIT0007",
+      "text": "7.Arevalo J, González FA, Ramos-Pollán R, et al. Representation learning for mammography mass lesion classification with convolutional neural networks. Comput Methods Programs Biomed. 2016;127:248–257. doi: 10.1016/j.cmpb.2015.12.014",
+      "doi": []
+    },
+    {
+      "id": "CIT0008",
+      "text": "8.Shen Y, Wu N, Phang J, et al. An interpretable classifier for high-resolution breast cancer screening images utilizing weakly supervised localization. Med Image Anal. 2021;68:101908. doi: 10.1016/j.media.2020.101908",
+      "doi": []
+    },
+    {
+      "id": "CIT0009",
+      "text": "9.Li C, Xu J, Liu Q, et al. Multi-view mammographic density classification by dilated and attention-guided residual learning. IEEE/ACM Trans Comput Biol Bioinform. 2021;18(3):1003–1013. doi: 10.1109/TCBB.2020.2970713",
+      "doi": []
+    },
+    {
+      "id": "CIT0010",
+      "text": "10.Wang C, Li J, Zhang F, et al. Bilateral asymmetry guided counterfactual generating network for mammogram classification. IEEE Trans Image Process. 2021;30:7980–7994. doi: 10.1109/TIP.2021.3112053",
+      "doi": []
+    },
+    {
+      "id": "CIT0011",
+      "text": "11.van Tulder G, Tong Y, Marchiori E.. Multi-view analysis of unregistered medical images using cross-view transformers. In: Medical image computing and computer assisted intervention – MICCAI 2021. Lecture notes in computer science. Vol. 12903. Cham: Springer; 2021. p. 104–113. doi: 10.1007/978-3-030-87199-4_10",
+      "doi": []
+    },
+    {
+      "id": "CIT0012",
+      "text": "12.Nagendran M, Chen Y, Lovejoy CA, et al. Artificial intelligence versus clinicians: systematic review of design, reporting standards, and claims of deep learning studies. BMJ. 2020;368:m689. doi: 10.1136/bmj.m689",
+      "doi": []
+    },
+    {
+      "id": "CIT0013",
+      "text": "13.• Varoquaux G, Cheplygina V.. Machine learning for medical imaging: methodological failures and recommendations for the future. NPJ Digit Med. 2022;5(1):48. doi: 10.1038/s41746-022-00592-y",
+      "doi": []
+    },
+    {
+      "id": "CIT0014",
+      "text": "14.• • Cui C, Li L, Cai H, et al. The Chinese Mammography Database (CMMD): an online mammography database with biopsy confirmed types for machine diagnosis of breast 2021. Cancer Imaging Archive . [accessed 12 May 2026]. doi: 10.7937/tcia.eqde-4b16 Available from: https://www.cancerimagingarchive.net/collection/cmmd/",
+      "doi": []
+    },
+    {
+      "id": "CIT0015",
+      "text": "15.• • DeLong ER, DeLong DM, Clarke-Pearson DL.. Comparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approach. Biometrics. 1988;44(3):837–845. doi: 10.2307/2531595",
+      "doi": []
+    },
+    {
+      "id": "CIT0016",
+      "text": "16.• Dosovitskiy A, Beyer L, Kolesnikov A, et al. International Conference on Learning Representations (ICLR). In: 2021 An image is worth 16x16 words: transformers for image recognition at scale. [accessed 12 May 2026]. Available from: https://openreview.net/forum?id=YicbFdNTTy.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Mabrok MA.",
+  "journal": "Future science OA",
+  "year": "2026",
+  "pmid": "42274080",
+  "pmcid": "PMC13271282",
+  "doi": "10.1080/20565623.2026.2681575",
+  "source": {
+    "retrieved_at": "2026-11-14T17:06:08.582309+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13271282/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13271282.xml"
+}

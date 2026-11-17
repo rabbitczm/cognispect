@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>知镜 | 医学影像文献检索台</title>
+<style>
+/* ============================================================
+   HELIX 设计系统
+   原则：学术出版物式的克制。颜色只承担状态语义（通过/警告/失败），
+   其余一律灰阶；信息层级靠字号、字重、留白与分隔线，不靠色块堆叠。
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --sans:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Cascadia Code",monospace;
+  --r:3px;
+  --r-sm:3px;
+  --gut:24px;
+  --measure:74ch;
+}
+[data-theme="light"]{
+  --bg:#f3f4f5;
+  --surface:#ffffff;
+  --surface2:#eceef0;
+  --line:#dbdfe2;
+  --line2:#b9c0c6;
+  --tx:#14171a;
+  --tx2:#414850;
+  --tx3:#79818a;
+  --accent:#1c3f66;
+  --accent-2:#12294a;
+  --accent-soft:#e8eef5;
+  --danger:#8c2f39;
+  --warn:#6f5210;
+  --ok:#2c6146;
+}
+[data-theme="dark"]{
+  --bg:#101315;
+  --surface:#151a1d;
+  --surface2:#191f23;
+  --line:#262c31;
+  --line2:#3b444b;
+  --tx:#e8eaec;
+  --tx2:#a8b0b7;
+  --tx3:#727b83;
+  --accent:#89b0d8;
+  --accent-2:#a9c9e8;
+  --accent-soft:#16222e;
+  --danger:#d98b92;
+  --warn:#c9a961;
+  --ok:#7cba97;
+}
+
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font:14.5px/1.75 var(--sans);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  display:flex;flex-direction:column;
+}
+a{
+  color:var(--accent);text-decoration:none;
+  border-bottom:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+}
+a:hover{border-bottom-color:var(--accent);background:var(--accent-soft)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::selection{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--tx)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 图标：统一 1.5px 描边、currentColor、永不单独着色 */
+.ic{
+  width:14px;height:14px;flex:none;
+  stroke:currentColor;fill:none;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;color:var(--tx2);background:transparent;
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:4px 9px;cursor:pointer;transition:.14s;white-space:nowrap;
+}
+.btn-ghost:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- 顶栏 ---------- */
+header{
+  flex:none;display:flex;align-items:center;gap:20px;
+  padding:0 var(--gut);height:52px;
+  border-bottom:1px solid var(--line2);background:var(--surface);
+  position:relative;z-index:20;
+}
+.brand{display:flex;align-items:baseline;gap:8px;flex:none}
+.brand b{font-size:15.5px;font-weight:660;letter-spacing:-.005em}
+.brand i{font-style:normal;font-size:11.5px;color:var(--tx3)}
+
+.hb{display:flex;align-items:center;gap:7px;margin-left:auto;flex:none}
+/* 状态标记：左侧竖条 + 文字，像检验单的勾栏；不用胶囊与淡色底块 */
+.pill{
+  font-size:11px;padding:1px 0 1px 8px;border-radius:0;
+  border:0;border-left:2px solid var(--line2);background:transparent;
+  color:var(--tx2);white-space:nowrap;
+}
+.pill.ok{color:var(--ok);border-left-color:var(--ok)}
+button.pill{cursor:pointer;transition:color .14s;font-family:var(--sans)}
+button.pill:hover{color:var(--accent);border-left-color:var(--accent)}
+.icon-btn{
+  width:28px;height:28px;border-radius:var(--r);cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--tx2);
+  display:grid;place-items:center;transition:.14s;
+}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- 主框架 ---------- */
+.shell{flex:1;display:flex;min-height:0;overflow:hidden}
+
+nav{
+  width:236px;flex:none;border-right:1px solid var(--line);
+  background:var(--surface);overflow-y:auto;padding:16px 12px 40px;
+}
+.navgrp{
+  font-size:10.5px;font-weight:640;color:var(--tx3);
+  padding:20px 8px 8px;
+}
+.navgrp:first-child{padding-top:0}
+.step-item{
+  display:flex;gap:10px;padding:8px;border-radius:var(--r);cursor:pointer;
+  border-left:2px solid transparent;margin-bottom:1px;transition:.14s;
+  align-items:flex-start;
+}
+.step-item:hover{background:var(--surface2)}
+.step-item.on{background:var(--accent-soft);border-left-color:var(--accent)}
+.step-item .n{
+  width:16px;flex:none;color:var(--tx3);margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-item .n svg{width:15px;height:15px;display:block}
+.step-item.on .n{color:var(--accent)}
+.step-item .t{font-size:12.5px;font-weight:600;line-height:1.45;color:var(--tx2)}
+.step-item.on .t{color:var(--tx)}
+.step-item .s{font-size:11px;color:var(--tx3);line-height:1.5;margin-top:1px}
+
+.nav-docs{margin-top:4px}
+.doc-line{
+  display:flex;gap:8px;padding:5px 8px 5px 10px;border-radius:var(--r);cursor:pointer;
+  align-items:baseline;transition:background .14s;
+}
+.doc-line:hover{background:var(--surface2)}
+.doc-line .num{font-size:10.5px;color:var(--tx3);flex:none;width:14px}
+.doc-line .nm{font-size:11.5px;color:var(--tx2);line-height:1.5}
+.doc-line:hover .nm{color:var(--tx)}
+#main .doc-line{
+  padding:9px 4px;border-bottom:1px solid var(--line);border-radius:0;
+  align-items:flex-start;
+}
+#main .doc-line:last-child{border-bottom:0}
+#main .doc-line .num{color:var(--accent);padding-top:2px}
+#main .doc-line .nm{font-size:13px;color:var(--tx2);line-height:1.55}
+
+main{flex:1;overflow-y:auto;padding:30px 40px 100px;min-width:0;scroll-behavior:smooth;transition:padding-right .2s ease}
+/* 阅读型页面限宽，工具型页面（检索）放宽——两种版式的宽度需求本来就不同 */
+.wrap{max-width:var(--measure);margin:0 auto}
+.wrap.wide{max-width:min(1260px,100%)}
+/* 抽屉打开时给正文让位，避免遮住右半边 */
+@media (min-width:1420px){
+  body.ev-open main{padding-right:calc(452px + 40px)}
+  body.ev-open aside#ev{box-shadow:none}
+}
+
+h2{font-size:23px;font-weight:640;letter-spacing:-.012em;line-height:1.32;text-wrap:balance}
+.lede{font-size:14px;color:var(--tx2);margin:8px 0 26px;line-height:1.7;max-width:62ch}
+
+/* 内容块不再各自套盒子：靠上分隔线与留白分组，像记录单而不是卡片流 */
+.card{
+  background:transparent;border:0;border-radius:0;
+  padding:0;margin:0 0 26px;box-shadow:none;
+}
+.card+.card{border-top:1px solid var(--line);padding-top:22px}
+.card.tight{margin-bottom:20px}
+.card.tight+.card.tight{padding-top:18px}
+
+h3{
+  font-size:14px;font-weight:650;line-height:1.5;color:var(--tx);
+  margin:0 0 12px;letter-spacing:-.003em;
+}
+.tag{
+  font-size:10.5px;padding:0;border-radius:0;font-weight:600;
+  white-space:nowrap;color:var(--tx3);
+}
+.tag.info{color:var(--accent)}
+.tag.cl{color:var(--tx3);border:0}
+.tag.ev{color:var(--tx2);border:0}
+.tag::before{content:"[";font-weight:400;color:var(--tx3)}
+.tag::after{content:"]";font-weight:400;color:var(--tx3)}
+.cite{
+  font-size:11px;padding:0;border-radius:0;cursor:pointer;
+  background:transparent;color:var(--accent);
+  border:0;border-bottom:1px dotted var(--accent);transition:.14s;
+  font-family:var(--sans);font-weight:500;
+}
+.cite:hover{background:var(--accent-soft)}
+
+/* ---------- 表格 ---------- */
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.tbl th{
+  text-align:left;font-size:11.5px;font-weight:640;
+  color:var(--tx3);
+  padding:0 12px 7px 0;border-bottom:1px solid var(--line2);
+}
+table.tbl td{
+  padding:9px 10px 9px 0;border-bottom:1px solid var(--line);
+  vertical-align:top;line-height:1.6;
+}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl td.k{color:var(--tx2);white-space:nowrap}
+table.tbl td.v{font-family:var(--mono);font-size:11.5px}
+table.tbl td.v.pending{font-family:var(--sans);font-style:italic;color:var(--tx3)}
+
+/* ---------- 提示块 ---------- */
+/* 全站只有一种状态语法：左侧 2px 竖条 + 颜色。不再用色块底纹 */
+.note{
+  font-size:11.5px;line-height:1.75;color:var(--tx3);
+  border:0;border-left:2px solid var(--line2);border-radius:0;
+  padding:3px 0 3px 12px;background:transparent;
+}
+.note b{color:var(--tx2);font-weight:620}
+.note.ok{border-left-color:var(--ok)}
+.note.acc{border-left-color:var(--accent)}
+.note+.note{margin-top:12px}
+
+/* ---------- 证据抽屉 ---------- */
+aside#ev{
+  position:fixed;top:0;right:0;bottom:0;width:452px;max-width:100%;
+  background:var(--surface);border-left:1px solid var(--line2);
+  overflow-y:auto;padding:0;z-index:60;
+  transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);
+  box-shadow:-1px 0 0 var(--line2),-18px 0 44px rgba(10,15,20,.10);
+}
+aside#ev.open{transform:translateX(0)}
+.ev-bar{
+  position:sticky;top:0;background:var(--surface);
+  border-bottom:1px solid var(--line);padding:13px 18px;
+  display:flex;align-items:center;gap:9px;z-index:2;
+}
+.ev-bar b{font-size:12px;font-weight:640;color:var(--tx)}
+.ev-close{
+  margin-left:auto;background:transparent;border:1px solid var(--line);
+  color:var(--tx2);border-radius:var(--r);width:26px;height:26px;cursor:pointer;
+  font-size:15px;line-height:1;display:grid;place-items:center;transition:.14s;
+}
+.ev-close:hover{color:var(--tx);border-color:var(--tx3)}
+.ev-body{padding:18px}
+
+.vstk{display:grid;grid-template-columns:repeat(3,1fr);gap:0 12px;margin-bottom:16px}
+.vstk div{
+  font-size:10px;padding:0 0 0 8px;border:0;border-left:2px solid var(--line2);
+  border-radius:0;text-align:left;line-height:1.55;color:var(--tx3);
+}
+.vstk .s-ok{color:var(--ok);border-left-color:var(--ok)}
+.vstk .s-warn{color:var(--warn);border-left-color:var(--warn)}
+
+.ftitle{font-size:13.5px;font-weight:620;line-height:1.6;margin-bottom:10px}
+.fmeta{font:11px/1.85 var(--mono);color:var(--tx3);margin-bottom:14px;word-break:break-word}
+.fmeta b{color:var(--tx2);font-family:var(--sans);font-weight:600;font-size:11.5px}
+
+.quote{
+  border-left:2px solid var(--line2);padding:2px 0 2px 12px;margin-bottom:14px;
+  font-size:11.5px;line-height:1.72;color:var(--tx2);
+}
+.quote em{font-style:italic}
+.quote mark{
+  background:var(--accent-soft);color:var(--tx);font-style:normal;
+  padding:0 2px;border-radius:2px;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+}
+.quote-zh{
+  font-size:11.5px;color:var(--tx3);margin-top:8px;font-style:normal;
+  padding-top:8px;border-top:1px solid var(--line);
+}
+
+/* ---------- 对话检索 ---------- */
+.aibar{border:1px solid var(--line2);border-left:2px solid var(--accent);padding:11px 13px;
+  margin-bottom:14px;background:var(--surface)}
+.airow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ailbl{font:600 11px/1 var(--mono);color:var(--accent);letter-spacing:.08em;flex:none}
+.airow input{flex:1;min-width:180px;font:inherit;font-size:13.5px;padding:7px 9px;
+  border:1px solid var(--line2);border-radius:var(--r);background:var(--bg);color:var(--tx)}
+.aicard{margin-top:11px;padding-top:11px;border-top:1px solid var(--line)}
+.aih{font-size:11px;color:var(--tx3);letter-spacing:.08em;margin-bottom:7px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 7px;
+  border:1px solid var(--line2);border-radius:var(--r);background:var(--surface2);color:var(--tx)}
+.chip i{font-style:normal;font-size:10px;color:var(--tx3)}
+.chip b{cursor:pointer;color:var(--tx3);font-weight:400;margin-left:2px;padding:0 2px}
+.chip b:hover{color:var(--danger)}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.cond{font-size:12px;color:var(--tx2);margin-bottom:7px}
+.aiexp{font-size:12.5px;color:var(--tx2);line-height:1.75;margin-bottom:10px}
+.aiact{display:flex;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+.aistr{font:11.5px/1.65 var(--mono);color:var(--tx2);background:var(--surface2);
+  padding:8px 10px;border-radius:var(--r);white-space:pre-wrap;word-break:break-all}
+.hit-a.en{border-top:1px dotted var(--line);margin-top:5px;padding-top:5px;color:var(--tx3)}
+/* ---------- 通用 ---------- */
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+/* 全站唯一实心元素：主要动作。其余按钮一律描边 */
+.btn{
+  font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--r);cursor:pointer;
+  background:var(--accent);color:var(--bg);
+  border:1px solid var(--accent);transition:.14s;
+  font-family:var(--sans);
+}
+.btn:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn.ghost{background:transparent;color:var(--tx2);border-color:var(--line2)}
+.btn.ghost:hover{color:var(--tx);border-color:var(--tx3)}
+.hint{font-size:11.5px;color:var(--tx3);line-height:1.7}
+hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
+pre.code{
+  font:11px/1.7 var(--mono);color:var(--tx2);background:var(--surface2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:13px;
+  overflow-x:auto;white-space:pre;
+}
+
+/* ---------- 资源导航 ---------- */
+/* 资源：目录式列表，不套卡片。分隔靠顶部细线，靠悬停底色标示可点 */
+.res-intro{margin-bottom:18px}
+.res-group{margin-bottom:24px}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:0 26px}
+.res{
+  display:flex;flex-direction:column;gap:5px;
+  border:0;border-top:1px solid var(--line);border-radius:0;
+  padding:11px 2px 13px;background:transparent;
+  transition:background .14s;text-decoration:none;border-bottom:0;
+}
+.res:hover{background:var(--accent-soft);border-bottom-color:transparent}
+.res-top{display:flex;align-items:baseline;gap:7px}
+.res-name{font-size:13px;font-weight:640;color:var(--tx);line-height:1.35}
+.res-go{margin-left:auto;color:var(--tx3);flex:none;display:flex;align-items:center}
+.res-go svg{width:11px;height:11px}
+.res:hover .res-go{color:var(--accent)}
+.res-desc{font-size:11.5px;color:var(--tx2);line-height:1.62}
+.res-foot{
+  display:flex;align-items:baseline;gap:8px;margin-top:auto;padding-top:3px;
+}
+.res-use{font-size:10.5px;color:var(--tx3);font-weight:400}
+.res-basis{margin-left:auto;font-size:10.5px;color:var(--tx3);flex:none}
+
+/* ---------- 底栏 ---------- */
+footer{
+  flex:none;border-top:1px solid var(--line);background:var(--surface);
+  padding:9px var(--gut);display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:11px;z-index:10;
+}
+.foot-note{color:var(--tx3);font-size:10.5px}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:980px){
+  .shell{flex-direction:column}
+  nav{
+    width:100%;display:flex;overflow-x:auto;padding:8px;
+    border-right:0;border-bottom:1px solid var(--line);gap:2px;
+  }
+  .navgrp,.nav-docs{display:none}
+  .step-item{flex:none;width:auto;margin:0;padding:7px 11px;border-left:0;border-bottom:2px solid transparent}
+  .step-item.on{border-bottom-color:var(--accent)}
+  .step-item .s{display:none}
+  main{padding:20px 18px 80px}
+  aside#ev{width:100%}
+  header{height:auto;padding:10px 16px;flex-wrap:wrap;gap:10px}
+  .hb{width:100%;justify-content:flex-start;flex-wrap:wrap}
+  .res-grid{grid-template-columns:1fr}
+  .sbody{grid-template-columns:1fr}
+  .sbody>aside,.sbody>section{grid-column:auto}
+  .fcol{position:static;max-height:none}
+}
+
+.selfck{border:1px solid var(--line2);border-left:2px solid var(--accent);padding:12px 14px;margin:0 0 14px}
+.selfck-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.selfck dl{display:grid;grid-template-columns:96px 1fr;gap:5px 12px;margin:0 0 8px}
+.selfck dt{color:var(--tx3);font-size:11.5px}
+.selfck dd{margin:0;font-size:12px;color:var(--tx);word-break:break-all}
+
+.clipsel{position:relative;min-width:0}
+.clipmenu{margin-top:7px;border:1px solid var(--line2);background:var(--surface);max-height:230px;overflow:auto}
+.clipmi{display:flex;align-items:center;gap:6px;width:100%;text-align:left;padding:7px 10px;font:inherit;font-size:12px;color:var(--tx);background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer}
+.clipmi:last-child{border-bottom:0}
+.clipmi:hover{background:var(--surface2)}
+.clipmi.on{color:var(--accent);font-weight:600}
+.clipmi i{font-style:normal;margin-left:auto;color:var(--tx3);font-size:10.5px;font-family:var(--mono)}
+.clipmi.new{color:var(--tx2)}
+
+/* ---------- 文献检索视图（知网式三栏：检索框 / 左侧分组 / 右侧结果） ---------- */
+.sbar{position:sticky;top:0;z-index:6;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  padding:12px 0 11px;background:var(--bg);border-bottom:1px solid var(--line)}
+.sbar select,.sbar input{font:inherit;font-size:13px;color:var(--tx);
+  background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:7px 10px;outline:none}
+.sbar input{flex:1;min-width:180px}
+.sbar input:focus{border-color:var(--accent)}
+.search-history{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.search-history details{position:relative;min-width:145px;max-width:100%;}
+.search-history summary{cursor:pointer;color:var(--tx2);font-size:12px;padding:5px 8px;border:1px solid var(--line2);background:var(--surface);border-radius:4px}
+.search-history-panel{position:absolute;z-index:7;top:calc(100% + 5px);left:0;min-width:240px;max-width:min(92vw,420px);max-height:310px;overflow:auto;padding:7px;background:var(--surface);border:1px solid var(--line2);box-shadow:0 5px 18px #152d2920}
+.search-history-row{display:flex;align-items:center;gap:6px;padding:4px;border-bottom:1px solid var(--line)}
+.search-history-row button[data-search-recent],.search-history-row button[data-search-saved]{flex:1;min-width:0;text-align:left;overflow-wrap:anywhere}
+.search-history-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.search-date-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.search-date-bar label{display:flex;align-items:center;gap:5px;color:var(--tx2);font-size:12px}
+.search-date-bar input,.search-date-bar select{min-width:86px;padding:5px 7px;border:1px solid var(--line2);border-radius:4px;background:var(--surface);color:var(--tx);font:inherit}
+.search-date-bar button{font:inherit;font-size:12px}
+/* 检索页两栏：筛选栏常驻但绝不浮起。原来用 sticky + overflow，
+   长列表滚动时它会盖在结果上，看起来像弹窗——栏就是栏，不该有层。 */
+.sbody{display:grid;grid-template-columns:298px minmax(0,1fr);gap:28px;padding-top:14px;align-items:start}
+.sbody>aside{grid-column:1;position:static;width:auto;height:auto;transform:none;box-shadow:none;border:0;background:transparent;overflow:visible;z-index:auto;padding:0}
+.sbody>section{grid-column:2;min-width:0}
+.fcol{min-width:0;padding-right:2px}
+.fg{border-bottom:1px solid var(--line);padding:8px 0}
+.fg>b{display:block;font-size:11px;letter-spacing:.04em;color:var(--tx3);margin-bottom:5px;font-weight:600}
+.fo{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);
+  padding:1.5px 0;cursor:pointer;border-radius:var(--r)}
+.fo:hover{color:var(--accent)}
+.fo i{margin-left:auto;font-style:normal;color:var(--tx3);font-size:11px}
+.rtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.search-source-tabs{display:flex;gap:3px;border:1px solid var(--line2);padding:2px;border-radius:4px;background:var(--surface)}
+.search-source-tabs button{font:inherit;font-size:12px;padding:5px 8px;border:0;background:transparent;color:var(--tx2);cursor:pointer;border-radius:3px}
+.search-source-tabs button.on{background:var(--accent);color:white}
+.hit{padding:13px 0;border-bottom:1px solid var(--line)}
+.hit-t{font-size:14.5px;font-weight:600;line-height:1.55;cursor:pointer;color:var(--tx)}
+.hit-t:hover{color:var(--accent)}
+.hit-t em{font-style:normal;background:var(--accent-soft);color:var(--accent-2);padding:0 2px;border-radius:0}
+.hit-m{font-size:12px;color:var(--tx3);margin-top:5px;line-height:1.7}
+.hit-b{display:flex;gap:9px;flex-wrap:wrap;margin-top:7px;align-items:baseline}
+.hit-a{font-size:12px;color:var(--tx2);line-height:1.78;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.abs-full{font-size:12px;line-height:1.92;color:var(--tx2);white-space:pre-wrap}
+.abs-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.langseg{display:inline-flex;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden}
+.langseg button{padding:2px 10px;font:500 11.5px/1.7 var(--sans);background:transparent;
+  color:var(--tx2);border:0;border-left:1px solid var(--line2);cursor:pointer}
+.langseg button:first-child{border-left:0}
+.langseg button:hover:not(.on){background:var(--surface2);color:var(--tx)}
+.langseg button.on{background:var(--accent);color:var(--bg)}
+.al{display:grid;grid-template-columns:1fr 1fr;column-gap:22px;align-items:start}
+.al-col{display:flex;flex-direction:column;gap:7px;min-width:0}
+.al-col p{margin:0;font-size:12px;line-height:1.85}
+.al-en{color:var(--tx3)}
+.al-zh{color:var(--tx2)}
+@media (max-width:760px){
+  .al{grid-template-columns:1fr;column-gap:0}
+  .al-col+.al-col{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+}
+.lk{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft);white-space:nowrap}
+.lkrow{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;font-size:12px;line-height:2}
+.lkname{color:var(--tx3);min-width:96px}
+.lk:hover{border-bottom-color:var(--accent)}
+.sqhelp{margin:10px 0 0;padding:12px 14px;border:1px solid var(--line2);border-radius:var(--r);
+  background:var(--surface);font-size:12px;color:var(--tx2)}
+.sqhelp b{display:block;font-size:12px;color:var(--tx);margin-bottom:8px}
+.sqhelp dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 8px}
+.sqhelp dt{font-family:var(--mono);font-size:11.5px;color:var(--accent-2);white-space:nowrap}
+.sqhelp dd{margin:0;color:var(--tx3);font-size:11.5px}
+.aiqs{display:flex;gap:7px;flex-wrap:wrap;padding:9px 0 2px}
+.aiq{font:400 11.5px/1.6 var(--sans);color:var(--tx2);background:transparent;text-align:left;
+  border:1px solid var(--line2);border-radius:var(--r);padding:4px 9px;cursor:pointer}
+.aiq:hover{border-color:var(--accent);color:var(--accent)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:2px 0 10px}
+.plabel{font-size:11px;color:var(--tx3);letter-spacing:.05em}
+.pbtn{font:inherit;font-size:11.5px;padding:3px 9px;border:1px solid var(--line2);border-radius:var(--r-sm);background:transparent;color:var(--tx2);cursor:pointer;line-height:1.6}
+.pbtn:hover{background:var(--surface2);color:var(--tx)}
+.bib{font-family:var(--mono);font-size:11px;line-height:1.85;white-space:pre-wrap;word-break:break-word;background:var(--surface2);border-left:2px solid var(--line2);padding:10px 12px;margin:10px 0 0;cursor:pointer;user-select:all}
+/* 材料状态：左侧竖条，不用色块徽章 */
+.lv{font-size:10.5px;padding:0 0 0 7px;border:0;border-left:2px solid var(--line2);border-radius:0;font-weight:600;color:var(--tx3)}
+.lv3{color:var(--ok);border-left-color:var(--ok)}
+.lv2{color:var(--warn);border-left-color:var(--warn)}
+.lv1{color:var(--tx3);border-left-color:var(--line2)}
+.pg{display:flex;gap:6px;align-items:center;justify-content:center;padding:16px 0;flex-wrap:wrap}
+.pg button{font:inherit;font-size:12px;padding:4px 10px;border-radius:var(--r);cursor:pointer;
+  background:var(--surface);color:var(--tx2);border:1px solid var(--line)}
+.pg button.on{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.pg button:disabled{opacity:.35;cursor:default}
+.page-jump{display:flex;align-items:center;gap:6px;margin-left:8px;font-size:12px;color:var(--tx2)}
+.page-jump input{width:68px;min-width:0;padding:5px 7px;font:inherit;font-size:16px;border:1px solid var(--line2);border-radius:var(--r);background:var(--surface);color:var(--tx)}
+.page-jump input:focus{outline:2px solid var(--accent);outline-offset:2px}
+.empty{padding:44px 0;text-align:center;color:var(--tx3);font-size:13px;line-height:1.9}
+.clip-item{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.7;
+  padding:7px 0;border-bottom:1px solid var(--line)}
+.clip-item b{flex:none;color:var(--accent);font-weight:600}
+
+/* ---------- AI 来源标记：模型/规则生成的内容一律与文献原文分开 ---------- */
+.ai-tag,.src-tag{display:inline-block;font-size:10px;font-weight:600;line-height:1.6;
+  padding:0 6px;border-left:2px solid;white-space:nowrap;vertical-align:1px}
+.ai-tag{color:#7a5a12;border-color:#b8860b;background:#fdf6e3}
+[data-theme="dark"] .ai-tag{color:#e0c07a;border-color:#b8860b;background:#241f14}
+.src-tag{color:var(--ok);border-color:var(--ok)}
+
+/* ---------- 左侧收集栏 ---------- */
+.clipbox{border-top:2px solid var(--accent)}
+.clipbox>b{display:flex;align-items:center;gap:6px}
+.clipbox>b em{font-style:normal;font-size:10.5px;color:var(--tx3);font-family:var(--mono)}
+.clip-list{max-height:176px;overflow:auto;margin:5px 0 4px}
+.clip-mini{display:flex;gap:5px;align-items:flex-start;padding:4px 0;
+  border-bottom:1px solid var(--line);font-size:11.5px;line-height:1.5}
+.clip-mini span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.clip-mini span:hover{color:var(--accent)}
+.clip-mini b{font-weight:600;color:var(--tx3);font-family:var(--mono);font-size:10px}
+.clip-x{border:0;background:transparent;color:var(--tx3);cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.clip-x:hover{color:var(--danger)}
+
+/* ---------- 全网实时检索 ---------- */
+.live{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.live a{font-size:11.5px;padding:3px 8px;border:1px solid var(--line2);border-radius:var(--r);
+  color:var(--tx2);text-decoration:none;background:var(--surface)}
+.live a:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- 扩写候选 ---------- */
+.expr{margin-top:8px}
+.exprow{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.expchip{font-size:11px;padding:2px 7px;border:1px dashed var(--line2);border-radius:var(--r);
+  color:var(--tx2);background:transparent;cursor:pointer;font-family:var(--mono)}
+.expchip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- 模型配置 ---------- */
+.llmbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.llmbar label{display:block;font-size:11px;color:var(--tx3);margin-bottom:3px}
+.llmbar input{width:100%;font-size:11.5px;padding:5px 7px;border:1px solid var(--line2);
+  border-radius:var(--r);background:var(--surface);color:var(--tx)}
+.llmstat{font-size:11.5px;margin-top:6px;line-height:1.75}
+
+/* ---------- 左栏的 AI 检索：仿 DeepSeek 那种极简圆角输入区 ---------- */
+.aiside{padding:2px 0 11px;border-bottom:1px solid var(--line)}
+.aiside .aih{font-size:11px;font-weight:650;color:var(--tx2);letter-spacing:.02em;margin-bottom:7px}
+.aiinput{position:relative;display:flex;align-items:center}
+.aiinput input{width:100%;font:inherit;font-size:12.5px;line-height:1.6;padding:9px 34px 9px 12px;
+  border:1px solid var(--line2);border-radius:20px;background:var(--surface2);color:var(--tx);
+  outline:none;transition:border-color .15s,background .15s}
+.aiinput input:focus{border-color:var(--accent);background:var(--surface)}
+.aiinput input::placeholder{color:var(--tx3)}
+.aigo{position:absolute;right:5px;width:24px;height:24px;border-radius:50%;border:0;
+  background:var(--accent);color:var(--bg);font-size:13px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.aigo:hover{background:var(--accent-2)}
+.aiquick{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.aiquick button{font-size:10.5px;padding:2px 7px;border:1px solid var(--line2);border-radius:12px;
+  background:transparent;color:var(--tx3);cursor:pointer}
+.aiquick button:hover{border-color:var(--accent);color:var(--accent)}
+.btn.tiny{font-size:10.5px;padding:2px 8px}
+
+/* 窄栏里的解析卡：横向卡片压成竖排 */
+.aiside .aicard{margin-top:10px;padding:9px 0 0;border-top:1px solid var(--line)}
+.aiside .aicard .aih{font-size:10.5px;margin-bottom:6px}
+.aiside .chips{gap:4px}
+.aiside .chip{font-size:10.5px;padding:1px 6px;border-radius:11px}
+.aiside .cond{font-size:10.5px;margin-top:5px}
+.aiside .cond.est{color:var(--accent)}
+.aiside .aiexp{font-size:11px;line-height:1.7;margin-top:6px}
+.aiside .aiact{margin-top:7px;gap:5px;display:flex;flex-wrap:wrap}
+.aiside .aistr{margin-top:7px;max-height:88px;overflow:auto}
+.aiside .aistr code{display:block;font-size:10px;line-height:1.65;word-break:break-all;
+  background:var(--surface2);padding:6px 7px;border-radius:var(--r);color:var(--tx2)}
+.aiside .live{gap:4px;margin-top:7px}
+.aiside .live a{font-size:10.5px;padding:2px 6px}
+.aiside .expr{margin-top:7px}
+.aiside .expchip{font-size:10px;padding:1px 5px}
+.aiside .hint{font-size:10.5px;line-height:1.65}
+
+/* ---------- 收藏夹：左栏独立一栏，证据夹全部内容搬到这里 ---------- */
+.clipbox{border-top:0;border-bottom:1px solid var(--line);padding:11px 0}
+.clipbox>b{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:650;color:var(--tx2)}
+.clipbox>b em{font-style:normal;font-size:10px;color:var(--tx3);font-family:var(--mono);font-weight:400}
+.clip-list{max-height:220px;overflow:auto;margin:6px 0 5px}
+.clip-mini{display:flex;gap:5px;align-items:flex-start;padding:5px 0;
+  border-bottom:1px solid var(--line);font-size:11.5px;line-height:1.45}
+.clip-mini span{flex:1;min-width:0;cursor:pointer;color:var(--tx2)}
+.clip-mini span:hover{color:var(--accent)}
+.clip-mini span i{display:block;font-style:normal;font-size:10px;color:var(--tx3);margin-top:1px}
+.clip-mini b{font-weight:600;color:var(--tx3);font-family:var(--mono);font-size:10px;padding-top:1px}
+.clip-x{border:0;background:transparent;color:var(--tx3);cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.clip-x:hover{color:var(--danger)}
+.clipact{display:flex;gap:4px;flex-wrap:wrap}
+#clipBib pre.bib{max-height:176px;overflow:auto;font-size:10px;line-height:1.6;
+  background:var(--surface2);padding:7px;border-radius:var(--r);margin:6px 0 0;word-break:break-all}
+#clipBib .hint{font-size:10.5px;line-height:1.7}
+
+/* ---------- 模型配置收进折叠块，不占左栏常驻空间 ---------- */
+.llmwrap{margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+.llmwrap summary{font-size:10.5px;color:var(--tx3);cursor:pointer;line-height:1.6}
+.aiside .llmbar{grid-template-columns:1fr;gap:6px;margin-top:7px}
+.aiside .llmbar input{font-size:11px;padding:5px 7px}
+
+/* ---------- AI 问答：只有模型真的答了才挂 AI 生成 ---------- */
+.qaask{display:flex;gap:5px;margin-top:9px}
+.qaask input{flex:1;min-width:0;font:inherit;font-size:11.5px;padding:6px 10px;
+  border:1px solid var(--line2);border-radius:16px;background:var(--surface2);color:var(--tx);outline:none}
+.qaask input:focus{border-color:var(--accent);background:var(--surface)}
+.qaask button{border:0;background:var(--accent);color:var(--bg);border-radius:16px;
+  padding:0 11px;font-size:11px;cursor:pointer}
+.qacard{margin:0 0 16px;padding:13px 15px;border-left:2px solid #b8860b;background:var(--surface)}
+.qahd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12.5px;margin-bottom:8px}
+.qahd span{color:var(--tx2)}
+.qahd #qaClose{margin-left:auto}
+.qatext{font-size:13px;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+.qaref{font-family:var(--mono);font-size:11px;border:0;background:var(--accent-soft);
+  color:var(--accent);border-radius:3px;padding:0 3px;cursor:pointer;margin:0 1px}
+.qaref:hover{background:var(--accent);color:var(--bg)}
+.qaref.bad{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.qabad{margin:9px 0 0;padding:8px 10px;border-left:2px solid var(--danger);
+  font-size:11.5px;line-height:1.75;color:var(--tx2)}
+.qarefs{margin-top:10px}
+.qarefs summary{font-size:11px;color:var(--tx3);cursor:pointer}
+.qarefrow{display:flex;gap:6px;align-items:baseline;font-size:11.5px;padding:4px 0;
+  border-bottom:1px solid var(--line)}
+.qarefrow span{flex:1;min-width:0;cursor:pointer;color:var(--tx2)}
+.qarefrow span:hover{color:var(--accent)}
+.qarefrow i{font-style:normal;font-size:10px;color:var(--tx3);font-family:var(--mono)}
+
+.llmpre{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 3px}
+.llmpre .expchip{font-size:10.5px;padding:2px 7px}
+
+/* ---------- 收藏夹：命名分类 ---------- */
+.cliphd{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 6px}
+.cliphd .btn{font-size:10px;padding:2px 7px}
+.clipcat{border-top:1px solid var(--line);padding:2px 0}
+.clipcat-hd{display:flex;align-items:center;gap:5px}
+.clipcat-t{flex:1;min-width:0;text-align:left;border:0;background:transparent;color:var(--tx);
+  font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clipcat-t:hover{color:var(--accent)}
+.clipcat-hd em{font-style:normal;font-size:10px;color:var(--tx3);font-family:var(--mono)}
+.clipcat-hd .clip-x{font-size:13px;line-height:1}
+.clipconfirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11.5px;line-height:1.65;color:var(--tx2);background:var(--surface2);border-left:2px solid var(--danger);padding:6px 8px;margin:3px 0 5px}
+.clipconfirm .clipcf{margin-left:auto;display:flex;gap:5px}
+.clipconfirm .btn{background:var(--danger);border-color:var(--danger)}
+.clipconfirm .btn.ghost{background:none;color:var(--tx2);border-color:var(--line2)}
+.clipmv{display:flex;align-items:center;gap:4px;margin:3px 0 0;font-size:10px}
+.clipmv label{flex:1;min-width:0;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clipmv select{font:inherit;font-size:10px;padding:1px 3px;border:1px solid var(--line2);
+  border-radius:var(--r);background:var(--surface);color:var(--tx)}
+
+/* 修订版：用数据摘要说明当前材料覆盖面，保持现有工作台结构。 */
+.data-summary{display:flex;justify-content:space-between;gap:24px;align-items:center;margin:2px 0 24px;padding-bottom:21px;border-bottom:1px solid var(--line)}
+.data-summary h1{font:600 25px/1.3 var(--sans);letter-spacing:-.6px;margin:0 0 7px}
+.data-summary p{font-size:12px;color:var(--tx3);margin:0}
+.data-summary dl{display:flex;gap:26px;margin:0}.data-summary dt{font-size:10.5px;color:var(--tx3);margin-bottom:5px}.data-summary dd{font:500 21px/1.3 var(--mono);margin:0;color:var(--tx)}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:active{transform:translateY(1px)}
+.textlink{border:0;background:none;color:var(--accent);padding:0;text-align:left;font:inherit;cursor:pointer}
+@media(max-width:980px){.sbody{display:flex;flex-direction:column;gap:24px}.sbody>aside,.sbody>section{width:100%;min-width:0}.sbody>section{order:0}.sbody>aside{order:1}}
+@media(max-width:700px){.data-summary{align-items:flex-start;flex-direction:column;gap:18px}.data-summary dl{gap:23px;flex-wrap:wrap}.data-summary dd{font-size:19px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+{{WORKCSS}}
+</style>
+</head>
+<body>
+
+<!-- 图标集：16 网格、1.5px 描边、全部 currentColor。统一语义，全站复用，不混用字体符号。 -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-cube" viewBox="0 0 16 16"><path d="m8 1.8 5.5 3.1v6.2L8 14.2l-5.5-3.1V4.9L8 1.8zM2.5 4.9 8 8l5.5-3.1M8 8v6.2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 16 16"><path d="M2 2v12h12M5 11V7M8.5 11V4M12 11V6"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 16 16"><path d="M5.5 2h5M6.5 2v4L3 12.3a1 1 0 0 0 .9 1.5h8.2a1 1 0 0 0 .9-1.5L9.5 6V2M4.7 9.3h6.6"/></symbol>
+  <symbol id="i-math" viewBox="0 0 16 16"><path d="M11.8 2.3c-2-.8-3.4.1-3.7 2.1L6.9 12c-.3 1.8-1.9 2.2-3.5 1.4M4.8 6.2h6.4"/></symbol>
+  <symbol id="i-note" viewBox="0 0 16 16"><path d="M10.5 2H3v12h10V6M10.5 2 13 4.5M5.3 6h3M5.3 9h5.4M5.3 11.5h4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 16 16"><path d="M2 4h12M2 12h12M5 2v4M11 10v4M2 8h12M9 6v4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 16 16"><path d="M2 2.5h12v8H7l-4 3v-3H2v-8zM5 6.5h6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.3"/><path d="M10.3 10.3 14 14"/></symbol>
+  <symbol id="i-book" viewBox="0 0 16 16"><path d="M8 4.3C7.3 3.5 6.3 3.2 5.1 3.2H2.4v9.6h2.7c1.2 0 2.2.3 2.9 1"/><path d="M8 4.3c.7-.8 1.7-1.1 2.9-1.1h2.7v9.6h-2.7c-1.2 0-2.2.3-2.9 1"/></symbol>
+  <symbol id="i-ledger" viewBox="0 0 16 16"><path d="M2.4 4.2h11.2M2.4 8h11.2M2.4 11.8h6.8"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.9"/><path d="M8 1.4v1.9M8 12.7v1.9M1.4 8h1.9M12.7 8h1.9M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M12.6 3.4l-1.3 1.3M4.7 11.3l-1.3 1.3"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13.2 9.6A5.5 5.5 0 0 1 6.4 2.8 5.7 5.7 0 1 0 13.2 9.6z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 16 16"><path d="M4.2 4.2 11.8 11.8M11.8 4.2 4.2 11.8"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 16 16"><path d="M6.6 3.4H3.4v9.2h9.2V9.4"/><path d="M9.6 2.6h3.8v3.8"/><path d="M13.4 2.6 7.6 8.4"/></symbol>
+</svg>
+
+<header>
+  <div class="header-start"><button class="icon-btn" id="navToggle" title="收起或展开导航" aria-label="收起或展开导航" aria-expanded="true"><svg class="ic" aria-hidden="true"><use href="#i-ledger"/></svg></button><div class="brand"><b>知镜</b><i>医学研究工作台</i></div></div>
+  <div class="hb">
+    <span class="pill ok" id="metaCount">题录复核</span><div class="account-topbar"><button class="textlink" id="workspaceStatus">正在连接…</button><button class="btn-ghost" id="accountButton">登录 / 注册</button></div>
+    <a class="btn-ghost" id="adminLink" hidden href="/admin" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-ledger"/></svg>管理后台</a>
+    <button class="icon-btn" id="themeBtn" title="切换明暗" aria-label="切换明暗">
+      <svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+  <button class="nav-scrim" id="navScrim" aria-label="关闭导航" hidden></button><nav aria-label="主导航">
+    <div id="navList"></div>
+    <div class="navgrp">重点题录 7 篇</div>
+    <div class="nav-docs" id="navDocs"></div>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<aside id="ev">
+  <div class="ev-bar"><b id="evTitle">证据</b><button class="ev-close" id="evClose" aria-label="关闭">
+    <svg class="ic" aria-hidden="true"><use href="#i-close"/></svg>
+  </button></div>
+  <div class="ev-body" id="evBody"></div>
+</aside>
+
+<footer>
+  <span class="foot-note" id="verTag">v28.0 · 分片检索与比赛演示 · </span><span class="foot-note">文献来源 Europe PMC · 来源可追溯</span>
+<button class="btn ghost tiny" id="selfBtn" style="margin-left:auto">自检</button>
+  </footer>
+
+<script>
+{{ACCOUNTUI}}
+{{SITEUI}}
+{{BROWSERCOMPUTE}}
+{{LIBRARYLOADING}}
+"use strict";
+
+/* =========================================================================
+   文献库
+   题录与摘录来源按保存的官方接口记录分别核对。
+   字段只写核实到的；未核实处显式标注「未读原文，不写」。
+   改库必须同步更新 VERIFIED_ON。
+   ========================================================================= */
+const VERIFIED_ON = "2026-11-14";
+
+const DOCS = {{DOCS}};
+
+/* =========================================================================
+   资源导航
+   每条给出：用途（这个入口用来做什么）+ 链接依据（凭什么可信）。
+   不给未经确认的深链；不确定的一律退到站点根或 DOI 解析。
+   ========================================================================= */
+const RESOURCES = [
+  {g:"文献检索", hint:"缺口陈述的原料。检索面要宽于结论面——只用英文库会漏掉中文语料的真实缺口。", items:[
+    {name:"PubMed", url:"https://pubmed.ncbi.nlm.nih.gov/",
+     desc:"生物医学文献主索引。本原型每条主张的 PMID 都指向这里，是可核性的终点。",
+     use:"溯源原始文献", basis:"站点根"},
+    {name:"Europe PMC", url:"https://europepmc.org/",
+     desc:"开放获取全文与摘要平台。本原型的结构化核实走的就是它的 REST 服务，不是网页抓取。",
+     use:"全文定位", basis:"经 REST 接口实测"},
+    {name:"PMC", url:"https://pmc.ncbi.nlm.nih.gov/",
+     desc:"开放获取全文库。核对方法与附录原文用——摘要里没有的条目数，只能到全文里找。",
+     use:"方法细节", basis:"站点根"},
+    {name:"中国知网", url:"https://www.cnki.net/",
+     desc:"中文文献入口。中文语料的缺口必须单独检索，不能由英文库的结果直接代替。",
+     use:"中文语料", basis:"站点根"},
+    {name:"梅斯医学", url:"https://www.medsci.cn/",
+     desc:"临床研究方法学与统计学解读。把方法学概念讲给临床同事时，比英文综述更省事。",
+     use:"概念校对", basis:"站点根"},
+    {name:"arXiv", url:"https://arxiv.org/",
+     desc:"预印本库，医学影像看 eess.IV 栏目。最新的分割与表征方法通常先出现在这里，但未经同行评审——预印本不能当证据，只能当线索。",
+     use:"前沿扫描", basis:"站点根"}
+  ]},
+  {g:"数据与标注", hint:"数据口径定下来之后才谈建模。同一份公开数据，换一个筛选条件就是另一个数据集。", items:[
+    {name:"TCIA", url:"https://www.cancerimagingarchive.net/",
+     desc:"公开医学影像数据集总入口。LIDC-IDRI、NLST 等均在此发布，注册后接受使用条款即可。",
+     use:"原始数据来源", basis:"站点根（API 已实测）"},
+    {name:"Grand Challenge", url:"https://grand-challenge.org/",
+     desc:"公开挑战赛与基准数据集。找同题可比基线时，这里往往有现成的评测口径。",
+     use:"对照基线", basis:"站点根"},
+    {name:"Radiopaedia", url:"https://radiopaedia.org/",
+     desc:"放射学病例与征象图谱。确认影像学术语与征象定义，避免把「毛刺征」写成自家定义。",
+     use:"术语对齐", basis:"站点根"}
+  ]},
+  {g:"特征与标准", hint:"参数一改特征值全变。参数依据必须落到实现文档与标准文件上，而不是「某某文献也这么写」。", items:[
+    {name:"PyRadiomics 文档", url:"https://pyradiomics.readthedocs.io/",
+     desc:"本项目特征提取的实现与其参数含义。官方文档写明平均每图约 1500 个特征（16 个形状描述符 + 原始图 + LoG 5 个 sigma + 1 层小波的 8 张派生图 + 平方/开方/对数/指数等）——但这是<b>启用全部图像类型</b>的口径；本项目 original only 的 107 个特征不是同一口径，两个数字不可比较。",
+     use:"参数与定义依据", basis:"文档站（已实测 HTTP 200）"},
+    {name:"IBSI 标准化", url:"https://doi.org/10.1148/radiol.2020191145",
+     desc:"特征定义与参考值标准。判断「同名特征」在不同软件间是否真的可比；官网未在本次核实中确认，故只给 DOI。",
+     use:"跨研究可比性", basis:"DOI 反查"},
+    {name:"Crossref 检索", url:"https://search.crossref.org/",
+     desc:"把 DOI 解析到出版方页面。本原型「定位核验」的实际执行动作就是这一条。",
+     use:"引文定位核验", basis:"站点根"}
+  ]},
+  {g:"报告规范", hint:"写作阶段的硬约束。设计阶段按清单倒推，比写完再补省力得多。", items:[
+    {name:"TRIPOD+AI", url:"https://doi.org/10.1136/bmj-2023-078378",
+     desc:"临床预测模型报告规范（AI 扩展）。判「验证用语」是否合规的规范依据；有勘误，引用前须核。",
+     use:"统计报告", basis:"DOI 反查"},
+    {name:"CLEAR 清单", url:"https://doi.org/10.1186/s13244-023-01415-8",
+     desc:"影像组学报告清单，ESR 与 EuSoMII 背书。覆盖采集、分割、提取到结果的每一步。",
+     use:"报告清单", basis:"DOI 反查"},
+    {name:"RQS 系统综述", url:"https://doi.org/10.1007/s00330-024-11341-y",
+     desc:"RQS 评分影响的系统综述与 meta 分析。该文本身有勘误与评论——评分工具也在被审计。",
+     use:"方法学质量评价", basis:"DOI 反查"}
+  ]}
+];
+
+const state = {
+  step:globalThis.location?.hash?.slice(1)||'search'
+};
+
+/* =========================================================================
+   文献检索：本地索引 + 离线检索
+   索引由保存的官方题录重建，作者显示名缩写，完整作者信息用于导出。
+   材料状态：3=重点题录（摘录来源另行注明）；1=普通题录，按摘要是否存在分档。
+   ========================================================================= */
+const LIB = {{LIB}};
+const ABS = {{ABS}};
+const ZH = {{ZH}};
+const ZHSRC = {{ZHSRC}};
+const VERIFY = {{VERIFY}};
+const SCIENCE_SOURCES = {{SOURCES}};
+/* 这三个常量必须先于 SRCH 定义：loadCats 在 SRCH 初始化时就被调用 */
+const CLIP_KEY = "helix.clips.v2";
+const CLIP_OLD = "helix.clip.v1";
+const CAT_DEFAULT = "default";
+const SEARCH_HISTORY_KEY="helix.search.history.v25",SEARCH_SAVED_KEY="helix.search.saved.v25";
+const APP_VER="v28.0 · 分片检索与比赛演示";
+
+function searchPrefRead(key,fallback){
+  try{const value=PersonalStore.user?PersonalStore.getItem(key):localStorage.getItem(key);return value?JSON.parse(value):fallback;}catch{return fallback;}
+}
+function searchPrefWrite(key,value){
+  const text=JSON.stringify(value);
+  if(PersonalStore.user)PersonalStore.setItem(key,text);else localStorage.setItem(key,text);
+}
+function rememberSearch(){
+  const query=SRCH.q.trim();if(!query)return;
+  const rows=searchPrefRead(SEARCH_HISTORY_KEY,[]).filter(row=>row.query!==query);
+  rows.unshift({query,field:SRCH.field,at:Date.now()});searchPrefWrite(SEARCH_HISTORY_KEY,rows.slice(0,30));
+}
+function saveSearch(name){
+  const query=SRCH.q.trim(),label=String(name||'').trim().slice(0,40);if(!query||!label)return;
+  const rows=searchPrefRead(SEARCH_SAVED_KEY,[]).filter(row=>row.name!==label);
+  rows.unshift({name:label,query,field:SRCH.field,yearFrom:SRCH.yearFrom,yearTo:SRCH.yearTo,sort:SRCH.sort,at:Date.now()});
+  searchPrefWrite(SEARCH_SAVED_KEY,rows.slice(0,100));
+}
+function searchHistoryHTML(){
+  const historyRows=searchPrefRead(SEARCH_HISTORY_KEY,[]),savedRows=searchPrefRead(SEARCH_SAVED_KEY,[]);
+  const recent=historyRows.map(row=>`<div class="search-history-row"><button class="textlink" data-search-recent="${esc(row.query)}">${esc(row.query)}</button><button class="clip-x" data-search-history-remove="${esc(row.query)}" aria-label="删除搜索记录">×</button></div>`).join('')||'<span class="hint">暂无搜索记录</span>';
+  const saved=savedRows.map(row=>`<div class="search-history-row"><button class="textlink" data-search-saved="${esc(row.name)}">${esc(row.name)}<span class="hint"> · ${esc(row.query)}</span></button><button class="clip-x" data-search-saved-remove="${esc(row.name)}" aria-label="删除搜索收藏">×</button></div>`).join('')||'<span class="hint">暂无保存的检索</span>';
+  return `<div class="search-history" id="searchHistory"><details${SRCH.historyPanels?.[0]?' open':''}><summary>最近搜索 ${historyRows.length||''}</summary><div class="search-history-panel">${recent}<div class="search-history-actions"><button class="textlink" id="searchHistoryClear">清空历史</button></div></div></details><details${SRCH.historyPanels?.[1]?' open':''}><summary>保存的检索 ${savedRows.length||''}</summary><div class="search-history-panel">${saved}<div class="search-history-actions"><button class="textlink" id="searchSaveCurrent">保存当前检索</button><input id="searchSavedName" placeholder="检索名称" maxlength="40" hidden><button class="btn tiny" id="searchSaveConfirm" hidden>保存</button></div>${PersonalStore.user?'<div class="search-history-actions"><button class="textlink" id="searchImportLocal">合并游客本机记录</button></div>':''}</div></details></div>`;
+}
+function refreshSearchHistory(){
+  const host=document.querySelector('#searchHistory');if(!host)return;
+  const temp=document.createElement('div');temp.innerHTML=searchHistoryHTML();host.replaceWith(temp.firstElementChild);bindSearchHistory();
+}
+function bindSearchHistory(){
+  document.querySelectorAll('#searchHistory details').forEach((panel,index)=>panel.ontoggle=()=>{SRCH.historyPanels||=[];SRCH.historyPanels[index]=panel.open;});
+  document.querySelectorAll('[data-search-recent]').forEach(button=>button.onclick=()=>{SRCH.q=button.dataset.searchRecent;SRCH.page=1;SRCH.field='all';SRCH.groups=null;rememberSearch();renderMain();runCatalogSearch();});
+  document.querySelectorAll('[data-search-saved]').forEach(button=>button.onclick=()=>{const item=searchPrefRead(SEARCH_SAVED_KEY,[]).find(row=>row.name===button.dataset.searchSaved);if(!item)return;SRCH.q=item.query;SRCH.field=item.field||'all';SRCH.yearFrom=item.yearFrom||0;SRCH.yearTo=item.yearTo||0;SRCH.sort=item.sort||'rel';SRCH.page=1;SRCH.groups=null;rememberSearch();renderMain();runCatalogSearch();});
+  document.querySelectorAll('[data-search-history-remove]').forEach(button=>button.onclick=()=>{const query=button.dataset.searchHistoryRemove;searchPrefWrite(SEARCH_HISTORY_KEY,searchPrefRead(SEARCH_HISTORY_KEY,[]).filter(row=>row.query!==query));refreshSearchHistory();});
+  document.querySelectorAll('[data-search-saved-remove]').forEach(button=>button.onclick=()=>{const name=button.dataset.searchSavedRemove;searchPrefWrite(SEARCH_SAVED_KEY,searchPrefRead(SEARCH_SAVED_KEY,[]).filter(row=>row.name!==name));refreshSearchHistory();});
+  $('#searchHistoryClear')?.addEventListener('click',()=>{searchPrefWrite(SEARCH_HISTORY_KEY,[]);refreshSearchHistory();});
+  $('#searchSaveCurrent')?.addEventListener('click',()=>{$('#searchSavedName').hidden=false;$('#searchSaveConfirm').hidden=false;$('#searchSavedName').focus();});
+  $('#searchSaveConfirm')?.addEventListener('click',()=>{saveSearch($('#searchSavedName').value||SRCH.q);refreshSearchHistory();});
+  $('#searchImportLocal')?.addEventListener('click',()=>{mergeGuestSearchData();renderMain();});
+}
+function mergeGuestSearchData(){
+  if(!PersonalStore.user)return;
+  for(const [localKey,accountKey]of [[SEARCH_HISTORY_KEY,SEARCH_HISTORY_KEY],[SEARCH_SAVED_KEY,SEARCH_SAVED_KEY],[CLIP_KEY,CLIP_KEY]]){
+    try{const guest=JSON.parse(localStorage.getItem(localKey)||'[]'),account=JSON.parse(PersonalStore.getItem(accountKey)||'[]');if(!Array.isArray(guest)||!Array.isArray(account))continue;
+      const identity=row=>accountKey===CLIP_KEY?(row.id||''):(accountKey===SEARCH_HISTORY_KEY?row.query:row.name);
+      const merged=account.map(row=>({...row})),seen=new Set(account.map(identity));for(const row of guest){const key=identity(row);if(accountKey===CLIP_KEY&&seen.has(key)){const target=merged.find(item=>identity(item)===key);target.items=[...new Set([...(target.items||[]),...(row.items||[])])];}else if(!seen.has(key)){merged.push(row);seen.add(key);}}
+      searchPrefWrite(accountKey,merged.slice(0,accountKey===SEARCH_HISTORY_KEY?30:100));
+    }catch{}
+  }
+  SRCH.cats=loadCats();
+}
+
+/* 自检面板：页面自己说出它是什么版本、装了什么、左栏有没有挂上。
+   用户看不到东西时，先确认他看到的是不是这一版，再谈别的。 */
+function selfCheckHTML(){
+  if(!state.selfcheck) return "";
+  const w=document.documentElement&&document.documentElement.clientWidth||0;
+  const box=document.querySelector(".fcol");
+  const cats=SRCH.cats.map(c=>`${esc(c.name)}：${c.items.length} 条`).join("；")||"（无分类）";
+  let ls="";
+  try{ ls=Object.keys(localStorage).join(", ")||"（空）"; }catch(e){ ls="读不到"; }
+  return `<div class="selfck">
+    <div class="selfck-hd"><b>自检信息</b><button class="btn ghost tiny" id="selfClose">关闭</button></div>
+    <dl>
+      <dt>页面版本</dt><dd>${esc(APP_VER)}</dd>
+      <dt>索引条数</dt><dd>${LIB.length}</dd>
+      <dt>收藏夹</dt><dd>${esc(cats)}</dd>
+      <dt>浏览器存储</dt><dd>${esc(ls)}</dd>
+      <dt>视口宽度</dt><dd>${w}px ${w<980?"（单列布局，筛选与结果分行）":"（双栏布局）"}</dd>
+      <dt>左栏是否挂载</dt><dd>${box?"是，宽 "+(box.offsetWidth||0)+"px":"否"}</dd>
+    </dl>
+    <div class="hint">版本号对不上，说明浏览器给的是缓存，按 Ctrl+F5 强制刷新再试。</div>
+  </div>`;
+}
+
+const SRCH = {q:"", field:"all", years:[], topics:[], journals:[], groups:null, oa:false, onlyV:false, hasAbs:false, yearFrom:0, yearTo:0, zhOnly:false,
+              dateBasis:"first", sort:"rel", page:1, per:20, scope:"all", cats:[], exported:false,source:"local",onlineRecords:[],onlineCount:0,onlineNext:null,onlineCursor:'*',onlineStack:['*'],onlineError:''};
+const ONLINE_DOCS=new Map();
+const CATALOG_SEARCH={active:false,loading:false,docs:[],total:0,request:0,signature:''};
+SRCH.cats = loadCats();
+
+const PRESETS = [
+  ["复现性", "reproducibility radiomics"],
+  ["报告规范", "radiomics quality score"],
+  ["分割变异", "segmentation variability"],
+  ["特征稳定", "feature stability"],
+  ["外部验证", "external validation radiomics"],
+  ["LIDC 数据", "LIDC-IDRI"],
+  ["深度学习", "deep learning radiomics"],
+  ["偏倚风险", "risk of bias radiomics"]
+];
+
+/* 检索框的规则语法。一个解析器管到底：空格=与、"短语"、-词=排除、
+   2019-2024 或 year:2019-2024=年份区间、title:/author:/journal:=限定字段。
+   解析失败一律退化成普通关键词，不抛错——检索框不该因为少一个引号就罢工。 */
+function parseSQ(q){
+  const raw=(q||"").trim();
+  const out={inc:[],exc:[],phr:[],yf:0,yt:0,fld:"all"};
+  if(!raw) return out;
+  let rest=raw.replace(/"([^"]+)"/g,(m,p)=>{ out.phr.push(p.toLowerCase().trim()); return " "; });
+  rest=rest.replace(/\b(title|author|journal):/gi,(m,f)=>{ out.fld=f.toLowerCase(); return " "; });
+  rest=rest.replace(/\byear:(\d{4})(?:\s*-\s*(\d{4}))?\b/gi,(m,a,b)=>{
+    out.yf=+a; out.yt=+(b||a); return " "; });
+  const rng=rest.match(/\b(?:19|20)\d{2}\s*-\s*(?:19|20)\d{2}\b/);
+  if(rng){
+    const p=rng[0].split("-");
+    out.yf=+p[0].trim(); out.yt=+p[1].trim();
+    rest=rest.replace(rng[0]," ");
+  }
+  rest.split(/[\s,;，；、]+/).filter(Boolean).forEach(w=>{
+    if(/^[-!]/.test(w) && w.length>2){ out.exc.push(w.slice(1).toLowerCase()); return; }
+    const lw=w.toLowerCase();
+    if(lw.length>1 || /^[a-z0-9]$/.test(lw)) out.inc.push(lw);
+  });
+  return out;
+}
+function sqOf(){
+  return SRCH._sq || {inc:[],exc:[],phr:[],yf:0,yt:0,fld:"all"};
+}
+function sWords(q){
+  const sq=parseSQ(q);
+  SRCH._sq=sq;
+  SRCH._intent=(q||"").trim() && !["author","journal"].includes(sq.fld!=="all"?sq.fld:SRCH.field)?AIQ.aiParse(sq.inc.concat(sq.phr).join(" ")):null;
+  return sq.inc.concat(sq.phr);
+}
+function sField(d,f){
+  if(f==="title")   return d.title;
+  if(f==="author")  return d.authors_full||d.authors;
+  if(f==="journal") return d.journal;
+  return d.title+" "+(d.authors_full||d.authors||"")+" "+(d.journal||"")+" "+((d.topics||[]).join(" "))+" "+(ABS[d.key]||"")+" "+(ZHSRC[d.key]&&ABS[d.key]?.includes(ZHSRC[d.key])?ZH[d.key]||"":"")+" "+(d.pmid||"")+" "+(d.doi||"");
+}
+function sScore(d,words){
+  if(!words.length) return 1;
+  const hay=(sField(d,SRCH.field)||"").toLowerCase();
+  let sc=0;
+  for(const w of words){
+    if(hay.indexOf(w)<0) return 0;
+    sc+=1;
+    if((d.title||"").toLowerCase().indexOf(w)>=0) sc+=6;
+    if((d.authors||"").toLowerCase().indexOf(w)>=0) sc+=2;
+    if((d.journal||"").toLowerCase().indexOf(w)>=0) sc+=2;
+  }
+  return sc;
+}
+function activeGroups(words){
+  if(SRCH.groups && SRCH.groups.length) return SRCH.groups;
+  if(SRCH._intent){
+    const it=SRCH._intent;
+    return AIQ.aiQuery(it).groups.concat(sqOf().phr.map(w=>[w]));
+  }
+  return (words||[]).map(w=>[w]);
+}
+function flatWords(groups){
+  const out=[];
+  (groups||[]).forEach(g=>g.forEach(w=>{ if(w && out.indexOf(w)<0) out.push(w); }));
+  return out;
+}
+// 组间必须全部命中，组内命中任一同义词即可
+function sScoreG(d,groups){
+  if(!groups.length) return 1;
+  // 字段限定来自检索框（title:/author:/journal:），没写就用手选的下拉值
+  const _fld=sqOf().fld;
+  const hay=(sField(d,_fld!=="all"?_fld:SRCH.field)||"").toLowerCase();
+  const t=(d.title||"").toLowerCase(), au=(d.authors||"").toLowerCase(),
+        jn=(d.journal||"").toLowerCase();
+  let sc=0;
+  for(const g of groups){
+    let hit=false;
+    for(const w of g){ if(w && termMatches(hay,w)){ hit=true; break; } }
+    if(!hit) return 0;
+    sc+=1;
+    for(const w of g){ if(termMatches(t,w)){ sc+=6; break; } }
+    for(const w of g){ if(termMatches(au,w)){ sc+=2; break; } }
+    for(const w of g){ if(termMatches(jn,w)){ sc+=2; break; } }
+  }
+  return sc;
+}
+function termMatches(hay,word){
+  word=String(word||"").toLowerCase();
+  if(!word)return false;
+  if(/^[a-z]{1,4}$/.test(word))return new RegExp("(^|[^a-z0-9])"+word+"([^a-z0-9]|$)").test(hay);
+  return hay.includes(word);
+}
+function publicationYear(d){return SRCH.dateBasis==='issue'?String(d.year||''):String(d.firstdate||d.year||'').slice(0,4);}
+function sBaseG(groups){ return LIB.filter(d=>!d.date_pending && sScoreG(d,groups)>0); }
+function sBase(words){ return sBaseG(activeGroups(words)); }
+function sHits(words){
+  const groups=activeGroups(words), SQ=sqOf();
+  let arr=[];
+  for(const d of sBaseG(groups)){
+    if(SRCH.years.length && SRCH.years.indexOf(publicationYear(d))<0) continue;
+    if(SRCH.topics.length && !(d.topics||[]).some(t=>SRCH.topics.indexOf(t)>=0)) continue;
+    if(SRCH.journals.length && SRCH.journals.indexOf((d.journal||"").trim())<0) continue;
+    if(SRCH.oa && !d.oa) continue;
+    if(SRCH.onlyV && d.level<3) continue;
+    if(SRCH.hasAbs && !ABS[d.key] && !d.has_abstract) continue;
+    if(SRCH.yearFrom && (+publicationYear(d)||0)<SRCH.yearFrom) continue;
+    if(SRCH.yearTo && (+publicationYear(d)||0)>SRCH.yearTo) continue;
+    if(SRCH.zhOnly && !ReaderUI.chinese(d.key) && !d.has_zh) continue;
+    if(SRCH._intent?.yearFrom && (+publicationYear(d)||0)<SRCH._intent.yearFrom) continue;
+    if(SRCH._intent?.oa && !d.oa) continue;
+    if(SQ.exc.length){
+      const hay=((d.title||"")+" "+(d.authors||"")+" "+(d.journal||"")).toLowerCase();
+      if(SQ.exc.some(w=>termMatches(hay,w))) continue;
+    }
+    if(SQ.yf){ const y=+publicationYear(d)||0; if(y && (y<SQ.yf || y>SQ.yt)) continue; }
+    arr.push({d,sc:sScoreG(d,groups)});
+  }
+  if(SRCH.sort==="cite") arr.sort((a,b)=>b.d.cited-a.d.cited);
+  else if(SRCH.sort==="year"||SRCH.sort==="oldest") arr.sort((a,b)=>{const ay=String(SRCH.dateBasis==='issue'?a.d.year:a.d.firstdate||a.d.year),by=String(SRCH.dateBasis==='issue'?b.d.year:b.d.firstdate||b.d.year);return SRCH.sort==='oldest'?ay.localeCompare(by):by.localeCompare(ay);});
+  else if(SRCH.sort==="title") arr.sort((a,b)=>String(a.d.title).localeCompare(String(b.d.title)));
+  else if(!SRCH.q&&!SRCH.groups) arr.sort((a,b)=>String(b.d.firstdate||b.d.year).localeCompare(String(a.d.firstdate||a.d.year))||b.d.level-a.d.level||b.d.cited-a.d.cited);
+  else arr.sort((a,b)=>b.sc-a.sc||b.d.cited-a.d.cited);
+  const seen=new Map(),unique=[];
+  for(const row of arr){
+    const d=row.d,title=String(d.title||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,''),authors=String(d.authors_full||d.authors||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'').slice(0,80);
+    const id=d.doi?'doi:'+d.doi.toLowerCase().trim():d.pmid?'pmid:'+d.pmid:'title:'+title+'|'+String(d.year||'')+'|'+authors;
+    const previous=seen.get(id);
+    if(!previous){seen.set(id,row);row.versions=[d];unique.push(row);continue;}
+    previous.versions.push(d);
+    if(d.oa&&!previous.d.oa)previous.d=d;
+  }
+  return unique;
+}
+function sFacets(words){
+  const base=sBaseG(activeGroups(words)), y={}, t={}, j={};
+  base.forEach(d=>{
+    const yr=publicationYear(d);if(yr) y[yr]=(y[yr]||0)+1;
+    (d.topics||[]).forEach(x=>t[x]=(t[x]||0)+1);
+    const jn=(d.journal||"").trim();
+    if(jn) j[jn]=(j[jn]||0)+1;
+  });
+  return {years:Object.entries(y).sort((a,b)=>b[0].localeCompare(a[0])),
+          topics:Object.entries(t).sort((a,b)=>b[1]-a[1]),
+          journals:Object.entries(j).sort((a,b)=>b[1]-a[1]).slice(0,10), pool:base.length};
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function hl(s,words){
+  let out=esc(s||"");
+  if(!words.length) return out;
+  const pat=words.map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).filter(Boolean).join("|");
+  if(!pat) return out;
+  try{ return out.replace(new RegExp("("+pat+")","gi"),"<em>$1</em>"); }catch(e){ return out; }
+}
+/* HELIX 本地检索意图解析器。
+ *
+ * 不调用任何外部模型：词表是人工维护的，规则是可读的，结果可解释、可测试。
+ * 这样同一句话今天和下周解析出的检索式完全相同——检索过程本身就是可复现的。
+ *
+ * 对外：LEX / aiParse(text, prev) / aiQuery(intent) / aiExplain(intent) / aiPubmed(intent)
+ */
+{{AIQ}}
+{{RESEARCHCORE}}
+{{THREE}}
+const METHOD_SOURCES = {{METHODS}};
+{{SIMCORE}}
+{{SIMUI}}
+{{REVIEWCHECKLISTS}}
+{{ANATOMYMODEL}}
+{{ANATOMYUI}}
+{{APIMODELS}}
+{{READERUI}}
+{{PDFUI}}
+{{RESEARCHUI}}
+{{FINALUI}}
+{{UPGRADEUI}}
+let LANG="both";
+let LISTLANG="zh";
+const CHAT={intent:null,last:""};
+// 搜索预览展示摘要；逐句对应与标注在精读工作区。
+function sentencesEn(s){
+  return (s||"").split(/(?<=[.!?])\s+(?=[A-Z0-9\u201c"(])/).map(x=>x.trim()).filter(Boolean);
+}
+function sentencesZh(s){
+  return (s||"").split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);
+}
+function absView(d){
+  const en=ABS[d.key]||"", zh=ReaderUI.chinese(d.key);
+  const entry=`<button class="btn ghost tiny" data-read-paper="${esc(d.key)}">精读与双语标注 ↗</button>`;
+  if(LANG==="en") return entry+ `<div class="abs-full">${esc(en)}</div>`;
+  if(LANG==="zh") return entry+ `<div class="abs-full">${esc(zh)}</div>`;
+  const a=sentencesEn(en), b=sentencesZh(zh);
+  return entry+`<div class="al"><div class="al-col">${a.map(s=>`<p class="al-en">${esc(s)}</p>`).join("")}</div>`
+    + `<div class="al-col">${b.map(s=>`<p class="al-zh">${esc(s)}</p>`).join("")}</div></div>`;
+}
+const KIND={disease:"病种",modality:"模态",task:"任务",method:"方法",
+  issue:"议题",guide:"规范",data:"数据"};
+function clipStr(s,n){ s=String(s||""); return s.length>n ? s.slice(0,n)+"…" : s; }
+// 列表里的摘要片段：跟随 LISTLANG，未译的明说「暂无译文」而不是拿英文顶替
+function snippetHTML(d,words){
+  const zh=ReaderUI.chinese(d.key),hasEn=!!ABS[d.key],hasZh=!!zh;
+  if(!hasEn && !hasZh) return "";
+  if(LISTLANG==="zh"){
+    if(!hasZh) return `<div class="hit-a"><span class="hint">本条暂无译文 · </span>${hl(absClip(d.key,110),words)}</div>`;
+    return `<div class="hit-a">${hl(clipStr(zh,170),words)}</div>`;
+  }
+  if(LISTLANG==="both" && hasZh){
+    return `<div class="hit-a">${hl(clipStr(zh,120),words)}</div>`
+         + `<div class="hit-a en">${hl(absClip(d.key,120),words)}</div>`;
+  }
+  return hasEn ? `<div class="hit-a">${hl(absClip(d.key,150),words)}</div>` : "";
+}
+function qaContext(n,question){
+  const it=AIQ.aiParse(question||SRCH.q||'');
+  const concepts=it.concepts.filter(c=>['disease','modality','method','issue','data'].includes(c.k));
+  let ranked;
+  if(question && concepts.length){
+    const groups=concepts.map(c=>c.e),savedSQ=SRCH._sq,savedField=SRCH.field;
+    SRCH._sq=null;SRCH.field='all';
+    ranked=LIB.map(d=>({d,sc:sScoreG(d,groups)})).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc||b.d.cited-a.d.cited);
+    SRCH._sq=savedSQ;SRCH.field=savedField;
+  }else if(question){
+    const saved={q:SRCH.q,groups:SRCH.groups,field:SRCH.field,_sq:SRCH._sq};
+    try{SRCH.q=question;SRCH.groups=null;SRCH.field='all';SRCH._sq=null;ranked=sHits(sWords(question));}
+    finally{Object.assign(SRCH,saved);}
+  }else ranked=sHits(sWords(SRCH.q));
+    const hits=ranked.map(x=>x.d).filter(d=>!d.date_pending && !['retracted','retracted_and_republished'].includes(d.publication_notice) && ABS[d.key] && VERIFY[d.key])
+    .slice(0,Math.min(n||4,6)).map(d=>({...d,qaExcerpt:ABS[d.key].slice(0,3500)}));
+  const lines=hits.map((d,i)=>`[${i+1}] ${d.title} | ${d.authors_full||d.authors} | ${d.journal||''} ${d.year||''} | PMID ${d.pmid}
+摘要${d.qaExcerpt.length<ABS[d.key].length?'节选':''}：${d.qaExcerpt}`).join('\n\n');
+  return {hits,lines,intent:it};
+}
+
+const qaPrompt=(q,ctx)=>[
+  "你是一名严谨的医学影像文献助手。用户会问一个学术问题，下面给你若干条文献的题录与摘要，编号从 [1] 开始。",
+  "硬规矩：",
+  "1) 只能依据下面给出的文献回答。文献里没有的内容必须写「所给文献未提及」，绝不用你自己的知识补。",
+  "2) 每条具体结论后面用方括号标出处编号，例如 [2] 或 [2][5]。不许标不存在的编号。",
+  "3) 不要编造作者、年份、DOI、期刊、样本量、AUC 等任何数字；数字只能照抄摘要里出现的。",
+  "4) 不同文献的数字之间不许做任何算术：不算占比、倍数、差值、平均，也不许把一项研究的样本说成另一项研究样本的一部分。各自只报它自己写的原数字。",
+  "5) 需要比较时，把各自的原始数字分别列出来即可，不做推断。",
+  "6) 如果所给文献不足以回答，就直接说不足，并指出还缺什么信息。",
+  "7) 用中文回答，先给两三句结论，再分条列依据。",
+  "",
+  "文献列表：",
+  ctx,
+  "",
+  "用户的问题：" + q,
+].join("\n");
+
+function numericTokens(text){
+  return (String(text||"").replace(/\[\d+\]/g,"").match(/\d+(?:\.\d+)?/g)||[])
+    .map(v=>String(Number(v)));
+}
+function checkAnswer(answer,refs){
+  const matches=[...String(answer).matchAll(/\[(\d+)\]/g)];
+  const ids=[...new Set(matches.map(m=>Number(m[1])))];
+  const bad=ids.filter(i=>!Number.isSafeInteger(i)||i<1||i>refs.length);
+  const chunks=String(answer).split(/\n+/).map(v=>v.trim()).filter(Boolean);
+  const factual=chunks.filter(v=>v.length>8 && !/^#{1,6}\s/.test(v)
+    && !/^(结论|依据|参考文献|不足之处)[：:]?$/.test(v)
+    && !/^(所给文献未提及|所给文献不足|无法依据所给材料)/.test(v));
+  const missing=!matches.length || factual.some(v=>! /\[\d+\]/.test(v));
+  const unsupported=[];
+  for(const chunk of chunks){
+    const cited=[...chunk.matchAll(/\[(\d+)\]/g)].map(m=>Number(m[1])).filter(i=>i>=1&&i<=refs.length);
+    if(!cited.length) continue;
+    const source=cited.map(i=>{
+      const d=refs[i-1];return `${d.title} ${d.year} ${d.qaExcerpt||ABS[d.key]||""}`;
+    }).join(" ");
+    const available=new Set(numericTokens(source));
+    for(const value of numericTokens(chunk)) if(!available.has(value)) unsupported.push(value);
+  }
+  return {bad,missing,unsupported:[...new Set(unsupported)]};
+}
+/* ---------- 模糊短语加工：口语 → 概念组 → 词表里登记的等价说法 ---------- */
+function expandRows(it){
+  const cs=(it&&it.concepts)||[];
+  if(!cs.length) return "";
+  return `<div class="aih" style="margin-top:12px">这句话被解析成了什么</div>
+    <div class="hint">点选英文术语，查看对应论文。</div>
+    ${cs.map(c=>{
+      const terms=((c.e)||[]).filter(Boolean).slice(0,8);
+      return `<div class="expr"><b>${esc(c.c)}</b>
+        <span class="hint">${esc(KIND[c.k]||c.k)}</span>
+        <div class="exprow">${terms.map(t=>`<button class="expchip" data-exp="${esc(t)}">${esc(t)}</button>`).join("")
+          ||'<span class="hint">词表里没登记等价说法</span>'}</div>
+      </div>`;
+    }).join("")}`;
+}
+
+/* ---------- 全网实时检索：只给链接，不在页面里代请求 ---------- */
+function liveLinksHTML(it){
+  const q=AIQ.aiPubmed(it)||"";
+  if(!q) return "";
+  const pm=encodeURIComponent(q);
+  const plain=encodeURIComponent(q.replace(/\[Title\/Abstract\]/g,"").replace(/"/g,"").replace(/\s+AND\s+/g," "));
+  return `<div class="live">
+      <span class="src-tag">实时检索</span>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/?term=${pm}" target="_blank" rel="noopener noreferrer">PubMed</a>
+      <a href="https://europepmc.org/search?query=${pm}" target="_blank" rel="noopener noreferrer">Europe PMC</a>
+      <a href="https://search.crossref.org/?q=${plain}" target="_blank" rel="noopener noreferrer">Crossref</a>
+      <a href="https://www.medrxiv.org/search/${plain}" target="_blank" rel="noopener noreferrer">medRxiv</a>
+    </div>
+    <div class="hint" style="margin-top:5px">离线索引基于固定快照；这些链接可打开外部检索站查询更新论文，结果与可达性取决于目标服务。
+      页面是本地文件，浏览器不允许它直接跨域请求这些库，所以实时检索只能开新窗口。</div>`;
+}
+
+/* ---------- 左侧收集栏 ---------- */
+/* ---------- 左侧收藏夹（命名分类） ---------- */
+function clipMiniHTML(){
+  const cats=SRCH.cats, total=clipCount();
+  const open=state.clipOpen||CAT_DEFAULT;
+  const head=`<div class="cliphd">
+      <button class="btn ghost tiny" data-clipnew="1">+ 新建分类</button>
+      ${total?`<button class="btn ghost tiny" data-clipclear="all" title="清空所有分类里的文献">清空全部</button>`:""}
+    </div>`;
+  if(!total&&cats.length<=1){
+    return head+`<div class="hint">点结果标题打开详情，点「加入收藏夹」就收进来。
+      可以「+ 新建分类」把文献按题目分开放，分类能改名。</div>`;
+  }
+  const body=cats.map(c=>{
+    const on=c.id===open;
+    const items=c.items.map(k=>{
+      const d=LIB.find(x=>x.key===k)||ONLINE_DOCS.get(k);
+      if(!d) return `<div class="clip-mini"><b>[书]</b><span data-rec="${esc(k)}" title="按文献编号读取">文献 ${esc(k)}</span><button class="clip-x" data-clipx="${esc(k)}" title="移出收藏夹">×</button></div>`;
+      return `<div class="clip-mini"><b>[${d.level>=3?"核":"索"}]</b>
+        <span data-rec="${esc(d.key)}" title="${esc(d.title)}">${esc(d.title.slice(0,44))}
+          <i>${d.year||""}</i></span>
+        <button class="clip-x" data-clipx="${esc(d.key)}" title="移出收藏夹">×</button></div>`;
+    }).join("");
+    const moveRows=cats.length>1?c.items.map(k=>{
+      const d=LIB.find(x=>x.key===k)||ONLINE_DOCS.get(k);
+      if(!d) return "";
+      return `<div class="clipmv"><label>${esc(d.title.slice(0,16))}… 移到</label>
+        <select data-mv="${esc(d.key)}">${cats.map(t=>
+          `<option value="${esc(t.id)}"${t.id===c.id?" selected":""}>${esc(t.name)}</option>`).join("")}</select></div>`;
+    }).join(""):"";
+    const tail=on&&c.items.length?`<div class="clipact">
+        <button class="btn ghost tiny" data-fmt="vancouver" data-cat="${esc(c.id)}">Vancouver</button>
+        <button class="btn ghost tiny" data-fmt="bibtex" data-cat="${esc(c.id)}">BibTeX</button>
+        <button class="btn ghost tiny" data-fmt="ris" data-cat="${esc(c.id)}">RIS</button>
+      </div>
+      <div class="clipact">
+        <button class="btn ghost tiny" data-clipclear="${esc(c.id)}" title="只清空这个分类">清空本类</button>
+      </div>
+      <div id="clipBib"></div>`:"";
+    return `<div class="clipcat">
+      <div class="clipcat-hd">
+        <button class="clipcat-t" data-clipopen="${esc(c.id)}">${on?"▾":"▸"} ${esc(c.name)}</button>
+        <em>${c.items.length}</em>
+        ${c.id===CAT_DEFAULT?"":`<button class="clip-x" data-clipren="${esc(c.id)}" title="重命名分类">✎</button>`}
+        <button class="clip-x" data-clipdelask="${esc(c.id)}" title="删除这个分类">🗑</button>
+      </div>
+      ${state.clipDel===c.id?`<div class="clipconfirm">
+        ${c.id===CAT_DEFAULT
+          ? `「未分类」是兜底分类，不能删。里面 ${c.items.length} 条可以逐条点 × 移出，或用下面的「清空本类」。`
+          : `删除「${esc(c.name)}」？里面 ${c.items.length} 条会退回「未分类」，不会丢。`}
+        <span class="clipcf">
+          ${c.id===CAT_DEFAULT?"":`<button class="btn tiny" data-clipdel="${esc(c.id)}">删除</button>`}
+          <button class="btn ghost tiny" data-clipdelcancel="1">取消</button>
+        </span></div>`:""}
+      ${on?`<div class="clip-list">${items||'<div class="hint" style="padding:3px 0">这个分类还是空的</div>'}</div>
+        ${moveRows}${tail}`:""}
+    </div>`;
+  }).join("");
+  return head+body;
+}
+function aiBarHTML(){
+  const it=CHAT.intent;
+  let card="";
+  if(it){
+    const chips=(it.concepts||[]).map(c=>
+      `<span class="chip" data-drop="${esc(c.c)}" title="点 × 去掉这个条件">${esc(c.c)}<b>×</b></span>`).join("");
+    const free=(it.free||[]).map(w=>
+      `<span class="chip warn" data-drop="${esc(w)}" title="词表里没有，按原词检索">${esc(w)}<b>×</b></span>`).join("");
+    const cond=[];
+    if(it.yearFrom) cond.push("≥ "+it.yearFrom);
+    if(it.oa) cond.push("开放获取");
+    if(it.onlyV) cond.push("只要核实");
+    if(it.hasAbs) cond.push("有摘要");
+    if(it.sort==="cite") cond.push("按被引");
+    if(it.mode==="tight") cond.push("收紧");
+    // 先试算一遍命中数，让人在点「按这个检索」之前就知道会得到多少
+    const _q=AIQ.aiQuery(it);
+    const _g=(_q.groups&&_q.groups.length)?_q.groups:null;
+    const _est=_g?LIB.filter(d=>sScoreG(d,_g)>0).length:0;
+    card=`<div class="aicard">
+      <div class="aih">理解为</div>
+      <div class="chips">${chips}${free}</div>
+      ${cond.length?`<div class="cond">${esc(cond.join(" · "))}</div>`:""}
+      ${_g?`<div class="cond est">预计命中 ${_est} 条</div>`:""}
+      <div class="aiexp">${esc(AIQ.aiExplain(it))}</div>
+      <div class="aiact">
+        <button class="btn tiny" data-ai="apply">按这个检索</button>
+        <button class="btn ghost tiny" data-ai="pm">复制检索式</button>
+      </div>
+      <div class="aistr" id="aiStr"><code>${esc(AIQ.aiPubmed(it)||"—")}</code></div>
+      ${expandRows(it)}
+      ${liveLinksHTML(it)}
+      <div class="hint">接着说：<b>再窄一点</b>、<b>换成肝癌</b>、<b>去掉深度学习</b></div>
+    </div>`;
+  }
+  return `<div class="aiside">
+    <div class="aih">自然语言检索 <span class="src-tag">词表解析</span></div>
+    <div class="aiinput">
+      <input id="aiInput" placeholder="一句话说你要找什么" value="${esc(CHAT.last||"")}">
+      <button class="aigo" id="aiGo" title="解析这句话">↑</button>
+    </div>
+    <div class="aiquick">
+      ${[["近三年肺癌 CT 影像组学的可复现性","肺癌复现性"],
+         ["分割观察者间变异，只要开放获取","分割变异"],
+         ["外部验证做得好的 radiomics 模型，高被引","外部验证"],
+         ["深度学习在肺结节良恶性分类中的应用","深度学习"],
+         ["影像组学报告规范有哪些要求","报告规范"],
+         ["病理组学与联邦学习的最新进展","病理组学"]]
+        .map(([t,l])=>`<button class="aiq" data-aiq="${esc(t)}">${l}</button>`).join("")}
+    </div>
+    ${card}
+    <div class="row" style="margin-top:7px"><button class="btn ghost tiny" id="aiReset">清空条件</button></div>
+    <div class="source-links"><button class="btn ghost tiny" data-jump="assist">AI 证据问答</button></div>
+  </div>`;
+}
+function applyIntent(){
+  const it=CHAT.intent;
+  if(!it) return;
+  const q=AIQ.aiQuery(it);
+  SRCH.groups=(q.groups&&q.groups.length)?q.groups:null;
+  SRCH.q="";
+  SRCH.yearFrom=q.yearFrom||0;
+  SRCH.oa=!!q.oa; SRCH.onlyV=!!q.onlyV; SRCH.hasAbs=!!q.hasAbs;
+  SRCH.sort=q.sort||"rel";
+  SRCH.years=[]; SRCH.topics=[]; SRCH.journals=[];
+  SRCH.page=1;
+  renderMain();
+}
+function copyText(t){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t); return true; }
+  }catch(e){}
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    const ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+function absClip(key,n){
+  const a=ABS[key]||"";
+  if(a.length<=n) return a;
+  const cut=a.slice(0,n), sp=cut.lastIndexOf(" ");
+  return (sp>n*0.6?cut.slice(0,sp):cut)+"…";
+}
+function libraryStats(){
+  const focus=LIB.filter(d=>d.level>=3).length;
+  const abstractOnly=LIB.filter(d=>d.level<3&&ABS[d.key]).length;
+  return {total:LIB.length,focus,abstractOnly,metadataOnly:LIB.length-focus-abstractOnly,
+    abstracts:Object.keys(ABS).length,translations:Object.keys(ZH).length,metadataChecked:Object.keys(VERIFY).length};
+}
+function lvTag(d){
+  if(d.level>=3) return `<span class="lv lv3" title="重点题录已核对；摘录来源在详情中单独标明，内容支持仍需人工判断">重点题录</span>`;
+  if(ABS[d.key]) return `<span class="lv lv2" title="接口摘要已保存，未逐句审校">有摘要</span>`;
+  return `<span class="lv lv1" title="仅有书目元数据">仅题录</span>`;
+}
+
+/* 收藏夹：多个可命名分类，存在本机浏览器里，刷新不丢。
+   v1 存的是扁平 key 数组，v2 起改为分类；读到旧数据就整体挪进「未分类」。
+   CLIP_KEY / CLIP_OLD / CAT_DEFAULT 三个常量定义在 SRCH 之前。 */
+
+function validKeys(a){
+  return (Array.isArray(a)?a:[]).filter(k=>LIB.some(x=>x.key===k)||/^[\w.-]{1,160}$/.test(String(k)));
+}
+function saveCats(){
+  try{if(PersonalStore.user)PersonalStore.setItem(CLIP_KEY,JSON.stringify(SRCH.cats));else localStorage.setItem(CLIP_KEY,JSON.stringify(SRCH.cats));}catch(e){}
+}
+function loadCats(){
+  try{
+    const s=PersonalStore.user?PersonalStore.getItem(CLIP_KEY):localStorage.getItem(CLIP_KEY);
+    if(s){
+      const a=JSON.parse(s);
+      if(Array.isArray(a)&&a.length){
+        const cats=a.filter(c=>c&&typeof c.id==="string").map(c=>({
+          id:c.id, name:String(c.name||"未命名").slice(0,24), items:validKeys(c.items)}));
+        if(cats.length){
+          if(!cats.some(c=>c.id===CAT_DEFAULT)) cats.unshift({id:CAT_DEFAULT,name:"未分类",items:[]});
+          return cats;
+        }
+      }
+    }
+    const old=validKeys(JSON.parse((PersonalStore.user?PersonalStore.getItem(CLIP_OLD):localStorage.getItem(CLIP_OLD))||"[]"));
+    return [{id:CAT_DEFAULT, name:"未分类", items:old}];
+  }catch(e){
+    return [{id:CAT_DEFAULT, name:"未分类", items:[]}];
+  }
+}
+function catById(id){
+  return SRCH.cats.find(c=>c.id===id) || catById0();
+}
+function catById0(){ return SRCH.cats.find(c=>c.id===CAT_DEFAULT) || SRCH.cats[0]; }
+function catOf(key){
+  for(const c of SRCH.cats) if(c.items.indexOf(key)>=0) return c;
+  return null;
+}
+function clipCount(){
+  return SRCH.cats.reduce((n,c)=>n+c.items.length,0);
+}
+function removeKey(key){
+  SRCH.cats.forEach(c=>{ const i=c.items.indexOf(key); if(i>=0) c.items.splice(i,1); });
+}
+/* 已在同一个分类里再点就是移出；已在别的分类里则搬过来。 */
+function addTo(key, catId){
+  removeKey(key);
+  const c=catById(catId);
+  if(!c) return;
+  if(c.items.indexOf(key)<0) c.items.push(key);
+  saveCats();
+}
+function clipMenuHTML(key){
+  const cur=catOf(key);
+  const rows=SRCH.cats.map(c=>{
+    const on=!!cur&&cur.id===c.id;
+    return `<button class="clipmi${on?" on":""}" data-clipaddto="${esc(c.id)}" data-key="${esc(key)}">`
+      +`${on?"✓ ":""}${esc(c.name)}<i>${c.items.length}</i></button>`;
+  }).join("");
+  return `<div class="clipmenu">${rows}
+    <button class="clipmi new" data-clipnew2="1" data-key="${esc(key)}">+ 新建分类并加入</button></div>`;
+}
+function toggleKey(key, catId){
+  const cur=catOf(key);
+  if(cur && cur.id===catId){ removeKey(key); }
+  else { removeKey(key); catById(catId).items.push(key); }
+  saveCats();
+}
+function catKey(){
+  return "c"+Date.now().toString(36)+Math.floor(Math.random()*1e3).toString(36);
+}
+
+/* BibTeX：作者之间用 and，et al. 写成 and others，页码用 -- */
+function bibtexOf(d){
+  const au=(d.authors_full||d.authors||"").replace(/,\s*et al\.?$/," and others")
+                          .split(/,\s*/).filter(Boolean).join(" and ");
+  const pages=(d.pages||"").replace(/(\d)-(\d)/,"$1--$2");
+  const id=((au.split(/[\s,]+/)[0]||"anon")+(d.year||"")+
+            (d.title||"").split(/\s+/).slice(0,2).join("").replace(/[^a-z]/gi,"")).toLowerCase();
+  const f=[];
+  if(au) f.push("  author = {"+au+"}");
+  f.push("  title = {"+(d.title||"").replace(/[{}]/g,"")+"}");
+  if(d.journal) f.push("  journal = {"+d.journal+"}");
+  if(d.year) f.push("  year = {"+d.year+"}");
+  if(d.vol) f.push("  volume = {"+d.vol+"}");
+  if(d.issue) f.push("  number = {"+d.issue+"}");
+  if(pages) f.push("  pages = {"+pages+"}");
+  if(d.doi) f.push("  doi = {"+d.doi+"}");
+  if(d.pmid) f.push("  note = {PMID: "+d.pmid+"}");
+  return "@article{"+id+",\n"+f.join(",\n")+"\n}";
+}
+
+/* RIS：EndNote / NoteExpress / Zotero 都能直接双击导入 */
+function risOf(d){
+  const L=["TY  - JOUR"];
+  (d.authors_full||d.authors||"").replace(/,\s*et al\.?$/,"").split(/,\s*/).filter(Boolean)
+                 .forEach(a=>L.push("AU  - "+a));
+  
+  if(d.title) L.push("TI  - "+d.title);
+  if(d.journal) L.push("JO  - "+d.journal);
+  if(d.year) L.push("PY  - "+d.year);
+  if(d.vol) L.push("VL  - "+d.vol);
+  if(d.issue) L.push("IS  - "+d.issue);
+  if(d.pages){
+    const p=String(d.pages).split("-");
+    L.push("SP  - "+p[0]);
+    if(p[1]) L.push("EP  - "+p[1]);
+  }
+  if(d.doi) L.push("DO  - "+d.doi);
+  if(d.pmid) L.push("AN  - PMID:"+d.pmid);
+  if(d.pmcid) L.push("AN  - PMCID:"+d.pmcid);
+  L.push("ER  - ");
+  return L.join("\n");
+}
+
+function citeText(d){
+  const a=(d.authors_full||d.authors||"");
+  return `${a}. ${d.title} ${d.journal||""}. ${d.year||""}${d.vol?";"+d.vol:""}${d.issue?"("+d.issue+")":""}${d.pages?":"+d.pages:""}.${d.doi?" doi:"+d.doi:""}`;
+}
+
+function renderSearch(){
+  if(SRCH.scope==='mine')return MyPapers.render();
+  const words=flatWords(activeGroups(sWords(SRCH.q)));
+  const online=SRCH.source==='online';
+  const all=online?SRCH.onlineRecords.map(d=>({d,sc:1})):CATALOG_SEARCH.active?CATALOG_SEARCH.docs.map(d=>({d,sc:1})):sHits(words);
+  const f=sFacets(words);
+  const pages=online?Math.max(1,Math.ceil(SRCH.onlineCount/20)):Math.max(1,Math.ceil((CATALOG_SEARCH.active?CATALOG_SEARCH.total:all.length)/SRCH.per));
+  const p=Math.min(SRCH.page,pages);
+  const slice=online||CATALOG_SEARCH.active?all:all.slice((p-1)*SRCH.per,p*SRCH.per);
+
+  const yearRows=f.years.map(([y,n])=>{
+    const on=SRCH.years.indexOf(y)>=0?"☑":"☐";
+    return `<label class="fo"><input type="checkbox" data-fy="${y}" ${on==="☑"?"checked":""}>${y}<i>${n}</i></label>`;
+  }).join("")||`<div class="hint">—</div>`;
+
+  const topicRows=f.topics.map(([t,n])=>{
+    const on=SRCH.topics.indexOf(t)>=0?"checked":"";
+    return `<label class="fo"><input type="checkbox" data-ft="${t}" ${on}>${t}<i>${n}</i></label>`;
+  }).join("")||`<div class="hint">—</div>`;
+
+  const journalRows=(f.journals||[]).map(([j,n])=>{
+    const on=SRCH.journals.indexOf(j)>=0?"checked":"";
+    const lab=j.length>26?j.slice(0,26)+"…":j;
+    return `<label class="fo"><input type="checkbox" data-fj="${esc(j)}" ${on}>${esc(lab)}<i>${n}</i></label>`;
+  }).join("")||`<div class="hint">—</div>`;
+
+  const hitsHTML=slice.map((x,i)=>`<div class="hit">
+    <div class="hit-t" data-rec="${esc(x.d.key)}">${i+1}. ${hl(x.d.title,words)}</div>
+    <div class="hit-m">${hl(x.d.authors||"—",words)}<br>
+      ${hl(x.d.journal||"—",words)}${x.d.year?"，卷期年 "+x.d.year:""}${x.d.vol?"；"+x.d.vol:""}${x.d.issue?"("+x.d.issue+")":""}${x.d.pages?":"+x.d.pages:""}
+      ${x.d.firstdate?`<span class="date-tag${x.d.date_pending?" pending-tag":""}">${x.d.date_pending?"日期待核 · ":"首发 "}${esc(x.d.firstdate)}</span>`:""}
+      ${x.d.doi?` · <a class="lk" href="https://doi.org/${encodeURIComponent(x.d.doi)}" target="_blank" rel="noopener noreferrer" title="打开 DOI 原文入口">DOI ${esc(x.d.doi)}</a>`:""}${x.d.pmid?` · <a class="lk" href="https://pubmed.ncbi.nlm.nih.gov/${encodeURI(x.d.pmid)}/" target="_blank" rel="noopener noreferrer">PMID ${esc(x.d.pmid)}</a>`:""}</div>
+    ${snippetHTML(x.d,words)}
+    <div class="hit-b">${UpgradeUI.noticeHTML(x.d)}<button class="textlink" data-paper-guide="${esc(x.d.key)}">讲解与复现</button>${lvTag(x.d)}${x.d.oa?'<span class="tag cl">开放获取</span>':""}
+      ${(x.d.topics||[]).map(t=>`<span class="tag">${t}</span>`).join("")}
+      <span class="hint" style="margin-left:auto">${x.d.cited?"被引 "+x.d.cited:"被引 —"}</span></div>
+  </div>`).join("");
+
+  const pgHTML=(()=>{
+    if(online)return `<div class="pg"><button data-online-page="previous" ${SRCH.onlineStack.length<=1?'disabled':''}>上一页</button><span>第 ${SRCH.onlineStack.length} 页 · 约 ${SRCH.onlineCount.toLocaleString()} 条</span><button data-online-page="next" ${SRCH.onlineNext?'':'disabled'}>下一页</button></div>`;
+    if(pages<=1) return "";
+    const btns=[];
+    btns.push(`<button data-page="${p-1}" ${p<=1?"disabled":""}>上一页</button>`);
+    const win=[];
+    for(let i=1;i<=pages;i++){
+      if(i<=2||i>pages-2||Math.abs(i-p)<=1) win.push(i);
+    }
+    let last=0;
+    win.forEach(i=>{
+      if(last && i-last>1) btns.push(`<button disabled>…</button>`);
+      btns.push(`<button data-page="${i}" class="${i===p?"on":""}">${i}</button>`);
+      last=i;
+    });
+    btns.push(`<button data-page="${p+1}" ${p>=pages?"disabled":""}>下一页</button>`);
+    return `<div class="pg">${btns.join("")}<form class="page-jump" id="searchPageJump"><span>共 ${pages} 页</span><label for="searchPageNumber">跳至</label><input id="searchPageNumber" name="page" type="number" inputmode="numeric" min="1" max="${pages}" step="1" value="${p}" required aria-label="跳转页码"><span>页</span><button type="submit">跳转</button></form></div>`;
+  })();
+
+  return `<div class="wrap wide search-workspace">
+  <div class="data-summary"><div><div class="overline">文献工作台</div><h1>从一个问题，找到研究依据</h1></div><span class="library-status">${CATALOG_SEARCH.active?CATALOG_SEARCH.total.toLocaleString():LIB.filter(d=>!d.date_pending).length.toLocaleString()} 篇可检索文献</span></div>
+  ${MyPapers.tabs()}
+  <div class="sbar">
+    <select id="qField">
+      <option value="all"${SRCH.field==="all"?" selected":""}>全部字段</option>
+      <option value="title"${SRCH.field==="title"?" selected":""}>标题</option>
+      <option value="author"${SRCH.field==="author"?" selected":""}>作者</option>
+      <option value="journal"${SRCH.field==="journal"?" selected":""}>期刊</option>
+    </select>
+    <input id="qInput" placeholder="输入病症、研究问题或英文关键词" aria-label="文献检索" value="${esc(SRCH.q)}">
+    <button class="btn" id="qGo">检索</button>
+    <button class="btn ghost" id="qClear">重置</button>
+    <button class="btn ghost" id="searchFilterToggle" aria-expanded="${ResearchUI.state.filterOpen}" aria-controls="searchFilters">筛选</button>
+
+  </div>
+  ${searchHistoryHTML()}
+  <div class="search-date-bar" aria-label="年份和时间排序"><label>起始年<input id="quickYearFrom" type="number" inputmode="numeric" value="${SRCH.yearFrom||''}" placeholder="不限"></label><label>结束年<input id="quickYearTo" type="number" inputmode="numeric" value="${SRCH.yearTo||''}" placeholder="不限"></label><button class="btn ghost" data-year-preset="3">近三年</button><button class="btn ghost" data-year-preset="5">近五年</button><select id="qSortQuick" aria-label="文献时间排序"><option value="rel"${SRCH.sort==="rel"?" selected":""}>相关度</option><option value="year"${SRCH.sort==="year"?" selected":""}>最新发表</option><option value="oldest"${SRCH.sort==="oldest"?" selected":""}>最早发表</option></select></div>
+
+  <div class="sqhelp" id="sqHelp" hidden>
+    <b>检索语法</b>
+    <dl>
+      <dt>radiomics reproducibility</dt><dd>空格＝两个词都要命中</dd>
+      <dt>"lung nodule"</dt><dd>引号＝短语，词序要连在一起</dd>
+      <dt>radiomics -review</dt><dd>减号＝排除含这个词的记录</dd>
+      <dt>2019-2024</dt><dd>年份区间，也可写 year:2019-2024</dd>
+      <dt>title:radiomics</dt><dd>只在这个字段里找（title / author / journal）</dd>
+    </dl>
+    <div class="hint">引号没闭合、年份写反，都会退化成普通关键词，不会报错。</div>
+  </div>
+
+  ${SRCH._intent?.corrections?.length?`<div class="explain-line"><strong>已纠正：</strong>${SRCH._intent.corrections.map(c=>esc(c.from)+" → "+esc(c.to)).join("；")}</div>`:""}
+  ${SRCH._intent?.concepts?.length?`<div class="explain-line"><strong>识别概念：</strong>${SRCH._intent.concepts.map(c=>esc(c.c)).join(" + ")}</div>`:""}
+  <div class="presets">
+    <span class="plabel">常用检索</span>
+    ${PRESETS.map(([label,q])=>`<button class="pbtn" data-preset="${esc(q)}">${label}</button>`).join("")}
+  </div>
+
+  <div class="library-load-line"><span id="libraryLoadStatus" role="status">${esc(LibraryUI.status())}</span><button class="textlink" id="libraryRefresh">刷新文献</button></div>
+  ${selfCheckHTML()}
+
+  <div class="sbody${ResearchUI.state.filterOpen?' filters-open':''}">
+    <aside class="fcol" id="searchFilters" ${ResearchUI.state.filterOpen?'':'hidden'}><div class="filter-heading"><strong>筛选与收藏</strong><button class="textlink" id="searchFilterClose">收起</button></div>
+      <div class="fg clipbox" id="clipBox"><b>收藏夹<em>${clipCount()}</em></b>${clipMiniHTML()}</div>
+      <div class="fg"><b>摘要显示</b>    <span class="langseg" id="listLang">
+      ${[["zh","译文"],["en","原文"],["both","对照"]].map(([v,t])=>`<button data-ll="${v}" class="${LISTLANG===v?"on":""}">${t}</button>`).join("")}
+    </span><button class="textlink" id="sqBtn">检索语法</button></div><div class="fg"><b>材料状态</b>
+        <label class="fo"><input type="checkbox" id="fOnlyV" ${SRCH.onlyV?"checked":""}>只看重点题录<i>${LIB.filter(d=>d.level>=3).length}</i></label>
+        <label class="fo"><input type="checkbox" id="fOA" ${SRCH.oa?"checked":""}>开放获取<i>${LIB.filter(d=>d.oa).length}</i></label>
+        <label class="fo"><input type="checkbox" id="fAbs" ${SRCH.hasAbs?"checked":""}>有摘要<i>${Object.keys(ABS).length}</i></label>
+        <label class="fo"><input type="checkbox" id="fZh" ${SRCH.zhOnly?"checked":""}>有译文<i>${Object.keys(ZH).length}</i></label>
+      </div>
+      <details class="facet-section" data-filter-section="years"><summary>发表日期<span>${SRCH.years.length?"已选 "+SRCH.years.length:SRCH.yearFrom||SRCH.yearTo?(SRCH.yearFrom||"不限")+"—"+(SRCH.yearTo||"不限"):"全部年份"}</span></summary><div class="fg"><div class="year-shortcuts"><button class="btn ghost" data-year-preset="3">近三年</button><button class="btn ghost" data-year-preset="5">近五年</button><button class="btn ghost" data-year-preset="0">全部</button></div><div class="year-range"><label>起始年份<input id="yearRangeFrom" type="number" value="${SRCH.yearFrom||''}" placeholder="不限"></label><label>结束年份<input id="yearRangeTo" type="number" value="${SRCH.yearTo||''}" placeholder="不限"></label></div><button class="textlink" id="applyYearRange">应用年份区间</button><p id="yearRangeError" role="status"></p><div class="field-pair" style="margin:4px 0 9px"><label class="fo"><input type="radio" name="dateBasis" data-datebasis="first" ${SRCH.dateBasis!=="issue"?"checked":""}>首次发表</label><label class="fo"><input type="radio" name="dateBasis" data-datebasis="issue" ${SRCH.dateBasis==="issue"?"checked":""}>卷期年</label></div>${yearRows}
+        </div></details>
+      <details class="facet-section" data-filter-section="topics"><summary>主题<span>${SRCH.topics.length?'已选 '+SRCH.topics.length:'全部主题'}</span></summary><div class="fg">${topicRows}</div></details>
+      <details class="facet-section" data-filter-section="journals"><summary>期刊<span>${SRCH.journals.length?'已选 '+SRCH.journals.length:'全部期刊'}</span></summary><div class="fg">${journalRows}</div></details>
+    </aside>
+
+    <section class="search-results">
+      <div class="rtop">
+        <div class="search-source-tabs" role="tablist"><button data-online-source="local" class="${online?'':'on'}" role="tab" aria-selected="${!online}">站内文献 ${CATALOG_SEARCH.active?CATALOG_SEARCH.total.toLocaleString():sHits(words).length.toLocaleString()}</button><button data-online-source="online" class="${online?'on':''}" role="tab" aria-selected="${online}">联网补充</button></div>
+        <b style="font-size:13px">${online?'联网找到 '+SRCH.onlineCount.toLocaleString()+' 条':'找到 '+(CATALOG_SEARCH.active?CATALOG_SEARCH.total:all.length)+' 条'}</b>
+
+        <span class="hint" style="margin-left:auto">排序</span>
+        <select id="qSort" style="font:inherit;font-size:12px;padding:4px 8px;border-radius:3px;border:1px solid var(--line2);background:var(--surface);color:var(--tx2)">
+          <option value="rel"${SRCH.sort==="rel"?" selected":""}>相关度</option>
+          <option value="cite"${SRCH.sort==="cite"?" selected":""}>被引次数</option>
+          <option value="year"${SRCH.sort==="year"?" selected":""}>发表年份</option>
+          <option value="title"${SRCH.sort==="title"?" selected":""}>标题字母序</option>
+        </select>
+        <button class="textlink" id="searchCollections">收藏 ${clipCount()}</button>
+      </div>
+
+      ${online&&SRCH.onlineError?`<div class="empty" role="status">${esc(SRCH.onlineError)}</div>`:!online&&CATALOG_SEARCH.loading&&!all.length?`<div class="empty" role="status">正在检索全库题录…</div>`:!online&&CATALOG_SEARCH.error?`<div class="empty" role="status">${esc(CATALOG_SEARCH.error)}</div>`:all.length? hitsHTML : `<div class="empty">
+        ${!LibraryUI.complete?"正在补全文献内容，请稍候，当前条件尚未找到匹配。":"没有匹配的文献。试试病症中文或英文，如“乳腺癌 MRI”或“肺结节 CT”。"}
+      </div>`}
+      ${pgHTML}
+
+
+    </section>
+  </div>
+  </div>`;
+}
+
+function openRec(key){
+  const d=LIB.find(x=>x.key===key)||CATALOG_SEARCH.docs.find(x=>x.key===key)||ONLINE_DOCS.get(key)||SRCH.onlineRecords.find(x=>x.key===key);
+  if(!d){LibraryUI.ensure(key).then(()=>openRec(key)).catch(()=>{});return;}
+  state.evKey=key;
+  const lv=d.level>=3?"重点题录已核对":ABS[d.key]?"摘要可读":"仅书目元数据";
+  /* 链接按「能不能打开」分两组。doi.org 与 pubmed 在部分网络下会 502/连不上，
+     Crossref 与 Europe PMC 的接口是实测通的，所以它们排在前面当主力。 */
+  const A=(href,text,tip)=>UpgradeUI.link(href,text);
+  const linkGroups=[
+    ["打开原文",[
+      d.source_url?A(d.source_url,"原文平台"):"",
+      d.publisher_url?A(d.publisher_url,"出版社原文"):"",
+      d.doi?A(`https://search.crossref.org/?q=${encodeURIComponent(d.doi)}`,"Crossref","经 Crossref 定位出版方页面；可达性取决于当前网络"):"",
+      d.doi?A(`https://doi.org/${encodeURI(d.doi)}`,"doi.org","标准 DOI 解析；可达性取决于当前网络"):"",
+      d.pmcid?A(`https://pmc.ncbi.nlm.nih.gov/articles/${encodeURI(d.pmcid)}/`,"PMC 全文","开放获取全文"):""
+    ].filter(Boolean)],
+    ["查摘要与元数据",[
+      d.pmid?A(`https://pubmed.ncbi.nlm.nih.gov/${encodeURI(d.pmid)}/`,"PubMed",""):"",
+      d.pmid?A(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:${encodeURIComponent(d.pmid)}%20AND%20SRC:MED&format=json&resultType=core`,"Europe PMC","返回官方 JSON；可能包含摘要"):"",
+      d.doi?A(`https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(d.doi)}?fields=title,abstract,venue,year`,"Semantic Scholar","返回 JSON；摘要可能缺失或请求受限"):""
+    ].filter(Boolean)]
+  ].filter(g=>g[1].length);
+  const inClip=!!catOf(d.key);
+  $("#evTitle").textContent="文献详情 · "+lv;
+  $("#evBody").innerHTML=`
+    <div class="card tight" style="margin:0 0 12px">
+      ${UpgradeUI.noticeHTML(d)}<button class="textlink" data-paper-guide="${esc(d.key)}">论文讲解与复现</button><div style="font-size:14.5px;font-weight:600;line-height:1.6">${esc(d.title)}</div>
+      <div class="hint" style="margin-top:8px;line-height:1.8">${esc(d.authors||"—")}</div>
+      <div class="hint" style="margin-top:6px">${esc(d.journal||"—")}${d.year?"，"+d.year:""}${d.vol?"；"+d.vol:""}${d.issue?"("+d.issue+")":""}${d.pages?":"+d.pages:""}</div>
+      ${d.firstdate?`<div class="hint" style="margin-top:4px">${d.date_pending?"官方记录日期待核":"官方记录首次发表日期"} ${esc(d.firstdate)}${d.year&&String(d.year)!==d.firstdate.slice(0,4)?`　（卷期年是 ${esc(String(d.year))}，属提前排期；引用时按卷期年著录）`:""}</div>`:""}
+      <div style="margin-top:10px">${lvTag(d)}${d.oa?'<span class="tag cl" style="margin-left:6px">开放获取</span>':""}
+        ${(d.topics||[]).map(t=>`<span class="tag" style="margin-left:6px">${t}</span>`).join("")}</div>
+      <div class="hint" style="margin-top:10px">${d.doi?"DOI "+esc(d.doi):""}${d.pmid?" · PMID "+esc(d.pmid):""}${d.pmcid?" · "+esc(d.pmcid):""}</div>
+      <div style="margin-top:8px">${linkGroups.length
+        ? linkGroups.map(g=>`<div class="lkrow"><span class="lkname">${g[0]}</span>${g[1].join('<span class="sep">·</span>')}</div>`).join("")
+        : '<span class="hint">无外部链接可用</span>'}</div>
+    </div>
+    ${ABS[d.key]?`<div class="card tight" style="margin:0 0 12px">
+      <div class="abs-hd">
+        <h3 style="font-size:12.5px;margin:0">摘要 <span class="src-tag">文献原文</span><span class="hint" style="font-weight:400">（接口摘要）</span></h3>
+        ${ReaderUI.chinese(d.key)?`<div class="langseg">${[["both","对照"],["en","原文"],["zh","机译"]]
+          .map(([v,t])=>`<button data-lang="${v}" class="${LANG===v?"on":""}">${t}</button>`).join("")}</div>`:""}
+      </div>
+      ${absView(d)}
+      <div class="hint" style="margin-top:9px">摘要来源：Europe PMC / PubMed。选择“精读与双语标注”可按原文句段翻译和标记。</div>
+    </div>`:''}
+    <div class="card tight" style="margin:0 0 12px">
+      <h3 style="font-size:12.5px">可引用的著录格式</h3>
+      <div class="hint" style="line-height:1.85;word-break:break-word">${esc(citeText(d))}</div>
+    </div>
+    <div class="card tight" style="margin:0">
+      <div class="row" style="margin-top:10px">
+        <div class="clipsel">
+          <button class="btn ${inClip?"ghost":""}" id="clipAdd" data-key="${esc(d.key)}">${inClip?"已收在「"+esc(catOf(d.key).name)+"」· 点此换分类":"加入收藏夹 ▾"}</button>
+          ${state.clipMenu===d.key?clipMenuHTML(d.key):""}
+        </div>
+      </div>
+    </div>`;
+  $("#ev").classList.add("open"); document.body.classList.add("ev-open");
+}
+
+async function runOnlineSearch(cursor='*'){
+  if(!SRCH.q.trim()){SRCH.onlineError='请先输入疾病名称、研究问题或英文检索词。';renderMain();return;}
+  const query=SRCH.q.trim();
+  if(SRCH.onlineQuery!==query){SRCH.onlineStack=['*'];cursor='*';SRCH.onlineQuery=query;}
+  SRCH.onlineError='正在检索 Europe PMC…';SRCH.onlineNext=null;renderMain();
+  try{
+    const words=sWords(query),groups=activeGroups(words);
+    const response=await fetch('/api/library/online',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({groups,yearFrom:SRCH.yearFrom,yearTo:SRCH.yearTo,sort:SRCH.sort,cursor})});
+    const value=await response.json();if(!response.ok)throw Error(value.error||'在线检索未完成');
+    const unique=new Map();
+    for(const row of value.records||[]){
+      const journal=row.journalInfo?.journal?.title||row.journalTitle||'',year=String(row.pubYear||'');
+      const pmid=String(row.pmid||row.id||''),doi=String(row.doi||''),key=pmid||doi||String(row.pmcid||row.title);
+      const doc=normalizeOnlineRecord(row);
+      if(!doc.title)continue;
+      const id=doi.toLowerCase()||pmid||doc.title.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'')+'|'+year;
+      if(!unique.has(id))unique.set(id,doc);
+    }
+    SRCH.onlineRecords=[...unique.values()];for(const doc of SRCH.onlineRecords){ONLINE_DOCS.set(doc.key,doc);if(doc.abstract)ABS[doc.key]=doc.abstract;}
+    SRCH.onlineCount=Number(value.hit_count||0);SRCH.onlineNext=value.next_cursor&&value.next_cursor!==cursor?value.next_cursor:null;SRCH.onlineCursor=cursor;SRCH.onlineError='';SRCH.page=SRCH.onlineStack.length;renderMain();
+  }catch(error){SRCH.onlineRecords=[];SRCH.onlineError=error.message;renderMain();}
+}
+async function runCatalogSearch(){
+  if(SRCH.source!=='local'||state.step!=='search'||SRCH.scope==='mine'||!LibraryUI.started)return;
+  const words=sWords(SRCH.q),groups=activeGroups(words),sq=sqOf();
+  const selectedField=sq.fld!=='all'?sq.fld:SRCH.field;
+  const field=({author:'authors'}[selectedField]||selectedField);
+  const input={groups,field,page:SRCH.page,limit:SRCH.per,yearFrom:Math.max(SRCH.yearFrom,SRCH._intent?.yearFrom||0,sq.yf||0),yearTo:SRCH.yearTo||sq.yt,sort:SRCH.sort,oa:SRCH.oa||!!SRCH._intent?.oa,onlyV:SRCH.onlyV,hasAbstract:SRCH.hasAbs,years:SRCH.years.map(Number),topics:SRCH.topics,journals:SRCH.journals,zhOnly:SRCH.zhOnly,dateBasis:SRCH.dateBasis,exclude:sq.exc};
+  const signature=JSON.stringify(input);
+  if(CATALOG_SEARCH.signature===signature)return;
+  CATALOG_SEARCH.signature=signature;
+  const request=++CATALOG_SEARCH.request;
+  CATALOG_SEARCH.active=true;CATALOG_SEARCH.loading=true;CATALOG_SEARCH.error='';
+  try{
+    const access=await LibraryUI.accessState();
+    if(access?.modules?.some(m=>m.id==='search'&&m.visible===false))throw Error('文献检索模块暂未公开');
+    CATALOG_SEARCH.signature=signature;
+    const cacheKey='search:'+(access.version||LibraryUI.version)+':'+signature;
+    let value=await PublicCache.get(cacheKey);
+    if(!value){if(access.backend==='static')value=await PublicSearch.search(input,access);else{const response=await fetch('/api/library/search',{method:'POST',headers:{'content-type':'application/json'},body:signature});value=await response.json();if(!response.ok)throw Error(value.error||'全库检索暂不可用');}await PublicCache.put(cacheKey,value);}
+    if(request!==CATALOG_SEARCH.request)return;
+    CATALOG_SEARCH.docs=value.docs||[];for(const doc of CATALOG_SEARCH.docs){ONLINE_DOCS.set(doc.key,doc);if(doc.abstract)ABS[doc.key]=doc.abstract;}CATALOG_SEARCH.total=Number(value.total||0);CATALOG_SEARCH.loading=false;
+  }catch(error){
+    if(request!==CATALOG_SEARCH.request)return;
+    CATALOG_SEARCH.loading=false;CATALOG_SEARCH.active=false;CATALOG_SEARCH.error=error.message;
+  }
+  if(request===CATALOG_SEARCH.request&&state.step==='search'&&SRCH.source==='local'){
+    const input=document.querySelector('#qInput'),focused=document.activeElement===input,position=input?.selectionStart,scroll=document.querySelector('#main').scrollTop;
+    if(input?.dataset.composing==='true')return;
+    renderMain();document.querySelector('#main').scrollTop=scroll;
+    if(focused){const next=document.querySelector('#qInput');next?.focus({preventScroll:true});next?.setSelectionRange(position,position);}
+  }
+}
+function rerunSearch(){
+  if(SRCH.source==='online'){SRCH.onlineStack=['*'];runOnlineSearch('*');}
+  else runCatalogSearch();
+}
+function normalizeOnlineRecord(row){
+  const journal=row.journalInfo?.journal?.title||row.journalTitle||'',year=String(row.pubYear||''),pmid=String(row.pmid||row.id||''),doi=String(row.doi||''),key=pmid||doi||String(row.pmcid||row.title);
+  return {...row,key,pmid,doi,title:String(row.title||''),authors:row.authorString||'',authors_full:row.authorString||'',journal,year,firstdate:row.firstPublicationDate||'',vol:row.journalInfo?.volume||'',issue:row.journalInfo?.issue||'',pages:row.pageInfo||'',oa:String(row.isOpenAccess||'').toUpperCase()==='Y',level:1,cited:Number(row.citedByCount||0),topics:(row.meshHeadingList?.meshHeading||[]).map(item=>item.descriptorName).filter(Boolean),source_url:pmid?'https://europepmc.org/article/MED/'+encodeURIComponent(pmid):'',publisher_url:(row.fullTextUrlList?.fullTextUrl||[]).find(item=>item.documentStyle==='html')?.url||'',abstract:String(row.abstractText||''),online:true};
+}
+
+const STEPS = {
+  intro:{ t:"人体导览", s:"从器官开始", render:()=>UpgradeUI.intro() },
+  papers:{ t:"论文投稿与复现", s:"分享与审批", render:()=>UpgradeUI.papers() },
+  medical:{ t:"随访与复用分析", s:"配对、纵向与生存", render:()=>UpgradeUI.medicalPage() },
+  fit:{ t:"药代数据拟合", s:"观测与参数", render:()=>UpgradeUI.fitPage() },
+  search:{ t:"文献检索", s:"中文与英文", render:renderSearch },
+  assist:{ t:"AI 证据问答", s:"模型 API", render:()=>ResearchUI.assist() },
+  reader:{ t:"文献精读", s:"笔记与图解", render:()=>ResearchUI.reader() },
+  pdf:{ t:"PDF 文献", s:"阅读与表格", render:()=>PdfUI.render() },
+  lab:{ t:"模拟实验室", s:"影像与动力学", render:()=>SimulationUI.lab() },
+  math:{ t:"数学建模", s:"方程与参数扫描", render:()=>SimulationUI.math() },
+  anatomy:{ t:"人体 3D 导航", s:"器官与动静脉", render:()=>AnatomyUI.render() },
+  stats:{ t:"统计与绘图", s:"数据与图表", render:()=>ResearchUI.stats() },
+  review:{ t:"论文复盘", s:"方法学检查", render:()=>ResearchUI.review() },
+  models:{ t:"模型与翻译", s:"主接口与备用", render:()=>ResearchUI.models() },
+  res:{ t:"官方资源", s:"实验与论文", render:renderResources }
+};
+
+/* ---------- 资源导航 ---------- */
+function renderResources(){
+  const groups=RESOURCES.map(g=>{
+    const cards=g.items.map(it=>`<a class="res" href="${it.url}" target="_blank" rel="noopener noreferrer">
+        <div class="res-top">
+          <span class="res-name">${it.name}</span>
+          <span class="res-go"><svg class="ic" aria-hidden="true"><use href="#i-ext"/></svg></span>
+        </div>
+        <div class="res-desc">${it.desc}</div>
+        <div class="res-foot">
+          <span class="res-use">${it.use}</span>
+          <span class="res-basis">${it.basis}</span>
+        </div>
+      </a>`).join("");
+    return `<div class="res-group">
+      <h3>${g.g}</h3>
+      <div class="hint res-intro" style="margin-bottom:11px;max-width:660px">${g.hint}</div>
+      <div class="res-grid">${cards}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="wrap" style="max-width:940px">
+  <h2>资源导航：外部数据库工作台</h2>
+  <p class="lede">按数据库、实验工具与报告规范查找官方资源。</p>
+
+  ${groups}
+
+  </div>`;
+}
+
+/* =========================================================================
+   证据面板：文献详情 + 句子级定位 + 核验三态
+   ========================================================================= */
+/* 抽屉开合集中管理：同时给 body 打标记，宽屏下让正文让位 */
+const evOpen=()=>{ $("#ev").classList.add("open"); document.body.classList.add("ev-open"); };
+const evShut=()=>{ $("#ev").classList.remove("open"); document.body.classList.remove("ev-open"); };
+
+function openEvidence(key){
+  state.evKey=key;
+  const d=DOCS[key];if(!d) return;
+  const origin=d.quoteSource==="abstract"?"摘要摘录":"题名摘录";
+  const rows=Object.entries(d.fields).map(([k,v])=>`<tr><td class="k">${esc(k)}</td><td class="v">${esc(v)}</td></tr>`).join("");
+  $("#evTitle").textContent="重点文献 · 来源核对";
+  $("#evBody").innerHTML=`
+    <div class="vstk"><div class="s-ok">题录核对<br>DOI / PMID 已对照</div>
+      <div class="${d.quoteSource==="abstract"?"s-ok":"s-warn"}">摘录来源<br>${origin}</div>
+      <div class="s-warn">内容支持<br>未自动核验</div></div>
+    <div class="ftitle">${esc(d.title)}</div><div class="fmeta"><b>${esc(d.authors)}</b><br>
+      ${esc(d.journal)} ${d.year}; ${esc(d.volpage)}<br>
+      DOI <a href="https://doi.org/${encodeURI(d.doi)}" target="_blank" rel="noopener noreferrer">${esc(d.doi)}</a><br>
+      PMID <a href="https://europepmc.org/article/MED/${d.pmid}" target="_blank" rel="noopener noreferrer">${d.pmid}</a></div>
+    <h3>${origin}</h3><div class="quote"><em>${d.quote}</em><div class="quote-zh">${esc(d.quoteZh)}</div></div>
+    <div class="note">${d.quoteSource==="abstract"?"摘录各段已在保存的接口摘要中定位。":"该片段来自题名。"}</div>
+    <h3>结构化记录</h3><table class="tbl">${rows}</table>
+    <div class="note"><b>复核日期</b>：${VERIFIED_ON}<br><b>来源</b>：Europe PMC 结构化记录。</div>`;
+  evOpen();
+}
+
+/* ---------- 渲染 ---------- */
+const $=s=>document.querySelector(s);
+
+/* 导航项各用一个不复用的图标：图标说明这一项是什么，不是装饰 */
+const NAV_ICON={ intro:"i-cube",papers:"i-note",medical:"i-chart",fit:"i-math",search:"i-search",assist:"i-chat",reader:"i-book",pdf:"i-note",lab:"i-flask",math:"i-math",anatomy:"i-cube",stats:"i-chart",review:"i-note",models:"i-sliders",res:"i-book" };
+
+function navItem(k){
+  const v=STEPS[k];
+  return `<button class="step-item ${state.step===k?"on":""}" data-jump="${k}" ${state.step===k?'aria-current="page"':''}>
+    <div class="n"><svg class="ic" aria-hidden="true"><use href="#${NAV_ICON[k]}"/></svg></div>
+    <div><div class="t">${SiteUI.label(k,v.t)}</div><div class="s">${v.s}</div></div>
+  </button>`;
+}
+
+function renderNav(){
+  const groups=[['检索与阅读',['search','assist','reader','pdf','papers']],['实验与分析',['anatomy','lab','math','stats','review']],['资源与配置',['models','res']]];
+  $("#navList").innerHTML=groups.map(([label,keys])=>`<div class="navgrp">${label}</div>${SiteUI.nav(keys).map(navItem).join("")}`).join("");
+  $("#navDocs").innerHTML=Object.values(DOCS).map(d=>
+    `<div class="doc-line" data-open="${d.key}"><span class="num">[${d.n}]</span><span class="nm">${d.authors.split(",")[0]} ${d.year}</span></div>`).join("");
+}
+
+let lastRenderedStep=null;
+function renderMain(){
+  if(document.activeElement?.dataset.composing==='true')return;
+  if(!LibraryUI.started){$('#main').innerHTML='<section class="site-load" role="status">正在连接文献与工作区，浏览器计算工具即将就绪。</section>';return;}
+  if(!STEPS[state.step])state.step='search';
+  UpgradeUI.dispose();
+  document.body.dataset.page=state.step;
+  if(typeof AnatomyUI!=='undefined')AnatomyUI.dispose();
+  if(typeof SimulationUI!=='undefined')SimulationUI.dispose?.();
+  if(LibraryUI.serviceNotice()&&['search','reader','anatomy','res','papers'].includes(state.step)){$('#main').innerHTML='';SiteUI.afterRender();return;}
+  if(!SiteUI.allowed(state.step)){$('#main').innerHTML='<section class="site-unavailable"><h1>该功能暂未公开</h1><p>站主恢复公开后即可使用。</p><button class="btn" id="hiddenGoHome">返回文献检索</button></section>';$('#hiddenGoHome').onclick=()=>goto('search');SiteUI.afterRender();return;}
+  if(!WebAccount.allowedPage(state.step)){ $("#main").innerHTML=WebAccount.gate();WebAccount.bind();return;}
+  $("#main").innerHTML=STEPS[state.step].render();
+  $("#main").scrollTop=pageScroll[state.step]||0;
+  $("#main").classList.remove('page-transition');
+  if(lastRenderedStep!==state.step)requestAnimationFrame(()=>$('#main').classList.add('page-transition'));
+  lastRenderedStep=state.step;
+  bindMain();
+  FinalUI.bind();
+  WebAccount.bind();
+  UpgradeUI.enhance();
+  SiteUI.afterRender();
+}
+
+/* 抽屉和证据夹都是动态重建的，逐个绑会绑到已经不存在的旧节点上。
+   这几个按钮统一走 document 委托，跟着节点重建也不会掉。 */
+document.addEventListener("click",e=>{
+  const t=e.target.closest?e.target.closest("[data-lang],#clipAdd,#selfBtn,#selfClose,[data-fmt],[data-clipx],[data-clipclear],[data-clipnew],[data-clipaddto],[data-clipnew2],[data-clipopen],[data-clipren],[data-clipdel],[data-clipdelask],[data-clipdelcancel],[data-exp]"):null;
+  if(!t) return;
+  if(t.id==="selfBtn"){ state.selfcheck=1; renderMain(); return; }
+  if(t.id==="selfClose"){ state.selfcheck=0; renderMain(); return; }
+  if(t.dataset.lang){ LANG=t.dataset.lang; if(state.evKey) openRec(state.evKey); return; }
+
+  if(t.id==="clipAdd"){
+    const k=t.dataset.key;
+    state.clipMenu = state.clipMenu===k ? null : k;
+    openRec(k); return;
+  }
+  if(t.dataset.clipaddto){
+    const k=t.dataset.key, to=t.dataset.clipaddto;
+    addTo(k,to); state.clipMenu=null; state.clipOpen=to; renderMain(); openRec(k); return;
+  }
+  if(t.dataset.clipnew2){
+    const k=t.dataset.key;
+    const raw=(prompt("新分类的名字，例如：肺结节 / 待读","")||"").trim();
+    const name=(raw||("分类 "+(SRCH.cats.length+1))).slice(0,24);
+    const id=catKey();
+    SRCH.cats.push({id,name,items:[]});
+    addTo(k,id); state.clipMenu=null; state.clipOpen=id; renderMain(); openRec(k); return;
+  }
+  if(t.hasAttribute("data-clipopen")){
+    const id=t.getAttribute("data-clipopen");
+    state.clipOpen=(state.clipOpen===id)?null:id;
+    renderMain(); return;
+  }
+  if(t.hasAttribute("data-clipnew")){
+    const nm=(prompt("新分类名称，例如：肺结节 / 待读 / 复现性方法","")||"").trim();
+    if(!nm) return;
+    const id=catKey();
+    SRCH.cats.push({id, name:nm.slice(0,24), items:[]});
+    state.clipOpen=id; saveCats(); renderMain(); return;
+  }
+  if(t.hasAttribute("data-clipren")){
+    const c=catById(t.getAttribute("data-clipren"));
+    const nm=(prompt("重命名分类", c.name)||"").trim();
+    if(!nm) return;
+    c.name=nm.slice(0,24); saveCats(); renderMain(); return;
+  }
+  if(t.hasAttribute("data-clipdelask")){
+    const id=t.getAttribute("data-clipdelask");
+    state.clipDel = state.clipDel===id ? null : id;
+    state.clipOpen = id; renderMain(); return;
+  }
+  if(t.hasAttribute("data-clipdelcancel")){
+    state.clipDel=null; renderMain(); return;
+  }
+  if(t.hasAttribute("data-clipdel")){
+    const id=t.getAttribute("data-clipdel");
+    const c=catById(id);
+    state.clipDel=null;
+    if(!c||c.id===CAT_DEFAULT){ renderMain(); return; }
+    catById(CAT_DEFAULT).items.push(...c.items.filter(k=>catById(CAT_DEFAULT).items.indexOf(k)<0));
+    SRCH.cats=SRCH.cats.filter(x=>x.id!==id);
+    state.clipOpen=CAT_DEFAULT; saveCats(); renderMain(); return;
+  }
+
+  if(t.id==="clipClear"||t.hasAttribute("data-clipclear")){
+    const scope=t.getAttribute("data-clipclear");
+    if(scope==="all"){ SRCH.cats.forEach(c=>c.items=[]); }
+    else { catById(scope||state.clipOpen||CAT_DEFAULT).items=[]; }
+    saveCats(); renderMain(); return;
+  }
+
+  if(t.dataset.clipx){
+    removeKey(t.dataset.clipx);
+    saveCats(); renderMain(); return;
+  }
+
+  if(t.dataset.exp){
+    SRCH.q=t.dataset.exp; SRCH.groups=null; SRCH.page=1; renderMain(); return;
+  }
+
+  if(t.dataset.fmt){
+    const box=$("#clipBib");
+    if(!box) return;
+    const cat=catById(t.getAttribute("data-cat")||state.clipOpen||CAT_DEFAULT);
+    const docs=cat.items.map(k=>LIB.find(x=>x.key===k)||ONLINE_DOCS.get(k)).filter(Boolean);
+    const fmt=t.dataset.fmt;
+    const text=fmt==="bibtex"?docs.map(bibtexOf).join("\n\n")
+             :fmt==="ris"?docs.map(risOf).join("\n\n")
+             :docs.map(citeText).join("\n");
+    const tip=fmt==="bibtex"
+        ?"存成 <code>.bib</code> 后在 Zotero / EndNote / JabRef 里选「导入」；提醒一句，et al. 写成 and others 是 BibTeX 的规范写法。"
+      :fmt==="ris"
+        ?"存成 <code>.ris</code> 后双击即可导入 EndNote / NoteExpress / Zotero。"
+        :"直接粘进 Word 的参考文献表。卷期页请对照原文再核一遍。";
+    box.innerHTML=`<pre class="bib">${esc(text)}</pre>`
+      +`<div class="hint" style="margin-top:6px">共 ${docs.length} 条。点一下文本框即全选。${tip}</div>`;
+    const pre=box.querySelector("pre");
+    if(pre) pre.onclick=()=>{
+      const r=document.createRange(); r.selectNodeContents(pre);
+      const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    };
+  }
+});
+/* 分类之间搬动：<select data-mv> 走 change，不走 click */
+document.addEventListener("change",e=>{
+  const s=e.target;
+  if(!s||!s.getAttribute) return;
+  const k=s.getAttribute("data-mv");
+  if(!k) return;
+  const to=s.value;
+  removeKey(k);
+  catById(to).items.push(k);
+  saveCats(); renderMain();
+});
+
+const pageScroll={};
+function goto(k,fromHistory=false){
+  if(!STEPS[k])return;
+  BackgroundTasks.foreground(1200);
+  pageScroll[state.step]=$("#main").scrollTop;
+  if(state.step==='assist'&&k!=='assist')ResearchUI.leave();
+  state.step=k;
+  if(!fromHistory&&location.hash!=='#'+k)history.pushState({step:k},'',location.pathname+location.search+'#'+k);
+  document.body.classList.remove("nav-open");
+  renderNav(); renderMain();
+  if(k==='search'&&SRCH.scope==='mine')MyPapers.load();
+}
+window.addEventListener('popstate',()=>goto(location.hash.slice(1)||'search',true));
+
+function bindMain(){
+  document.querySelectorAll("[data-jump]").forEach(el=>{
+    el.onclick=()=>goto(el.dataset.jump);
+  });
+  document.querySelectorAll("[data-open]").forEach(el=>{
+    el.onclick=()=>openEvidence(el.dataset.open);
+  });
+
+  bindSearch();
+  if(state.step==='search'){LibraryUI.bind();MyPapers.bind();runCatalogSearch();}
+  if(state.step==='lab'||state.step==='math')SimulationUI.bind();
+  else if(state.step==='anatomy')AnatomyUI.bind();
+  else if(state.step==='pdf')PdfUI.bind();
+  else if(state.step!=="search" && typeof ResearchUI!=="undefined")ResearchUI.bind();
+}
+
+/* 检索视图的控件绑定。注意 renderMain 会重建 DOM，所以每次渲染后必须重绑。 */
+function bindSearch(){
+  // ---- 对话检索 ----
+  const aiIn=$("#aiInput"), aiGo=$("#aiGo"), aiRe=$("#aiReset");
+  const qin=$("#qaInput");
+
+  const runAI=()=>{
+    if(!aiIn) return;
+    const txt=(aiIn.value||"").trim();
+    if(!txt) return;
+    CHAT.last=txt;
+    CHAT.intent=AIQ.aiParse(txt, CHAT.intent);
+    renderMain();
+    const box=$("#aiInput");
+    if(box){
+      box.focus();
+      try{ box.setSelectionRange(box.value.length, box.value.length); }catch(e){}
+    }
+  };
+  if(aiGo) aiGo.onclick=()=>{runAI();applyIntent();};
+  if(aiIn) aiIn.onkeydown=e=>{ if(e.key==="Enter"&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); runAI();applyIntent(); } };
+  // 示例问句：点一下填进输入框并直接解析，省得用户猜这个框能听懂什么
+  document.querySelectorAll("[data-aiq]").forEach(b=>{
+    b.onclick=()=>{ if(aiIn) aiIn.value=b.dataset.aiq; runAI(); };
+  });
+  const sqBtn=$("#sqBtn"), sqHelp=$("#sqHelp");
+  if(sqBtn && sqHelp) sqBtn.onclick=()=>{ sqHelp.hidden=!sqHelp.hidden; };
+  if(aiRe) aiRe.onclick=()=>{
+    CHAT.intent=null; CHAT.last="";
+    SRCH.groups=null; SRCH.yearFrom=0;
+    Object.assign(SRCH,{oa:false,onlyV:false,hasAbs:false,zhOnly:false,sort:"rel",page:1});
+    renderMain();
+  };
+  document.querySelectorAll("[data-ai]").forEach(b=>{
+    b.onclick=()=>{
+      const k=b.dataset.ai;
+      if(k==="apply"){ applyIntent(); return; }
+      if(k==="pm"){
+        if(!CHAT.intent) return;
+        const t=AIQ.aiPubmed(CHAT.intent);
+        const ok=copyText(t);
+        const box=$("#aiStr");
+        if(box){
+          box.innerHTML=`<code>${esc(t||"—")}</code>`;
+          if(ok) box.style.background="var(--accent-soft)";
+        }
+      }
+    };
+  });
+  document.querySelectorAll("[data-drop]").forEach(b=>{
+    b.onclick=()=>{
+      const v=b.dataset.drop, it=CHAT.intent;
+      if(!it) return;
+      it.concepts=(it.concepts||[]).filter(c=>c.c!==v);
+      it.free=(it.free||[]).filter(w=>w!==v);
+      renderMain();
+    };
+  });
+
+  // ---- 列表语言 ----
+  document.querySelectorAll("[data-ll]").forEach(b=>{
+    b.onclick=()=>{ LISTLANG=b.dataset.ll; renderMain(); };
+  });
+  const fz=$("#fZh");
+  if(fz) fz.onchange=()=>{ SRCH.zhOnly=fz.checked; SRCH.page=1; renderMain(); };
+
+  const inp=$("#qInput");
+  if(inp){
+    inp.searchCompositionEvents?.abort();
+    const compositionEvents=new AbortController();
+    inp.searchCompositionEvents=compositionEvents;
+    let timer=null,serverTimer=null;
+    let composing=false;
+    const update=(submitted=false)=>{
+      if(composing||!inp.isConnected)return;
+      SRCH.q=inp.value; SRCH.page=1; SRCH.groups=null; CHAT.intent=null;
+      if(submitted){rememberSearch();refreshSearchHistory();}
+      const replacement=document.createElement("div");replacement.innerHTML=renderSearch();
+      const fresh=replacement.querySelector(".sbody"),old=document.querySelector(".sbody");
+      if(old&&fresh){old.replaceWith(fresh);bindSearch();LibraryUI.bind();MyPapers.bind();FinalUI.bind();SiteUI.afterRender();clearTimeout(serverTimer);serverTimer=setTimeout(runCatalogSearch,submitted?0:450);return;}
+      const position=inp.selectionStart;
+      renderMain();
+      const box=$("#qInput");if(box){box.focus();box.setSelectionRange(position,position);}
+      clearTimeout(serverTimer);serverTimer=setTimeout(runCatalogSearch,submitted?0:450);
+    };
+    inp.addEventListener('compositionstart',()=>{composing=true;inp.dataset.composing='true';clearTimeout(timer);},{signal:compositionEvents.signal});
+    inp.addEventListener('compositionend',()=>{composing=false;delete inp.dataset.composing;clearTimeout(timer);timer=setTimeout(update,220);},{signal:compositionEvents.signal});
+    inp.oninput=ev=>{
+      SRCH.q=inp.value;SRCH.groups=null;CHAT.intent=null;
+      if(!composing&&!ev.isComposing){clearTimeout(timer);timer=setTimeout(update,220);}
+    };
+    inp.onkeydown=e=>{
+      if(e.key==="Enter"&&!composing&&!e.isComposing&&e.keyCode!==229){ e.preventDefault();clearTimeout(timer);update(true); }
+    };
+  }
+  document.querySelectorAll('[data-online-source]').forEach(button=>button.onclick=()=>{
+    SRCH.source=button.dataset.onlineSource;
+    if(SRCH.source==='online'&&!SRCH.onlineRecords.length)runOnlineSearch('*');else{renderMain();if(SRCH.source==='local')runCatalogSearch();}
+  });
+  document.querySelectorAll('[data-online-page]').forEach(button=>button.onclick=()=>{
+    if(button.dataset.onlinePage==='next'&&SRCH.onlineNext){SRCH.onlineStack.push(SRCH.onlineNext);runOnlineSearch(SRCH.onlineNext);}
+    else if(button.dataset.onlinePage==='previous'&&SRCH.onlineStack.length>1){SRCH.onlineStack.pop();runOnlineSearch(SRCH.onlineStack.at(-1));}
+  });
+  const go=$("#qGo");
+  if(go) go.onclick=()=>{ SRCH.q=$("#qInput").value; SRCH.page=1;SRCH.source='local';SRCH.onlineRecords=[];rememberSearch();renderMain();runCatalogSearch(); };
+
+  bindSearchHistory();
+  const quickYearFrom=$('#quickYearFrom'),quickYearTo=$('#quickYearTo');
+  const applyQuickYears=()=>{SRCH.yearFrom=Number(quickYearFrom?.value)||0;SRCH.yearTo=Number(quickYearTo?.value)||0;SRCH.page=1;renderMain();rerunSearch();};
+  quickYearFrom?.addEventListener('change',applyQuickYears);quickYearTo?.addEventListener('change',applyQuickYears);
+  document.querySelectorAll('[data-year-preset]').forEach(button=>button.onclick=()=>{const count=Number(button.dataset.yearPreset);SRCH.yearFrom=count?new Date().getFullYear()-count+1:0;SRCH.yearTo=0;SRCH.years=[];SRCH.page=1;renderMain();rerunSearch();});
+  const quickSort=$('#qSortQuick');if(quickSort)quickSort.onchange=()=>{SRCH.sort=quickSort.value;SRCH.page=1;renderMain();rerunSearch();};
+
+  const reset=$("#qClear");
+  if(reset) reset.onclick=()=>{
+    Object.assign(SRCH,{q:"",field:"all",years:[],topics:[],journals:[],oa:false,onlyV:false,hasAbs:false,zhOnly:false,groups:null,yearFrom:0,yearTo:0,sort:"rel",page:1});
+    CHAT.intent=null; CHAT.last="";
+    CATALOG_SEARCH.active=false;CATALOG_SEARCH.error='';CATALOG_SEARCH.signature='';renderMain();
+  };
+
+  const fld=$("#qField");
+  if(fld) fld.onchange=()=>{ SRCH.field=fld.value; SRCH.page=1; renderMain();if(CATALOG_SEARCH.active)runCatalogSearch(); };
+
+  const srt=$("#qSort");
+  if(srt) srt.onchange=()=>{ SRCH.sort=srt.value; SRCH.page=1; renderMain();rerunSearch(); };
+
+  document.querySelectorAll("[data-datebasis]").forEach(c=>{c.onchange=()=>{SRCH.dateBasis=c.dataset.datebasis;SRCH.years=[];SRCH.page=1;renderMain();};});
+  document.querySelectorAll("[data-fy]").forEach(c=>{
+    c.onchange=()=>{
+      const i=SRCH.years.indexOf(c.dataset.fy);
+      if(c.checked){ if(i<0) SRCH.years.push(c.dataset.fy); }
+      else if(i>=0) SRCH.years.splice(i,1);
+      SRCH.page=1; renderMain();if(CATALOG_SEARCH.active)runCatalogSearch();
+    };
+  });
+
+  document.querySelectorAll("[data-ft]").forEach(c=>{
+    c.onchange=()=>{
+      const i=SRCH.topics.indexOf(c.dataset.ft);
+      if(c.checked){ if(i<0) SRCH.topics.push(c.dataset.ft); }
+      else if(i>=0) SRCH.topics.splice(i,1);
+      SRCH.page=1; renderMain();if(CATALOG_SEARCH.active)runCatalogSearch();
+    };
+  });
+
+  const onlyV=$("#fOnlyV");
+  if(onlyV) onlyV.onchange=()=>{ SRCH.onlyV=onlyV.checked; SRCH.page=1; renderMain(); };
+
+  const oa=$("#fOA");
+  if(oa) oa.onchange=()=>{ SRCH.oa=oa.checked; SRCH.page=1; renderMain(); };
+
+  const hasAbs=$("#fAbs");
+  if(hasAbs) hasAbs.onchange=()=>{ SRCH.hasAbs=hasAbs.checked; SRCH.page=1; renderMain(); };
+
+  document.querySelectorAll("[data-page]").forEach(b=>{
+    b.onclick=()=>{
+      const n=parseInt(b.dataset.page,10);
+      if(!isNaN(n)){ SRCH.page=n; renderMain();if(CATALOG_SEARCH.active)runCatalogSearch(); }
+    };
+  });
+
+  const pageJump=$("#searchPageJump");
+  if(pageJump) pageJump.onsubmit=event=>{
+    event.preventDefault();
+    SRCH.page=Number($("#searchPageNumber").value);
+    renderMain();if(CATALOG_SEARCH.active)runCatalogSearch();
+  };
+
+  document.querySelectorAll("[data-rec]").forEach(el=>{
+    el.onclick=()=>openRec(el.dataset.rec);
+  });
+
+  document.querySelectorAll("[data-preset]").forEach(b=>{
+    b.onclick=()=>{ SRCH.q=b.dataset.preset; SRCH.page=1;rememberSearch();renderMain();runCatalogSearch(); };
+  });
+
+  document.querySelectorAll("[data-fj]").forEach(c=>{
+    c.onchange=()=>{
+      const i=SRCH.journals.indexOf(c.dataset.fj);
+      if(c.checked){ if(i<0) SRCH.journals.push(c.dataset.fj); }
+      else if(i>=0) SRCH.journals.splice(i,1);
+      SRCH.page=1; renderMain();
+    };
+  });
+
+}
+
+/* ---------- 顶栏与全局 ---------- */
+$("#evClose").onclick=()=>evShut();
+
+
+/* 主题图标跟着实际状态走，而不是常年一个月亮 */
+const syncThemeIcon=()=>{
+  const dark=document.documentElement.dataset.theme==="dark";
+  const u=$("#themeBtn use");
+  if(u) u.setAttribute("href", dark?"#i-sun":"#i-moon");
+};
+$("#themeBtn").onclick=()=>{
+  const cur=document.documentElement.dataset.theme;
+  document.documentElement.dataset.theme = cur==="light" ? "dark" : "light";
+  syncThemeIcon();
+};
+syncThemeIcon();
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") evShut();
+});
+
+async function startWebsite(){
+  if(!$('#main').children.length)$('#main').innerHTML='<div class="site-load" role="status">正在准备文献检索…</div>';
+  try{
+    renderNav();
+    const query=new URLSearchParams(location.search);
+    const bootstrap=await LibraryUI.first();
+    const entryQuery=query.get('q');if(entryQuery)SRCH.q=entryQuery;
+    renderNav();renderMain();
+    if(query.get('paper'))ReaderUI.open(query.get('paper'));
+    WebAccount.init(bootstrap.session);PdfUI.globalDrop();
+    setTimeout(()=>{LibraryUI.rest();AnatomyLoader.prefetch();},0);
+  }catch(error){const box=document.createElement('section');box.className='site-service-notice';box.setAttribute('role','status');box.innerHTML='<strong>在线数据暂未连接</strong><p>'+esc(error.message)+'</p><button class="btn" onclick="location.reload()">重试连接</button> <a class="btn ghost" href="/demo/">打开比赛演示版</a>';$('#main').prepend(box);}
+}
+startWebsite();
+
+document.addEventListener("click",event=>{const button=event.target.closest("[data-read-paper]");if(button)ReaderUI.open(button.dataset.readPaper);});</script>
+</body>
+</html>
+

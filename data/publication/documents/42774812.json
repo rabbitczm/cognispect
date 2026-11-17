@@ -1,0 +1,1571 @@
+{
+  "key": "42774812",
+  "body_available": true,
+  "title": "Impact of MRI modality selection on glioma sub-region segmentation using 3D U-Net and Attention U-Net: A comparative evaluation across ten MRI sequences",
+  "source_url": "https://europepmc.org/articles/PMC13594701",
+  "license": {
+    "text": "This is an open access article under the CC BY-NC license (http://creativecommons.org/licenses/by-nc/4.0/).",
+    "urls": [],
+    "eligibility": "eligible_noncommercial",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Amir Khorasani"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Authors",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2026",
+        "month": "9",
+        "day": "14"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "sec0005",
+      "title": "Background",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0010",
+          "reference_ids": [
+            "bib1",
+            "bib2",
+            "bib3",
+            "bib4",
+            "bib5"
+          ],
+          "en": "Gliomas are the most common primary malignant tumors of the central nervous system and are characterized by highly infiltrative growth patterns and substantial biological heterogeneity [1]. These tumors often comprise distinct subregions, including peritumoral edema, necrotic core, and actively proliferating tumor tissue, each of which carries important diagnostic and prognostic significance [2]. Magnetic resonance imaging (MRI) is the standard modality for the noninvasive assessment of gliomas subregions, offering diverse imaging contrasts that reflect anatomical structure as well as underlying diffusion, perfusion, and susceptibility properties [3,4]. Accurate identification, segmentation, and delineation of glioma subregions are essential for treatment planning, radiotherapy targeting, and longitudinal monitoring of disease progression [5].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0015",
+          "reference_ids": [
+            "bib6",
+            "bib7",
+            "bib8",
+            "bib4",
+            "bib5",
+            "bib7"
+          ],
+          "en": "Manual segmentation of glioma subregions from MRI remains labor-intensive, subject to inter-observer variability, and difficult to reproduce, particularly when advanced MRI sequences are considered [6]. In recent years, deep learning–based approaches, especially convolutional neural networks such as U-Net and its variants, have achieved state-of-the-art performance in automated medical image segmentation [7,8]. Previous studies have employed U-Net and its architectural variants, such as backbone U-Net, for glioma semantic segmentation, demonstrating promising performance across diverse imaging datasets [4]. Among the promising architectural variants, Attention U-Net has attracted considerable interest due to its relatively simple design compared with more complex frameworks such as nnU-Net and backbone U-Net, while still achieving competitive segmentation performance [5,7]. Owing to this balance between architectural simplicity and effectiveness, we selected both the standard U-Net and Attention U-Net architectures in this study to perform glioma subregions semantic segmentation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0020",
+          "reference_ids": [
+            "bib5",
+            "bib7",
+            "bib8",
+            "bib9",
+            "bib5",
+            "bib7",
+            "bib8"
+          ],
+          "en": "Most existing studies on glioma subregion segmentation primarily utilize conventional and structural MRI sequences, such as T1-weighted, T2-weighted, Fluid‑Attenuated Inversion Recovery (FLAIR), and contrast-enhanced T1-weighted (T1Gd) images [5,7,8]. Although these modalities are widely used in clinical and research settings, their individual roles in guiding segmentation performance have not been thoroughly examined. Previous work [9] has shown that incorporating diffusion-weighted imaging (DWI), particularly for identifying active tumor regions, can improve segmentation results, highlighting that the choice of MRI sequences plays an important role in the performance of U-Net–based architectures for glioma subregion semantic segmentation. It is interesting be noted that the majority of existing glioma segmentation studies rely on multimodal or multi-channel MRI inputs, in which individual sequences are fused prior to network training [5,7,8], consequently, the isolated contribution of each MRI weighting to segmentation performance remains largely unexplored.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0025",
+          "reference_ids": [
+            "bib10"
+          ],
+          "en": "In addition, MRI encompasses a wide range of image weights, including diffusion-based modalities such as DWI and its derived maps (Apparent Diffusion Coefficient (ADC) map, Fractional Anisotropy (FA) map, and Mean Diffusivity (MD)), as well as susceptibility-weighted imaging (SWI), arterial spin labeling (ASL), and others, each of which provides distinct tissue information and image contrast, capturing complementary aspects of tumor microstructure, vascularity, and physiological behavior [10]. Despite the availability of these diverse MRI weightings, to the best of our knowledge, no prior study has systematically evaluated the individual, single-modality contribution of ten distinct MRI weightings, namely structural MRI sequences (T1-weighted, T2-weighted, FLAIR, and T1Gd), diffusion-based modalities (DWI, ADC map, FA map, and MD map), as well as SWI and ASL, to glioma subregion semantic segmentation performance in U-Net-based models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0030",
+          "reference_ids": [],
+          "en": "Rather than developing a combined multiparametric segmentation pipeline, the central aim of this study was to identify, for each glioma subregion, the single MRI weighting associated with the best segmentation performance, an objective that requires each modality to be evaluated independently. In this study, we aim to address this gap by conducting a comparative evaluation of the contribution of individual MRI sequences to glioma subregion semantic segmentation, using standard U-Net and Attention U-Net architectures trained independently on structural MRI sequences (T1, T2, FLAIR, and T1Gd), DWI modalities (DWI, ADC map, FA, and MD), as well as SWI and ASL.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0010",
+      "title": "Material and methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0035",
+          "reference_ids": [
+            "fig0005"
+          ],
+          "en": "In this study, we present a deep learning–based framework for the automated semantic segmentation of glioma subregions using multiparametric MRI. A diverse set of MRI sequences was incorporated to capture complementary structural, diffusion, perfusion, and susceptibility information, including structural MRI image-weights (T1-weighted, T2-weighted, FLAIR, and T1Gd), diffusion-based modalities (DWI, ADC map, FA map, and MD map), as well as SWI and ASL. Two convolutional neural network architectures, standard U-Net and Attention U-Net, were employed to perform voxel-wise segmentation of clinically relevant glioma subregions, namely peritumoral edema, necrotic core, and active tumor tissue. An overview of the proposed methodological workflow is illustrated in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0015",
+      "title": "Magnetic resonance imaging image-weights",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0040",
+          "reference_ids": [
+            "bib11"
+          ],
+          "en": "This study was conducted using the publicly available University of California San Francisco Preoperative Diffuse Glioma MRI (UCSF‑PDGM) dataset [11], which provides preoperative multiparametric MRI scans of patients with diffuse gliomas. The dataset includes a broad set of imaging contrasts, structural MRI (T1, T2, FLAIR, T1Gd), diffusion-based modalities (DWI, ADC, FA, MD), SWI, and ASL, along with expert-annotated voxel-wise labels for key glioma subregions, including peritumoral edema, necrotic core, and active tumor tissue. The “active tumor” label used throughout this study corresponds to the active/enhancing tumor label provided in the original UCSF-PDGM dataset annotations and is conceptually equivalent to the “enhancing tumor (ET)” sub-region terminology commonly used in the BraTS glioma segmentation literature. These annotations served as the ground truth for training and evaluating the segmentation models. Ground-truth generation in UCSF‑PDGM dataset relied solely on the four conventional structural MRI sequences (T1, T1Gd, T2, and FLAIR), whereas the diffusion-derived, susceptibility-weighted, and perfusion modalities analyzed in this study did not contribute to the original ground-truth delineations in UCSF‑PDGM dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0045",
+          "reference_ids": [
+            "bib11"
+          ],
+          "en": "All data are fully de-identified and released in accordance with institutional and data‑sharing regulations. The UCSF‑PDGM dataset consists of adult patients with histopathologically confirmed World Health Organization (WHO) grade II–IV diffuse gliomas who underwent preoperative MRI at a single center between 2015 and 2021. All scans were acquired on the same 3.0 T system (Discovery 750, GE Healthcare, Waukesha, WI, USA) with an 8‑channel head coil, using a consistent protocol across the study population [11].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0050",
+          "reference_ids": [],
+          "en": "Diffusion MRI in the UCSF‑PDGM dataset was preprocessed prior to public release using standardized pipelines. Eddy‑current distortions were corrected with the Eddy module in FSL, and diffusion tensor fitting was performed using DTIFIT to generate isotropic DWI and quantitative diffusion maps such as MD, FA, axial diffusivity (AD), and radial diffusivity (RD). All MRI contrasts were subsequently co‑registered and resampled to a common 1 mm isotropic space defined by the T2/FLAIR images using nonlinear registration in Advanced Normalization Tools (ANTs), followed by skull stripping to remove non‑brain tissue as preprocessing stages. All MRI volumes were reshaped to a fixed matrix size of 240 × 240 × 155 voxels prior to network input. Voxel intensities were normalized independently for each subject and MRI sequence using min-max normalization, which scaled intensity values to the range [0 1].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0055",
+          "reference_ids": [],
+          "en": "The UCSF-PDGM dataset comprised 495 subjects. However, a rigorous quality control process was implemented prior to analysis to ensure the integrity and reliability of the data. Eleven subjects were excluded due to labeling inconsistencies and annotation errors, while an additional 16 subjects were excluded on the basis of insufficient image quality and the presence of MRI acquisition artifacts, as assessed and verified by a radiologist with 20 years of experience in neuroradiology. Consequently, a final cohort of 468 subjects was retained and included in the subsequent analyses. All 468 subjects included in the final study cohort had complete data for all ten evaluated MRI sequences (T1, T2, FLAIR, T1Gd, DWI, ADC, FA, MD, SWI, and ASL). The final study cohort (n = 468) include 280 male (59.8%) and 188 female (40.2%) subjects, with a mean age of 56.8 ± 14.9 years (range, 17–94 years). Tumors were classified as WHO CNS grade II in 55 subjects (11.8%), grade III in 41 subjects (8.8%), and grade IV in 372 subjects (79.5%). IDH mutation was present in 97 subjects (20.7%) and absent (IDH-wildtype) in 371 subjects (79.3%). MGMT promoter methylation status was positive in 281 subjects (60.0%), negative in 105 subjects (22.4%), and unknown or indeterminate in 82 subjects (17.5%).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0020",
+      "title": "U-Net and Attention U-Net",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0060",
+          "reference_ids": [],
+          "en": "In this study, two three-dimensional convolutional neural network architectures, 3D U‑Net and 3D Attention U‑Net, were implemented to perform automated semantic segmentation of glioma subregions using single-modality MRI inputs. Instead of combining multiple imaging contrasts, each MRI sequence was introduced independently to the network in order to systematically assess its individual contribution to segmentation performance. The models were trained on full 3D volumes for each subject and tasked with segmenting clinically relevant glioma subregions, including peritumoral edema, necrotic core, and active tumor regions. This design enabled a controlled and direct comparison of the discriminative capacity of each MRI sequence on the results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0065",
+          "reference_ids": [],
+          "en": "The baseline segmentation framework was based on the standard U‑Net architecture, adapted for three-dimensional volumetric inputs. The network follows a symmetric encoder–decoder structure with skip connections to preserve spatial information across all three dimensions. The encoder (contracting) path comprised four sequential convolutional blocks (C1-C4), each including two 3 × 3 × 3 convolutional layers with progressively increasing feature channels (64, 128, 256, and 512), followed by batch normalization and rectified linear unit (ReLU) activation. Spatial downsampling between blocks was performed using 2 × 2 × 2 max-pooling (P1-P4) operations. A bottleneck layer with 1024 feature channels connected the encoder and decoder pathways.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0070",
+          "reference_ids": [
+            "fig0010"
+          ],
+          "en": "The decoder (expansive) path mirrored the encoder architecture, utilizing three-dimensional transposed convolutions (U1-U4) for upsampling and concatenating the corresponding encoder feature maps through skip connections. The final segmentation layer consisted of a 1 × 1 × 1 convolution followed by SoftMax activation, generating four output feature channels that represent voxel-wise probability maps for necrotic core, edema, active tumor, and background. Detailed architectural specifications of the 3D U‑Net are illustrated in Fig. 2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0075",
+          "reference_ids": [
+            "fig0015"
+          ],
+          "en": "In addition to the standard 3D U‑Net, a 3D Attention U‑Net was implemented to evaluate the impact of attention mechanisms on glioma subregion segmentation. As illustrated in Fig. 3, the network preserves the symmetric encoder–decoder structure of the 3D U‑Net while incorporating attention gates (A1–A4) at each skip connection. Each attention gate receives feature maps from the encoder and the corresponding decoder layer, applies 1 × 1 × 1 convolutions followed by batch normalization, element‑wise addition, and ReLU activation, and subsequently generates a three‑dimensional attention map through an additional 1 × 1 × 1 convolution and a sigmoid gating function. The resulting attention map is used to weight the encoder feature maps prior to concatenation, enabling the network to emphasize diagnostically relevant tumor regions while suppressing background responses.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0080",
+          "reference_ids": [],
+          "en": "The encoder path comprises four convolutional blocks (C1–C4), each containing two 3 × 3 × 3 convolutional layers with increasing feature depths (64, 128, 256, and 512), followed by 2 × 2 × 2 max‑pooling operations (P1–P4) for spatial downsampling. A bottleneck layer with 1024 feature maps connects the encoder and decoder pathways. The decoder path mirrors the encoder structure with four upsampling blocks (U1–U4), using 2 × 2 × 2 transposed convolutions and concatenation with attention‑weighted encoder features via skip connections. The final segmentation layer consists of a 1 × 1 × 1 convolution with four output channels and SoftMax activation, producing voxel‑wise probability maps for necrotic core, peritumoral edema, active tumor, and background.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0085",
+          "reference_ids": [],
+          "en": "Model training and evaluation were performed using a five‑fold cross‑validation strategy to ensure robust and unbiased performance assessment. At the subject level, the dataset was first split into training and testing subsets using an 80:20 ratio, with 80% of the data used for model development and the remaining 20% reserved for independent testing. Within the training subset, five‑fold cross‑validation was applied, such that in each fold four partitions were used for training and one for validation. An identical subject-level 80:20 train-test split, together with the same five-fold cross-validation fold assignment within the training subset, was applied consistently across all ten MRI sequences and both network architectures (3D U-Net and 3D Attention U-Net), such that the same subjects constituted the training, validation, and test partitions in every experiment. This fixed-split design ensured that observed performance differences across modalities and architectures could be attributed to the discriminative properties of each MRI sequence rather than to variability in subject composition between comparisons.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0090",
+          "reference_ids": [],
+          "en": "Model optimization was carried out using the Adam optimizer with an initial learning rate of 1 × 10⁻⁴, and categorical cross‑entropy was employed as the loss function for voxel‑wise multi‑class segmentation of four classes: background, peritumoral edema, necrotic core, and active tumor tissue. To mitigate the effects of class imbalance commonly observed in glioma segmentation, class weighting was incorporated during training, assigning higher weights to underrepresented tumor classes and reducing bias toward the dominant background regions. Each network received the full 3D MRI volume as models’ inputs. Models were trained with a batch size of 4 for a fixed 50 epochs, without early stopping, and no data augmentation was applied during training. Class weights used in the categorical cross-entropy loss were computed automatically using a class-weighting function based on the class distribution in the training data, assigning higher weights to the underrepresented tumor subregion classes relative to the dominant background class. A fixed random seed (seed = 42) was used for data splitting and model initialization. All models were implemented in Python (version 3.11) using the TensorFlow (version 2.15.0) deep learning framework, and trained on a NVIDIA RTX 3060 Ti GPU (12 GB VRAM) with 32 GB of system RAM.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0025",
+      "title": "Model performance evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0095",
+          "reference_ids": [],
+          "en": "The performance of the two segmentation architectures, standard U-Net and Attention U-Net, was assessed across all 60 experimental combinations (2 models × 10 MRI image-weights × 3 glioma sub-regions). Each trained model was evaluated independently per sub-region using four quantitative metrics: Dice Similarity Coefficient (DSC), Intersection over Union (IoU), and the 95th percentile Hausdorff Distance (HD95), and the final performance metrics on test dataset were reported. To systematically rank all combinations and identify the optimal architecture–modality pairing per sub-region, the Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) was applied as a multi-criteria decision-making framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0100",
+          "reference_ids": [],
+          "en": "Given the multi-dimensional nature of the evaluation, a single metric cannot adequately capture overall model performance, particularly when metrics exhibit conflicting trends across modalities and sub-regions. The TOPSIS, introduced by Hwang and Yoon, was therefore applied independently for each of the three tumor sub-regions, edema, necrotic core, and active tumor, yielding three separate rankings of the 20 model–modality combinations (2 architectures × 10 MRI image-weights) per glioma sub-region.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0105",
+          "reference_ids": [],
+          "en": "TOPSIS operates by identifying a Positive Ideal Solution (A⁺), representing the hypothetically best attainable values across all criteria, and a Negative Ideal Solution (A⁻), representing the worst. Each combination is then ranked by its relative closeness to A⁺ and distance from A⁻, expressed through a Closeness Coefficient (CC). The TOPSIS procedure was implemented in six steps. First, a decision matrix X of dimensions 20 × 3 was constructed for each sub-region, where rows correspond to model–modality combinations and columns correspond to the three-evaluation metrics. Second, the matrix was normalized using vector (L2) normalization to eliminate scale differences between metrics: rᵢⱼ = xᵢⱼ / √(Σx²ᵢⱼ). Third, a weighted normalized matrix was obtained by multiplying each normalized value by its assigned criterion weight wⱼ: vᵢⱼ = wⱼ · rᵢⱼ. Equal weights (w=1/3 for DSC, IoU, and HD95) were assigned to all evaluation criteria, reflecting the absence of an a priori basis for prioritizing overlap-based accuracy over boundary-based accuracy in glioma sub-region segmentation and avoiding the introduction of subjective bias into the ranking (to assess the robustness of the resulting rankings to this weighting choice, a sensitivity analysis was subsequently performed under alternative weighting schemes in the supplementary file). Fourth, the ideal solutions were determined. For benefit criteria (DSC, IoU), A⁺ was defined as the maximum weighted normalized value per criterion and A⁻ as the minimum. For the cost criterion HD95, this convention was inverted: A⁺(HD95) = min(vᵢⱼ) and A⁻(HD95) = max(vᵢⱼ), reflecting the fact that lower HD95 values indicate better boundary accuracy. Fifth, the Euclidean separation distances from the positive and negative ideal solutions were computed for each combination: S⁺ᵢ = √Σ(vᵢⱼ − v⁺ⱼ)² and S⁻ᵢ = √Σ(vᵢⱼ − v⁻ⱼ)². Sixth, the Closeness Coefficient was derived as CCᵢ = S⁻ᵢ / (S⁺ᵢ + S⁻ᵢ), yielding a value in the range [0, 1] where a value approaching 1 indicates near-ideal performance. All 20 combinations were ranked by CCᵢ in descending order, and the combination achieving the highest CC was identified as the optimal model for the respective sub-region.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0110",
+          "reference_ids": [],
+          "en": "To evaluate the stability of the TOPSIS-based modality rankings to the choice of criterion weights, a sensitivity analysis was performed. In addition to the uniform weighting scheme used in the primary analysis (wDSC=wIoU=wHD95=1/3), three alternative weighting schemes were tested, each assigning greater emphasis to a single criterion: (i) DSC-emphasized (wDSC=0.6, wIoU=0.2, wHD95=0.2), (ii) IoU-emphasized (wDSC=0.2, wIoU=0.6, wHD95=0.2), and (iii) HD95-emphasized (wDSC=0.2, wIoU=0.2, wHD95=0.6). TOPSIS closeness coefficients and rankings were recalculated for all 20 model–modality combinations per sub-region under each weighting scheme.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0030",
+      "title": "Statistical test",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0115",
+          "reference_ids": [],
+          "en": "To evaluate the effect of model architecture (standard 3D U‑Net versus 3D Attention U‑Net) on segmentation performance on the test dataset, pairwise comparisons were conducted using the Wilcoxon signed‑rank test. To assess the influence of different MRI sequences on segmentation outcomes, a Friedman test was applied to the test dataset, followed by post‑hoc pairwise comparisons using Wilcoxon signed‑rank tests with Holm correction to control for multiple comparisons. All statistical analyses were performed using SPSS software (version 31.0.0; IBM Corp., Armonk, NY, USA), and a two‑sided p‑value < 0.05 was considered statistically significant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0035",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0120",
+          "reference_ids": [
+            "fig0020"
+          ],
+          "en": "A final cohort of 468 subjects, following the quality-control procedure, was included in the subsequent analyses. The performance of the trained U-Net and Attention U-Net architectures was systematically evaluated using different MRI sequences, namely ADC maps, ASL, DWI, FA, FLAIR, MD, SWI, T1, T1Gd, and T2, for comprehensive assessment of glioma region semantic segmentation. Fig. 4 presents representative images from a single subject across different MRI sequences, highlighting variations in image contrast among modalities.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0125",
+          "reference_ids": [
+            "fig0025",
+            "sec0085",
+            "sec0085",
+            "fig0025",
+            "sec0085"
+          ],
+          "en": "To qualitatively assess the influence of MRI sequence and network architecture on tumor segmentation performance, representative examples from the independent test dataset are presented in Fig. 5 for four MRI modalities: ADC maps, ASL, FA, and SWI. For each modality, the original MRI image, the corresponding annotated ground truth, and the segmentation outputs generated by the 3D U‑Net and 3D Attention U‑Net models are shown. Qualitative results for the remaining MRI sequences, DWI, FLAIR, MD, T1, T1Gd, and T2, are provided in the Supplementary Material (Supplementary Figures S1–S6). As illustrated in Fig. 5 and the supplementary figures, segmentation performance varies across MRI sequences, reflecting modality‑specific differences in tissue contrast. Notably, the 3D Attention U‑Net consistently yields more accurate delineation of tumor boundaries and improved separation of glioma subregions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0130",
+          "reference_ids": [
+            "tbl0005",
+            "sec0085",
+            "tbl0005",
+            "sec0085",
+            "sec0085"
+          ],
+          "en": "Quantitative segmentation performance across different MRI sequences is summarized in Table 1, which presents accuracy, DSC, and HD95 values for the necrotic core, peritumoral edema, and active tumor regions obtained using the 3D U‑Net and 3D Attention U‑Net models. The corresponding IoU results are provided in Supplementary Table 1. As shown in Table 1, the 3D Attention U-Net numerically outperformed the standard 3D U-Net across most MRI sequences and sub-regions, with statistically significant differences (two-sided Wilcoxon signed-rank test, p < 0.05) observed for DSC in 12 of 30 sequence-region combinations and for HD95 in 21 of 30 sequence-region combinations, most consistently for SWI, T2, FLAIR, and ASL (Supplementary Table S2). Friedman tests confirmed a statistically significant effect of MRI sequence on segmentation performance for both DSC and HD95 across all three sub-regions (Supplementary Table S3), indicating that segmentation performance is strongly influenced by the choice of MRI sequence.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0135",
+          "reference_ids": [
+            "tbl0005",
+            "sec0085"
+          ],
+          "en": "As shown in Table 1, and Supplementary Table 1, among the three glioma subregions, the peritumoral edema consistently achieved the highest average DSC and IoU values across all evaluated MRI sequences and model architectures, indicating comparatively superior segmentation performance relative to the active tumor and necrotic core regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0140",
+          "reference_ids": [
+            "fig0030",
+            "sec0085",
+            "sec0085"
+          ],
+          "en": "To assess training stability and convergence behavior, training and validation loss and accuracy curves were generated for the 3D Attention U-Net models across the five cross-validation folds, with the mean curve and corresponding standard deviation band plotted at each epoch. Fig. 6 presents these curves for the two MRI sequences, T1Gd and ASL. Panels (1) and (2) show the training and validation loss and accuracy curves for the T1Gd-trained model and ASL-trained model. For both modalities, training and validation loss decreased progressively with increasing epochs before reaching a plateau, while training and validation accuracy increased correspondingly. The corresponding training and validation loss and accuracy curves for the 3D Attention U-Net models trained on the remaining eight MRI sequences (ADC map, DWI, FA, FLAIR, MD, SWI, T1, and T2) are provided in the Supplementary Material (Supplementary Figures S7–S10).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0145",
+          "reference_ids": [],
+          "en": "To further examine the influence of MRI sequence on glioma subregion segmentation, model performance was analyzed separately for the necrotic core, edema, and active tumor across all modalities. Statistical analysis demonstrated a significant effect of MRI sequence on segmentation models performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0150",
+          "reference_ids": [
+            "tbl0010"
+          ],
+          "en": "To identify the optimal model–modality combinations for each glioma sub-region, TOPSIS multi-criteria ranking was applied and the results are presented in Table 2. For peritumoral edema, the Attention U-Net trained with FLAIR MRI image-weight achieved the highest rank (CC = 1.000), followed by the standard U-Net with FLAIR (CC = 0.975), confirming FLAIR as the most informative modality for edema segmentation regardless of model architecture. ADC maps and T1Gd also featured among the top five, both paired with the Attention U-Net (CC = 0.969 and 0.968, respectively), highlighting their secondary utility for this sub-region. For necrotic core segmentation, T1Gd emerged as the dominant modality, with the Attention U-Net achieving the highest rank (CC = 0.885) and the standard U-Net ranking second (CC = 0.762). The remaining top-ranked combinations, Attention U-Net paired with FA, MD, and T1 returned substantially lower closeness coefficients (CC = 0.485, 0.439, and 0.408, respectively), reflecting a considerable performance gap between T1Gd and all other modalities for necrotic core region segmentation. For active tumor segmentation, the Attention U-Net trained on ASL achieved the ideal score (CC = 1.000), with the standard U-Net–ASL combination ranking second (CC = 0.918). The Attention U-Net paired with MD, T2, and T1 completed the top five, with closeness coefficients ranging from 0.744 to 0.825, indicating moderate but meaningful separation between ASL and the remaining modalities for active tumor region segmentation in glioma.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0155",
+          "reference_ids": [
+            "tbl0010",
+            "sec0085"
+          ],
+          "en": "Collectively, TOPSIS rankings in Table 2 confirmed that the Attention U-Net consistently occupied the top-ranked position across all three sub-regions. Furthermore, modality selection exerted a distinctly sub-region–specific influence on segmentation performance, with FLAIR, T1Gd, and ASL emerging as the optimal modalities for peritumoral edema, necrotic core, and active tumor region segmentation in glioma tumor, respectively. To assess the stability of the TOPSIS-based modality rankings to the choice of criterion weighting, a sensitivity analysis was performed using three alternative weighting schemes that sequentially emphasized DSC, IoU, and HD95 (Supplementary Tables S4–S6). Across all three alternative weighting schemes, the top-ranked model–modality combination remained unchanged for every glioma sub-region: Attention U-Net trained on FLAIR for peritumoral edema, Attention U-Net trained on T1Gd for necrotic core, and Attention U-Net trained on ASL for active tumor, consistent with the primary uniform-weighting results. This indicates that the optimal-modality conclusions reported in this study are not an artifact of the specific criterion weights selected for the primary TOPSIS analysis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0160",
+          "reference_ids": [
+            "tbl0015"
+          ],
+          "en": "While sub-region–specific rankings reveal the optimal modality for each individual tumor compartment, clinical practice often demands a single model–modality combination capable of reliably segmenting all sub-regions simultaneously. To address this, TOPSIS closeness coefficients were averaged across the three sub-regions for each model–modality combination, yielding a composite overall ranking that reflects consistent segmentation performance across the full tumor extent and the results are presented in Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0165",
+          "reference_ids": [
+            "tbl0015"
+          ],
+          "en": "Based on the Table 3, the Attention U-Net trained on T1Gd achieved the highest overall rank (CC = 0.848), followed by the standard U-Net with T1Gd (CC = 0.779), collectively underscoring the particular value of contrast-enhanced imaging for comprehensive glioma segmentation. The Attention U-Net paired with ASL ranked third (CC = 0.746), while MD and T1 MRI image-weights, both combined with the Attention U-Net, completed the top five, with mean closeness coefficients of 0.731 and 0.697, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0170",
+          "reference_ids": [],
+          "en": "Notably, the Attention U-Net with T1Gd demonstrated a consistent advantage over all other combinations across sub-regions, suggesting that contrast-enhanced T1-weighted imaging captures complementary tissue characteristics that are broadly informative for glioma sub-region delineation. Furthermore, the presence of ASL and MD among the top five overall rankings is clinically noteworthy, as both represent non-contrast modalities that may offer viable alternatives in settings where gadolinium administration is contraindicated or unavailable. These findings suggest that when a single model–modality combination is required for robust multi-region glioma segmentation, the Attention U-Net trained on T1Gd represents the most consistent and reliable choice across all tumor sub-regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0040",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0175",
+          "reference_ids": [
+            "bib9",
+            "bib12",
+            "bib5",
+            "bib7",
+            "bib8"
+          ],
+          "en": "Gliomas consist of histologically heterogeneous subregions, including peritumoral edema, necrotic core, and enhancing active tumor, whose accurate delineation is essential for treatment planning, therapeutic monitoring, and clinical decision‑making. MRI images play a central role in the assessment and segmentation of these tumor compartments. Different MRI image-weights provide distinct tissue contrasts and reflect diverse physiological and biophysical characteristics of the tumor microenvironment. Prior studies [9,12] have suggested that the selection of MRI input modality can substantially influence AI model training and segmentation performance. In this context, the present study aimed to conduct a comparative evaluation of the impact of individual MRI sequences on the performance of 3D U-Net and 3D Attention U-Net architectures, with the aim of identifying which imaging contrasts most effectively contribute to accurate segmentation of each tumor component. Unlike many previous glioma segmentation studies [5,7,8], which rely on combining several MRI sequences as input, our single-modality design allowed the contribution of each MRI weighting to be examined independently of confounding introduced by feature fusion. This approach also has practical advantages. Since the model uses only one MRI weighting at a time rather than several co-registered sequences, it is simpler to train, uses less GPU memory, and takes less time to run than models that process multiple fused modalities together. In addition, this lighter computational demand can be especially helpful for research teams and clinical centers that do not have access to powerful hardware. Another advantage is that single-modality models do not depend on having every sequence available at once, which may facilitate deployment in clinical settings where complete multiparametric MRI protocols are not consistently feasible due to scan-time and cost. It should be noted that, in clinical and research practice, glioma segmentation is typically performed using combined multiparametric MRI rather than a single sequence. The present findings should therefore not be interpreted as advocating for the replacement of standard multimodal protocols, but rather as identifying, within the scope and aim of this study, the modalities that contribute most strongly to subregion-specific segmentation performance when evaluated individually.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0180",
+          "reference_ids": [
+            "sec0085",
+            "bib13",
+            "bib14",
+            "bib13",
+            "bib15",
+            "bib5",
+            "bib7",
+            "bib8"
+          ],
+          "en": "Comparative analysis revealed that the 3D Attention U-Net numerically outperformed the standard 3D U-Net across all glioma subregions and MRI sequences, with statistically significant gains confirmed in a subset of sequence–region comparisons (DSC in 12 of 30 and HD95 in 21 of 30, Supplementary Table S2). This indicates that, while attention gating conferred a directionally consistent benefit, the magnitude of improvement was sequence- and metric-dependent rather than uniform across the full experimental space. This performance gain can be largely attributed to the integration of soft attention gates, which allow the network to selectively emphasize diagnostically relevant spatial features while suppressing irrelevant background activations [13]. Such a mechanism is particularly beneficial for glioma segmentation, where tumor subregions exhibit substantial heterogeneity in shape, size, and imaging appearance across different MRI weightings. Moreover, attention mechanisms reduce the propagation of redundant or non‑informative feature maps through skip connections, addressing a known limitation of the conventional U‑Net that can adversely affect segmentation accuracy in complex lesion environments [14]. These observations are consistent with the seminal work of Oktay et al. [13,15], who first demonstrated the advantages of attention gates over standard skip connections, as well as with subsequent studies applying Attention U‑Net architectures to brain tumor segmentation [5,7,8], which similarly reported improved performance, especially for subregions characterized by diffuse boundaries and irregular morphology. Collectively, these findings underscore the potential clinical value of attention‑based deep learning architectures for glioma semantic segmentation in multiparametric MRI settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0185",
+          "reference_ids": [
+            "bib16",
+            "bib17",
+            "bib16",
+            "bib17",
+            "bib18",
+            "bib4",
+            "bib5",
+            "bib8",
+            "bib19"
+          ],
+          "en": "The quantitative results of this study demonstrated that the peritumoral edema region consistently achieved significantly higher DSC and IoU values than the necrotic core and active tumor subregions across all evaluated MRI sequencing and segmentation architectures. This disparity in segmentation performance is both physiologically and geometrically explicable. Peritumoral edema typically occupies a substantially larger volume within the tumor complex [16,17], providing deep learning models with a greater number of representative training samples and more spatially coherent features, thereby mitigating the adverse effects of class imbalance. Moreover, edema exhibits relatively homogeneous signal characteristics, particularly on FLAIR‑weighted MRI, and often presents more discernible boundaries with adjacent normal tissue, facilitating more reliable delineation [16,17]. In contrast, the necrotic core and active tumor subregions are generally smaller, display pronounced morphological heterogeneity, and exhibit overlapping imaging characteristics at their interfaces, which introduces ambiguity and complicates precise segmentation [18]. These observations are consistent with prior glioma segmentation studies, including benchmark evaluations using the BraTS dataset, where edema segmentation has repeatedly achieved higher Dice scores compared with necrotic and enhancing tumor compartments [4,5,8,19].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0190",
+          "reference_ids": [
+            "bib20",
+            "bib21",
+            "bib22",
+            "bib23"
+          ],
+          "en": "For necrotic core segmentation, TOPSIS-based multi-criteria ranking identified the trained Attention U-Net trained with T1Gd as the top-performing combination (CC = 0.885), followed by the trained standard U-Net with T1Gd (CC = 0.762), while FA and MD, both paired with the Attention U-Net, ranked third and fourth, respectively. The superior overall ranking of T1Gd for necrotic core segmentation is physiologically interpretable. Although the necrotic core itself does not enhance following gadolinium administration, T1Gd provides critical structural context by delineating the surrounding contrast-enhancing rim of viable tumor, thereby indirectly facilitating the precise boundary definition of the necrotic compartment [20,21]. The modest contributions of FA and MD to necrotic core segmentation are physiologically plausible. Necrotic tissue is characterized by extensive microstructural disorganization and cellular breakdown, which simultaneously elevates overall water diffusivity and reduces directional coherence. While MD partially reflects this diffusivity increase, the highly isotropic nature of necrotic tissue substantially diminishes FA, limiting the discriminative directional diffusion information available to the segmentation models [22,23].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0195",
+          "reference_ids": [
+            "bib4",
+            "bib24",
+            "bib25",
+            "bib26",
+            "bib27",
+            "bib28",
+            "bib29"
+          ],
+          "en": "For peritumoral edema segmentation, TOPSIS-based multi-criteria ranking confirmed FLAIR as the optimal modality, with the Attention U-Net trained on FLAIR achieving the ideal closeness coefficient (CC = 1.000), followed by the standard U-Net with FLAIR (CC = 0.975). ADC maps and T1Gd, both paired with the Attention U-Net, ranked third and fourth (CC = 0.969 and 0.968, respectively), while the standard U-Net with ADC maps completed the top five (CC = 0.961). This result is physiologically well-founded and consistent with the established sensitivity of FLAIR to vasogenic edema. The suppression of cerebrospinal fluid signal in FLAIR imaging markedly enhances the conspicuity of abnormal water accumulation and tumor infiltration within the peritumoral brain parenchyma, providing superior contrast for edema delineation relative to other MRI weightings [4,[24], [25], [26]]. The strong performance of ADC maps for edema segmentation reflects their sensitivity to increased extracellular water diffusivity associated with vasogenic edema, though their specificity is inherently limited in regions where diffusivity values overlap with those of infiltrative tumor or necrotic tissue [27,28]. T1Gd, while primarily sensitive to blood–brain barrier disruption, contributes complementary structural information that aids in defining the interface between contrast-enhancing tumor and adjacent edematous tissue, accounting for its consistent presence among the top-performing modalities [29].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0200",
+          "reference_ids": [
+            "bib30",
+            "bib31",
+            "bib32",
+            "bib33"
+          ],
+          "en": "For active tumor segmentation, TOPSIS-based multi-criteria ranking identified the Attention U-Net trained on ASL as the optimal combination, achieving the ideal closeness coefficient (CC = 1.000), followed by the standard U-Net with ASL (CC = 0.918). The Attention U-Net paired with MD, T2, and T1 completed the top five, with closeness coefficients of 0.825, 0.760, and 0.744, respectively. Notably, neither T1Gd nor ADC maps appeared among the top five combinations for active tumor segmentation in the TOPSIS ranking, a finding that warrants physiological interpretation in the context of a comprehensive multi-criteria evaluation incorporating boundary accuracy alongside overlap-based metrics. The superior performance of ASL for active tumor segmentation is physiologically compelling. ASL provides a direct and quantitative measure of cerebral blood flow, which is closely coupled to the increased metabolic demand and neovascularization characteristic of actively proliferating tumor tissue [30]. Quantitative ASL measurements of tumor blood flow have been reported as particularly informative for distinguishing high-grade gliomas, which exhibit elevated tumor blood flow due to neovascularity, from surrounding tissue with lower perfusion. The elevated and spatially specific perfusion signal captured by ASL therefore offers strong contrast for delineating viable tumor from adjacent edematous and necrotic regions, which typically demonstrate markedly reduced perfusion [[31], [32], [33]].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0205",
+          "reference_ids": [
+            "bib34",
+            "bib35"
+          ],
+          "en": "The absence of T1Gd from the top five TOPSIS rankings for active tumor segmentation, despite its established clinical role as the reference standard for enhancing tumor delineation, likely reflects the sensitivity of HD95 to boundary precision. While T1Gd reliably captures regions of BBB disruption associated with viable tumor [34], its enhancing rim may not precisely coincide with the true biological boundaries of active tumor tissue, introducing boundary inaccuracies that penalize its ranking when HD95 is incorporated into the composite evaluation. Similarly, ADC maps, despite their sensitivity to restricted diffusivity associated with high cellular density, did not feature among the top five combinations, consistent with the known limitation of partial diffusivity overlap between actively proliferating tumor and adjacent sub-regions [35]. The presence of MD and T2 among the top five combinations is physiologically interpretable. MD, as a rotationally invariant measure of overall water diffusivity, captures subtle microstructural alterations within the tumor microenvironment that complement perfusion-based characterization. T2-weighted imaging, sensitive to changes in tissue water content and relaxation properties, provides structural context that may aid in delineating the outer boundaries of the active tumor compartment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0210",
+          "reference_ids": [],
+          "en": "A key finding of this study is the identification of a single optimal model–modality combination for comprehensive glioma sub-region segmentation. While sub-region–specific TOPSIS rankings revealed distinct optimal modalities for each tumor compartment, ASL for active tumor (CC = 1.000), T1Gd for the necrotic core (CC = 0.885), and FLAIR for peritumoral edema (CC = 1.000), the overall TOPSIS ranking identified the Attention U-Net trained on T1Gd as the most consistently high-performing combination across all sub-regions (CC = 0.848). This finding is physiologically interpretable, as T1Gd provides complementary structural information relevant to all three compartments, translating into broad multi-region segmentation capability that no single non-contrast modality fully replicates. However, given the clinical risks associated with gadolinium administration, the presence of ASL (CC = 0.746) and MD (CC = 0.731) among the top five overall combinations is noteworthy, as both represent non-contrast physiological modalities that approached T1Gd performance in the composite ranking. These findings suggest that, within the scope of the present experimental comparison, trained Attention U-Net with T1Gd MRI sequences represents the most consistently high-performing single-modality choice for comprehensive glioma subregion segmentation, while ASL and MD show promise as non-contrast alternatives in settings where gadolinium administration is contraindicated or undesirable. These observations are based on internal experimental performance within a single dataset and do not constitute evidence of clinical viability, prospective clinical evaluation would be required before such alternatives could be considered for clinical deployment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0215",
+          "reference_ids": [],
+          "en": "Several limitations of this study should be acknowledged, mainly the absence of external validation and a conventional multimodal baseline, both of which constrain the clinical generalizability of the present findings. This study relied on a single publicly available dataset (UCSF-PDGM), with model evaluation performed on an independent held-out test set drawn from the same cohort, although five-fold cross-validation was employed during training, no external validation was performed on data from different scanners, acquisition protocols, institutions, or tumor populations, and the reported performance should therefore be regarded as internally, rather than externally, valid. Second, the dataset exhibits inherent class imbalance, with peritumoral edema occupying substantially larger volumes than the necrotic core and active tumor regions, potentially biasing model learning toward dominant classes and compromising performance for smaller but clinically important subregions. Future work should address these limitations by incorporating external, multi‑center cohorts to more rigorously assess model robustness and support clinical translation. The ground-truth tumor subregion labels in UCSF-PDGM were derived only from the four structural MRI sequences (T1, T1Gd, T2, FLAIR), which may introduce a concordance bias favoring these modalities, especially T1Gd and FLAIR, over other sequences that did not inform label generation. The strong performance of ASL for active tumor segmentation, despite not being used for labeling, supports the interpretation that its superiority reflects true perfusion-related contrast rather than an artifact of the annotation process, whereas the advantages of T1Gd and FLAIR in other subregions should be read with this bias in mind. In addition, advanced strategies for mitigating class imbalance, such as tailored loss functions, data resampling techniques, or synthetic data generation, warrant further investigation. From a methodological standpoint, exploring alternative deep learning architectures, including transformer‑based and hybrid models, may yield additional performance gains using the same multiparametric MRI inputs. A further limitation is that this study did not include a combined multimodal baseline (e.g., a standard T1/T1Gd/T2/FLAIR multi-channel model). This gap reflects the study's central aim of identifying the single optimal MRI modality per glioma subregion, which required a single-channel training design. Consequently, whether the identified optimal single modalities approach, match, or fall short of standard multiparametric segmentation performance cannot be determined from the present data and should not be assumed and should be consider in the future studies. Finally, extending the imaging protocol to include additional perfusion‑weighted sequences, such as dynamic susceptibility contrast (DSC) and dynamic contrast‑enhanced (DCE) MRI, could provide complementary hemodynamic and permeability information and image contrast, potentially further improving the segmentation and biological characterization of glioma subregions. It should also be noted that 27 subjects (5.5% of the original 495‑subject dataset) were excluded during quality control because of labeling inconsistencies, annotation errors, or MRI acquisition artifacts (e.g., ring or motion artifacts). Although these exclusion criteria were applied independently of demographic or clinical variables, we cannot fully exclude the possibility of an indirect association between image‑quality–related exclusion and unmeasured clinical or demographic factors (for example, patient motion related to age or clinical status). This represents a residual, unquantified potential source of selection bias in the final study cohort.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0045",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0220",
+          "reference_ids": [],
+          "en": "This study presents a comparative evaluation of the influence of individual MRI weightings on glioma subregion segmentation using 3D U-Net and 3D Attention U-Net architectures, evaluated through a comprehensive multi-criteria framework incorporating DSC, IoU, and HD95. Across all modalities and tumor sub-regions, the Attention U-Net numerically outperformed the standard U-Net, with statistically significant gains confirmed in a subset of sequence–region comparisons, underscoring the potential, though not uniformly established, of attention mechanisms in capturing the spatial heterogeneity and morphological complexity inherent to glioma tissue. Sub-region–specific TOPSIS rankings further demonstrated that segmentation performance is strongly dependent on the physiological relevance of the input modality to the target compartment, with ASL achieving optimal delineation of active tumor, T1Gd providing the most robust necrotic core segmentation, and FLAIR yielding the highest accuracy for peritumoral edema. Beyond this physiological rationale, the single-modality framework adopted in this study offers practical advantages over conventional multi-channel approaches, including reduced computational cost, lower hardware requirements, and shorter training time, which may facilitate broader adoption of deep learning–based glioma segmentation in resource-constrained research and clinical environments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0225",
+          "reference_ids": [],
+          "en": "When a single model–modality combination is required for comprehensive multi-region segmentation, the Attention U-Net trained on T1Gd emerged as the most consistently high-performing choice across all sub-regions. Nevertheless, given the clinical risks and contraindications associated with gadolinium administration, ASL and MD represent promising non-contrast alternatives that preserved meaningful segmentation performance in the overall ranking. Collectively, these findings provide a biologically informed and clinically actionable foundation for optimizing MRI acquisition protocols and deep learning segmentation pipelines in neuro-oncological practice, and highlight the value of physiologically appropriate modality selection as a key determinant of automated glioma segmentation performance. As a planned next step, we intend to evaluate the identified optimal sequence–model combinations on an independent local hospital dataset to externally validate these pilot findings. Until such external validation and direct comparison against a multimodal baseline are completed, the present single-modality rankings should be considered as internally derived, hypothesis-generating results rather than as a basis for altering multiparametric acquisition or segmentation protocols in clinical practice. While the present study was specifically designed around single-channel model training to identify the optimal individual MRI modality per glioma subregion, future studies should extend this work by developing multi-channel models trained on combined multiparametric MRI, enabling a direct comparison between single-modality and multimodal segmentation performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0050",
+      "title": "List of abbreviations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0230",
+          "reference_ids": [],
+          "en": "Magnetic resonance imaging (MRI)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0235",
+          "reference_ids": [],
+          "en": "Fluid‑Attenuated Inversion Recovery (FLAIR)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0240",
+          "reference_ids": [],
+          "en": "contrast-enhanced T1-weighted (T1Gd)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0245",
+          "reference_ids": [],
+          "en": "diffusion-weighted imaging (DWI)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0250",
+          "reference_ids": [],
+          "en": "Apparent Diffusion Coefficient (ADC)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0255",
+          "reference_ids": [],
+          "en": "Fractional Anisotropy (FA)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0260",
+          "reference_ids": [],
+          "en": "Mean Diffusivity (MD)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0265",
+          "reference_ids": [],
+          "en": "susceptibility-weighted imaging (SWI)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0270",
+          "reference_ids": [],
+          "en": "arterial spin labeling (ASL)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0275",
+          "reference_ids": [],
+          "en": "University of California San Francisco Preoperative Diffuse Glioma MRI (UCSF‑PDGM)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0280",
+          "reference_ids": [],
+          "en": "axial diffusivity (AD)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0285",
+          "reference_ids": [],
+          "en": "radial diffusivity (RD)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0290",
+          "reference_ids": [],
+          "en": "Advanced Normalization Tools (ANTs)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0295",
+          "reference_ids": [],
+          "en": "rectified linear unit (ReLU)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0300",
+          "reference_ids": [],
+          "en": "Dice Similarity Coefficient (DSC)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0305",
+          "reference_ids": [],
+          "en": "Intersection over Union (IoU)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0310",
+          "reference_ids": [],
+          "en": "Hausdorff Distance (HD)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0315",
+          "reference_ids": [],
+          "en": "Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0320",
+          "reference_ids": [],
+          "en": "closeness coefficient (CC)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0325",
+          "reference_ids": [],
+          "en": "dynamic susceptibility contrast (DSC)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0330",
+          "reference_ids": [],
+          "en": "dynamic contrast‑enhanced (DCE)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0335",
+          "reference_ids": [],
+          "en": "World Health Organization (WHO)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0055",
+      "title": "CRediT authorship contribution statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0340",
+          "reference_ids": [],
+          "en": "Amir Khorasani: Writing – review & editing, Writing – original draft, Visualization, Validation, Supervision, Software, Resources, Project administration, Methodology, Investigation, Funding acquisition, Formal analysis, Data curation, Conceptualization.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0060",
+      "title": "Ethics declaration",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0345",
+          "reference_ids": [],
+          "en": "The authors have NOT obtained informed consent from participants or their legal representatives. This study used the University of California San Francisco Preoperative Diffuse Glioma MRI (UCSF-PDGM) dataset, a publicly available, de-identified imaging dataset released for research purposes. Informed consent for data collection and public release was obtained by the original data custodians (UCSF) prior to dataset publication, in accordance with their institutional review board approval. As this study involved secondary analysis of fully anonymized, publicly accessible data, no additional informed consent was required from participants by the authors. The dataset was accessed and used in accordance with its data use agreement/terms of use.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0350",
+          "reference_ids": [],
+          "en": "This study was performed in compliance with relevant laws, regulatory frameworks and guidelines where the research took place. This study was conducted in accordance with Declaration of Helsinki. This study was approved by the Isfahan University of Medical Sciences, Isfahan, Iran. (Approval No. IR.MUI.DHMT.REC.1403.143)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0065",
+      "title": "Ethics approval and consent to participate",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0355",
+          "reference_ids": [],
+          "en": "This study was conducted in accordance with the principles of the Declaration of Helsinki, and Ethical approval for this study was granted by the research ethics committee of Isfahan University of Medical Sciences, Isfahan, Iran, with the ID: IR.MUI.DHMT.REC.1403.143.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0070",
+      "title": "Consent for publication",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0360",
+          "reference_ids": [],
+          "en": "Not applicable",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0075",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0365",
+          "reference_ids": [],
+          "en": "This work is based upon research funded by Iran National Science Foundation (INSF) under project No 4040238.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "coi0005",
+      "title": "Declaration of Competing Interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0370",
+          "reference_ids": [],
+          "en": "The authors declare that they have no conflict of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack0005",
+      "title": "Acknowledgements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0375",
+          "reference_ids": [],
+          "en": "The authors express their gratitude to Iran National Science Foundation (INSF) for providing the financial support for this work. During the preparation of this manuscript, the authors used Claude (Anthropic; Claude Sonnet 5) solely for English language and grammar editing. Following the use of this tool, the authors carefully reviewed and edited the content as necessary and take full responsibility for the content of this publication.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0380",
+          "reference_ids": [],
+          "en": "Supplementary data associated with this article can be found in the online version at doi:10.1016/j.ejro.2026.100817.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0085",
+      "title": "Supplementary material",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "da0005",
+      "title": "Availability of data and materials",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0005",
+          "reference_ids": [],
+          "en": "The datasets utilized in this study are available (https://www.cancerimagingarchive.net/collection/ucsf-pdgm/), and analyzed data and models are available from the corresponding author upon reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "bibliog0005",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "bibliog0005_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "The datasets utilized in this study are available (https://www.cancerimagingarchive.net/collection/ucsf-pdgm/), and analyzed data and models are available from the corresponding author upon reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "tbl0005",
+      "label": "Table 1",
+      "caption": "Quantitative segmentation performance of the U-Net and Attention U-Net models across different MRI sequences. The table reports average accuracy and average Dice similarity coefficient (DSC) values for the segmentation of necrotic core, edema, and active tumor regions using the trained U-Net and Attention U-Net architectures evaluated on the test dataset. Results are presented for each MRI sequence to facilitate a comparative analysis of model performance across modalities.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "MRI sequence",
+          "Architecture",
+          "DSC",
+          "HD95 (Px)"
+        ],
+        [
+          "Necrotic",
+          "Edema",
+          "Active tumor",
+          "Necrotic",
+          "Edema",
+          "Active tumor"
+        ],
+        [
+          "ADC map",
+          "U-Net",
+          "0.908 ± 0.034[0.901, 0.915]",
+          "0.933 ± 0.021[0.929, 0.937]",
+          "0.879 ± 0.025[0.874, 0.884]",
+          "0.938 ± 0.169[0.904, 0.972]",
+          "1.014 ± 0.152[0.983, 1.045]",
+          "1.077 ± 0.162[1.044, 1.110]"
+        ],
+        [
+          "Attention U-Net",
+          "0.912 ± 0.024[0.907, 0.917]",
+          "0.935 ± 0.021[0.931, 0.939]",
+          "0.879 ± 0.023[0.874, 0.884]",
+          "0.932 ± 0.121[0.908, 0.956]",
+          "0.998 ± 0.092[0.979, 1.017]",
+          "1.056 ± 0.118[1.032, 1.080]"
+        ],
+        [
+          "ASL",
+          "U-Net",
+          "0.873 ± 0.034[0.866, 0.880]",
+          "0.931 ± 0.024[0.926, 0.936]",
+          "0.905 ± 0.035[0.898, 0.912]",
+          "1.016 ± 0.183[0.979, 1.053]",
+          "1.101 ± 0.165[1.068, 1.134]",
+          "0.920 ± 0.178[0.884, 0.956]"
+        ],
+        [
+          "Attention U-Net",
+          "0.874 ± 0.016[0.871, 0.877]",
+          "0.932 ± 0.017[0.929, 0.935]",
+          "0.908 ± 0.019[0.904, 0.912]",
+          "0.933 ± 0.118[0.909, 0.957]",
+          "1.043 ± 0.106[1.022, 1.064]",
+          "0.879 ± 0.112[0.856, 0.902]"
+        ],
+        [
+          "DWI",
+          "U-Net",
+          "0.874 ± 0.034[0.867, 0.881]",
+          "0.927 ± 0.021[0.923, 0.931]",
+          "0.872 ± 0.037[0.865, 0.879]",
+          "1.011 ± 0.282[0.954, 1.068]",
+          "1.173 ± 0.276[1.117, 1.229]",
+          "1.229 ± 0.284[1.172, 1.286]"
+        ],
+        [
+          "Attention U-Net",
+          "0.879 ± 0.024[0.874, 0.884]",
+          "0.929 ± 0.011[0.927, 0.931]",
+          "0.879 ± 0.015[0.876, 0.882]",
+          "1.004 ± 0.121[0.980, 1.028]",
+          "1.145 ± 0.132[1.118, 1.172]",
+          "1.212 ± 0.182[1.175, 1.249]"
+        ],
+        [
+          "FA",
+          "U-Net",
+          "0.879 ± 0.054[0.868, 0.890]",
+          "0.929 ± 0.031[0.923, 0.935]",
+          "0.878 ± 0.045[0.869, 0.887]",
+          "0.903 ± 0.263[0.850, 0.956]",
+          "1.067 ± 0.360[0.994, 1.140]",
+          "1.095 ± 0.264[1.042, 1.148]"
+        ],
+        [
+          "Attention U-Net",
+          "0.882 ± 0.034[0.875, 0.889]",
+          "0.931 ± 0.011[0.929, 0.933]",
+          "0.890 ± 0.025[0.885, 0.895]",
+          "0.871 ± 0.157[0.839, 0.903]",
+          "1.051 ± 0.128[1.025, 1.077]",
+          "1.074 ± 0.112[1.051, 1.097]"
+        ],
+        [
+          "FLAIR",
+          "U-Net",
+          "0.874 ± 0.041[0.866, 0.882]",
+          "0.939 ± 0.028[0.933, 0.945]",
+          "0.872 ± 0.052[0.861, 0.883]",
+          "0.919 ± 0.265[0.865, 0.973]",
+          "0.985 ± 0.248[0.935, 1.035]",
+          "1.302 ± 0.295[1.242, 1.362]"
+        ],
+        [
+          "Attention U-Net",
+          "0.879 ± 0.030[0.873, 0.885]",
+          "0.959 ± 0.018[0.955, 0.963]",
+          "0.877 ± 0.022[0.873, 0.881]",
+          "0.916 ± 0.115[0.893, 0.939]",
+          "0.933 ± 0.125[0.908, 0.958]",
+          "1.103 ± 0.165[1.070, 1.136]"
+        ],
+        [
+          "MD",
+          "U-Net",
+          "0.878 ± 0.044[0.869, 0.887]",
+          "0.934 ± 0.032[0.928, 0.940]",
+          "0.878 ± 0.035[0.871, 0.885]",
+          "0.922 ± 0.266[0.868, 0.976]",
+          "1.097 ± 0.265[1.043, 1.151]",
+          "1.068 ± 0.260[1.015, 1.121]"
+        ],
+        [
+          "Attention U-Net",
+          "0.889 ± 0.031[0.883, 0.895]",
+          "0.935 ± 0.011[0.933, 0.937]",
+          "0.879 ± 0.015[0.876, 0.882]",
+          "0.885 ± 0.119[0.861, 0.909]",
+          "1.085 ± 0.163[1.052, 1.118]",
+          "0.933 ± 0.140[0.905, 0.961]"
+        ],
+        [
+          "SWI",
+          "U-Net",
+          "0.871 ± 0.039[0.863, 0.879]",
+          "0.917 ± 0.034[0.910, 0.924]",
+          "0.850 ± 0.041[0.842, 0.858]",
+          "1.030 ± 0.327[0.964, 1.096]",
+          "3.085 ± 0.779[2.928, 3.242]",
+          "1.367 ± 0.401[1.286, 1.448]"
+        ],
+        [
+          "Attention U-Net",
+          "0.875 ± 0.016[0.872, 0.878]",
+          "0.932 ± 0.012[0.930, 0.934]",
+          "0.878 ± 0.016[0.875, 0.881]",
+          "0.978 ± 0.115[0.955, 1.001]",
+          "1.059 ± 0.193[1.020, 1.098]",
+          "1.247 ± 0.194[1.208, 1.286]"
+        ],
+        [
+          "T1",
+          "U-Net",
+          "0.877 ± 0.047[0.868, 0.887]",
+          "0.927 ± 0.028[0.921, 0.933]",
+          "0.875 ± 0.052[0.864, 0.886]",
+          "0.904 ± 0.263[0.851, 0.957]",
+          "1.125 ± 0.269[1.071, 1.179]",
+          "1.145 ± 0.272[1.090, 1.200]"
+        ],
+        [
+          "Attention U-Net",
+          "0.881 ± 0.021[0.877, 0.885]",
+          "0.930 ± 0.012[0.928, 0.932]",
+          "0.876 ± 0.022[0.872, 0.880]",
+          "0.896 ± 0.121[0.872, 0.920]",
+          "1.061 ± 0.139[1.033, 1.089]",
+          "0.983 ± 0.137[0.955, 1.011]"
+        ],
+        [
+          "T1Gd",
+          "U-Net",
+          "0.889 ± 0.051[0.879, 0.899]",
+          "0.931 ± 0.068[0.917, 0.945]",
+          "0.880 ± 0.032[0.874, 0.886]",
+          "0.775 ± 0.239[0.727, 0.823]",
+          "1.075 ± 0.261[1.022, 1.128]",
+          "1.047 ± 0.257[0.995, 1.099]"
+        ],
+        [
+          "Attention U-Net",
+          "0.893 ± 0.027[0.888, 0.898]",
+          "0.935 ± 0.017[0.932, 0.938]",
+          "0.882 ± 0.021[0.878, 0.886]",
+          "0.712 ± 0.118[0.688, 0.736]",
+          "1.001 ± 0.150[0.971, 1.031]",
+          "1.022 ± 0.153[0.991, 1.053]"
+        ],
+        [
+          "T2",
+          "U-Net",
+          "0.873 ± 0.071[0.859, 0.887]",
+          "0.930 ± 0.068[0.916, 0.944]",
+          "0.866 ± 0.082[0.849, 0.883]",
+          "0.972 ± 0.275[0.916, 1.028]",
+          "1.204 ± 0.281[1.147, 1.261]",
+          "1.210 ± 0.281[1.153, 1.267]"
+        ],
+        [
+          "Attention U-Net",
+          "0.876 ± 0.021[0.872, 0.880]",
+          "0.934 ± 0.017[0.931, 0.937]",
+          "0.875 ± 0.012[0.873, 0.877]",
+          "0.921 ± 0.116[0.898, 0.944]",
+          "1.092 ± 0.144[1.063, 1.121]",
+          "0.972 ± 0.126[0.947, 0.998]"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0005\" position=\"float\"><label>Table 1</label><caption><p>Quantitative segmentation performance of the U-Net and Attention U-Net models across different MRI sequences. The table reports average accuracy and average Dice similarity coefficient (DSC) values for the segmentation of necrotic core, edema, and active tumor regions using the trained U-Net and Attention U-Net architectures evaluated on the test dataset. Results are presented for each MRI sequence to facilitate a comparative analysis of model performance across modalities.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">MRI sequence</th><th rowspan=\"2\" colspan=\"1\">Architecture</th><th colspan=\"3\" rowspan=\"1\">DSC<hr /></th><th colspan=\"3\" rowspan=\"1\">HD95 (Px)<hr /></th></tr><tr><th colspan=\"1\" rowspan=\"1\">Necrotic</th><th colspan=\"1\" rowspan=\"1\">Edema</th><th colspan=\"1\" rowspan=\"1\">Active tumor</th><th colspan=\"1\" rowspan=\"1\">Necrotic</th><th colspan=\"1\" rowspan=\"1\">Edema</th><th colspan=\"1\" rowspan=\"1\">Active tumor</th></tr></thead><tbody><tr><td rowspan=\"2\" colspan=\"1\">ADC map</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.908 ± 0.034<break />[0.901, 0.915]</td><td colspan=\"1\" rowspan=\"1\">0.933 ± 0.021<break />[0.929, 0.937]</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.025<break />[0.874, 0.884]</td><td colspan=\"1\" rowspan=\"1\">0.938 ± 0.169<break />[0.904, 0.972]</td><td colspan=\"1\" rowspan=\"1\">1.014 ± 0.152<break />[0.983, 1.045]</td><td colspan=\"1\" rowspan=\"1\">1.077 ± 0.162<break />[1.044, 1.110]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.912 ± 0.024<break />[0.907, 0.917]</td><td colspan=\"1\" rowspan=\"1\">0.935 ± 0.021<break />[0.931, 0.939]</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.023<break />[0.874, 0.884]</td><td colspan=\"1\" rowspan=\"1\">0.932 ± 0.121<break />[0.908, 0.956]</td><td colspan=\"1\" rowspan=\"1\">0.998 ± 0.092<break />[0.979, 1.017]</td><td colspan=\"1\" rowspan=\"1\">1.056 ± 0.118<break />[1.032, 1.080]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">ASL</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.873 ± 0.034<break />[0.866, 0.880]</td><td colspan=\"1\" rowspan=\"1\">0.931 ± 0.024<break />[0.926, 0.936]</td><td colspan=\"1\" rowspan=\"1\">0.905 ± 0.035<break />[0.898, 0.912]</td><td colspan=\"1\" rowspan=\"1\">1.016 ± 0.183<break />[0.979, 1.053]</td><td colspan=\"1\" rowspan=\"1\">1.101 ± 0.165<break />[1.068, 1.134]</td><td colspan=\"1\" rowspan=\"1\">0.920 ± 0.178<break />[0.884, 0.956]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.874 ± 0.016<break />[0.871, 0.877]</td><td colspan=\"1\" rowspan=\"1\">0.932 ± 0.017<break />[0.929, 0.935]</td><td colspan=\"1\" rowspan=\"1\">0.908 ± 0.019<break />[0.904, 0.912]</td><td colspan=\"1\" rowspan=\"1\">0.933 ± 0.118<break />[0.909, 0.957]</td><td colspan=\"1\" rowspan=\"1\">1.043 ± 0.106<break />[1.022, 1.064]</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.112<break />[0.856, 0.902]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">DWI</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.874 ± 0.034<break />[0.867, 0.881]</td><td colspan=\"1\" rowspan=\"1\">0.927 ± 0.021<break />[0.923, 0.931]</td><td colspan=\"1\" rowspan=\"1\">0.872 ± 0.037<break />[0.865, 0.879]</td><td colspan=\"1\" rowspan=\"1\">1.011 ± 0.282<break />[0.954, 1.068]</td><td colspan=\"1\" rowspan=\"1\">1.173 ± 0.276<break />[1.117, 1.229]</td><td colspan=\"1\" rowspan=\"1\">1.229 ± 0.284<break />[1.172, 1.286]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.024<break />[0.874, 0.884]</td><td colspan=\"1\" rowspan=\"1\">0.929 ± 0.011<break />[0.927, 0.931]</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.015<break />[0.876, 0.882]</td><td colspan=\"1\" rowspan=\"1\">1.004 ± 0.121<break />[0.980, 1.028]</td><td colspan=\"1\" rowspan=\"1\">1.145 ± 0.132<break />[1.118, 1.172]</td><td colspan=\"1\" rowspan=\"1\">1.212 ± 0.182<break />[1.175, 1.249]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">FA</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.054<break />[0.868, 0.890]</td><td colspan=\"1\" rowspan=\"1\">0.929 ± 0.031<break />[0.923, 0.935]</td><td colspan=\"1\" rowspan=\"1\">0.878 ± 0.045<break />[0.869, 0.887]</td><td colspan=\"1\" rowspan=\"1\">0.903 ± 0.263<break />[0.850, 0.956]</td><td colspan=\"1\" rowspan=\"1\">1.067 ± 0.360<break />[0.994, 1.140]</td><td colspan=\"1\" rowspan=\"1\">1.095 ± 0.264<break />[1.042, 1.148]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.882 ± 0.034<break />[0.875, 0.889]</td><td colspan=\"1\" rowspan=\"1\">0.931 ± 0.011<break />[0.929, 0.933]</td><td colspan=\"1\" rowspan=\"1\">0.890 ± 0.025<break />[0.885, 0.895]</td><td colspan=\"1\" rowspan=\"1\">0.871 ± 0.157<break />[0.839, 0.903]</td><td colspan=\"1\" rowspan=\"1\">1.051 ± 0.128<break />[1.025, 1.077]</td><td colspan=\"1\" rowspan=\"1\">1.074 ± 0.112<break />[1.051, 1.097]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">FLAIR</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.874 ± 0.041<break />[0.866, 0.882]</td><td colspan=\"1\" rowspan=\"1\">0.939 ± 0.028<break />[0.933, 0.945]</td><td colspan=\"1\" rowspan=\"1\">0.872 ± 0.052<break />[0.861, 0.883]</td><td colspan=\"1\" rowspan=\"1\">0.919 ± 0.265<break />[0.865, 0.973]</td><td colspan=\"1\" rowspan=\"1\">0.985 ± 0.248<break />[0.935, 1.035]</td><td colspan=\"1\" rowspan=\"1\">1.302 ± 0.295<break />[1.242, 1.362]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.030<break />[0.873, 0.885]</td><td colspan=\"1\" rowspan=\"1\">0.959 ± 0.018<break />[0.955, 0.963]</td><td colspan=\"1\" rowspan=\"1\">0.877 ± 0.022<break />[0.873, 0.881]</td><td colspan=\"1\" rowspan=\"1\">0.916 ± 0.115<break />[0.893, 0.939]</td><td colspan=\"1\" rowspan=\"1\">0.933 ± 0.125<break />[0.908, 0.958]</td><td colspan=\"1\" rowspan=\"1\">1.103 ± 0.165<break />[1.070, 1.136]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">MD</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.878 ± 0.044<break />[0.869, 0.887]</td><td colspan=\"1\" rowspan=\"1\">0.934 ± 0.032<break />[0.928, 0.940]</td><td colspan=\"1\" rowspan=\"1\">0.878 ± 0.035<break />[0.871, 0.885]</td><td colspan=\"1\" rowspan=\"1\">0.922 ± 0.266<break />[0.868, 0.976]</td><td colspan=\"1\" rowspan=\"1\">1.097 ± 0.265<break />[1.043, 1.151]</td><td colspan=\"1\" rowspan=\"1\">1.068 ± 0.260<break />[1.015, 1.121]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.889 ± 0.031<break />[0.883, 0.895]</td><td colspan=\"1\" rowspan=\"1\">0.935 ± 0.011<break />[0.933, 0.937]</td><td colspan=\"1\" rowspan=\"1\">0.879 ± 0.015<break />[0.876, 0.882]</td><td colspan=\"1\" rowspan=\"1\">0.885 ± 0.119<break />[0.861, 0.909]</td><td colspan=\"1\" rowspan=\"1\">1.085 ± 0.163<break />[1.052, 1.118]</td><td colspan=\"1\" rowspan=\"1\">0.933 ± 0.140<break />[0.905, 0.961]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">SWI</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.871 ± 0.039<break />[0.863, 0.879]</td><td colspan=\"1\" rowspan=\"1\">0.917 ± 0.034<break />[0.910, 0.924]</td><td colspan=\"1\" rowspan=\"1\">0.850 ± 0.041<break />[0.842, 0.858]</td><td colspan=\"1\" rowspan=\"1\">1.030 ± 0.327<break />[0.964, 1.096]</td><td colspan=\"1\" rowspan=\"1\">3.085 ± 0.779<break />[2.928, 3.242]</td><td colspan=\"1\" rowspan=\"1\">1.367 ± 0.401<break />[1.286, 1.448]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.875 ± 0.016<break />[0.872, 0.878]</td><td colspan=\"1\" rowspan=\"1\">0.932 ± 0.012<break />[0.930, 0.934]</td><td colspan=\"1\" rowspan=\"1\">0.878 ± 0.016<break />[0.875, 0.881]</td><td colspan=\"1\" rowspan=\"1\">0.978 ± 0.115<break />[0.955, 1.001]</td><td colspan=\"1\" rowspan=\"1\">1.059 ± 0.193<break />[1.020, 1.098]</td><td colspan=\"1\" rowspan=\"1\">1.247 ± 0.194<break />[1.208, 1.286]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">T<sub>1</sub></td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.877 ± 0.047<break />[0.868, 0.887]</td><td colspan=\"1\" rowspan=\"1\">0.927 ± 0.028<break />[0.921, 0.933]</td><td colspan=\"1\" rowspan=\"1\">0.875 ± 0.052<break />[0.864, 0.886]</td><td colspan=\"1\" rowspan=\"1\">0.904 ± 0.263<break />[0.851, 0.957]</td><td colspan=\"1\" rowspan=\"1\">1.125 ± 0.269<break />[1.071, 1.179]</td><td colspan=\"1\" rowspan=\"1\">1.145 ± 0.272<break />[1.090, 1.200]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.881 ± 0.021<break />[0.877, 0.885]</td><td colspan=\"1\" rowspan=\"1\">0.930 ± 0.012<break />[0.928, 0.932]</td><td colspan=\"1\" rowspan=\"1\">0.876 ± 0.022<break />[0.872, 0.880]</td><td colspan=\"1\" rowspan=\"1\">0.896 ± 0.121<break />[0.872, 0.920]</td><td colspan=\"1\" rowspan=\"1\">1.061 ± 0.139<break />[1.033, 1.089]</td><td colspan=\"1\" rowspan=\"1\">0.983 ± 0.137<break />[0.955, 1.011]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.889 ± 0.051<break />[0.879, 0.899]</td><td colspan=\"1\" rowspan=\"1\">0.931 ± 0.068<break />[0.917, 0.945]</td><td colspan=\"1\" rowspan=\"1\">0.880 ± 0.032<break />[0.874, 0.886]</td><td colspan=\"1\" rowspan=\"1\">0.775 ± 0.239<break />[0.727, 0.823]</td><td colspan=\"1\" rowspan=\"1\">1.075 ± 0.261<break />[1.022, 1.128]</td><td colspan=\"1\" rowspan=\"1\">1.047 ± 0.257<break />[0.995, 1.099]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.893 ± 0.027<break />[0.888, 0.898]</td><td colspan=\"1\" rowspan=\"1\">0.935 ± 0.017<break />[0.932, 0.938]</td><td colspan=\"1\" rowspan=\"1\">0.882 ± 0.021<break />[0.878, 0.886]</td><td colspan=\"1\" rowspan=\"1\">0.712 ± 0.118<break />[0.688, 0.736]</td><td colspan=\"1\" rowspan=\"1\">1.001 ± 0.150<break />[0.971, 1.031]</td><td colspan=\"1\" rowspan=\"1\">1.022 ± 0.153<break />[0.991, 1.053]</td></tr><tr><td rowspan=\"2\" colspan=\"1\">T<sub>2</sub></td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">0.873 ± 0.071<break />[0.859, 0.887]</td><td colspan=\"1\" rowspan=\"1\">0.930 ± 0.068<break />[0.916, 0.944]</td><td colspan=\"1\" rowspan=\"1\">0.866 ± 0.082<break />[0.849, 0.883]</td><td colspan=\"1\" rowspan=\"1\">0.972 ± 0.275<break />[0.916, 1.028]</td><td colspan=\"1\" rowspan=\"1\">1.204 ± 0.281<break />[1.147, 1.261]</td><td colspan=\"1\" rowspan=\"1\">1.210 ± 0.281<break />[1.153, 1.267]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">0.876 ± 0.021<break />[0.872, 0.880]</td><td colspan=\"1\" rowspan=\"1\">0.934 ± 0.017<break />[0.931, 0.937]</td><td colspan=\"1\" rowspan=\"1\">0.875 ± 0.012<break />[0.873, 0.877]</td><td colspan=\"1\" rowspan=\"1\">0.921 ± 0.116<break />[0.898, 0.944]</td><td colspan=\"1\" rowspan=\"1\">1.092 ± 0.144<break />[1.063, 1.121]</td><td colspan=\"1\" rowspan=\"1\">0.972 ± 0.126<break />[0.947, 0.998]</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0010",
+      "label": "Table 2",
+      "caption": "Top five model–modality combinations for glioma sub-region segmentation ranked by TOPSIS closeness coefficient (CC), stratified by glioma tumor sub-region (peritumoral edema, necrotic core, and active tumor).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Region",
+          "Rank",
+          "Model",
+          "Modality",
+          "cc"
+        ],
+        [
+          "Edema",
+          "1",
+          "Attention U-Net",
+          "FLAIR",
+          "1"
+        ],
+        [
+          "2",
+          "U-Net",
+          "FLAIR",
+          "0.975"
+        ],
+        [
+          "3",
+          "Attention U-Net",
+          "ADC",
+          "0.969"
+        ],
+        [
+          "4",
+          "Attention U-Net",
+          "T1Gd",
+          "0.968"
+        ],
+        [
+          "5",
+          "U-Net",
+          "ADC",
+          "0.961"
+        ],
+        [
+          "Necrotic",
+          "1",
+          "Attention U-Net",
+          "T1Gd",
+          "0.885"
+        ],
+        [
+          "2",
+          "U-Net",
+          "T1Gd",
+          "0.762"
+        ],
+        [
+          "3",
+          "Attention U-Net",
+          "FA",
+          "0.485"
+        ],
+        [
+          "4",
+          "Attention U-Net",
+          "MD",
+          "0.439"
+        ],
+        [
+          "5",
+          "Attention U-Net",
+          "T1",
+          "0.408"
+        ],
+        [
+          "Active tumor",
+          "1",
+          "Attention U-Net",
+          "ASL",
+          "1"
+        ],
+        [
+          "2",
+          "U-Net",
+          "ASL",
+          "0.918"
+        ],
+        [
+          "3",
+          "Attention U-Net",
+          "MD",
+          "0.825"
+        ],
+        [
+          "4",
+          "Attention U-Net",
+          "T2",
+          "0.760"
+        ],
+        [
+          "5",
+          "Attention U-Net",
+          "T1",
+          "0.744"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0010\" position=\"float\"><label>Table 2</label><caption><p>Top five model–modality combinations for glioma sub-region segmentation ranked by TOPSIS closeness coefficient (CC), stratified by glioma tumor sub-region (peritumoral edema, necrotic core, and active tumor).</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Region</th><th colspan=\"1\" rowspan=\"1\">Rank</th><th colspan=\"1\" rowspan=\"1\">Model</th><th colspan=\"1\" rowspan=\"1\">Modality</th><th colspan=\"1\" rowspan=\"1\">cc</th></tr></thead><tbody><tr><td rowspan=\"5\" colspan=\"1\">Edema</td><td colspan=\"1\" rowspan=\"1\">1</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">FLAIR</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">1</td></tr><tr><td colspan=\"1\" rowspan=\"1\">2</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">FLAIR</td><td colspan=\"1\" rowspan=\"1\">0.975</td></tr><tr><td colspan=\"1\" rowspan=\"1\">3</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">ADC</td><td colspan=\"1\" rowspan=\"1\">0.969</td></tr><tr><td colspan=\"1\" rowspan=\"1\">4</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">0.968</td></tr><tr><td colspan=\"1\" rowspan=\"1\">5</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">ADC</td><td colspan=\"1\" rowspan=\"1\">0.961</td></tr><tr><td rowspan=\"5\" colspan=\"1\">Necrotic</td><td colspan=\"1\" rowspan=\"1\">1</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">0.885</td></tr><tr><td colspan=\"1\" rowspan=\"1\">2</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">0.762</td></tr><tr><td colspan=\"1\" rowspan=\"1\">3</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">FA</td><td colspan=\"1\" rowspan=\"1\">0.485</td></tr><tr><td colspan=\"1\" rowspan=\"1\">4</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">MD</td><td colspan=\"1\" rowspan=\"1\">0.439</td></tr><tr><td colspan=\"1\" rowspan=\"1\">5</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub></td><td colspan=\"1\" rowspan=\"1\">0.408</td></tr><tr><td rowspan=\"5\" colspan=\"1\">Active tumor</td><td colspan=\"1\" rowspan=\"1\">1</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">ASL</td><td colspan=\"1\" rowspan=\"1\">1</td></tr><tr><td colspan=\"1\" rowspan=\"1\">2</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">ASL</td><td colspan=\"1\" rowspan=\"1\">0.918</td></tr><tr><td colspan=\"1\" rowspan=\"1\">3</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">MD</td><td colspan=\"1\" rowspan=\"1\">0.825</td></tr><tr><td colspan=\"1\" rowspan=\"1\">4</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>2</sub></td><td colspan=\"1\" rowspan=\"1\">0.760</td></tr><tr><td colspan=\"1\" rowspan=\"1\">5</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub></td><td colspan=\"1\" rowspan=\"1\">0.744</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0015",
+      "label": "Table 3",
+      "caption": "Overall top five model–modality combinations for comprehensive glioma segmentation, ranked by mean TOPSIS closeness coefficient (CC) averaged across all three sub-regions (peritumoral edema, necrotic core, and active tumor).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Rank",
+          "Model",
+          "Modality",
+          "Average cc"
+        ],
+        [
+          "Overall",
+          "1",
+          "Attention U-Net",
+          "T1Gd",
+          "0.848"
+        ],
+        [
+          "2",
+          "U-Net",
+          "T1Gd",
+          "0.779"
+        ],
+        [
+          "3",
+          "Attention U-Net",
+          "ASL",
+          "0.746"
+        ],
+        [
+          "4",
+          "Attention U-Net",
+          "MD",
+          "0.731"
+        ],
+        [
+          "5",
+          "Attention U-Net",
+          "T1",
+          "0.697"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0015\" position=\"float\"><label>Table 3</label><caption><p>Overall top five model–modality combinations for comprehensive glioma segmentation, ranked by mean TOPSIS closeness coefficient (CC) averaged across all three sub-regions (peritumoral edema, necrotic core, and active tumor).</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Rank</th><th colspan=\"1\" rowspan=\"1\">Model</th><th colspan=\"1\" rowspan=\"1\">Modality</th><th colspan=\"1\" rowspan=\"1\">Average cc</th></tr></thead><tbody><tr><td rowspan=\"5\" colspan=\"1\">Overall</td><td colspan=\"1\" rowspan=\"1\">1</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">0.848</td></tr><tr><td colspan=\"1\" rowspan=\"1\">2</td><td colspan=\"1\" rowspan=\"1\">U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub>Gd</td><td colspan=\"1\" rowspan=\"1\">0.779</td></tr><tr><td colspan=\"1\" rowspan=\"1\">3</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">ASL</td><td colspan=\"1\" rowspan=\"1\">0.746</td></tr><tr><td colspan=\"1\" rowspan=\"1\">4</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">MD</td><td colspan=\"1\" rowspan=\"1\">0.731</td></tr><tr><td colspan=\"1\" rowspan=\"1\">5</td><td colspan=\"1\" rowspan=\"1\">Attention U-Net</td><td colspan=\"1\" rowspan=\"1\">T<sub>1</sub></td><td colspan=\"1\" rowspan=\"1\">0.697</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "fig0005",
+      "label": "Fig. 1",
+      "caption": "Overview of the proposed workflow for MRI–based glioma subregion segmentation. Multi-weight MRI images, including ADC, ASL, DWI, FA, FLAIR, MD, SWI, T1, T1Gd, and T2, are first preprocessed and used for network training. Standard U-Net and Attention U-Net architectures are then trained to perform voxel-wise semantic segmentation of glioma subregions, namely edema, necrotic core, and active tumor tissue.",
+      "caption_zh": "",
+      "graphics": [
+        "gr1.webp",
+        "gr1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0010",
+      "label": "Fig. 2",
+      "caption": "Detailed architecture of the U-Net model used for glioma subregion segmentation. The network follows a symmetric encoder–decoder design with skip connections to preserve spatial information. Convolutional blocks (C1–C9, labeled A) consist of two 3 × 3 × 3 convolutional layers each, with the number of feature maps indicated in red next to each block. Pooling blocks (P1–P4, labeled B) perform 2 × 2 × 2 max-pooling for spatial downsampling in the encoder path. Upsampling blocks (U1–U4, labeled C) use transposed convolutions for upsampling, with the number of feature maps shown in red, and concatenate corresponding encoder features via skip connections. The final 1 × 1 × 1 convolution with SoftMax activation generates voxel-wise segmentation maps for edema, necrotic core, and active tumor regions.",
+      "caption_zh": "",
+      "graphics": [
+        "gr2.webp",
+        "gr2.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0015",
+      "label": "Fig. 3",
+      "caption": "Architecture of the Attention U-Net used for glioma subregion segmentation. Convolutional blocks (C1–C9) each contain two 3 × 3 × 3 convolutional layers, with feature map numbers indicated in red. Pooling blocks (P1–P4) perform 2 × 2 × 2 max-pooling for downsampling. Upsampling blocks (U1–U4) use transposed convolutions for upsampling and concatenate with encoder features. Attention blocks (A1–A4) are applied at each skip connection, and consist of 1 × 1 × 1 convolutions for encoder and decoder inputs, batch normalization, element-wise addition, ReLU activation, 1 × 1 × 1 convolution, and a sigmoid gating function to produce an attention map that weights the encoder features before concatenation. The final 1 × 1 × 1 convolution with SoftMax activation generates voxel-wise segmentation maps for edema, necrotic core, and active tumor regions.",
+      "caption_zh": "",
+      "graphics": [
+        "gr3.webp",
+        "gr3.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0020",
+      "label": "Fig. 4",
+      "caption": "Representative axial slice of a glioma subject acquired using different MRI sequences. The figure illustrates a single slice from the same subject across multiple MRI modalities: (A) ADC map, (B) ASL, (C) DWI, (D) FA, (E) FLAIR, (F) MD, (G) SWI, (H) T1-weighted, (I) contrast-enhanced T1-weighted (T1Gd), and (J) T2-weighted images. (K) shows the corresponding ground-truth segmentation mask delineating the glioma regions. This figure highlights the complementary contrast characteristics of different MRI sequences and their relevance for comprehensive glioma characterization.",
+      "caption_zh": "",
+      "graphics": [
+        "gr4.webp",
+        "gr4.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0025",
+      "label": "Fig. 5",
+      "caption": "Comparison of tumor segmentation results obtained using U-Net and Attention U-Net across different MRI sequences. Representative slices from the test dataset are shown for four MRI modalities, including ADC map, ASL, FA, and SWI. For each modality, the original input image is presented alongside the corresponding ground-truth segmentation and the predicted segmentation masks generated by the U-Net and Attention U-Net models. In the segmentation maps, dark blue denotes the background, yellow indicates edema, red represents the active tumor region, and light blue corresponds to the necrotic core.",
+      "caption_zh": "",
+      "graphics": [
+        "gr5.webp",
+        "gr5.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0030",
+      "label": "Fig. 6",
+      "caption": "Training and validation loss and accuracy curves for the 3D Attention U-Net models trained on T1Gd and ASL. (1) Training and validation loss and accuracy curves for the T1Gd-trained model. (2) Training and validation loss and accuracy curves for the ASL-trained model.",
+      "caption_zh": "",
+      "graphics": [
+        "gr6.webp",
+        "gr6.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "bib1",
+      "text": "1.Louis D.N., et al. The 2021 WHO classification of tumors of the central nervous system: a summary. Neuro. Oncol. 2021;23(8):1231–1251. doi: 10.1093/neuonc/noab106.",
+      "doi": []
+    },
+    {
+      "id": "bib2",
+      "text": "2.Ohmura K., Tomita H., Hara A. Peritumoral edema in gliomas: a review of mechanisms and management. Biomedicines. 2023;11(10):2731. doi: 10.3390/biomedicines11102731.",
+      "doi": []
+    },
+    {
+      "id": "bib3",
+      "text": "3.Raimbault A., Cazals X., Lauvin M.-A., Destrieux C., Chapet S., Cottier J.-P. Radionecrosis of malignant glioma and cerebral metastasis: a diagnostic challenge in MRI. Diagn. Interv. Imaging. 2014;95(10):985–1000. doi: 10.1016/j.diii.2014.06.013.",
+      "doi": []
+    },
+    {
+      "id": "bib4",
+      "text": "4.Khorasani A. Enhanced glioma semantic segmentation using U-net and pre-trained backbone U-net architectures. Sci. Rep. 2025;15(1):31821. doi: 10.1038/s41598-025-17895-1.",
+      "doi": []
+    },
+    {
+      "id": "bib5",
+      "text": "5.Wen L., Sun H., Liang G., Yu Y. A deep ensemble learning framework for glioma segmentation and grading prediction. Sci. Rep. 2025;15(1):4448. doi: 10.1038/s41598-025-87127-z.",
+      "doi": []
+    },
+    {
+      "id": "bib6",
+      "text": "6.Xiong F., Shen C., Wang X. Generalized knowledge distillation for unimodal glioma segmentation from multimodal models. Electronics. 2023;12(7):1516.",
+      "doi": []
+    },
+    {
+      "id": "bib7",
+      "text": "7.Chinnam S.K.R., Sistla V., Kolli V.K.K. Multimodal attention-gated cascaded U-Net model for automatic brain tumor detection and segmentation. Biomed. Signal. Process. Control. 2022;78",
+      "doi": []
+    },
+    {
+      "id": "bib8",
+      "text": "8.Rutoh E.K., ZhiGuang Q., Bore-Norton J.C., Bahadar N. ABI-Net: attention-based inception U-Net for brain tumor segmentation from multimodal MRI images. IEEE Access. 2025",
+      "doi": []
+    },
+    {
+      "id": "bib9",
+      "text": "9.Khorasani A., Kafieh R., Saboori M., Tavakoli M.B. Glioma segmentation with DWI weighted images, conventional anatomical images and post-contrast enhancement magnetic resonance imaging images by U-Net. Phys. Eng. Sci. Med. 2022;45(3):925–934. doi: 10.1007/s13246-022-01164-w.",
+      "doi": []
+    },
+    {
+      "id": "bib10",
+      "text": "10.Khorasani A., Tavakoli M.B. Multiparametric study for glioma grading with FLAIR, ADC map, eADC map, T1 map, and SWI images. Magn. Reson. Imaging. 2023;96:93–101. doi: 10.1016/j.mri.2022.12.004.",
+      "doi": []
+    },
+    {
+      "id": "bib11",
+      "text": "11.Calabrese E., et al. The University of California San Francisco preoperative diffuse glioma MRI dataset. Radiol. Artif. Intell. 2022;4(6) doi: 10.1148/ryai.220058.",
+      "doi": []
+    },
+    {
+      "id": "bib12",
+      "text": "12.Farhan A.S., Khalid M., Manzoor U. XAI-MRI: an ensemble dual-modality approach for 3D brain tumor segmentation using magnetic resonance imaging. Front. Artif. Intell. 2025;8 doi: 10.3389/frai.2025.1525240.",
+      "doi": []
+    },
+    {
+      "id": "bib13",
+      "text": "13.O. Oktay et al., “Attention u-net: Learning where to look for the pancreas,” arXiv Prepr. arXiv1804.03999, 2018.",
+      "doi": []
+    },
+    {
+      "id": "bib14",
+      "text": "14.Rajamani K.T., Rani P., Siebert H., ElagiriRamalingam R., Heinrich M.P. Attention-augmented U-Net (AA-U-Net) for semantic segmentation. Signal. Image Video Process. 2023;17(4):981–989. doi: 10.1007/s11760-022-02302-3.",
+      "doi": []
+    },
+    {
+      "id": "bib15",
+      "text": "15.Schlemper J., et al. Attention gated networks: learning to leverage salient regions in medical images. Med. Image Anal. 2019;53:197–207. doi: 10.1016/j.media.2019.01.012.",
+      "doi": []
+    },
+    {
+      "id": "bib16",
+      "text": "16.Blystad I., Warntjes J.B.M., Smedby Ö., Lundberg P., Larsson E.-M., Tisell A. Quantitative MRI for analysis of peritumoral edema in malignant gliomas. PLoS. One. 2017;12(5) doi: 10.1371/journal.pone.0177135.",
+      "doi": []
+    },
+    {
+      "id": "bib17",
+      "text": "17.Lemée J.-M., Clavreul A., Menei P. “Intratumoral heterogeneity in glioblastoma: don’t forget the peritumoral brain zone,”. Neuro. Oncol. 2015;17(10):1322–1332. doi: 10.1093/neuonc/nov119.",
+      "doi": []
+    },
+    {
+      "id": "bib18",
+      "text": "18.Hu L.S., Hawkins-Daarud A., Wang L., Li J., Swanson K.R. Imaging of intratumoral heterogeneity in high-grade glioma. Cancer Lett. 2020;477:97–106. doi: 10.1016/j.canlet.2020.02.025.",
+      "doi": []
+    },
+    {
+      "id": "bib19",
+      "text": "19.Sun X., et al. Glioma subtype prediction based on radiomics of tumor and peritumoral edema under automatic segmentation. Sci. Rep. 2024;14(1):27471. doi: 10.1038/s41598-024-79344-9.",
+      "doi": []
+    },
+    {
+      "id": "bib20",
+      "text": "20.Jain R., et al. Outcome prediction in patients with glioblastoma by using imaging, clinical, and genomic biomarkers: focus on the nonenhancing component of the tumor. Radiology. 2014;272(2):484–493. doi: 10.1148/radiol.14131691.",
+      "doi": []
+    },
+    {
+      "id": "bib21",
+      "text": "21.Tosee Z.R., Jalali-Zefrei F., Chaboki B.G., Karimian P., Mohammadi-Vajari E., Souri Z. Integration of conventional MRI and diffusion-weighted imaging for differential diagnosis of high-grade gliomas and metastatic brain tumors. Curr. Radiopharm. 2026;19(2) doi: 10.1016/j.craph.2025.100022.",
+      "doi": []
+    },
+    {
+      "id": "bib22",
+      "text": "22.Kinoshita M., et al. Fractional anisotropy and tumor cell density of the tumor core show positive correlation in diffusion tensor magnetic resonance imaging of malignant brain tumors. Neuroimage. 2008;43(1):29–35. doi: 10.1016/j.neuroimage.2008.06.041.",
+      "doi": []
+    },
+    {
+      "id": "bib23",
+      "text": "23.Li Q., et al. Noninvasive assessment of glymphatic system alterations as potential biomarkers for predicting overall survival in glioma. J. Neurosurg. 2025;143(6):1477–1489. doi: 10.3171/2025.5.JNS243268.",
+      "doi": []
+    },
+    {
+      "id": "bib24",
+      "text": "24.Parvaze S., et al. Radiomics-based evaluation and possible characterization of dynamic contrast enhanced (DCE) perfusion derived different sub-regions of Glioblastoma. Eur. J. Radiol. Feb. 2023;159 doi: 10.1016/j.ejrad.2022.110655.",
+      "doi": []
+    },
+    {
+      "id": "bib25",
+      "text": "25.Khorasani A. Glioma grading by integrating radiomic features from peritumoral Edema in fused MRI images and automated machine learning. J. Imaging. 2025;11(10):336. doi: 10.3390/jimaging11100336.",
+      "doi": []
+    },
+    {
+      "id": "bib26",
+      "text": "26.Hedibi H., Beladgham M., Bouida A. A combined attention mechanism for brain tumor segmentation of lower-grade glioma in magnetic resonance images. Comput. Biol. Med. 2025;193 doi: 10.1016/j.compbiomed.2025.110380.",
+      "doi": []
+    },
+    {
+      "id": "bib27",
+      "text": "27.Romano A., et al. Diffusion weighted imaging in neuro-oncology: diagnosis, post-treatment changes, and advanced sequences—an updated review. Cancers. 2023;15(3):618. doi: 10.3390/cancers15030618.",
+      "doi": []
+    },
+    {
+      "id": "bib28",
+      "text": "28.Ye Z., et al. Diffusion histology imaging combining diffusion basis spectrum imaging (DBSI) and machine learning improves detection and classification of glioblastoma pathology. Clin. Cancer Res. 2020;26(20):5388–5399. doi: 10.1158/1078-0432.CCR-20-0736.",
+      "doi": []
+    },
+    {
+      "id": "bib29",
+      "text": "29.Oh J.-H., et al. Window of opportunity evaluation of blood–brain barrier permeability heterogeneity within and across high-grade glioma patients. Neuro. Oncol. 2026;28(1):130–142. doi: 10.1093/neuonc/noaf204.",
+      "doi": []
+    },
+    {
+      "id": "bib30",
+      "text": "30.Alsop D.C., et al. Recommended implementation of arterial spin-labeled perfusion MRI for clinical applications: a consensus of the ISMRM perfusion study group and the European consortium for ASL in dementia. Magn. Reson. Med. 2015;73(1):102–116. doi: 10.1002/mrm.25197.",
+      "doi": []
+    },
+    {
+      "id": "bib31",
+      "text": "31.Shahedi F., Naseri S., Momennezhad M., Zare H. MR imaging techniques for microenvironment mapping of the glioma tumors: a systematic review. Acad. Radiol. 2025;32(7):4230–4253. doi: 10.1016/j.acra.2025.01.024.",
+      "doi": []
+    },
+    {
+      "id": "bib32",
+      "text": "32.Lavrova A., Teunissen W.H.T., Warnert E.A.H., van den Bent M., Smits M. Diagnostic accuracy of arterial spin labeling in comparison with dynamic susceptibility contrast-enhanced perfusion for brain tumor surveillance at 3T MRI. Front. Oncol. 2022;12 doi: 10.3389/fonc.2022.849657.",
+      "doi": []
+    },
+    {
+      "id": "bib33",
+      "text": "33.Nguyen H.H., Ng N.N., Awasthi S., Vogel H., Iv M. Arterial spin labeling perfusion MRI differentiates between radiation necrosis and tumor in brain metastases treated with stereotactic radiosurgery. Neuro-Oncol. Adv. 2025;7(1):vdaf091. doi: 10.1093/noajnl/vdaf091.",
+      "doi": []
+    },
+    {
+      "id": "bib34",
+      "text": "34.Müller A., et al. Quantitative T1-mapping detects cloudy-enhancing tumor compartments predicting outcome of patients with glioblastoma. Cancer Med. 2017;6(1):89–99. doi: 10.1002/cam4.966.",
+      "doi": []
+    },
+    {
+      "id": "bib35",
+      "text": "35.Eidel O., et al. Automatic analysis of cellularity in glioblastoma and correlation with ADC using trajectory analysis and automatic nuclei counting. PLoS One. 2016;11(7) doi: 10.1371/journal.pone.0160250.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Khorasani A.",
+  "journal": "Eur J Radiol Open",
+  "year": "2026",
+  "pmid": "42774812",
+  "pmcid": "PMC13594701",
+  "doi": "10.1016/j.ejro.2026.100817",
+  "source": {
+    "retrieved_at": "2026-11-14T17:06:38.468084+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13594701/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13594701.xml"
+}

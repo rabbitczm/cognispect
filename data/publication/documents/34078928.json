@@ -1,0 +1,1897 @@
+{
+  "key": "34078928",
+  "body_available": true,
+  "title": "A generalized deep learning framework for whole-slide image segmentation and analysis",
+  "source_url": "https://europepmc.org/articles/PMC8172839",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open AccessThis article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Mahendra Khened",
+    "Avinash Kori",
+    "Haran Rajkumar",
+    "Ganapathy Krishnamurthi",
+    "Balaji Srinivasan"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2021",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2021",
+        "month": "6",
+        "day": "2"
+      },
+      {
+        "type": "collection",
+        "year": "2021",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR4"
+          ],
+          "en": "Histopathology is considered the gold standard for cancer diagnosis1,2 and identification of prognostic and therapeutic targets. Early diagnosis of cancer significantly increases the probability of survival3. Unfortunately, pathological analysis is an arduous process that is difficult, time-consuming, and requires in-depth knowledge. A study4 examining breast biopsies concordance among pathologists found that pathologists disagreed with each other on a diagnosis 24.7% of the time on average. This high rate of misdiagnosis stresses the need to develop computer-aided methods to aid pathologists in histopathology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR5",
+            "CR1",
+            "CR6",
+            "CR5",
+            "CR7",
+            "CR8",
+            "CR9",
+            "CR10"
+          ],
+          "en": "Digital pathology is the method of digitizing the histology slides to produce high-resolution images5. Studies have been conducted on collecting, analyzing, and interpreting digitized pathological slide images1. The increasing prevalence of WSI technology that can scan the entire tissue slide at the subcellular level makes the in-silico pathology analysis more viable6. Digital pathology’s array of image analysis activities include identification and counting (e.g. mitotic events), segmentation (e.g. nuclei), and tissue differentiation (e.g. cancerous vs. non-cancerous)5,7,8. Segmentation analysis helps to detect and separate tumor cells from the normal cells9,10. Segmentation of WSI images is usually the precursor for performing various other downstream analyses such as classification and tumor burden estimation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR11",
+            "Sec2",
+            "Sec6",
+            "Sec12",
+            "Sec19",
+            "MOESM1",
+            "Sec23",
+            "Sec27"
+          ],
+          "en": "Automated WSI image analysis is plagued by a myriad of challenges11, namely: Large dimensionality of WSI images A WSI image is obtained by digitizing a glass slide at a very high resolution (of the order of 0.25 micrometers/pixel, which corresponds to 40 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× magnification on a microscope). A typical glass-slide of size 20 mm \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× 15 mm results in gigapixel image of size 80,000 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× 60,000 pixels.Insufficient training samples The main impediments to the development and clinical implementation of deep learning algorithms consist of sufficiently large, curated, and representative training data which includes expert labeling, which is a costly and time-consuming process (e.g., pathologist annotated data). Most clinical research groups currently have restricted access to data. The data is often based on small sample sizes with limited geographic variety, resulting in algorithms with limited utility and poor generalization.Stain variability across laboratories As the data is acquired from multiple sources, there exists a lack of uniformity in staining protocol. Building a generalized framework that is invariant to stain pattern variability is challenging.Extraction of clinically relevant features and information Another major challenge is trying to extract features that are meaningful from a clinical point of view. Deep learning does an excellent task of automatic feature extraction, but understanding these extracted features and extracting meaningful information from them is challenging.In this study, we propose a generalized deep learning-based framework for histopathology tissue analysis that addresses all the aforementioned problems. Our proposed framework is a sequence of individual techniques in the preprocessing-training-inference pipeline which, in conjunction, improve the efficiency and the generalizability of the histopathology image analysis. The combination of techniques we have introduced includes an ensemble segmentation model, division of the WSI into smaller overlapping patches while addressing class imbalances, efficient techniques for inference, and an efficient, patch-based uncertainty estimation framework. The organization of the paper is as follows. Prior work on histopathology image analysis using deep learning-based methods is discussed in “Related work” section. In “Datasets used for this study” section, the datasets used in this study are presented. Discussion on training and inference pipelines is provided in “Training pipeline” and “Inference pipeline” sections respectively. Experimental analysis is described in the supplementary note. The comprehensive results to demonstrate the performance of the proposed method on several open-source datasets are presented in “Challenge results” section. Discussion of the results, conclusion, and limitations of the proposed study with the possible course of research is provided in “Discussion and conclusions” section.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [],
+          "en": "Large dimensionality of WSI images A WSI image is obtained by digitizing a glass slide at a very high resolution (of the order of 0.25 micrometers/pixel, which corresponds to 40 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× magnification on a microscope). A typical glass-slide of size 20 mm \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× 15 mm results in gigapixel image of size 80,000 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× 60,000 pixels.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [],
+          "en": "Insufficient training samples The main impediments to the development and clinical implementation of deep learning algorithms consist of sufficiently large, curated, and representative training data which includes expert labeling, which is a costly and time-consuming process (e.g., pathologist annotated data). Most clinical research groups currently have restricted access to data. The data is often based on small sample sizes with limited geographic variety, resulting in algorithms with limited utility and poor generalization.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "Stain variability across laboratories As the data is acquired from multiple sources, there exists a lack of uniformity in staining protocol. Building a generalized framework that is invariant to stain pattern variability is challenging.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [],
+          "en": "Extraction of clinically relevant features and information Another major challenge is trying to extract features that are meaningful from a clinical point of view. Deep learning does an excellent task of automatic feature extraction, but understanding these extracted features and extracting meaningful information from them is challenging.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Related work",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Deep learning methods for histopathological image analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "The advent of WSI scanners has enabled the digitization of glass slides at very high resolution. Typical WSI images are in the order of gigapixels and are usually stored in multi-resolution pyramidal format. These slide images are suitable for developing computer-aided diagnosis systems for automating the pathologist workflow. The availability of a large amount of data makes them amenable for analysis with machine learning algorithms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR1",
+            "CR12",
+            "CR13"
+          ],
+          "en": "In tumor pathology, nuclear morphology and cellular anatomy are often significant determinants of disease severity. In order to make the diagnostic and grading task of tumors less subjective, quantifiable features are derived from the images that correlate with the condition of the disease1. For example, algorithms can be designed to detect invasive tumors by first segmenting nuclei from the background, quantifying several nuclear characteristics, such as size, shape, and distribution, and comparing these characteristics with those of normal cells12. Yu et al.13 predicted non-small cell lung cancer prognosis by applying classical machine learning algorithms that use engineered features derived from pathology images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "CR14"
+          ],
+          "en": "Feature-engineered algorithms rely on a predetermined set of features to classify the tissue. They can only classify the tissue as good as the features that differentiate between them. Thus, there is a limit to their efficiency even when there is a large amount of data available to refine the algorithm. Therefore, there has been a significant shift in recent years towards applying deep learning algorithms as they are known for their inherent ability to automatically derive features from input data. Typical deep learning-based approaches for WSI image segmentation or classification are usually made by cropping the slide image into multiple small image patches and treating them independently during training and inference. Furthermore, to make an overall slide-level prediction or generate a heatmap of regions of interest, patch-level predictions are aggregated appropriately. Cruz-Roa et al.14 were one of the first to use this method and showed promising results in detecting invasive ductal breast carcinoma. Several studies have applied deep learning algorithms for various pathology tasks related to breast cancer, prostate biopsies, colon cancer, etc.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "CR15",
+            "CR19",
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR15",
+            "CR23",
+            "CR24",
+            "CR25",
+            "CR17",
+            "CR19",
+            "CR26"
+          ],
+          "en": "Given the image size and resolution of WSI images, a patch-based approach is used for training deep convolutional neural networks15–19. Hameed et al.20 and Li et al.21 proposed an ensemble-based framework for classification and segmentation using histopathology images. Qin et al.22 proposed a feature pyramid-based approach for semantic segmentation, authors combined feature pyramid blocks in the decoder blocks along with ResNet50 as an encoder. Authors claim that including feature pyramid block provided an overall boost of 10–20% dice coefficient, with an overall dice coefficient of 63%. Guo et al.15 proposed a two-stage approach where the first stage utilizes inception-v3 for classifying the tumor region followed by a cascaded deep convolutional network for fine segmentation. Pedersen et al.23 proposed a C++-based open-source package to read, visualize, zoom, pan, and analyze WSI images using CNN’s. In another interesting study, Shahidi24 proposed the method to use super-resolution generative adversarial networks to generate histopathology images, they tested their approach on CAMELYON16 dataset25. Priego-Torres et al.17 propose a segmentation pipeline for breast cancer images, using a patch-based approach, where the patches we extracted from all possible regions in an image and later merged with fully connected conditional random fields (CRF). Roy et al.19presented a multi-resolution-based deep learning approach along with customized reconstruction loss for viable tumor segmentation in liver WSI images. Hägele et al.26 explored the effect of various biases in histopathology image analysis. The authors provided an explainable method such as layer-wise relevance propagation to analyze latent biases and observed and improved area under receiver operating curve by 5% after reducing a labeling bias.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "CR27",
+            "CR28",
+            "CR29",
+            "CR30",
+            "CR31",
+            "CR32"
+          ],
+          "en": "Colorectal carcinoma is the third most common cancer in the world27. The majority of colorectal carcinoma are adenocarcinomas originating from epithelial cells28. Shapcott29 discuss the application of deep learning methods for cell identification on TCGA data. Kather et al.30 discuss the deep learning methods to predict the clinical course of colorectal cancer patients based on histopathological images. Bychkov et al.31 discuss the use of Long short-term memory (LSTM)32 artificial recurrent neural network (RNN) architecture for estimating the patient risk score using spatial, sequential memory.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "CR33",
+            "CR34",
+            "CR35"
+          ],
+          "en": "A review on WSI application for histopathological analysis of liver diseases and for understanding liver biology is given by Melo et al.33. They explore how WSI can enhance the evaluation and quantification of several histologic hepatic parameters and help to identify various liver diseases with clinical implications. Kiani et al.34 developed a deep learning-based system to aid pathologists in differentiating between two subtypes of primary liver cancer, hepatocellular carcinoma, and cholangiocarcinoma on H&E stained WSI images. Lu and Daigle35 demonstrated the usefulness of extracting image features from hepatocellular carcinoma histopathological images using pre-trained CNN models to reliably differentiate between normal and cancer samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Contributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "Sec1",
+            "Sec2",
+            "CR36",
+            "CR37",
+            "CR38"
+          ],
+          "en": "A deep learning-based framework for the segmentation and analysis of WSI images has been proposed. The framework comprises a segmentation network at its core along with novel algorithms that utilize the segmentation to do pathological analyses such as metastasis classification and viable tumor burden estimation. As discussed in “Introduction” section, challenges in WSI image analysis are mainly due to their large size, variability in staining, and the limited amount of annotated data. Although there exist some studies as described in “Related work” section, none of them seem to provide a framework that generalizes well against multiple cancer sites. In this work, we proposed methods to address most of the challenges associated with WSI analysis with the generic framework, which produces benchmarking results along with uncertainty maps on three large open-source databases. The main contributions in this work are described below :Ensemble segmentation model The ensemble comprises multiple fully convolutional architectures (FCN) architectures, each independently trained on different subsets of the training data. During inference, the ensemble generated the tumor probability map by averaging the posterior probability maps of all the FCNs. The ensemble approach showed superior segmentation performance when compared to its individual constituting FCNs.Training pipeline The proposed approach divided the WSIs into smaller-sized image patches for the purpose of training FCN models. For the preparation of the training set, efficient methodologies for sampling patches from the WSI images were introduced. The problem of class imbalance due to the limited number of representative patches from tumor regions in the WSI images was addressed by employing overlapping and oversampling techniques during patch extraction (random patch coordinate perturbation technique) alongside various data augmentation schemes.Inference pipeline For efficiently generating model inference on the entire WSI image, a concept of generating patch coordinate sampling grid from the post-processed tissue mask was introduced. The sampling grid aided in the reduction of computational time by discarding non-tissue patches during the construction of the tumor probability heatmap. The patch-based segmentation of WSI images introduced edge artifacts due to loss of neighboring context information at patch borders, and this issue was addressed by proposing techniques to average prediction probabilities at overlapping regions and making use of large patch size during inference. Apart from this, we also compute inference on multiple models parallelly for ensemble calculation over patches rather than an entire image.Lymph node metastases classification from WSI images A Random Forest-based ensemble classification algorithm was trained with hand-crafted features derived from the predicted tumor-probability maps. The class imbalance in the training dataset was addressed by employing strategies such as over-sampling (by synthetically generating under-presented class data points) and under-sampling (balance all classes by removing some noisy data points).Uncertainty estimation An efficient patch-based uncertainty estimation framework was developed to estimate both data specific and model (parameter) specific uncertainties.Open-source Packaging: The proposed framework was packaged into an open-source GUI application for the benefit of researchers (DigiPathAI on GitHub).The performance of the segmentation pipeline was benchmarked by validating it on WSI slide images of three different cancer sites, namely- breast lymph nodes, liver, and colon by participating in CAMELYON36, DigestPath37, and PAIP38 challenges respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "Ensemble segmentation model The ensemble comprises multiple fully convolutional architectures (FCN) architectures, each independently trained on different subsets of the training data. During inference, the ensemble generated the tumor probability map by averaging the posterior probability maps of all the FCNs. The ensemble approach showed superior segmentation performance when compared to its individual constituting FCNs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "Training pipeline The proposed approach divided the WSIs into smaller-sized image patches for the purpose of training FCN models. For the preparation of the training set, efficient methodologies for sampling patches from the WSI images were introduced. The problem of class imbalance due to the limited number of representative patches from tumor regions in the WSI images was addressed by employing overlapping and oversampling techniques during patch extraction (random patch coordinate perturbation technique) alongside various data augmentation schemes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "Inference pipeline For efficiently generating model inference on the entire WSI image, a concept of generating patch coordinate sampling grid from the post-processed tissue mask was introduced. The sampling grid aided in the reduction of computational time by discarding non-tissue patches during the construction of the tumor probability heatmap. The patch-based segmentation of WSI images introduced edge artifacts due to loss of neighboring context information at patch borders, and this issue was addressed by proposing techniques to average prediction probabilities at overlapping regions and making use of large patch size during inference. Apart from this, we also compute inference on multiple models parallelly for ensemble calculation over patches rather than an entire image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [],
+          "en": "Lymph node metastases classification from WSI images A Random Forest-based ensemble classification algorithm was trained with hand-crafted features derived from the predicted tumor-probability maps. The class imbalance in the training dataset was addressed by employing strategies such as over-sampling (by synthetically generating under-presented class data points) and under-sampling (balance all classes by removing some noisy data points).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [],
+          "en": "Uncertainty estimation An efficient patch-based uncertainty estimation framework was developed to estimate both data specific and model (parameter) specific uncertainties.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [],
+          "en": "Open-source Packaging: The proposed framework was packaged into an open-source GUI application for the benefit of researchers (DigiPathAI on GitHub).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Materials and methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "This section goes into the details of the proposed framework. Firstly, the ensemble and the network architectures are detailed. Secondly, the strategies used to train the models are explained. Finally, the segmentation inference method is discussed, followed by the methods used to perform secondary histopathology analyses (Viable tumor burden estimation, pn-staging). Figure 1 provides an overview of the proposed deep learning-based segmentation and downstream analyses framework for WSI slide images corresponding to multiple different cancer sites.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Datasets used for this study",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR36",
+            "CR38",
+            "CR37",
+            "Tab1"
+          ],
+          "en": "The proposed framework was validated on multiple open-source datasets which included CAMELYON36 with 1399 WSI images with an average image size of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$100000 \\times 100000$$\\end{document}100000×100000 and image resolution of 0.25microns/pixel, PAIP38 with 90 WSI images with an average image size of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$50000 \\times 50000$$\\end{document}50000×50000 and image resolution of 0.5microns/pixel, and finally DigestPath37 dataset consists of 872 tissue images with image size of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$5000 \\times 5000$$\\end{document}5000×5000. Table 1 provides an overview of the datasets used in this study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "CAMELYON16",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "The CAMELYON1625 dataset comprised of 399 WSI slide images taken from two medical centers in the Netherlands, out of which 159 WSI images were metastases, and the remaining 240 were negative. Pathologists exhaustively annotated all the WSI images with metastases at the pixel level. In the CAMELYON16 challenge, the 399 WSI images were split into training and testing sets, comprising of 160 negative and 110 metastases WSI images for training, 80 negative and 49 metastases WSI images for testing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "CAMELYON17",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par25",
+          "reference_ids": [
+            "CR39",
+            "Tab2",
+            "Tab3",
+            "Tab4"
+          ],
+          "en": "The CAMELYON1739 dataset consisted of 1000 WSI images taken from five medical centers in the Netherlands. In the CAMELYON17 challenge, 500 WSI images were allocated for training, and the remaining 500 WSI images were allocated for testing. The training dataset of CAMELYON17 included 318 negative WSI images and 182 WSI images with metastases. In the CAMELYON17 dataset, slide-level labels of metastases type were provided for all the WSI images, and exhaustive pixel-level annotations were provided for 50 WSI images. The slide-level labels were negative, Isolated tumor cells (ITC), micro-metastases, and macro-metastases. Table 2 provides the size criteria for metastases type. The pN-stage labels were provided for all the 100 patients in the training set and were based on the simplified rules provided in Table 3. Table 4 provides the metastases type distribution in CAMELYON17 training dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "PAIP",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "CR38"
+          ],
+          "en": "The PAIP 201938 dataset contains a total of 100 WSI images scanned from liver tissue samples. Each image has an average dimension of 50,000x50,000 pixels. All the images were H&E stained, scanned at 20x magnification, and prepared from a single center (Seoul National University Hospital). The dataset included pixel-level annotation of the viable tumor and whole tumor regions. It also provided the viable tumor burden metric for each image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "Tumor burden is defined as the ratio of the viable tumor region to the whole tumor region. The viable tumor region is defined as the cancerous region. The whole tumor area is defined as the outermost boundary enclosing all the dispersed viable tumor cell nests, tumor necrosis, and tumor capsule . Each tissue sample contains only one whole tumor region. This metric has applications in assessing the response rates of patients to cancer treatment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "Out of the 100 images, 50 images were the publicly available training set, ten images were reserved for validation set that was made publicly available after the challenge was completed, and the rest 40 images were the test set whose ground truth were not publicly available. The test images weren’t used directly in the study. However, the score generated by the PAIP 2019 server by testing our algorithm against the test images was used in the study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "DigestPath",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "The DigestPath dataset consists of tissue sections collected during the examination of colonoscopy pathology to identify early-stage colon tumor cells. There are ten or more tissue sections in a single WSI image for colonoscopy pathology review. The challenge organizers selected one or two tissue sections in a WSI image and provided images of these tissue sections along with their corresponding lesion annotations by pathologists in jpg format. On average, each tissue image was of size 5000 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× 5000 pixels. The training dataset of DigestPath consists of 660 tissue images taken from 324 patients, in which 250 tissue images from 93 patients had lesions, and the remaining 410 tissue images from 231 patients had no lesions. The data was collected from multiple medical centers, especially from several small centers in developing countries. All the tissue sections were H&E stained and scanned at 20 \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\times$$\\end{document}× magnification. The testing dataset consisted of 212 tissue images from 152 patients. The challenge organizers released only the training set, and the testing set was kept confidential.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Network architecture",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "CR40"
+          ],
+          "en": "For the task of segmentation of tumor regions from patches of the WSI images, an ensemble of FCN40 architectures were used. A typical FCN based segmentation network comprises an encoder network, a decoder network, and a pixel-wise classification layer. An encoder network comprises a series of operations (like convolution and pooling) that transforms the input (image) to a set of low-resolution feature maps. The decoder network comprises of up-sampling or transposed convolution followed by series of convolution operations that transform the low-resolution encoder feature maps to the original input resolution feature maps for pixel-wise classification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1",
+            "CR41",
+            "CR42",
+            "CR43",
+            "CR44",
+            "CR42",
+            "CR45",
+            "CR44",
+            "CR45",
+            "CR46",
+            "CR47",
+            "CR48",
+            "CR49",
+            "CR41",
+            "CR50"
+          ],
+          "en": "The ensemble consisted of three encoder-decoder-based FCN architectures. Experiments (Tables Experimental 8, 9 in the supplementary note) showed that using an ensemble of three different networks provided superior segmentation performance compared to using the networks individually. During inference, the predicted tumor posterior probability map from all three models was averaged to generate the ensemble model’s final prediction. We carefully selected these three different architectures based on the number of parameters, multi-scale feature extraction, and their performance on PASCAL VOC41 open leaderboard. The ensemble comprised of the following FCN architectures:U-Net42 with DenseNet-12143 as the backbone (encoder) pre-trained on ImageNet44. The decoder comprised of the bi-linear up-sampling module followed by convolutional layers. Features learned in the down-sampling path of the encoder were concatenated with the features learned in the up-sampling path using skip connection.U-Net42 with Inception-ResNet-V245 as the backbone (encoder) pre-trained on ImageNet44. The Inception-ResNet-V245 (also known as Inception-v4) integrates the features of the Inception architecture46 and the ResNet architecture47. Multi-scale convnet blocks in inception network helps in reducing number of parameters along with encoding large amount of information.DeeplabV3Plus48 with Xception49 network as the backbone and pre-trained on PASCAL VOC41. DeepLabV350 was built to obtain multi-scale context. This was done by using atrous convolutions with different rates. DeeplabV3Plus extends this by having low-level features transported from the encoder to the decoder.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "CR42",
+            "CR43",
+            "CR44"
+          ],
+          "en": "U-Net42 with DenseNet-12143 as the backbone (encoder) pre-trained on ImageNet44. The decoder comprised of the bi-linear up-sampling module followed by convolutional layers. Features learned in the down-sampling path of the encoder were concatenated with the features learned in the up-sampling path using skip connection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [
+            "CR42",
+            "CR45",
+            "CR44",
+            "CR45",
+            "CR46",
+            "CR47"
+          ],
+          "en": "U-Net42 with Inception-ResNet-V245 as the backbone (encoder) pre-trained on ImageNet44. The Inception-ResNet-V245 (also known as Inception-v4) integrates the features of the Inception architecture46 and the ResNet architecture47. Multi-scale convnet blocks in inception network helps in reducing number of parameters along with encoding large amount of information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "CR48",
+            "CR49",
+            "CR41",
+            "CR50"
+          ],
+          "en": "DeeplabV3Plus48 with Xception49 network as the backbone and pre-trained on PASCAL VOC41. DeepLabV350 was built to obtain multi-scale context. This was done by using atrous convolutions with different rates. DeeplabV3Plus extends this by having low-level features transported from the encoder to the decoder.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Training pipeline",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par35",
+          "reference_ids": [
+            "Fig2"
+          ],
+          "en": "The training can broadly split into tissue mask generation, patch extraction and training the models patchwise. Figure 2 illustrates the training strategy utilized for training each of the models in the ensemble.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Tissue mask generation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "CR51"
+          ],
+          "en": "In this step, the entire tissue region was segmented from the background glass region of the WSI image. This step aided in preventing unnecessary computations on non-tissue regions of the slide. An approximate tissue region boundary suffices; therefore the processing was done on a low-resolution version of the WSI image to further reduce computational costs. The RGB color space of the low-resolution image was transformed to the HSV (Hue-Saturation-Value) color space and Otsu’s adaptive thresholding51 was applied to the saturation component. Post thresholding, binary morphological operations were performed to facilitate proper extraction of patches at the small tissue regions and tissue borders.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Tissue mask generation specific to CAMELYON dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par37",
+          "reference_ids": [
+            "Fig3"
+          ],
+          "en": "In some of the CAMELYON17 cases, the Otsu’s thresholding failed because of the black regions in the WSI image. Hence, before the application of image thresholding operation, the pre-processing involved replacing black pixel regions in the WSI image background with white pixels and median blurring with a kernel of size 7x7 on the entire image. Median blur aided in the smoothing of the tissue regions and removal of noise at the tissue bordering the glass-slide region while preserving the edges of the tissue. Figure 3 illustrates the pipeline for tissue mask generation with an example.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Patch coordinate extraction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "Using the tissue mask generated from the previous step, patches of the image were randomly extracted to make the training dataset. An equal number of tumourous and non-tumorous patches were extracted. This was done to prevent class imbalance or manifold shift issues and enforce proper training. A patch was considered tumourous if at least one pixel inside the patch was classified as a tumor. The dimensions of the extracted patches were not fixed; rather, they were a hyperparameter we experimented with. The patches were extracted from the highest resolution of the image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Data augmentation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par39",
+          "reference_ids": [],
+          "en": "To increase the number of data points and to better generalize the models across various staining and acquisition protocols, data augmentation schemes were proposed. Augmentations like “horizontal or vertical flip,” “90-degree rotations”, and “Gaussian blurring” along with color augmentation were performed. Colour augmentation included random changes to brightness, contrast, hue, and saturation with a maximum delta of 64.0/255, 0.75, 0.25, 0.04, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [],
+          "en": "Additionally, in order to introduce some diversity between patches extracted from the images at different epochs, random coordinate perturbation was introduced. This technique involved randomly offsetting the center of the patch within a specified radius (128 pixels) prior to the extraction from the WSI image. Post augmentation, the images were normalized.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Loss function",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [
+            "CR52",
+            "Equ1",
+            "Equ2",
+            "Equ3",
+            "CR53"
+          ],
+          "en": "Tumour regions were represented by a minuscule proportion of pixels in WSI images, thereby leading to class imbalance. This issue was circumvented by training the network to minimize a hybrid loss function. The hybrid loss function is comprised of cross-entropy loss and a loss function based on the Dice overlap coefficient. The Dice coefficient is an overlap metric used for assessing the quality of segmentation maps. The effect of hybrid loss was extensively studied in52 showing an overall improvement in segmentation performance by combining cross-entropy and dice loss. The dice loss is a differentiable function that approximates Dice-coefficient and is defined using the predicted posterior probability map and ground truth binary image as defined in (1). The cross-entropy loss is defined in (2). In the equations, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p_i$$\\end{document}pi and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$g_i$$\\end{document}gi represent pairs of corresponding pixel values of predicted posterior probability and ground truth. N represents the total number of pixels. DL refers to dice loss and CL refers to cross-entropy loss. \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$DL_{FG}$$\\end{document}DLFG and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$DL_{BG}$$\\end{document}DLBG represent the foreground pixels that correspond to the tumor regions and the background pixels that corresponded to non-tumor regions, respectively.The proposed loss was defined as a linear combination of the two-loss components as defined in (3). The neural networks were trained by minimizing the proposed loss function using ADAM optimizer53. The \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\alpha , \\beta , \\gamma$$\\end{document}α,β,γ were assigned such that the cross-entropy loss and the dice loss are given equal weightage (\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\alpha = 0.5, \\beta = 0.25$$\\end{document}α=0.5,β=0.25 and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\gamma = 0.25$$\\end{document}γ=0.25).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "Training",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR44",
+            "CR41"
+          ],
+          "en": "All three models were trained independently, with different cross-validation folds of the data. The FCN architectures in the ensemble whose encoders were based on DenseNet-121 and Inception-ResNet-V2 made use of transfer learning by using ImageNet44 pre-trained weights for their respective encoders. In the case of DeeplabV3Plus, the model weights were pre-trained on PascalVOC41. For the network architectures with encoders based on DenseNet-121 and Inception-ResNet-V2, the encoder weights of the models were frozen for the first two epochs, and only the decoder weights were made trainable. For the remaining epochs, both the encoder and decoder parts were trained. The learning rate was decayed every few epochs in a deterministic manner to allow for the model to gradually converge. The training was stopped when the validation loss between epochs started increasing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec19",
+      "title": "Inference pipeline",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par43",
+          "reference_ids": [
+            "Sec13",
+            "Fig4"
+          ],
+          "en": "The pre-processing step in the inference pipeline included segmentation of tissue region from the WSI image (refer “Training pipeline” section). In order to facilitate extraction of patches from the WSI image within the tissue mask region, a uniform patch-coordinate sampling grid was generated at a lower resolution, as shown in Fig. 4. Each point in the patch sampling grid was re-scaled by a factor to map to the coordinate space corresponding to the WSI image at its highest resolution. With these scaled coordinate points as the center, fixed-size high-resolution image patches were extracted from the WSI image for feeding the trained segmentation model as an input.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "The sampling stride was defined as the spacing between consecutive points in the patch sampling grid. The patch size and the sampling stride controlled the overlap between consecutive extracted patches from the WSI image. The main drawback of the patch-based segmentation method for WSI images was that the smaller patch sizes could not capture the wider context of the neighborhood region. Moreover, the stitching of the segmented patches introduced boundary artifacts (blockish appearance) in the tumor probability heatmaps. The generated heatmaps were smooth when the inference was done on overlapping patches with larger patch-size and averaging the prediction probabilities at the overlapping regions. The experimental observation suggested that a 50% overlap between consecutive neighboring patches is the optimal balance between accuracy and computational efficiency. Also, during inference, increasing the patch size by a factor of 4 (1024x1024) when compared to the patch size used during training (256x256) improved the quality of generated heatmaps.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec20",
+      "title": "pN-staging pipeline for CAMELYON17 dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par46",
+          "reference_ids": [
+            "Fig5",
+            "CR54",
+            "Tab5",
+            "CR55",
+            "CR56",
+            "CR57",
+            "Tab2",
+            "CR58"
+          ],
+          "en": "Figure 5 illustrates the complete pipeline developed for pN-staging of CAMELYON17 dataset. The pipeline comprises four blocks as described below:Pre-processing: The tissue regions in the WSI images were detected for patch extraction.Heatmap generation: The extracted patches from the WSI images were passed through the inference pipeline to generate the down-scaled version of the tumor probability heatmaps.Feature extraction: The heatmaps were binarized by thresholding at 0.5 and 0.9 probabilities, and at each of these thresholds, the connected components were extracted, and region properties were measured using scikit-image54 library. Thirty-two geometric and morphological features from the probable metastases regions were computed (Table 5).Data balancing: In order to handle the class imbalance problem, one of the techniques proposed in the literature is oversampling by synthetically generating minority class samples using SMOTE algorithm55. However, this method can introduce noisy samples when the interpolated new samples lie between marginal outliers and inliers. This problem is usually addressed by removing noisy samples by using under-sampling techniques like Tomek’s link56 or nearest-neighbors. SMOTETomek57 algorithm was employed for balancing the training data. SMOTETomek algorithm is a combination of SMOTE and Tomek’s link performed consecutively.Classification: The pN-stage was assigned to the patient based on all the available lymph-node WSI images, taking into account their individual metastases type (Table 2). For predicting the metastases type, an ensemble of Random Forest classifiers58 was trained using the extracted features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "Pre-processing: The tissue regions in the WSI images were detected for patch extraction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "Heatmap generation: The extracted patches from the WSI images were passed through the inference pipeline to generate the down-scaled version of the tumor probability heatmaps.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [
+            "CR54",
+            "Tab5"
+          ],
+          "en": "Feature extraction: The heatmaps were binarized by thresholding at 0.5 and 0.9 probabilities, and at each of these thresholds, the connected components were extracted, and region properties were measured using scikit-image54 library. Thirty-two geometric and morphological features from the probable metastases regions were computed (Table 5).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [
+            "CR55",
+            "CR56",
+            "CR57"
+          ],
+          "en": "Data balancing: In order to handle the class imbalance problem, one of the techniques proposed in the literature is oversampling by synthetically generating minority class samples using SMOTE algorithm55. However, this method can introduce noisy samples when the interpolated new samples lie between marginal outliers and inliers. This problem is usually addressed by removing noisy samples by using under-sampling techniques like Tomek’s link56 or nearest-neighbors. SMOTETomek57 algorithm was employed for balancing the training data. SMOTETomek algorithm is a combination of SMOTE and Tomek’s link performed consecutively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par51",
+          "reference_ids": [
+            "Tab2",
+            "CR58"
+          ],
+          "en": "Classification: The pN-stage was assigned to the patient based on all the available lymph-node WSI images, taking into account their individual metastases type (Table 2). For predicting the metastases type, an ensemble of Random Forest classifiers58 was trained using the extracted features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec21",
+      "title": "Tumour burden estimation for PAIP dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par52",
+          "reference_ids": [],
+          "en": "The tumor burden computation requires the segmentation of the viable tumor and whole tumor regions in the WSI image of the liver cancer tissue. The viable tumor region was segmented using the proposed deep learning-based segmentation network. However, it was observed that training the same segmentation network for the whole tumor region gave sub-optimal results. Hence, a heuristic method was adopted to approximate the whole tumor region from the viable tumor region.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par53",
+          "reference_ids": [
+            "Sec19",
+            "Sec13"
+          ],
+          "en": "The tumor burden estimation algorithm consisted of the following steps:Segment the viable tumor region via the proposed algorithm in “Inference pipeline” sectionApply morphological operations on the prediction to remove false positives and fill the small holesFind the smallest convex hull containing the entire viable tumor regionEstimate the tissue mask, as discussed in “Training pipeline” sectionThe whole tumor region is approximated to be the intersection of the convex hull and tissue mask regionThe tumor burden is calculated by taking the ratio between the area of the viable and whole tumor regions",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par54",
+          "reference_ids": [
+            "Sec19"
+          ],
+          "en": "Segment the viable tumor region via the proposed algorithm in “Inference pipeline” section",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par55",
+          "reference_ids": [],
+          "en": "Apply morphological operations on the prediction to remove false positives and fill the small holes",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par56",
+          "reference_ids": [],
+          "en": "Find the smallest convex hull containing the entire viable tumor region",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par57",
+          "reference_ids": [
+            "Sec13"
+          ],
+          "en": "Estimate the tissue mask, as discussed in “Training pipeline” section",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par58",
+          "reference_ids": [],
+          "en": "The whole tumor region is approximated to be the intersection of the convex hull and tissue mask region",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par59",
+          "reference_ids": [],
+          "en": "The tumor burden is calculated by taking the ratio between the area of the viable and whole tumor regions",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec22",
+      "title": "Uncertainty analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par60",
+          "reference_ids": [
+            "CR59",
+            "CR60",
+            "CR61"
+          ],
+          "en": "Uncertainty estimation is essential in assessing unclear diagnostic cases predicted by deep learning models. It helps pathologists to concentrate more on the uncertain regions for their analysis. Begoli et al.59 argues the need for uncertainty analysis in machine-assisted medical decision-making system. There exist two main sources of uncertainty, namely (i) Aleatoric uncertainty and (ii) Epistemic uncertainty. Aleatoric uncertainty is uncertainty due to the data generation process itself. In contrast, the uncertainty induced due to the model parameters, which is the result of not estimating ideal model architectures or weights to fit the given data, is known as epistemic uncertainty60. Epistemic uncertainty can be approximated by using test time Bayesian dropouts61, which estimates uncertainty by Montecarlo simulations with Bayesian dropout.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par61",
+          "reference_ids": [
+            "CR62",
+            "Equ4"
+          ],
+          "en": "In the proposed pipeline, aleatoric uncertainty for each model was estimated using test time augmentations, as introduced in62 (4).where \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Phi _i(x|w)$$\\end{document}Φi(x|w) is the output of the neural network with weights w for input x and TTA denotes the set of possible test time data augmentations allowed. The proposed methodology for aleatoric uncertainty included the following augmentations- \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$TTA \\in \\{rotation, vertical flip, horizontal flip\\}$$\\end{document}TTA∈{rotation,verticalflip,horizontalflip}.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par62",
+          "reference_ids": [
+            "Equ5"
+          ],
+          "en": "For epistemic uncertainty, the diversity of model architectures were used to calculate uncertainty (5).where the likelihood distribution p(y|x, w) is a probabilistic model which generates outputs (y) for given inputs (x) for some parameter setting (w) and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Phi _i$$\\end{document}Φi indicates the trained model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec23",
+      "title": "Challenge results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec24",
+      "title": "Performance evaluation on CAMELYON17 challenge",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par63",
+          "reference_ids": [
+            "Tab6",
+            "CR63",
+            "CR64"
+          ],
+          "en": "On the CAMELYON17 testing dataset (n=500) the ensemble strategy was employed by combining the predictions from all the four trained Random Forest classifiers. The ensembling was based on the majority voting principle, and in case of a tie, the higher metastases category was selected. The ensemble model is referred to as RF-Ensemble. Table 6 compares the results of the proposed ensemble approach with other published approaches on the CAMELYON17 testing dataset (n=500). The proposed ensemble strategy gave Cohen’s kappa score of 0.9090.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec25",
+      "title": "Performance evaluation on DigestPath 2019 challenge",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par64",
+          "reference_ids": [
+            "Tab7",
+            "MOESM1"
+          ],
+          "en": "Table 7 compares the results of the proposed with other approaches on DigestPath-2019 testing dataset (n=212). The proposed approach obtained a Dice score of 0.78 on the test set. Though the proposed method is ranked fourth, it can be observed that the results of all the top three methods lie inside the estimated confidence bounds of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\pm 0.014$$\\end{document}±0.014 as described in supplementary section 1.6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec26",
+      "title": "Performance evaluation on PAIP 2019 challenge",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par65",
+          "reference_ids": [
+            "Tab8"
+          ],
+          "en": "Table 8 compares the results of the proposed with other approaches on PAIP-2019 testing dataset (n=40). The challenge comprised of two tasks, described as follows-Task 1: Liver cancer segmentation performance was evaluated using the average Jaccard index.Task 2: Viable tumor burden estimation was evaluated as the average of products of absolute accuracy and corresponding Task 1 score (Jaccard index) for each of the cases in the test set.For Task 1, all the participants utilized deep learning-based methods for the segmentation of viable tumors, albeit with different CNN architectures. For Task 2, all the participants used deep learning-based methods for the segmentation of the whole tumor. The proposed convex hull-based approximation method showed comparable performance with deep learning-based methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par66",
+          "reference_ids": [],
+          "en": "Task 1: Liver cancer segmentation performance was evaluated using the average Jaccard index.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par67",
+          "reference_ids": [],
+          "en": "Task 2: Viable tumor burden estimation was evaluated as the average of products of absolute accuracy and corresponding Task 1 score (Jaccard index) for each of the cases in the test set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec27",
+      "title": "Discussion and conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par68",
+          "reference_ids": [],
+          "en": "An automated end-to-end deep learning-based framework for segmentation and downstream analysis of WSI images was developed. The proposed framework showed state-of-the-art results on three publicly available histopathology image analysis challenges, namely, CAMELYON, PAIP 2019, and DigestPath 2019. The problem of segmentation of gigapixel WSI images was approached using the divide-and-conquer strategy by dividing the large image into computationally feasible patch sizes, running segmentation algorithms on the extracted patches, and stitching the individual outputs together to generate the segmentation of the entire WSI image. The patches were segmented using an ensemble of FCNs, which are encoder-decoder-based architectures employed for generating dense pixel-level classification. The encoders in the proposed FCNs were some of the state-of-the-art CNNs used for natural image analysis tasks, and the decoders were a learnable upsampling module to generate dense predictions. The proposed segmentation framework was an ensemble comprising of multiple FCN architectures, each independently trained on different subsets of the training data. The ensemble generated the tumor probability map by averaging the posterior probability maps of all the FCNs. The ensemble approach showed superior segmentation performance when compared to its individual constituting FCNs. The patch-based segmentation methods for large-sized images suffer from loss of neighboring context information at patch borders. This issue was addressed during inference by proposing- (i) to use patch size larger than that used during training and (ii) to overlap patches and average the posterior probabilities of the overlapping regions while stitching the output together. In addition to the generation of tumor probability heatmaps, a methodology for generating uncertainty maps based on model and data variability was also incorporated into the framework. These uncertainty maps would assist in better interpretation by pathologists and fine-tuning the model with uncertain regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par69",
+          "reference_ids": [
+            "CR65",
+            "CR66",
+            "CR67"
+          ],
+          "en": "Further research can be done in the design of efficient and multi-resolution FCN architectures for capturing multi-resolution information from WSI images65. The proposed experimental analysis on transfer learning showed that pre-training models with different histopathology datasets could act as good starting points for training models where pathology datasets are limited. Post-processing techniques could be one of the directions to improve the predicted WSI image’s tumor segmentation; techniques such as patch-based conditional random fields66,67 could be employed to refine the predicted segmentation masks rather than employing hardcoded threshold values. In the current study, the presence of artifacts in WSI images makes it difficult for tissue region sampling, which further results in sub-optimal segmentation results. The addition of a pre-processing stage for filtering these artefacts, or the addition to the training set of a significant number of images that include these elements, could lead to an improvement in the robustness of the framework. Moreover, the majority of the images used in this study were stained using H&E stain. Increasing the heterogeneity of the training samples with other possible stains could increase the generalizability of the framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par70",
+          "reference_ids": [],
+          "en": "The segmentation of WSI images is usually the first step which precedes other specific analyses such as metastases classification and estimation of tumor burden. In this regard, an automated pipeline for lymph node metastases classification and pN-staging was developed. For the task of lymph node metastases classification, an ensemble of multiple Random Forest classifiers was proposed, and each classifier was trained on different subsets of the training data. The training data was prepared by extracting features based on the pathologist’s viewpoint from the tumor probability maps. Additionally, incorporating synthetically generated training samples into the training data demonstrated its efficacy in addressing class imbalanced datasets for such classification tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par71",
+          "reference_ids": [
+            "CR68"
+          ],
+          "en": "The proposed method for viable tumor burden estimation from WSI images of liver cancer utilized an empirical method for estimating the whole tumor region from the predicted viable tumor region. The whole tumor region was proposed to approximate a convex hull around the viable tumor region. This approximation performed on par with other deep learning-based segmentation approaches and was also computationally inexpensive. The proposed method could be refined further by incorporating learning-based methods into the empirical method. For example, the convex hull output could be used as an initial point for active contours-based models68 for correcting whole tumor region segmentation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-29",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec28",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-31",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-31-p1",
+          "reference_ids": [],
+          "en": "Publisher's note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-31-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-31-p3",
+          "reference_ids": [],
+          "en": "These authors contributed equally: Mahendra Khened, Avinash Kori and Haran Rajkumar.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-31-p4",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "M.K. worked on the CAMELYON dataset-related algorithms and experiments. A.K. worked on DigestPath related algorithms and experiments. H.R. worked on PAIP2019 related algorithms and experiments. H.R. prepared images S1, S2 and S3. M.K. prepared images 5 and S4. M.K. mentored A.K. and H.R. on their work. H.R. and A.K. developed the DigiPathAI software. G.K. and B.S. guided and were the principal investigators. All authors reviewed the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-31-p5",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-32",
+      "title": "Supplementary Information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-32-p1",
+          "reference_ids": [],
+          "en": "The online version contains supplementary material available at 10.1038/s41598-021-90444-8.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Summary of histopathological datasets used in this work. The test images were hidden by the competition organizers and used only for leaderboard evaluation.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Train set",
+          "Test set",
+          "Image size",
+          "Microns/pixel"
+        ],
+        [
+          "CAMELYON16",
+          "270",
+          "129",
+          "100,000 × 100,000",
+          "0.25"
+        ],
+        [
+          "CAMELYON17",
+          "500",
+          "500",
+          "100,000 × 100,000",
+          "0.25"
+        ],
+        [
+          "DigestPath",
+          "660",
+          "212",
+          "5000 × 5000",
+          "0.25"
+        ],
+        [
+          "PAIP",
+          "50",
+          "40",
+          "50,000 × 50,000",
+          "0.5"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Summary of histopathological datasets used in this work. The test images were hidden by the competition organizers and used only for leaderboard evaluation.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Dataset</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Train set</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test set</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Image size</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Microns/pixel</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">CAMELYON16</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">270</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">129</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">100,000 × 100,000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">CAMELYON17</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">500</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">500</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">100,000 × 100,000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DigestPath</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">660</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">212</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">5000 × 5000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">PAIP</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">50</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">40</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">50,000 × 50,000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.5</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Tumour size criteria for assigning metastasis type.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Category",
+          "Size"
+        ],
+        [
+          "Isolated tumour cells",
+          "Single tumour cells or a cluster of tumour cells not larger than 0.2 mm or less than 200 cells"
+        ],
+        [
+          "Micro-metastasis",
+          "Larger than 0.2 mm and/or con- taining more than 200 cells, but not larger than 2 mm"
+        ],
+        [
+          "Macro-metastasis",
+          "Larger than 2 mm"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Tumour size criteria for assigning metastasis type.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Category</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Size</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Isolated tumour cells</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Single tumour cells or a cluster of tumour cells not larger than 0.2 mm or less than 200 cells</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Micro-metastasis</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Larger than 0.2 mm and/or con- taining more than 200 cells, but not larger than 2 mm</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Macro-metastasis</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Larger than 2 mm</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Pathologic lymph node classification (pN-stage) in CAMELYON17 Challenge.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "pN-Stage",
+          "Slide labels"
+        ],
+        [
+          "pN0",
+          "No micro-metastases or macro-metastases or ITCs found"
+        ],
+        [
+          "pN0(i+)",
+          "Only ITCs found"
+        ],
+        [
+          "pN1mi",
+          "Micro-metastases found, but no macro-metastases found"
+        ],
+        [
+          "pN1",
+          "Metastases found in 1-3 lymph nodes, of which at least one is a macro-metastasis"
+        ],
+        [
+          "pN2",
+          "Metastases found in 4-9 lymph nodes, of which at least one is a macro-metastasis"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Pathologic lymph node classification (pN-stage) in CAMELYON17 Challenge.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">pN-Stage</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Slide labels</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">pN0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">No micro-metastases or macro-metastases or ITCs found</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">pN0(i+)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Only ITCs found</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">pN1mi</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Micro-metastases found, but no macro-metastases found</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">pN1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Metastases found in 1-3 lymph nodes, of which at least one is a macro-metastasis</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">pN2</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Metastases found in 4-9 lymph nodes, of which at least one is a macro-metastasis</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab4",
+      "label": "Table 4",
+      "caption": "Metastases type distribution in CAMELYON17 training set.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Metastases (Training set)"
+        ],
+        [
+          "Negative",
+          "ITC",
+          "Micro",
+          "Macro"
+        ],
+        [
+          "318",
+          "35",
+          "64",
+          "88"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab4\" position=\"float\" orientation=\"portrait\"><label>Table 4</label><caption><p>Metastases type distribution in CAMELYON17 training set.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"4\" rowspan=\"1\">Metastases (Training set)</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Negative</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">ITC</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Micro</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Macro</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">318</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">35</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">64</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">88</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab5",
+      "label": "Table 5",
+      "caption": "List of features extracted for the purpose of predicting lymph node metastases type. Features were extracted after thresholding tumour probability heatmaps. For feature numbers 5, 6, 7, 8 and 9 the following statistics were computed- maximum, mean, variance, skewness, and kurtosis.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "No.",
+          "Feature description",
+          "Threshold (p)"
+        ],
+        [
+          "1",
+          "Largest tumour region’s major axis length",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9 & \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.5$$\\end{document}p=0.5"
+        ],
+        [
+          "2",
+          "Largest tumour region’s area",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.5$$\\end{document}p=0.5"
+        ],
+        [
+          "3",
+          "Ratio of tumour region to tissue region",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "4",
+          "Count of non-zero pixels",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "5",
+          "Tumour regions area",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "6",
+          "Tumour regions perimeter",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "7",
+          "Tumour regions eccentricity",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "8",
+          "Tumour regions extent",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "9",
+          "Tumour regions solidity",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "10",
+          "Mean of all region’s mean confidence probability",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ],
+        [
+          "11",
+          "Number of connected regions",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$p=0.9$$\\end{document}p=0.9"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Tab5\" position=\"float\" orientation=\"portrait\"><label>Table 5</label><caption><p>List of features extracted for the purpose of predicting lymph node metastases type. Features were extracted after thresholding tumour probability heatmaps. For feature numbers 5, 6, 7, 8 and 9 the following statistics were computed- maximum, mean, variance, skewness, and kurtosis.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">No.</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Feature description</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Threshold (<italic toggle=\"yes\">p</italic>)</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Largest tumour region’s major axis length</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq16\"><alternatives><tex-math id=\"M37\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M38\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq16.gif\" /></alternatives></inline-formula> &amp; <inline-formula id=\"IEq17\"><alternatives><tex-math id=\"M39\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.5$$\\end{document}</tex-math><ns0:math id=\"M40\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.5</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq17.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">2</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Largest tumour region’s area</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq18\"><alternatives><tex-math id=\"M41\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.5$$\\end{document}</tex-math><ns0:math id=\"M42\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.5</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq18.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Ratio of tumour region to tissue region</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq19\"><alternatives><tex-math id=\"M43\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M44\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq19.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">4</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Count of non-zero pixels</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq20\"><alternatives><tex-math id=\"M45\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M46\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq20.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">5</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tumour regions area</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq21\"><alternatives><tex-math id=\"M47\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M48\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq21.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">6</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tumour regions perimeter</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq22\"><alternatives><tex-math id=\"M49\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M50\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq22.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">7</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tumour regions eccentricity</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq23\"><alternatives><tex-math id=\"M51\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M52\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq23.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">8</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tumour regions extent</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq24\"><alternatives><tex-math id=\"M53\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M54\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq24.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">9</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tumour regions solidity</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq25\"><alternatives><tex-math id=\"M55\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M56\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq25.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">10</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Mean of all region’s mean confidence probability</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq26\"><alternatives><tex-math id=\"M57\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M58\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq26.gif\" /></alternatives></inline-formula></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">11</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Number of connected regions</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><inline-formula id=\"IEq27\"><alternatives><tex-math id=\"M59\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$p=0.9$$\\end{document}</tex-math><ns0:math id=\"M60\"><ns0:mrow><ns0:mi>p</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0.9</ns0:mn></ns0:mrow></ns0:math><inline-graphic ns1:href=\"41598_2021_90444_Article_IEq27.gif\" /></alternatives></inline-formula></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab6",
+      "label": "Table 6",
+      "caption": "Comparison of the proposed with other published approaches for automated pN-Staging in CAMELYON17 challenge. The score reported in the table is from the open public leader board of the CAMELYON17 challenge. The proposed approach (RF-Ensemble) stood rank-3 on the leaderboard (Accessed on 31-Dec-2019). The table additionally provides the performance of individual Random Forest classifiers in the ensemble and RF-Ensemble classifier.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Method",
+          "Cohen Kappa Score",
+          "Rank"
+        ],
+        [
+          "Lee et al.63",
+          "0.9570",
+          "1"
+        ],
+        [
+          "Pinchaud64",
+          "0.9386",
+          "2"
+        ],
+        [
+          "Proposed (RF-Ensemble)",
+          "0.9090",
+          "3"
+        ],
+        [
+          "Proposed (RF-PI)",
+          "0.8971",
+          "12"
+        ],
+        [
+          "Proposed (RF-PB)",
+          "0.9027",
+          "9"
+        ],
+        [
+          "Proposed (RF-CI)",
+          "0.8889",
+          "18"
+        ],
+        [
+          "Proposed (RF-CB)",
+          "0.9057",
+          "6"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab6\" position=\"float\" orientation=\"portrait\"><label>Table 6</label><caption><p>Comparison of the proposed with other published approaches for automated pN-Staging in CAMELYON17 challenge. The score reported in the table is from the open public leader board of the CAMELYON17 challenge. The proposed approach (RF-Ensemble) stood rank-3 on the leaderboard (Accessed on 31-Dec-2019). The table additionally provides the performance of individual Random Forest classifiers in the ensemble and RF-Ensemble classifier.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Method</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Cohen Kappa Score</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Rank</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lee et al.<sup><xref ref-type=\"bibr\" rid=\"CR63\">63</xref></sup></td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.9570</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">1</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Pinchaud<sup><xref ref-type=\"bibr\" rid=\"CR64\">64</xref></sup></td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.9386</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">2</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Proposed (RF-Ensemble)</bold></td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.9090</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">3</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Proposed (RF-PI)</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.8971</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">12</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Proposed (RF-PB)</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.9027</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">9</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Proposed (RF-CI)</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.8889</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">18</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Proposed (RF-CB)</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.9057</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">6</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab7",
+      "label": "Table 7",
+      "caption": "Top four entries in DigestPath-2019 challenge.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Teams",
+          "Dice"
+        ],
+        [
+          "kuanguang",
+          "0.807"
+        ],
+        [
+          "zju_realdoctor",
+          "0.792"
+        ],
+        [
+          "TIA_Lab",
+          "0.787"
+        ],
+        [
+          "Proposed",
+          "0.782"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab7\" position=\"float\" orientation=\"portrait\"><label>Table 7</label><caption><p>Top four entries in DigestPath-2019 challenge.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Teams</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Dice</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">kuanguang</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.807</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">zju_realdoctor</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.792</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">TIA_Lab</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.787</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Proposed</bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.782</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab8",
+      "label": "Table 8",
+      "caption": "Top five entries of PAIP 2019. Task 1 corresponds to Viable tumour segmentation and Task 2 corresponds to Viable tumour burden estimation. Note: FNLCR: Frederick National Laboratory for Cancer Research.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Team",
+          "Task 1",
+          "Task 2"
+        ],
+        [
+          "FNLCR",
+          "0.789",
+          "0.752"
+        ],
+        [
+          "Sichuan University",
+          "0.777",
+          "NA"
+        ],
+        [
+          "Proposed",
+          "0.750",
+          "0.6337"
+        ],
+        [
+          "Alibaba",
+          "0.672",
+          "0.6199"
+        ],
+        [
+          "Sejong University",
+          "0.665",
+          "0.6330"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab8\" position=\"float\" orientation=\"portrait\"><label>Table 8</label><caption><p>Top five entries of PAIP 2019. Task 1 corresponds to Viable tumour segmentation and Task 2 corresponds to Viable tumour burden estimation. Note: FNLCR: Frederick National Laboratory for Cancer Research.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Team</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Task 1</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Task 2</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">FNLCR</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.789</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.752</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sichuan University</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.777</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Proposed</bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.750</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.6337</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Alibaba</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.672</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.6199</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sejong University</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.665</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.6330</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Deep learning based framework for segmentation and analysis of WSI images. Drawn using draw.io (draw.io).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2021_90444_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "Overview of the tumour segmentation training pipeline. Drawn using draw.io (draw.io).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2021_90444_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "An illustration of the intermediate stages in the process of tissue mask generation from a WSI image in CAMELYON17 dataset. Drawn using draw.io (draw.io).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2021_90444_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "(Left to Right) An illustration of the tissue mask overlayed on a small region of the WSI image at low resolution (level-4), here the white region corresponds to the tissue mask; An illustration of the generated uniform patch coordinate sampling grid, here the points on the image act as centers from which high-resolution image patches were extracted from the WSI image.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2021_90444_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "Overview of the steps involved in the pN-staging pipeline developed for CAMELYON17 dataset. Drawn using draw.io (draw.io).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2021_90444_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} DL= & {} 1 - \\frac{2\\sum _i ^N p_i g_i}{ \\sum _i^N p_i^2+ \\sum _i^N g_i^2} \\end{aligned}$$\\end{document}DL=1-2∑iNpigi∑iNpi2+∑iNgi2",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ1\"><label>1</label><alternatives><tex-math id=\"M25\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} DL= &amp; {} 1 - \\frac{2\\sum _i ^N p_i g_i}{ \\sum _i^N p_i^2+ \\sum _i^N g_i^2} \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M26\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>D</ns0:mi><ns0:mi>L</ns0:mi><ns0:mo>=</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mrow /><ns0:mn>1</ns0:mn><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mn>2</ns0:mn><ns0:msubsup><ns0:mo>∑</ns0:mo><ns0:mi>i</ns0:mi><ns0:mi>N</ns0:mi></ns0:msubsup><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:msub><ns0:mi>g</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mo>∑</ns0:mo><ns0:mi>i</ns0:mi><ns0:mi>N</ns0:mi></ns0:msubsup><ns0:msubsup><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi><ns0:mn>2</ns0:mn></ns0:msubsup><ns0:mo>+</ns0:mo><ns0:msubsup><ns0:mo>∑</ns0:mo><ns0:mi>i</ns0:mi><ns0:mi>N</ns0:mi></ns0:msubsup><ns0:msubsup><ns0:mi>g</ns0:mi><ns0:mi>i</ns0:mi><ns0:mn>2</ns0:mn></ns0:msubsup></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2021_90444_Article_Equ1.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ2",
+      "text": "2\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} CL= & {} \\sum _i ^N \\left( g_ilog(p_i) + (1 - g_i)log(1-p_i)\\right) \\end{aligned}$$\\end{document}CL=∑iNgilog(pi)+(1-gi)log(1-pi)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ2\"><label>2</label><alternatives><tex-math id=\"M27\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} CL= &amp; {} \\sum _i ^N \\left( g_ilog(p_i) + (1 - g_i)log(1-p_i)\\right) \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M28\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>C</ns0:mi><ns0:mi>L</ns0:mi><ns0:mo>=</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mrow /><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mi>i</ns0:mi><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>g</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>g</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2021_90444_Article_Equ2.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} Loss= & {} \\alpha *CL + \\beta *DL_{BG} + \\gamma *DL_{FG} \\end{aligned}$$\\end{document}Loss=α∗CL+β∗DLBG+γ∗DLFG",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ3\"><label>3</label><alternatives><tex-math id=\"M29\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} Loss= &amp; {} \\alpha *CL + \\beta *DL_{BG} + \\gamma *DL_{FG} \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M30\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>L</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>s</ns0:mi><ns0:mi>s</ns0:mi><ns0:mo>=</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mrow /><ns0:mi>α</ns0:mi><ns0:mrow /><ns0:mo>∗</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>L</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>β</ns0:mi><ns0:mrow /><ns0:mo>∗</ns0:mo><ns0:mi>D</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">BG</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>γ</ns0:mi><ns0:mrow /><ns0:mo>∗</ns0:mo><ns0:mi>D</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">FG</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2021_90444_Article_Equ3.gif\" /></alternatives></disp-formula>The proposed loss was defined as a linear combination of the two-loss components as defined in ("
+    },
+    {
+      "id": "Equ4",
+      "text": "4\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} var_{al}(x, \\Phi _i) \\approx {\\mathbf {E}}_{t \\sim TTA}[(\\Phi _i(x|w,t) - {\\mathbf {E}}_{t \\sim TTA}[\\Phi _i(x|w,t)])^2] \\end{aligned}$$\\end{document}varal(x,Φi)≈Et∼TTA[(Φi(x|w,t)-Et∼TTA[Φi(x|w,t)])2]",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ4\"><label>4</label><alternatives><tex-math id=\"M61\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} var_{al}(x, \\Phi _i) \\approx {\\mathbf {E}}_{t \\sim TTA}[(\\Phi _i(x|w,t) - {\\mathbf {E}}_{t \\sim TTA}[\\Phi _i(x|w,t)])^2] \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M62\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>v</ns0:mi><ns0:mi>a</ns0:mi><ns0:msub><ns0:mi>r</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">al</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">Φ</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>≈</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold\">E</ns0:mi><ns0:mrow><ns0:mi>t</ns0:mi><ns0:mo>∼</ns0:mo><ns0:mi>T</ns0:mi><ns0:mi>T</ns0:mi><ns0:mi>A</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">Φ</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>w</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>t</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold\">E</ns0:mi><ns0:mrow><ns0:mi>t</ns0:mi><ns0:mo>∼</ns0:mo><ns0:mi>T</ns0:mi><ns0:mi>T</ns0:mi><ns0:mi>A</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">Φ</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>w</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>t</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2021_90444_Article_Equ4.gif\" /></alternatives></disp-formula>where "
+    },
+    {
+      "id": "Equ5",
+      "text": "5\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} var_{ep}(p(y|x,w)) \\approx {\\mathbf {E}}_{\\phi \\sim \\{\\Phi _i\\}}[(\\phi (x|w) - {\\mathbf {E}}_{\\phi \\sim \\{\\Phi _i\\}}[\\phi (x | w)])^2] \\end{aligned}$$\\end{document}varep(p(y|x,w))≈Eϕ∼{Φi}[(ϕ(x|w)-Eϕ∼{Φi}[ϕ(x|w)])2]",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ5\"><label>5</label><alternatives><tex-math id=\"M67\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} var_{ep}(p(y|x,w)) \\approx {\\mathbf {E}}_{\\phi \\sim \\{\\Phi _i\\}}[(\\phi (x|w) - {\\mathbf {E}}_{\\phi \\sim \\{\\Phi _i\\}}[\\phi (x | w)])^2] \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M68\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>v</ns0:mi><ns0:mi>a</ns0:mi><ns0:msub><ns0:mi>r</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">ep</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>p</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>w</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>≈</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold\">E</ns0:mi><ns0:mrow><ns0:mi>ϕ</ns0:mi><ns0:mo>∼</ns0:mo><ns0:mo stretchy=\"false\">{</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">Φ</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">}</ns0:mo></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>ϕ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>w</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold\">E</ns0:mi><ns0:mrow><ns0:mi>ϕ</ns0:mi><ns0:mo>∼</ns0:mo><ns0:mo stretchy=\"false\">{</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">Φ</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">}</ns0:mo></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mi>ϕ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>w</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2021_90444_Article_Equ5.gif\" /></alternatives></disp-formula>where the likelihood distribution "
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.GurcanMNHistopathological image analysis: a reviewIEEE Reviews in Biomedical Engineering2009214710.1109/RBME.2009.203486520671804PMC2910932",
+      "doi": [
+        "10.1109/RBME.2009.2034865"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.Shahriar Salamat, M. Robbins and Cotran: Pathologic basis of disease. J. Neuropathol. Exp. Neurol.69(2), 214. 10.1097/NEN.0b013e3181cd8dbc (2010).",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.Hawkes, N. Cancer survival data emphasise importance of early diagnosis. BMJ364, l408. 10.1136/bmj.l408 (2019).10.1136/bmj.l40830683652",
+      "doi": [
+        "10.1136/bmj.l408"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.ElmoreJGDiagnostic concordance among pathologists interpreting breast biopsy specimensJAMA20153131122113210.1001/jama.2015.140525781441PMC4516388",
+      "doi": [
+        "10.1001/jama.2015.1405"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.Janowczyk, A. & Madabhushi, A. Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases. J. Pathol. Inform.7, 29. 10.4103/2153-3539.186902 (2016).10.4103/2153-3539.186902PMC497798227563488",
+      "doi": [
+        "10.4103/2153-3539.186902"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.MadabhushiALeeGImage analysis and machine learning in digital pathology: challenges and opportunitiesMed. Image Anal.20163317017510.1016/j.media.2016.06.03727423409PMC5556681",
+      "doi": [
+        "10.1016/j.media.2016.06.037"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.NanthagopalAPRajamonyRSClassification of benign and malignant brain tumor ct images using wavelet texture parameters and neural network classifierJ. Vis.201316192810.1007/s12650-012-0153-y",
+      "doi": [
+        "10.1007/s12650-012-0153-y"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.GurayMSahinAABenign breast diseases: classification, diagnosis, and managementOncol.20061143544910.1634/theoncologist.11-5-43516720843",
+      "doi": [
+        "10.1634/theoncologist.11-5-435"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.WählbyCSintornI-MErlandssonFBorgeforsGBengtssonECombining intensity, edge and shape information for 2d and 3d segmentation of cell nuclei in tissue sectionsJ. Microsc.2004215677610.1111/j.0022-2720.2004.01338.x15230877",
+      "doi": [
+        "10.1111/j.0022-2720.2004.01338.x"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.XuJLuoXWangGGilmoreHMadabhushiAA deep convolutional neural network for segmenting and classifying epithelial and stromal regions in histopathological imagesNeurocomputing201619121422310.1016/j.neucom.2016.01.03428154470PMC5283391",
+      "doi": [
+        "10.1016/j.neucom.2016.01.034"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.Tizhoosh, H. R. & Pantanowitz, L. Artificial intelligence and digital pathology: Challenges and opportunities. J. Pathol. Inform.9, 38. 10.4103/jpi.jpi_53_18 (2018).10.4103/jpi.jpi_53_18PMC628900430607305",
+      "doi": [
+        "10.4103/jpi.jpi_53_18"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.DiamondJAndersonNHBartelsPHMontironiRHamiltonPWThe use of morphological characteristics and texture analysis in the identification of tissue composition in prostatic neoplasiaHum. Pathol.2004351121113110.1016/j.humpath.2004.05.01015343515",
+      "doi": [
+        "10.1016/j.humpath.2004.05.010"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.YuK-HPredicting non-small cell lung cancer prognosis by fully automated microscopic pathology image featuresNat. Commun.201671247410.1038/ncomms1247427527408PMC4990706",
+      "doi": [
+        "10.1038/ncomms12474"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.Cruz-Roa, A. et al. Automatic detection of invasive ductal carcinoma in whole slide images with convolutional neural networks. In Medical Imaging 2014: Digital Pathology, Vol. 9041, 904103 (International Society for Optics and Photonics, 2014).",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.GuoZA fast and refined cancer regions segmentation framework in whole-slide breast pathological imagesSci. Rep.201991103069689410.1038/s41598-018-37492-9PMC6351543",
+      "doi": [
+        "10.1038/s41598-018-37492-9"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.Chan, L., Hosseini, M. S., Rowsell, C., Plataniotis, K. N. & Damaskinos, S. Histosegnet: semantic segmentation of histological tissue type in whole slide images. In Proceedings of the IEEE/CVF International Conference on Computer Vision 10662–10671 (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Priego-TorresBMSanchez-MorilloDFernandez-GraneroMAGarcia-RojoMAutomatic segmentation of whole-slide h&e stained breast histopathology images using a deep convolutional neural network architectureExpert Syst. Appl.202015111338710.1016/j.eswa.2020.113387",
+      "doi": [
+        "10.1016/j.eswa.2020.113387"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.OskalKRRisdalMJanssenEAUndersrudESGulsrudTOA u-net based approach to epidermal tissue segmentation in whole slide histopathological imagesSN Appl. Sci.2019111210.1007/s42452-019-0694-y",
+      "doi": [
+        "10.1007/s42452-019-0694-y"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.RoyMConvolutional autoencoder based model histocae for segmentation of viable tumor regions in liver whole-slide imagesSci. Rep.20211111010.1038/s41598-020-79139-833420322PMC7794421",
+      "doi": [
+        "10.1038/s41598-020-79139-8"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.HameedZZahiaSGarcia-ZapirainBJavier AguirreJMaría VanegasABreast cancer histopathology image classification using an ensemble of deep learning modelsSensors202020437310.3390/s20164373PMC747273632764398",
+      "doi": [
+        "10.3390/s20164373"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.Li, Y. et al. U-net ensemble model for segmentation in histopathology images. Openreview (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.QinPChenJZengJChaiRWangLLarge-scale tissue histopathology image segmentation based on feature pyramidEURASIP J. Image Video Process.201820181910.1186/s13640-018-0320-8",
+      "doi": [
+        "10.1186/s13640-018-0320-8"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.Pedersen, A. et al. Fastpathology: an open-source platform for deep learning-based research and decision support in digital pathology. arXiv preprintarXiv:2011.06033 (2020).",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.ShahidiFBreast cancer histopathology image super-resolution using wide-attention gan with improved wasserstein gradient penalty and perceptual lossIEEE Access20219327953280910.1109/ACCESS.2021.3057497",
+      "doi": [
+        "10.1109/ACCESS.2021.3057497"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.BejnordiBEDiagnostic assessment of deep learning algorithms for detection of lymph node metastases in women with breast cancerJAMA20173182199221010.1001/jama.2017.1458529234806PMC5820737",
+      "doi": [
+        "10.1001/jama.2017.14585"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.HägeleMResolving challenges in deep learning-based analyses of histopathological images using explanation methodsScientific reports20201011210.1038/s41598-020-62724-232286358PMC7156509",
+      "doi": [
+        "10.1038/s41598-020-62724-2"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.FlemingMRavulaSTatishchevSFWangHLColorectal carcinoma: pathologic aspectsJ. Gastrointest. Oncol.201231532294300810.3978/j.issn.2078-6891.2012.030PMC3418538",
+      "doi": [
+        "10.3978/j.issn.2078-6891.2012.030"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.Hamilton, S. Carcinoma of the colon and rectum. World health organization Classification of Tumors. Pathology and Genetics of Tumors of the Digestive System 105–119 (2000).",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.ShapcottCMRajpootNHewittKDeep learning with sampling for colon cancer histology imagesFront. Bioeng. Biotechnol.201975210.3389/fbioe.2019.0005230972333PMC6445856",
+      "doi": [
+        "10.3389/fbioe.2019.00052"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.KatherJNPredicting survival from colorectal cancer histology slides using deep learning: a retrospective multicenter studyPLoS Med.201916e100273010.1371/journal.pmed.100273030677016PMC6345440",
+      "doi": [
+        "10.1371/journal.pmed.1002730"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.BychkovDDeep learning based tissue analysis predicts outcome in colorectal cancerSci. Rep.20188339510.1038/s41598-018-21758-329467373PMC5821847",
+      "doi": [
+        "10.1038/s41598-018-21758-3"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.GreffKSrivastavaRKKoutníkJSteunebrinkBRSchmidhuberJLstm: a search space odysseyIEEE Trans. Neural Netw. Learn. Syst.2016282222223210.1109/TNNLS.2016.258292427411231",
+      "doi": [
+        "10.1109/TNNLS.2016.2582924"
+      ]
+    },
+    {
+      "id": "CR33",
+      "text": "33.MeloRCWhole slide imaging and its applications to histopathological studies of liver disordersFront. Med.2019631010.3389/fmed.2019.00310PMC696018131970160",
+      "doi": [
+        "10.3389/fmed.2019.00310"
+      ]
+    },
+    {
+      "id": "CR34",
+      "text": "34.Kiani, A. et al. Impact of a deep learning assistant on the histopathologic classification of liver cancer. npj Digital Medicine3, 1–8 (2020).10.1038/s41746-020-0232-8PMC704442232140566",
+      "doi": [
+        "10.1038/s41746-020-0232-8"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.LuLDaigleBJJrPrognostic analysis of histopathological images using pre-trained convolutional neural networks: application to hepatocellular carcinomaPeerJ20208e866810.7717/peerj.866832201640PMC7073245",
+      "doi": [
+        "10.7717/peerj.8668"
+      ]
+    },
+    {
+      "id": "CR36",
+      "text": "36.Litjens, G. et al. 1399 h&e-stained sentinel lymph node sections of breast cancer patients: the camelyon dataset. GigaScience7, giy065 (2018).10.1093/gigascience/giy065PMC600754529860392",
+      "doi": [
+        "10.1093/gigascience/giy065"
+      ]
+    },
+    {
+      "id": "CR37",
+      "text": "37.Li, J. et al. Signet ring cell detection with a semi-supervised learning framework. In International Conference on Information Processing in Medical Imaging, 842–854 (Springer, 2019).",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Kim, Y. J. et al. Paip 2019 - liver cancer segmentation (2019). Dataset available at https://paip2019.grand-challenge.org.10.1016/j.media.2020.10185433091742",
+      "doi": [
+        "10.1016/j.media.2020.101854"
+      ]
+    },
+    {
+      "id": "CR39",
+      "text": "39.BandiPFrom detection of individual metastases to classification of lymph node status at the patient level: the camelyon17 challengeIEEE Trans. Med. imaging20183855056010.1109/TMI.2018.286735030716025",
+      "doi": [
+        "10.1109/TMI.2018.2867350"
+      ]
+    },
+    {
+      "id": "CR40",
+      "text": "40.Long, J., Shelhamer, E. & Darrell, T. Fully convolutional networks for semantic segmentation. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 3431–3440, (2015).10.1109/TPAMI.2016.257268327244717",
+      "doi": [
+        "10.1109/TPAMI.2016.2572683"
+      ]
+    },
+    {
+      "id": "CR41",
+      "text": "41.EveringhamMVan GoolLWilliamsCKWinnJZissermanAThe pascal visual object classes (voc) challengeInt. J. Comput. Vis.20108830333810.1007/s11263-009-0275-4",
+      "doi": [
+        "10.1007/s11263-009-0275-4"
+      ]
+    },
+    {
+      "id": "CR42",
+      "text": "42.Ronneberger, O., Fischer, P. & Brox, T. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, 234–241 (Springer, 2015).",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Huang, G., Liu, Z., Van Der Maaten, L. & Weinberger, K. Q. Densely connected convolutional networks. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 4700–4708, (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.Deng, J. et al. Imagenet: A large-scale hierarchical image database. In 2009 IEEE Conference on Computer Vision and Pattern Recognition, 248–255 (IEEE, 2009).",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Szegedy, C., Ioffe, S., Vanhoucke, V. & Alemi, A. A. Inception-v4, inception-resnet and the impact of residual connections on learning. In Thirty-First AAAI Conference on Artificial Intelligence (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.Szegedy, C. et al. Going deeper with convolutions. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 1–9, (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR47",
+      "text": "47.He, K., Zhang, X., Ren, S. & Sun, J. Deep residual learning for image recognition. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 770–778, (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.Chen, L.-C., Zhu, Y., Papandreou, G., Schroff, F. & Adam, H. Encoder–decoder with atrous separable convolution for semantic image segmentation. Proceedings of the European Conference on Computer Vision (ECCV) 801–818, (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR49",
+      "text": "49.Chollet, F. Xception: Deep learning with depthwise separable convolutions. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 1251–1258, (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR50",
+      "text": "50.Chen, L.-C., Papandreou, G., Schroff, F. & Adam, H. Rethinking atrous convolution for semantic image segmentation. arXiv preprintarXiv:1706.05587 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR51",
+      "text": "51.OtsuNA threshold selection method from gray-level histogramsIEEE Trans. Syst. Man Cybern.19799626610.1109/TSMC.1979.4310076",
+      "doi": [
+        "10.1109/TSMC.1979.4310076"
+      ]
+    },
+    {
+      "id": "CR52",
+      "text": "52.KhenedMKollerathuVAKrishnamurthiGFully convolutional multi-scale residual densenets for cardiac segmentation and automated cardiac diagnosis using ensemble of classifiersMed. Image Anal.201951214510.1016/j.media.2018.10.00430390512",
+      "doi": [
+        "10.1016/j.media.2018.10.004"
+      ]
+    },
+    {
+      "id": "CR53",
+      "text": "53.Kingma, D. & Ba, J. Adam: a method for stochastic optimization. arXiv preprintarXiv:1412.6980 (2014).",
+      "doi": []
+    },
+    {
+      "id": "CR54",
+      "text": "54.van der WaltSscikit-image: image processing in PythonPeerJ20142e45310.7717/peerj.45325024921PMC4081273",
+      "doi": [
+        "10.7717/peerj.453"
+      ]
+    },
+    {
+      "id": "CR55",
+      "text": "55.ChawlaNVBowyerKWHallLOKegelmeyerWPSmote: synthetic minority over-sampling techniqueJ. Artif. Intell. Res.20021632135710.1613/jair.953",
+      "doi": [
+        "10.1613/jair.953"
+      ]
+    },
+    {
+      "id": "CR56",
+      "text": "56.Tomek, I. Two modifications of CNN. IEEE Trans. Syst. Man Cybern.6, 769–772 (1976).",
+      "doi": []
+    },
+    {
+      "id": "CR57",
+      "text": "57.BatistaGEPratiRCMonardMCA study of the behavior of several methods for balancing machine learning training dataACM SIGKDD Explor. Newsl.20046202910.1145/1007730.1007735",
+      "doi": [
+        "10.1145/1007730.1007735"
+      ]
+    },
+    {
+      "id": "CR58",
+      "text": "58.LiawAWienerMClassification and regression by randomforestR News200221822",
+      "doi": []
+    },
+    {
+      "id": "CR59",
+      "text": "59.BegoliEBhattacharyaTKusnezovDThe need for uncertainty quantification in machine-assisted medical decision makingNat. Mach. Intell.201912010.1038/s42256-018-0004-1",
+      "doi": [
+        "10.1038/s42256-018-0004-1"
+      ]
+    },
+    {
+      "id": "CR60",
+      "text": "60.Kendall, A. & Gal, Y. What uncertainties do we need in Bayesian deep learning for computer vision?. In Advances in Neural Information Processing Systems 5574–5584, (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR61",
+      "text": "61.LeibigCAllkenVAyhanMSBerensPWahlSLeveraging uncertainty information from deep neural networks for disease detectionScientific reports201771781610.1038/s41598-017-17876-z29259224PMC5736701",
+      "doi": [
+        "10.1038/s41598-017-17876-z"
+      ]
+    },
+    {
+      "id": "CR62",
+      "text": "62.Gal, Y. & Ghahramani, Z. Dropout as a Bayesian approximation: representing model uncertainty in deep learning. In International Conference on Machine Learning 1050–1059, (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR63",
+      "text": "63.Lee, S., Oh, S., Choi, K. & Kim, S. W. Automatic classification on patient-level breast cancer metastases (2019). Accessed 31 Dec 2019.",
+      "doi": []
+    },
+    {
+      "id": "CR64",
+      "text": "64.Pinchaud, N. Camelyon17 grand challenge (2019). Accessed 31 Dec 2019.",
+      "doi": []
+    },
+    {
+      "id": "CR65",
+      "text": "65.GrahamSMild-net: minimal information loss dilated network for gland instance segmentation in colon histology imagesMed. Image Anal.20195219921110.1016/j.media.2018.12.00130594772",
+      "doi": [
+        "10.1016/j.media.2018.12.001"
+      ]
+    },
+    {
+      "id": "CR66",
+      "text": "66.Krähenbühl, P. & Koltun, V. Efficient inference in fully connected crfs with gaussian edge potentials. Advances in Neural Information Processing Systems 109–117, (2011).",
+      "doi": []
+    },
+    {
+      "id": "CR67",
+      "text": "67.Li, Y. & Ping, W. Cancer metastasis detection with neural conditional random field. In Medical Imaging with Deep Learning (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR68",
+      "text": "68.KassMWitkinATerzopoulosDSnakes: active contour modelsInt. J. Comput. Vis.1988132133110.1007/BF00133570",
+      "doi": [
+        "10.1007/BF00133570"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Khened M, Kori A, Rajkumar H, Krishnamurthi G, Srinivasan B.",
+  "journal": "Sci Rep",
+  "year": "2021",
+  "pmid": "34078928",
+  "pmcid": "PMC8172839",
+  "doi": "10.1038/s41598-021-90444-8",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:07.387136+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8172839/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC8172839.xml"
+}

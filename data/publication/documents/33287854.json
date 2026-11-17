@@ -1,0 +1,1937 @@
+{
+  "key": "33287854",
+  "body_available": true,
+  "title": "Predicting 30-days mortality for MIMIC-III patients with sepsis-3: a machine learning approach using XGboost",
+  "source_url": "https://europepmc.org/articles/PMC7720497",
+  "license": {
+    "text": "Open AccessThis article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/. The Creative Commons Public Domain Dedication waiver (http://creativecommons.org/publicdomain/zero/1.0/) applies to the data made available in this article, unless otherwise stated in a credit line to the data.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/",
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Nianzong Hou",
+    "Mingzhe Li",
+    "Lu He",
+    "Bing Xie",
+    "Lin Wang",
+    "Rumin Zhang",
+    "Yong Yu",
+    "Xiaodong Sun",
+    "Zhengsheng Pan",
+    "Kai Wang"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2020",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2020",
+        "month": "12",
+        "day": "7"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Background",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par51",
+          "reference_ids": [
+            "CR1",
+            "CR3",
+            "CR3",
+            "CR2"
+          ],
+          "en": "Sepsis is a common and economically significant disease which has become an important public health issue globally and led to over 5.3 million people dies annually with an approximately overall mortality of 30%, particularly in the intensive care unit (ICU) [1–3]. Sepsis is defined as a syndrome of physiologic, pathologic, and biochemical abnormalities induced by infection which results in life-threatening organ dysfunction caused by dysregulated host response [3]. Different from those previous diagnostic criteria for sepsis, sepsis-3 highlighted the strong association between infection and organ failure according to the Third International Consensus Definitions for Sepsis and Septic Shock in February 2016 [2], hence, the early identification and diagnosis for sepsis are essential, which could provide meaningful information for clinicians to assess patients' condition and improve survival outcomes through prompt and appropriate treatment. Due to the complex of vague sepsis syndrome definitions, unknown sources of infection and higher mortality, it is necessary to establish a reliable and effective prognostic model for sepsis. With the help of these prognostic models, strong evidences for clinical decision-making and rational allocation of public health care resources can be provided.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par52",
+          "reference_ids": [
+            "CR1",
+            "CR4",
+            "CR5",
+            "CR6",
+            "CR8"
+          ],
+          "en": "The establishment of prognosis model for sepsis patients has always been a hot topic in critical care medicine. Some sensitive serum markers, such as Ang-2, PCT, interleukin-6, pentraxin 3, etc. [1, 4, 5], have been widely used to facilitate sepsis prognosis, however, their prognostic values are limited, not only rarely available but often lack of sensitivity or specificity. On the other hand, traditional prediction models based on small sample data such as logistic regression analysis and scoring systems including acute physiology and chronic health evaluation-II (APHACHE-II), Simplified acute physiology score-II (SAPS-II) and etc. [6–8], are still providing comprehensively clinical importance of identifying patients who are at risk of unfavourable prognostic outcomes, but these methods and scores require the statistical assumption of the independent and linear relationship between explanatory and outcome variables or preclude the analysis of a large number of valuable variables. In addition, insufficient prognostic strength, large fluctuation range, poor stability and operability, tedious process, and other shortcomings exist in these predictive serum markers, models and scores to a certain extent.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par53",
+          "reference_ids": [
+            "CR9",
+            "CR10"
+          ],
+          "en": "Recently, novel machine learning techniques have demonstrated improved predictive performance compared to traditional prediction methods. Moreover, the evolution of statistical theory, computer technology and the establishment of specialized database for critical care medical such as MIMIC-III could help machine learning get more attention and recognition by clinicians. eXtreme Gradient Boosting (XGBoost) is a machine learning technique with the remarkable features of processing the missing data efficiently and flexibly and assembling weak prediction models to build a accurate one [9]. As an open source package, XGBoost has been widely recognized in a number of machine learning and data mining challenges, for example, 17 solutions used XGBoost among the 29 challenge winning solutions published at Kaggle’s blog in 2015 and the top-10 winning teams used XGBoost in KDD Cup 2015 [10].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par54",
+          "reference_ids": [],
+          "en": "Therefore, the goal of the study was twofold: firstly, we attempted to compare the performance of machine learning (XGboost) model with traditional prediction models (conventional logistic regression model and SAPS-II score model) in the prediction of the 30-days mortality in MIMIC-IIIpatients with sepsis-3. Secondly, we planned to plot nomogram and clinical impact curve (CIC) to validate the XGboost model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Database",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par55",
+          "reference_ids": [
+            "CR11",
+            "CR13",
+            "CR12",
+            "CR13"
+          ],
+          "en": "We used the Medical Information Mart for Intensive Care III database version 1.4 (MIMIC III v1.4) for the study. MIMIC-III, a publicly available single-center critical care database which was approved by the Institutional Review Boards of Beth Israel Deaconess Medical Center (BIDMC, Boston, MA, USA) and the Massachusetts Institute of Technology (MIT, Cambridge, MA, USA), includes information on 46,520 patients who were admitted to various ICUs of BIDMC in Boston, Massachusetts from 2001 to 2012 [11–13]. The database contains charted events such as demographics, vital signs, laboratory tests, fluid balance and vital status; documents International Classification of Diseases and Ninth Revision (ICD-9) codes; records hourly physiologic data from bedside monitors validated by ICU nurses; and stores written evaluations of radiologic films by specialists covering in the corresponding time period. The use of the data in the database, provided by clinicians, data scientists, and information technology personnel and unidentified health information of patients, has been deemed not human subjects research and there was no requirement for individual patient consent because of the unidentified health information [12, 13]. The users, whereas, must pass a test to qualify to register for the database and be approved by MIMIC-III database administration staff. After passing a training course “Protecting Human Research Participants” on the website of National Institutes of Health (NIH), an author (NZ Hou) was approved to extract data from this database for research purposes (certification number: 37258322).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Study population",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par56",
+          "reference_ids": [
+            "CR2",
+            "CR14",
+            "CR15"
+          ],
+          "en": "Adult patients who were diagnosed with sepsis-3 were included in our study. The inclusion criteria were: (I) patients who were older than 18 years old; (II) length of stay in the ICU was over 24 h to ensure sufficient data for analysis; (III) patients with the diagnosed of sepsis according to The Third International Consensus Definitions for Sepsis and Septic Shock (sepsis-3) [2]. Because MIMIC-III database has shifted their date of birth to obscure their age, we excluded patients who were over 89 years, and if a patient had multiple admissions with sepsis, only the first admission was analyzed. As it is common with missing data in the MIMIC-III database, we also removed the variables with more than 20% observations missing to facilitate and ensure the accuracy of the review. However, for those with less than 20% missing data or randomly missing data, we explored and visualized them with Templ’s method (R Package “VIM”) [14] and multiple imputation method (R Package “mice”) [15] for further analysis respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Data extraction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par57",
+          "reference_ids": [
+            "Fig1",
+            "Tab1",
+            "MOESM1"
+          ],
+          "en": "We obtained the raw data about patients who were diagnosed with “sepsis”, “severe sepsis” and “septic shock” on discharge using pgAdmin PostgreSQL tools (version 1.22.1) and Navicat Premium (version 12.0.28). After that, R software (version 3.4.3, CRAN) was used for further process. The code, supporting the MIMIC-III documentation and generating the descriptive statistic, is publicly available and contributions from the community of users are encouraged (https://github.com/MIT-LCP). The detailed process of data extraction is shown in Fig. 1. Following demographic data were extracted: age, gender, ethnicity, weight, height and body mass index (BMI), length of stay in hospital, length of stay in the ICU, hospital expire flag (in-hospital death recorded in the hospital database) at the first ICU admission. Then, we collected vital signs of the patients from the first 24 h of ICU stay, including heart rate (HR), systolic blood pressure (SBP), diastolic blood pressure (DBP), mean arterial pressure (MAP), temperature (TEMP), respiratory rate (RR) and oxyhemoglobin saturation (SpO2). Afterwards, laboratory values, such as blood routine examination, liver and kidney function, blood glucose, and arterial blood gas (ABG) were abstracted. Furthermore, advanced cardiac life support (mechanical ventilation, renal replacement therapy, etc.) and accompanied diseases (diabetes, malignant tumour, etc.) were accessed. Because of the high sampling frequency, we use the maximum, minimum and the mean value when incorporating the characteristics of vital signs and related laboratory indicators. Ultimately, we obtained the list of anonymized patients with sepsis from the Table 1 (Additional file 1).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par58",
+          "reference_ids": [],
+          "en": "Patients were divided into two groups based on whether death or alive within 30 days and variables were displayed and compared between groups. We revealed and excluded these confounders of the independent risk factors, then, performed correlation analysis to determine the impact of them on 30-days mortality. Normally and non-normally distributed continuous variables were summarized as the mean ± SD and the median respectively. Continuous variables of normal distribution were tested by Kolmogorov–Smirnov test. Student’s t test, One-way ANOVA, Mann–Whitney U or Kruskal–Wallis H test were used to compare continuous data of non-normally distribution, if appropriate. Categorical variables were expressed as numbers or percentage and assessed using Chi-square test or Fisher’s exact test according to different sample sizes as proper.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par59",
+          "reference_ids": [
+            "CR16",
+            "CR17",
+            "CR18",
+            "CR19"
+          ],
+          "en": "In the model-development phase, we constructed three predictive models: conventional logistic regression model, SAPS-II score model and XGBoost algorithm model. Firstly, the conventional logistic regression model was conducted using these significant variables identified by backward stepwise analysis with Chi-square test. Then we chose an entry probability of < 0.05 by the stepwise selection method. Secondly, in the construction of SAPS II model, we used these time-stamp variables to do prediction based on the methods provided by the original literature of SAPS II [16]. Thirdly, we performed XGBoost model [17, 18] to analysis the contribution (gain) of each variable to 30-days mortality, at the same time, backward stepwise analysis was processed to select the variable with a threshold of p < 0.05 according to the Akaike information criterion (AIC) [19]. After identifying the variables through XGBoost, we used these clinical and laboratory variables included to construct the XGBoost algorithm model. In the model-comparison phase, we tested and compared the performances of the three predictive models by area under curves (AUCs) of the receiver operating characteristic curves (ROC) and decision curve analysis (DCA), then, selected the model that achieved the highest overall diagnostic value for further verification. At last, nomogram and clinical impact curve (CIC) were plotted to evaluate the clinical usefulness and applicability net benefits of the model with the best diagnostic value. All the analyses above were conducted using R software, and p value < 0.05 was defined as statistically significant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec8",
+      "title": "Baseline characteristics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par60",
+          "reference_ids": [
+            "Fig1",
+            "Tab1",
+            "Fig2"
+          ],
+          "en": "A total of 4559 sepsis-3 patients are included in our study, in which, 889 patients were death and 3670 survival within 30 days, respectively. In these patients of death, the age, ethnicity, admission type, heartrate_mean, sysbp_min, diasbp_mean, meanbp, meanbp_min, resprate_mean, tempc_min/max, spo2_mean, aniongap (AG)_min/max, creatinine_min, hemoglobin_min/max, lactate_min, potassium_min, sodium_max, bun (blood urea nitrogen)_min/max, wbc (white blood cell)_min/max/mean, INR (international normalized ratio)_max/mean, urine output, score system, comorbidity and common sources of infection differ significantly compared these of survived, however, the sex, heart rate_min, chloride_min, platelet_min, sodium_min and advanced life support show no significant difference between the two groups. Figure 1 is a flow chart describing the procedure for subjects selection; Table 1 is a summary concluding the comparisons of the baseline characteristics, vital signs, laboratory parameters between the non-survivors and the survivors within 30 days, and the overall ethnicity characteristics/the common sources of infection are listed in Fig. 2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Features selected in models",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par61",
+          "reference_ids": [
+            "Tab2",
+            "Tab3",
+            "Fig3"
+          ],
+          "en": "As shown in Table 2, the most important features, which were identified by the results of backward stepwise analysis and strongly associated with mortality in 30 days, were applied in conventional logistic regression model, all of which with p value < 0.05. Moreover, according to the analysis results of each features’ contribution by XGBoost model (Table 3 and Fig. 3), urine output, lactate, Bun, sysbp, INR, age, cancer, SpO2, sodium, AG, and creatinine were the top 11 most important features of the data set and these variables are also included to construct XGBoost predictive models in our study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Model comparisons",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par62",
+          "reference_ids": [
+            "Fig4",
+            "Fig5"
+          ],
+          "en": "In the model-development and validation phase, the three models (traditional logistic regression model, SAPS-II score model and XGBoost algorithm model) showed good discriminatory power with AUCs of 0.819 (95% CI 0.800–0.838), 0.797 (95% CI 0.781–0.813), and 0.857 (95% CI 0.839–0.876), respectively (Fig. 4). The XGBoost algorithm model showed the largest test AUC but the traditional logistic regression model was the smallest. According to the DCA of the three prediction model, the net benefit for XGboost model was larger over the range of traditional logistic model and SAPS-II score model, which means XGboost model is the optimal and the SAPS-II score model inferior (Fig. 5).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Optimal model analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par63",
+          "reference_ids": [
+            "Fig6",
+            "Fig7"
+          ],
+          "en": "For visualization of the XGboost predictive model, the risk nomogram that integrated 11 selected variables for the incidence of mortality within 30 days is shown in Fig. 6. Clinical impact curve (CIC) analysis was performed in Fig. 7 to evaluate clinical applicability of risk prediction nomogram. CIC visually showed that the nomogram had a superior overall net benefit within the wide and practical ranges of threshold probabilities and impacted patient outcomes, which indicates that the XGboost model possesses significant predictive value.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par64",
+          "reference_ids": [
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR23"
+          ],
+          "en": "Sepsis, which is associated with profound mortality and substantial economic burden, is no longer defined simply as serious infection. In a systematic review and meta-analysis, Reinhart et al. [20] concluded that the mortality rate estimate of ICU- and hospital-treated sepsis patients were 41.9% and 26.7% respectively, or one out of four sepsis patients did not survive their hospital stay. Torio et al. [21] estimated sepsis accounted for 6.2% of the aggregate costs for all hospitalizations, or 23.7 billion USD in 2011. Furthermore, Moss et al. [22] conducted a study spanning two decades (from 1979 to 2000), which reported the annual increase of sepsis cases was around 8.7%. The improvement of sepsis prevention, recognition, and treatment has been a global health priority since the declaration repeatedly by the World Health Organization (WHO) in 2017 [23]. Progressive exacerbation of sepsis can lead to organ failure and death, but early aggressive therapy also forestalls further progression and rescues a decompensating patient. Unfortunately, in ICU it is very difficult for clinicians to predict which patients will respond favorably and could be out of the crisis or will deteriorate despite all interventions and resuscitative efforts. At present, these findings indicate the urgent need to increase efforts to promote reliable prediction models to identify patients with sepsis who are at increased risk of developing organ dysfunction and to prognosticate their mortality.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par65",
+          "reference_ids": [
+            "CR24",
+            "CR25",
+            "CR26",
+            "CR5",
+            "CR27",
+            "CR28"
+          ],
+          "en": "In this present study, the AUCs and DCAs we developed have demonstrated the benefit of using a XGboost model- as opposed to the classic logistic regression analysis and traditional SAPS II scoring system for early prediction of probability of septic mortality. Moreover, CIC and nomogram were plotted to evaluate the clinical usefulness and applicability net benefits of the model with the best diagnostic value. Logistic regression analysis as one of the classic regression analyses is widely used to test the association between sepsis and mortality. For instance, through the logistic regression analysis, Vivien et al. [24] observed an association between mortality at day 28 and the tidal volume indexed on ideal body weight (VTIBW) in pre-hospital mechanically ventilated patients with septic shock; Wu et al. [25] revealed that dynamic changes of serum S100B levels from day 3 to 1 were more associated with mortality than those on day 1 in patients with sepsis; Oud et al. [26] indicated that sepsis was associated with most of the short-term deaths among ICU patients with SLE despite its relatively low mortality; Song et al. [5] revealed that combined biomarkers approach showed good performance in predicting 28-day all-cause mortality among patients diagnosed with either sepsis or septic shock according to the sepsis-3 definition, however, the differences might not be statistically proven. Furthemore, some studies [27, 28] found conventional logistic regression had a relatively low indicator of performance as measured by AUCs for ROC curves or showed higher prediction error and worsen performance compared to some novel techniques.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par66",
+          "reference_ids": [
+            "CR7",
+            "CR8",
+            "CR6"
+          ],
+          "en": "Several conventional prognostic scoring systems have been developed to provide relevant evaluation results considering the hospital mortality of ICU patients. The advantages of such scoring systems are easy to calculate and interpret. SAPS II, as one of the commonly used model, has better discrimination, calibration and power to predict deaths on ICU than the sequential organ failure assessment score (SOFA), which has been recommended for the identification and mortality prognostication of patients in ICU by sepsis-3 [7]. Moreover, the ability of SAPS II to discriminate between survivors and non-survivors is as excellent as APACHE II score and other scores and even to help to play in end-of-life decision-making in ICUs [8]. However, the specificity and sensitivity of scoring systems such as SAPS II are low, and the predictive performance is worse than that of multivariate predictive models. Last but not least, the evaluation systems and the accurate outcomes depended heavily on the practitioner’s experience [6].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par67",
+          "reference_ids": [
+            "CR29",
+            "CR30",
+            "CR31",
+            "CR32",
+            "CR10",
+            "CR33"
+          ],
+          "en": "In recent years, various machine learning algorithms, a subset of artificial intelligence and a data analysis technique that develops algorithms to predict outcomes by “learning” from data, have been investigated for early detection of sepsis-3 and outperformed than conventional or classic statistic methods, which could automatically analyze complex data and produce significant results. Following is four notable examples of such algorithms. Buchman et al. [29] concluded that machine learning-based CDS tools can accurately predict the onset of sepsis in an ICU patient 4–12 h prior to clinical recognition. Seymour et al. [30] performed different machine learning methods and suggested 4 clinical phenotypes may help in understanding the heterogeneity of treatment effects for patients with sepsis. Kashyap et al. [31] used JMP statistical software to conduct a supervised machine learning for identification of sepsis and septic shock and found it’s a reliable and efficient alternative to manual chart review. Winslow et al. [32] applied machine learning to features calculated from patient with sepsis to estimate whether or not a patient enters this pre-shock state. However, all those articles mentioned above haven’t verified the superiority of machine learning models or done relevant further analysis or offered interpretation compared to other types of prediction model. More importantly, the primary outcomes of these studies are the emergence of detection of sepsis rather than poor clinical outcomes (i.e. mortality) of sepsis. XGBoost, a decision-tree-based algorithm, has been found to be the best algorithm for machine learning and prediction competition hosted by Kaggle.com [10, 33]. Due to its best precision value and performance, XGBoost-based algorithm machine learning is increasingly emphasized as a competitive alternative to regression analysis and used in predicting clinical adverse outcomes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par68",
+          "reference_ids": [
+            "CR9"
+          ],
+          "en": "In terms of the prognosis of sepsis, an artificial intelligence algorithm based on XGBoost has been published by Yuan et al. [9] in 2020. Nevertheless, both of our articles about XGboost models have its own merits. Firstly, there are several limits in Yuan’s study mentioned by himself. For instance, the features selected were according to clinical experience but not algorithm; the representativeness of features may not clear in sepsis and some important dynamic features were not included; left or right censoring may be resulted from incomplete recording of electronic medical records (EMR) when patients transfer or discharge; besides, there were no validations for the XGboost model and no traditional regression analysis was used as a control. Secondly, there are some superiorities in our model compared to Yuan’s machine learning: the features selected were according to backward stepwise analysis which increased representativeness and accuracy; some important features are not missing such as lactate, AG, etc.; data was from MIMIC-III which is an updated database and provides detailed information; classic logistic regression analysis with AUCs and DCAs were used to contrast with XGboost except for traditional scoring system; crucially, nomogram and CIC were plotted to evaluate the clinical usefulness and applicability net benefits of the model. Thirdly, of course, some common limitations exist in both of our articles: measurement bias within calculation is possible due to the method is based on experts’ opinion; sepsis could happen at any time during ICU admission (even possibly hours before labelled), although with the help of algorithm, it’s still difficult for intensivists to integrate the data of point-of-care vital signs, latest lab reports and etc. all the time and to determine the patient condition with sepsis or not according to any database.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par69",
+          "reference_ids": [
+            "CR34",
+            "CR35",
+            "CR36",
+            "CR37",
+            "CR38",
+            "CR39",
+            "CR40",
+            "CR41",
+            "CR42",
+            "CR43",
+            "CR44",
+            "CR45",
+            "CR46"
+          ],
+          "en": "An interesting finding in our study is that the features included in the XGBoost-based model and logistic regression model showed consistent, which indicated the excellent performances of XGBoost model were significant, although the two models may fit and perform differently in different datasets. However, these recognitions of the features and sepsis-induced mortality cannot be entirely explained. Hence, further studies and efforts are needed to investigate the mechanisms underlying the role of these variables included in patients with sepsis-3. Following is a brief summary of remarkable or controversial features included in the XGBoost model. Among these features, the weight of urine output is the greatest which represents it is the most important predictor for 30-day mortality MIMIC-III patients. This result is compatible with some clinical studies. Vieira et al. [34] reported higher urine output is associated with successful enteral nutrition therapy in septic shock patients. Laranja et al. [35] concluded that septic patients with no acute kidney injury (AKI) had a more preserved urine output compared to that in all groups with AKI or AKI/chronic kidney disease (CKD). Lin et al. [36] indicated decreased urine output could be manifested as a compensatory mechanism to maintain intravascular volume, and also imply intrinsic renal injury for patients in sepsis. Teixeira et al. [37] confirmed that the use of diuretics was inversely associated with mortality and itself may exert a protective effect. Sodium_max is an interesting feature in our XGBoost-based model. Hypernatremia can be an independent predictor of poor outcome in septic patients in the ICU, which is similar to some views [38]. However, another study [39] showed the risk of death increased by 71.6% when serum sodium was < 129 mmol/L for patients with sepsis. Lactate and AG are typical metabolic indicators. Patients with a normal lactate level alone should not be excluded life-threatening sepsis, and with high AG levels regardless of lactate levels, have high rates of mortality and should also be considered for early, aggressive therapy [40]. However, Liu and Velissaris et al. [41, 42] clearly pointed out that plasma lactate were associated with poor outcomes in patients with sepsis and predicted mortality. INR is another crucial predictive factor in the machine learning model. Several studies [43, 44] found septic patients with elevated INR and platelet count appeared to have a greater risk of death compared with those without coagulopathy. There is no doubt that age and metastatic cancer as basic demographic information could be included in the model which plays unfavorable effects for the mortality. Whereas, survival in critically ill cancer patients with sepsis improved significantly over time but reasons or mechanisms for this condition haven't been identified [45]. In consideration of the source of infection, we found blood infection ranks the highest (38.49%), followed by MRSA screen (35.49%) and urine (17.36%), which indicates that we can perform empirical antibiotics treatment, but de-escalation or determination of whether or not to stop antibiotics or successful implementation of antimicrobial stewardship may help to improve a patient's clinical prognosis while preventing adverse outcomes [46].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par70",
+          "reference_ids": [],
+          "en": "The strength of this study was mainly that it was the first time to predict the 30 day mortality of MIMIC-III patients with sepsis-3 using the XGBoost model, and compared to traditional regression analysis and clinical scoring system, and meanwhile verified by nomogram and CIC. We must acknowledge some other limitations of our study: firstly, because the data come from only one database and the majority of patients were white, potential bias may occur; secondly, further exploration for the database was not performed, which may lead to the abandonment of some key variables; thirdly, the proposed model was not designed to be validated by developing set from the database or our clinical data. Even so, we believe that the proposed model may contribute to further our understanding of the prognosis of patients suffering from sepsis in ICU.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par71",
+          "reference_ids": [],
+          "en": "In conclusion, this study shows that the machine learning based on XGboost algorithm does outperform conventional logistic regressions and scoring system. This XGboost model may prove clinically useful and assist clinicians in tailoring precise management and therapy for the patients with sepsis-3 which is essential for maximizing the patient’s chance of survival.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec18",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec14",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "glossary1",
+      "title": "Abbreviations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par5",
+          "reference_ids": [],
+          "en": "Intensive care unit",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [],
+          "en": "Angiopoietin-2",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "Procalcitonin",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [],
+          "en": "Acute physiology and chronic health evaluation-II",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "Simplified acute physiology score-II",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [],
+          "en": "EXtreme Gradient Boosting",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "Knowledge Discovery and Data Mining",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "Medical Information Mart for Intensive Care III",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [],
+          "en": "Beth Israel Deaconess Medical Center",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "Massachusetts Institute of Technology",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "International Classification of Diseases and Ninth Revision",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "National Institutes of Health",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "Structure query language",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "Body mass index",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [],
+          "en": "Heart rate",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [],
+          "en": "Systolic blood pressure",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [],
+          "en": "Diastolic blood pressure",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "Mean arterial pressure",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [],
+          "en": "Temperature",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [],
+          "en": "Respiratory rate",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "Oxyhemoglobin saturation",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [],
+          "en": "Arterial blood gas",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "Mean blood pressure",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "Temperature",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "Blood urea nitrogen",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [],
+          "en": "White blood cell",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par31",
+          "reference_ids": [],
+          "en": "International normalized ratio",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "Ventilation",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "Maximum",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "Minimum",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "Akaike information criterion",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [],
+          "en": "Area under curves",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "The receiver operating characteristic curves",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "Odds ratio",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [],
+          "en": "Confidence interval",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [],
+          "en": "Decision curve analysis",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "Clinical impact curve",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [],
+          "en": "World Health Organization",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "The sequential organ failure assessment",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "Quick SOFA",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "The tidal volume indexed on ideal body weight",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "Medical-general service for internal medicine",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "Cardiac medical-for non-surgical cardiac related admissions",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "Electronic medical records",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [],
+          "en": "Acute kidney injury",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [],
+          "en": "Chronic kidney disease",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Authors’ contributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "NH, ML, LH, and KW designed the work. BX, LW, RZ and YY record and summarized the patient of MIMIC features. XS, ZP and KW analyzed datasets. NH, ML and KW wrote this paper. All authors read and approved the final manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes2",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes2-p1",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes3",
+      "title": "Availability of data and materials",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes3-p1",
+          "reference_ids": [],
+          "en": "The datasets used and/or analyzed during the current study are available from the corresponding author on reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Ethics approval and consent to participate",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par72",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar2",
+      "title": "Consent for publication",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par73",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar3",
+      "title": "Competing interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par74",
+          "reference_ids": [],
+          "en": "The authors declare that they have no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "fn-group1-p1",
+          "reference_ids": [],
+          "en": "Publisher's Note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p3",
+          "reference_ids": [],
+          "en": "Nianzong Hou and Kai Wang contributed equally to this work",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "_ci93_",
+      "title": "Contributor Information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_ci93_-p1",
+          "reference_ids": [],
+          "en": "Mingzhe Li, Email: bs20m2l@leeds.ac.uk.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_ci93_-p2",
+          "reference_ids": [],
+          "en": "Lin Wang, Email: wanglinicu123@163.com.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_ci93_-p3",
+          "reference_ids": [],
+          "en": "Kai Wang, Email: wangkaiicu@163.com.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec20",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec20-p1",
+          "reference_ids": [],
+          "en": "Supplementary information accompanies this paper at 10.1186/s12967-020-02620-5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Bib1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Bib1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "The datasets used and/or analyzed during the current study are available from the corresponding author on reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Baseline characteristics, vital signs, laboratory parameters and statistic results of mimic-III patients with sepsis",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Death within 30 days",
+          "Survival within 30 days",
+          "p"
+        ],
+        [
+          "Number (sample size)",
+          "889",
+          "3670",
+          ""
+        ],
+        [
+          "Baseline variables and in-hospital factors"
+        ],
+        [
+          "Age (year, mean SD)",
+          "71.42 ± 15.93",
+          "63.61 ± 17.73",
+          "8.95E−36"
+        ],
+        [
+          "Sex (%)"
+        ],
+        [
+          "Female",
+          "413",
+          "1609",
+          ""
+        ],
+        [
+          "Male",
+          "476",
+          "2061",
+          "0.1706"
+        ],
+        [
+          "Ethnicity (%)"
+        ],
+        [
+          "White",
+          "617 (69.4%)",
+          "2642 (72.1%)",
+          ""
+        ],
+        [
+          "Black",
+          "66 (7.4%)",
+          "338 (9.2%)",
+          ""
+        ],
+        [
+          "Yellow",
+          "34 (3.8%)",
+          "145 (4%)",
+          ""
+        ],
+        [
+          "Others",
+          "172 (19.3%)",
+          "545 (14.9%)",
+          "0.005914"
+        ],
+        [
+          "Weight (kg), mean (SD)",
+          "76.91 ± 21.31",
+          "82.69 ± 28.61",
+          ""
+        ],
+        [
+          "Height (cm), mean (SD)",
+          "168.27 ± 11.66",
+          "169.51 ± 10.73",
+          ""
+        ],
+        [
+          "BMI (kg/m2), mean (SD)",
+          "27.82 ± 7.65",
+          "29.25 ± 8.91",
+          ""
+        ],
+        [
+          "Length of stay in hospital, days, mean (SD)",
+          "7.04 ± 6.3",
+          "10.99 ± 10.4",
+          ""
+        ],
+        [
+          "Length of stay in the ICU, days, mean (SD)",
+          "4.87 ± 4.99",
+          "4.66 ± 6.31",
+          ""
+        ],
+        [
+          "Admission type"
+        ],
+        [
+          "MED",
+          "580 (65.2%)",
+          "1912 (52.1%)",
+          ""
+        ],
+        [
+          "CMED",
+          "86 (9.7%)",
+          "477 (13.0%)",
+          ""
+        ],
+        [
+          "Others",
+          "223 (25.1%)",
+          "1282 (34.9%)",
+          "1.36E−11"
+        ],
+        [
+          "Vital signs"
+        ],
+        [
+          "Heartrate_min (times/min), mean (SD)",
+          "72.92 ± 19.16",
+          "73.08 ± 15.72",
+          "0.826205355"
+        ],
+        [
+          "Heartrate_mean (times/min), mean (SD)",
+          "91.12 ± 18.27",
+          "87.81 ± 16.15",
+          "0.00000579"
+        ],
+        [
+          "Sysbp_min (mmhg), mean (SD)",
+          "80.46 ± 20.01",
+          "90.69 ± 16.18",
+          "6.49E−36"
+        ],
+        [
+          "Diasbp_mean (mmhg), mean (SD)",
+          "58.65 ± 10.42",
+          "61.7 ± 10.08",
+          "6.62E−13"
+        ],
+        [
+          "Meanbp_min (mmhg), mean (SD)",
+          "48.41 ± 15.65",
+          "56.24 ± 13.89",
+          "6.74E−34"
+        ],
+        [
+          "Resprate_mean (times/min),mean (SD)",
+          "21.73 ± 4.68",
+          "19.54 ± 4.06",
+          "3.66E−30"
+        ],
+        [
+          "Tempc_min (℃), mean (SD)",
+          "35.77 ± 1.17",
+          "36.15 ± 0.86",
+          "1.78E−16"
+        ],
+        [
+          "Tempc_max (℃), mean (SD)",
+          "37.34 ± 1.17",
+          "37.65 ± 0.85",
+          "3.37E−11"
+        ],
+        [
+          "Spo2_mean (%), mean (SD)",
+          "96.03 ± 4.02",
+          "97.1 ± 1.96",
+          "3.06E−12"
+        ],
+        [
+          "Laboratory parameters"
+        ],
+        [
+          "Aniongap_max (mmhg), mean (SD)",
+          "19.12 ± 6.26",
+          "16.17 ± 4.65",
+          "1.45E−31"
+        ],
+        [
+          "Aniongap_min (mmhg), mean (SD)",
+          "14.58 ± 4.66",
+          "12.45 ± 3.08",
+          "1.48E−30"
+        ],
+        [
+          "Creatinine_min (ng/dL), mean (SD)",
+          "1.65 ± 1.23",
+          "1.35 ± 1.39",
+          "3.89E−09"
+        ],
+        [
+          "Chloride_min (mmol/L), mean (SD)",
+          "101.67 ± 7.65",
+          "101.93 ± 6.69",
+          "0.39868745"
+        ],
+        [
+          "Hemoglobin_min (g/dL), mean (SD)",
+          "9.84 ± 2.21",
+          "10.08 ± 2.08",
+          "0.009534544"
+        ],
+        [
+          "Hemoglobin_max, (g/dL), mean (SD)",
+          "11.77 ± 2.26",
+          "12 ± 2.09",
+          "0.012634047"
+        ],
+        [
+          "Lactate_min (mmol/L), mean (SD)",
+          "2.36 ± 2.07",
+          "1.55 ± 0.81",
+          "4.26E−24"
+        ],
+        [
+          "Platelet_min (109/L), mean (SD)",
+          "189.73 ± 125.29",
+          "195.98 ± 108.29",
+          "0.207608419"
+        ],
+        [
+          "Potassium_min (mmol/L), mean (SD)",
+          "3.84 ± 0.7",
+          "3.71 ± 0.54",
+          "0.00000328"
+        ],
+        [
+          "Sodium_min (mmol/L), mean (SD)",
+          "136.27 ± 6.62",
+          "136.08 ± 5.35",
+          "0.454879474"
+        ],
+        [
+          "Sodium_max (mmol/L), mean (SD)",
+          "141.28 ± 6.8",
+          "140.51 ± 5.03",
+          "0.003570629"
+        ],
+        [
+          "Bun_min (mmol/L), mean (SD)",
+          "36.09 ± 25.43",
+          "24.22 ± 19.69",
+          "8.45E−31"
+        ],
+        [
+          "Bun_max (mmol/L), mean (SD)",
+          "42.88 ± 28.49",
+          "30.23 ± 24.39",
+          "1.12E−27"
+        ],
+        [
+          "Wbc_min (109/L), mean (SD)",
+          "12.54 ± 12.22",
+          "10.41 ± 6.55",
+          "4.81E−06"
+        ],
+        [
+          "Wbc_max (109/L), mean (SD)",
+          "17.54 ± 19.99",
+          "14.8 ± 9.87",
+          "0.000293182"
+        ],
+        [
+          "Inr_max, mean (SD)",
+          "2.12 ± 1.79",
+          "1.61 ± 1.34",
+          "2.89E−14"
+        ],
+        [
+          "Urine output",
+          "1225.29 ± 1307.53",
+          "1993.04 ± 1551.57",
+          "2.82E−48"
+        ],
+        [
+          "Score system"
+        ],
+        [
+          "SOFA",
+          "8.02 ± 4.33",
+          "5.22 ± 2.85",
+          "2.74E−55"
+        ],
+        [
+          "qSOFA",
+          "2.15 ± 0.64",
+          "1.9 ± 0.69",
+          "4.60E−21"
+        ],
+        [
+          "SAPS II",
+          "54.67 ± 16.37",
+          "37.51 ± 13.22",
+          "2.2E−16"
+        ],
+        [
+          "Advanced life support"
+        ],
+        [
+          "Mechanical ventilation",
+          "531 (59.69%)",
+          "1668 (45.55%)",
+          ""
+        ],
+        [
+          "Renal replacement therapy",
+          "53 (5.95%)",
+          "135 (3.61%)",
+          "0.2503"
+        ],
+        [
+          "Accompanied diseases (comorbidity)"
+        ],
+        [
+          "Diabetes",
+          "246 (27.64%)",
+          "2631 (71.70%)",
+          ""
+        ],
+        [
+          "Malignant tumour",
+          "116 (13.05%)",
+          "160 (4.37%)",
+          ""
+        ],
+        [
+          "Others",
+          "527 (59.31%)",
+          "879 (23.93%)",
+          "2.20E−16"
+        ],
+        [
+          "Common sources of infection"
+        ],
+        [
+          "Blood culture",
+          "418 (47%)",
+          "1343 (36.6%)",
+          ""
+        ],
+        [
+          "MRSA screen",
+          "267 (30%)",
+          "1384 (37.72%)",
+          ""
+        ],
+        [
+          "Urine",
+          "151 (17%)",
+          "642 (17.5%)",
+          ""
+        ],
+        [
+          "Swab",
+          "18 (2%)",
+          "70 (1.9%)",
+          ""
+        ],
+        [
+          "Others",
+          "35 (4%)",
+          "231 (6.3%)",
+          "7.82E−08"
+        ],
+        [
+          "Outcome"
+        ],
+        [
+          "Within 30-days mortality",
+          "19.50%",
+          "80.50%",
+          ""
+        ]
+      ],
+      "footnotes": "MED medical-general service for internal medicine, CMED cardiac medical-for non-surgical cardiac related admissions, sysbp systolic blood pressure, diasbp diastolic blood pressure, meanbp mean blood pressure, resprate respiratary rate, tempc temperature, bun blood urea nitrogen, wbc white blood cell, INR international normalized ratio, sofa sequential organ failure assessment, qSOFA quick SOFA, SAPS II simplified acute physiology score II, Spo2 oxyhemoglobin saturation, Max maximum, Min minimum",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\"><label>Table 1</label><caption><p>Baseline characteristics, vital signs, laboratory parameters and statistic results of mimic-III patients with sepsis</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">Death within 30 days</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Survival within 30 days</th><th align=\"left\" colspan=\"1\" rowspan=\"1\"><italic>p</italic></th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Number (sample size)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">889</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3670</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Baseline variables and in-hospital factors</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Age (year, mean SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">71.42 ± 15.93</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">63.61 ± 17.73</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">8.95E−36</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Sex (%)</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Female</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">413</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1609</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Male</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">476</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2061</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.1706</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Ethnicity (%)</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> White</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">617 (69.4%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2642 (72.1%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Black</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">66 (7.4%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">338 (9.2%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Yellow</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">34 (3.8%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">145 (4%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Others</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">172 (19.3%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">545 (14.9%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.005914</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Weight (kg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">76.91 ± 21.31</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">82.69 ± 28.61</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Height (cm), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">168.27 ± 11.66</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">169.51 ± 10.73</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> BMI (kg/m<sup>2</sup>), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">27.82 ± 7.65</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">29.25 ± 8.91</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Length of stay in hospital, days, mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">7.04 ± 6.3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">10.99 ± 10.4</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Length of stay in the ICU, days, mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">4.87 ± 4.99</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">4.66 ± 6.31</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Admission type</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> MED</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">580 (65.2%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1912 (52.1%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> CMED</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">86 (9.7%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">477 (13.0%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Others</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">223 (25.1%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1282 (34.9%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.36E−11</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Vital signs</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Heartrate_min (times/min), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">72.92 ± 19.16</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">73.08 ± 15.72</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.826205355</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Heartrate_mean (times/min), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">91.12 ± 18.27</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">87.81 ± 16.15</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.00000579</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Sysbp_min (mmhg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">80.46 ± 20.01</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">90.69 ± 16.18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">6.49E−36</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Diasbp_mean (mmhg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">58.65 ± 10.42</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">61.7 ± 10.08</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">6.62E−13</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Meanbp_min (mmhg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">48.41 ± 15.65</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">56.24 ± 13.89</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">6.74E−34</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Resprate_mean (times/min),mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">21.73 ± 4.68</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">19.54 ± 4.06</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.66E−30</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Tempc_min (℃), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">35.77 ± 1.17</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">36.15 ± 0.86</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.78E−16</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Tempc_max (℃), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">37.34 ± 1.17</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">37.65 ± 0.85</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.37E−11</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Spo2_mean (%), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">96.03 ± 4.02</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">97.1 ± 1.96</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.06E−12</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Laboratory parameters</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Aniongap_max (mmhg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">19.12 ± 6.26</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">16.17 ± 4.65</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.45E−31</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Aniongap_min (mmhg), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">14.58 ± 4.66</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">12.45 ± 3.08</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.48E−30</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Creatinine_min (ng/dL), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.65 ± 1.23</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.35 ± 1.39</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.89E−09</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Chloride_min (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">101.67 ± 7.65</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">101.93 ± 6.69</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.39868745</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Hemoglobin_min (g/dL), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">9.84 ± 2.21</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">10.08 ± 2.08</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.009534544</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Hemoglobin_max, (g/dL), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">11.77 ± 2.26</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">12 ± 2.09</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.012634047</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Lactate_min (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.36 ± 2.07</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.55 ± 0.81</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">4.26E−24</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Platelet_min (10<sup>9</sup>/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">189.73 ± 125.29</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">195.98 ± 108.29</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.207608419</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Potassium_min (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.84 ± 0.7</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">3.71 ± 0.54</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.00000328</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Sodium_min (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">136.27 ± 6.62</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">136.08 ± 5.35</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.454879474</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Sodium_max (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">141.28 ± 6.8</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">140.51 ± 5.03</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.003570629</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Bun_min (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">36.09 ± 25.43</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">24.22 ± 19.69</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">8.45E−31</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Bun_max (mmol/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">42.88 ± 28.49</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">30.23 ± 24.39</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.12E−27</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Wbc_min (10<sup>9</sup>/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">12.54 ± 12.22</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">10.41 ± 6.55</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">4.81E−06</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Wbc_max (10<sup>9</sup>/L), mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">17.54 ± 19.99</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">14.8 ± 9.87</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.000293182</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Inr_max, mean (SD)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.12 ± 1.79</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.61 ± 1.34</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.89E−14</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Urine output</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1225.29 ± 1307.53</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1993.04 ± 1551.57</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.82E−48</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Score system</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> SOFA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">8.02 ± 4.33</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">5.22 ± 2.85</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.74E−55</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> qSOFA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.15 ± 0.64</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.9 ± 0.69</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">4.60E−21</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> SAPS II</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">54.67 ± 16.37</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">37.51 ± 13.22</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.2E−16</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Advanced life support</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Mechanical ventilation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">531 (59.69%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1668 (45.55%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Renal replacement therapy</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">53 (5.95%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">135 (3.61%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.2503</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Accompanied diseases (comorbidity)</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Diabetes</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">246 (27.64%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2631 (71.70%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Malignant tumour</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">116 (13.05%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">160 (4.37%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Others</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">527 (59.31%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">879 (23.93%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.20E−16</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Common sources of infection</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Blood culture</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">418 (47%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1343 (36.6%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> MRSA screen</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">267 (30%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1384 (37.72%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Urine</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">151 (17%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">642 (17.5%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Swab</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">18 (2%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">70 (1.9%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Others</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">35 (4%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">231 (6.3%)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">7.82E−08</td></tr><tr><td align=\"left\" colspan=\"4\" rowspan=\"1\">Outcome</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Within 30-days mortality</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">19.50%</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">80.50%</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p14\"><p><italic>MED</italic> medical-general service for internal medicine, <italic>CMED</italic> cardiac medical-for non-surgical cardiac related admissions, <italic>sysbp</italic> systolic blood pressure, <italic>diasbp</italic> diastolic blood pressure, <italic>meanbp</italic> mean blood pressure, <italic>resprate</italic> respiratary rate, <italic>tempc</italic> temperature, <italic>bun</italic> blood urea nitrogen, <italic>wbc</italic> white blood cell, <italic>INR</italic> international normalized ratio, <italic>sofa</italic> sequential organ failure assessment, <italic>qSOFA</italic> quick SOFA, <italic>SAPS II</italic> simplified acute physiology score II, <italic>Spo2</italic> oxyhemoglobin saturation, <italic>Max</italic> maximum, <italic>Min</italic> minimum</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Features selected in the conventional logistic regression",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "OR_with_CI",
+          "p value"
+        ],
+        [
+          "(Intercept)",
+          "52,913.003 (87.92–33,934,517.782)",
+          "< 0.001"
+        ],
+        [
+          "Sofa",
+          "1.142 (1.106–1.179)",
+          "< 0.001"
+        ],
+        [
+          "Aniongap_min",
+          "1.078 (1.043–1.115)",
+          "< 0.001"
+        ],
+        [
+          "Creatinine_min",
+          "0.676 (0.592–0.767)",
+          "< 0.001"
+        ],
+        [
+          "Chloride_min",
+          "0.98 (0.962–0.999)",
+          "0.03393"
+        ],
+        [
+          "Hematocrit_min",
+          "1.113 (1.053–1.178)",
+          "< 0.001"
+        ],
+        [
+          "Hemoglobin_min",
+          "0.748 (0.623–0.895)",
+          "0.00169"
+        ],
+        [
+          "Hemoglobin_max",
+          "0.926 (0.863–0.992)",
+          "0.02993"
+        ],
+        [
+          "Lactate_min",
+          "1.308 (1.194–1.435)",
+          "< 0.001"
+        ],
+        [
+          "Potassium_min",
+          "1.179 (1.001–1.389)",
+          "0.04922"
+        ],
+        [
+          "Sodium_max",
+          "1.046 (1.019–1.074)",
+          "< 0.001"
+        ],
+        [
+          "Bun_min",
+          "1.033 (1.018–1.048)",
+          "< 0.001"
+        ],
+        [
+          "Bun_max",
+          "0.986 (0.973–0.997)",
+          "0.01542"
+        ],
+        [
+          "Wbc_min",
+          "1.062 (1.036–1.09)",
+          "< 0.001"
+        ],
+        [
+          "Wbc_max",
+          "0.969 (0.952–0.987)",
+          "< 0.001"
+        ],
+        [
+          "Heartrate_min",
+          "0.987 (0.977–0.997)",
+          "0.0111"
+        ],
+        [
+          "Heartrate_mean",
+          "1.022 (1.011–1.033)",
+          "< 0.001"
+        ],
+        [
+          "Sysbp_min",
+          "0.991 (0.984–0.998)",
+          "0.00839"
+        ],
+        [
+          "Meanbp_min",
+          "0.992 (0.985–1)",
+          "0.0468"
+        ],
+        [
+          "Resprate_mean",
+          "1.062 (1.038–1.086)",
+          "< 0.001"
+        ],
+        [
+          "Tempc_min",
+          "0.897 (0.81–0.993)",
+          "0.03242"
+        ],
+        [
+          "Tempc_max",
+          "0.781 (0.698–0.873)",
+          "< 0.001"
+        ],
+        [
+          "Spo2_mean",
+          "0.947 (0.909–0.986)",
+          "0.00839"
+        ],
+        [
+          "Age",
+          "1.029 (1.022–1.035)",
+          "< 0.001"
+        ],
+        [
+          "Diabetes",
+          "0.779 (0.639–0.948)",
+          "0.01328"
+        ],
+        [
+          "Vent",
+          "1.824 (1.48–2.251)",
+          "< 0.001"
+        ]
+      ],
+      "footnotes": "OR odds ratio, CI confidence interval, SOFA sequential organ failure assessment, bun blood urea nitrogen, wbc white blood cell, sysbp systolic blood pressure, meanbp mean blood pressure, resprate respiratary rate, Spo2 oxyhemoglobin saturation, vent ventilation, Max maximum, Min minimum",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\"><label>Table 2</label><caption><p>Features selected in the conventional logistic regression</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">OR_with_CI</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">p value</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">(Intercept)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">52,913.003 (87.92–33,934,517.782)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sofa</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.142 (1.106–1.179)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Aniongap_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.078 (1.043–1.115)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Creatinine_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.676 (0.592–0.767)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Chloride_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.98 (0.962–0.999)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.03393</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hematocrit_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.113 (1.053–1.178)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hemoglobin_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.748 (0.623–0.895)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.00169</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hemoglobin_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.926 (0.863–0.992)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.02993</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lactate_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.308 (1.194–1.435)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Potassium_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.179 (1.001–1.389)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.04922</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sodium_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.046 (1.019–1.074)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bun_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.033 (1.018–1.048)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bun_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.986 (0.973–0.997)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.01542</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Wbc_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.062 (1.036–1.09)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Wbc_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.969 (0.952–0.987)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Heartrate_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.987 (0.977–0.997)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.0111</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Heartrate_mean</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.022 (1.011–1.033)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sysbp_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.991 (0.984–0.998)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.00839</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Meanbp_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.992 (0.985–1)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.0468</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Resprate_mean</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.062 (1.038–1.086)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tempc_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.897 (0.81–0.993)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.03242</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Tempc_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.781 (0.698–0.873)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Spo2_mean</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.947 (0.909–0.986)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.00839</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Age</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.029 (1.022–1.035)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Diabetes</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.779 (0.639–0.948)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.01328</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Vent</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.824 (1.48–2.251)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p21\"><p><italic>OR</italic> odds ratio, <italic>CI</italic> confidence interval, <italic>SOFA</italic> sequential organ failure assessment, <italic>bun</italic> blood urea nitrogen, <italic>wbc</italic> white blood cell, <italic>sysbp</italic> systolic blood pressure, <italic>meanbp</italic> mean blood pressure, <italic>resprate</italic> respiratary rate, <italic>Spo2</italic> oxyhemoglobin saturation, <italic>vent</italic> ventilation, <italic>Max</italic> maximum, <italic>Min</italic> minimum</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Features selected in the XGboost model",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "OR_with_CI",
+          "P"
+        ],
+        [
+          "(Intercept)",
+          "493.907 (9.063–27,931.087)",
+          "0.00247"
+        ],
+        [
+          "Urineoutput",
+          "1 (1–1)",
+          "< 0.001"
+        ],
+        [
+          "Lactate_min",
+          "1.401 (1.288–1.527)",
+          "< 0.001"
+        ],
+        [
+          "Bun_mean",
+          "1.018 (1.013–1.023)",
+          "< 0.001"
+        ],
+        [
+          "Sysbp_min",
+          "0.979 (0.974–0.984)",
+          "< 0.001"
+        ],
+        [
+          "Metastatic_cancer",
+          "2.997 (2.217–4.038)",
+          "< 0.001"
+        ],
+        [
+          "Inr_max",
+          "1.058 (1.002–1.115)",
+          "0.03709"
+        ],
+        [
+          "Age",
+          "1.019 (1.013–1.025)",
+          "< 0.001"
+        ],
+        [
+          "Sodium_max",
+          "1.016 (1.001–1.031)",
+          "0.03835"
+        ],
+        [
+          "Aniongap_max",
+          "1.048 (1.026–1.069)",
+          "< 0.001"
+        ],
+        [
+          "Creatinine_min",
+          "0.766 (0.686–0.852)",
+          "< 0.001"
+        ],
+        [
+          "Spo2_mean",
+          "0.897 (0.865–0.93)",
+          "< 0.001"
+        ]
+      ],
+      "footnotes": "OR odds ratio, CI confidence interval, bun blood urea nitrogen, sysbp systolic blood pressure, INR international normalized ratio, Spo2 oxyhemoglobin saturation, Max maximum, Min minimum",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\"><label>Table 3</label><caption><p>Features selected in the XGboost model</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">OR_with_CI</th><th align=\"left\" colspan=\"1\" rowspan=\"1\"><italic>P</italic></th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">(Intercept)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">493.907 (9.063–27,931.087)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.00247</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Urineoutput</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1 (1–1)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lactate_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.401 (1.288–1.527)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Bun_mean</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.018 (1.013–1.023)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sysbp_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.979 (0.974–0.984)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Metastatic_cancer</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.997 (2.217–4.038)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Inr_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.058 (1.002–1.115)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.03709</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Age</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.019 (1.013–1.025)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sodium_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.016 (1.001–1.031)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.03835</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Aniongap_max</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.048 (1.026–1.069)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Creatinine_min</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.766 (0.686–0.852)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Spo2_mean</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.897 (0.865–0.93)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p23\"><p><italic>OR</italic> odds ratio, <italic>CI</italic> confidence interval, <italic>bun</italic> blood urea nitrogen, <italic>sysbp</italic> systolic blood pressure, <italic>INR</italic> international normalized ratio, <italic>Spo2</italic> oxyhemoglobin saturation, <italic>Max</italic> maximum, <italic>Min</italic> minimum</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "The detailed process of data extraction",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig1_HTML.jpg",
+        "12967_2020_2620_Fig1_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Characteristics of MIMIC-III patients with sepsis by ethnicities (a) and characteristics of MIMIC-III patients with sepsis by common sources of infection (b)",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig2_HTML.jpg",
+        "12967_2020_2620_Fig2_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "Top 11 features selected using XGBoost and the corresponding variable importance score. X-axis indicates the importance score which is the relative number of a variable that is used to distribute the data, Y-axis indicates the top 11 weighted variables",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig3_HTML.jpg",
+        "12967_2020_2620_Fig3_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "The receiver operating characteristic (ROC) curves. a traditional logistic regression model, area under curves (AUC) is 0.819 [95% confidence interval (CI); 0.800–0.838]; b SAPS-II score model, AUC is 0.797 [0.781–0.813]; c XGboost model, AUC is 0.857 [0.839–0.876], the best performance of the models was the XGboost model",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig4_HTML.jpg",
+        "12967_2020_2620_Fig4_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Decision curve analysis (DCA) of the three prediction models. The net benefit curves for the three prognostic models are shown. X-axis indicates the threshold probability for critical care outcome and Y-axis indicates the net benefit. Solid green line = XGboost model, solid red line = traditional logistic model, solid blue line = SAPS-II score mode. The preferred model is the XGboost model, the net benefit of which was larger over the range of traditional logistic model and SAPS-II score model",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig5_HTML.jpg",
+        "12967_2020_2620_Fig5_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Fig. 6",
+      "caption": "Nomogram to estimate the risk of mortality in sepsis patients. To use the nomogram, we first draw a line from each parameter value to the score axis for the score, the points for all the parameters are then added, finally, a line from the total score axis is drawn to determine the risk of mortality on the lower line of the nomogram",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig6_HTML.jpg",
+        "12967_2020_2620_Fig6_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig7",
+      "label": "Fig. 7",
+      "caption": "Clinical impact curve (CIC) of XGboost model. The red curve (number of high-risk individuals) indicates the number of people who are classified as positive (high risk) by the model at each threshold probability; the blue curve (number of high-risk individuals with outcome) is the number of true positives at each threshold probability. CIC visually indicated that nomogram conferred high clinical net benefit and confirmed the clinical value of the XGboost model",
+      "caption_zh": "",
+      "graphics": [
+        "12967_2020_2620_Fig7_HTML.jpg",
+        "12967_2020_2620_Fig7_HTML.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Song JY, Park DW, Moon SW, et al. Diagnostic and prognostic value of interleukin-6, pentraxin 3, and procalcitonin levels among sepsis and septic shock patients: a prospective controlled study according to the sepsis-3 definitions. BMC Infect Dis. 2019;19(1):968. doi: 10.1186/s12879-019-4618-7.",
+      "doi": []
+    },
+    {
+      "id": "CR2",
+      "text": "2.Singer M, Deutschman CS, Seymour CW, et al. The third international consensus definitions for sepsis and septic shock (sepsis-3) JAMA. 2016;315(8):801–810. doi: 10.1001/jama.2016.0287.",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.Liu V, Escobar GJ, Greene JD, et al. Hospital deaths in patients with sepsis from 2 independent cohorts. JAMA. 2014;312(1):90–92. doi: 10.1001/jama.2014.5804.",
+      "doi": []
+    },
+    {
+      "id": "CR4",
+      "text": "4.Hong TH, Chang CH, Ko WJ, et al. Biomarkers of early sepsis may be correlated with outcome. J Transl Med. 2014;12:146. doi: 10.1186/1479-5876-12-146.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.Song J, Moon SW, Park DW, et al. Biomarker combination and SOFA score for the prediction of mortality in sepsis and septic shock. Medicine. 2020;99(22):e20495. doi: 10.1097/MD.0000000000020495.",
+      "doi": []
+    },
+    {
+      "id": "CR6",
+      "text": "6.Majdan M, Brazinova A, Rusnak M, et al. Outcome prediction after traumatic brain injury: comparison of the performance of routinely used severity scores and multivariable prognostic models. J Neurosci Rural Pract. 2017;8(1):20. doi: 10.4103/0976-3147.193543.",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Song JY, Park DW, Moon SW, et al. Validation of APACHE II and SAPS II scales at the intensive care unit along with assessment of SOFA scale at the admission as an isolated risk of death predictor. Anaesthesiol Intensive Ther. 2019;51(2):107–111. doi: 10.5114/ait.2019.86275.",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Godinjak A, Iglica A, Rama A, et al. Predictive value of SAPS II and APACHE II scoring systems for patient outcome in a medical intensive care unit. Acta Med Acad. 2016;45(2):97–103. doi: 10.5644/ama2006-124.165.",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Yuan KC, Tsai LW, Lee KH, et al. The development an artificial intelligence algorithm for early sepsis diagnosis in the intensive care unit. Int J Med Inform. 2020;141:104176. doi: 10.1016/j.ijmedinf.2020.104176.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Chen T, Guestrin C. XGBoost: a scalable tree boosting system. In: Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining-KDD 2016, San Francisco, CA, USA; 2016. p. 785–94.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Johnson AEW, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database. Sci Data. 2016;3:160035. doi: 10.1038/sdata.2016.35.",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.Oweira H, Schmidt J, Mehrabi A, et al. Comparison of three prognostic models for predicting cancer-specific survival among patients with gastrointestinal stromal tumors. Future Oncol. 2018;14(4):379–389. doi: 10.2217/fon-2017-0450.",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Goldberger A, Amaral L, Glass L, et al. PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals. Circulation. 2000;101(23):e215–e220. doi: 10.1161/01.CIR.101.23.e215.",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.Templ M, Alfons A, Filzmoser P. Exploring incomplete data using visualization techniques. Adv Data Anal Classif. 2012;6:29–47. doi: 10.1007/s11634-011-0102-y.",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Van Buuren S, Groothuis-Oudshoorn CG. mice: multivariate imputation by chained equations in R. J Stat Softw. 2011;45:67. doi: 10.18637/jss.v045.i03.",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Gall JRL, Lemeshow S, Saulnier F, et al. A new simplified acute physiology score (SAPS II) based on a European/North American multicenter study. JAMA. 1993;270:2957–2963. doi: 10.1001/jama.1993.03510240069035.",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Zhang Z, Ho KM, Hong Y. Machine learning for the prediction of volume responsiveness in patients with oliguric acute kidney injury in critical care. Crit Care. 2019;23(1):112. doi: 10.1186/s13054-019-2411-z.",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.Livne M, Boldsen JK, Mikkelsen IK, et al. Boosted tree model reforms multimodal magnetic resonance imaging infarct prediction in acute stroke. Stroke. 2018;49:912–918. doi: 10.1161/STROKEAHA.117.019440.",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Collins GS, Reitsma JB, Altman DG, et al. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD) Circulation. 2015;131(2):211–219. doi: 10.1161/CIRCULATIONAHA.114.014508.",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Fleischmann-Struzek C, Mellhammar L, Reinhart K, et al. Incidence and mortality of hospital and ICU-treated sepsis: results from an updated and expanded systematic review and meta-analysis. Intensive Care Med. 2020;46(8):1552–1562. doi: 10.1007/s00134-020-06151-x.",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Torio CM, Moore BJ. National inpatient hospital costs: the most expensive conditions by payer, 2013: statistical brief #204. Healthcare Cost and Utilization Project (HCUP) Statistical Briefs, Rockville (MD); 2006.",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Martin GS, Mannino DM, Eaton S, et al. The epidemiology of sepsis in the united states from 1979 through 2000. N Engl J Med. 2003;348:1546–1554. doi: 10.1056/NEJMoa022139.",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.World Health Organization. World Health Assembly 70, resolution 70.7: improving the prevention, diagnosis and clinical management of sepsis. 2017. http://apps.who.int/gb/ebwha/pdf_fles/WHA70/A70_R7-en.pdf.",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Jouffroy R, Saade A, Vivien B, et al. Pre-hospital mechanical ventilation in septic shock patients. Am J Emerg Med. 2019;37(10):1860–1863. doi: 10.1016/j.ajem.2018.12.047.",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.Wu L, Feng Q, Ai ML, et al. The dynamic change of serum S100B levels from day 1 to day 3 is more associated with sepsis associated encephalopathy. Sci Rep. 2020;10(1):7718. doi: 10.1038/s41598-020-64200-3.",
+      "doi": []
+    },
+    {
+      "id": "CR26",
+      "text": "26.Oud L. Epidemiology and outcomes of sepsis among hospitalizations with systemic lupus erythematosus admitted to the ICU: a population-based cohort study. J Intensive Care. 2020;8:3. doi: 10.1186/s40560-019-0424-y.",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.Xiao J, Ding RF, Xu XL, et al. Comparison and development of machine learning tools in the prediction of chronic kidney disease progression. J Transl Med. 2019;17(1):119. doi: 10.1186/s12967-019-1860-0.",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Li YM, Li ZL, Chen F, et al. A LASSO-derived risk model for long-term mortality in Chinese patients with acute coronary syndrome. J Transl Med. 2020;18(1):157. doi: 10.1186/s12967-020-02319-7.",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Nemati S, Holder A, Razmi F, et al. An interpretable machine learning model for accurate prediction of sepsis in the ICU. Crit Care Med. 2018;46(4):547–553. doi: 10.1097/CCM.0000000000002936.",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Seymour CW, Kennedy JN, Wang S, et al. Derivation, validation, and potential treatment implications of novel clinical phenotypes for sepsis. JAMA. 2019;321(20):2003–2017. doi: 10.1001/jama.2019.5791.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Dhungana P, Serafim LP, Ruiz AL, et al. Machine learning in data abstraction: a computable phenotype for sepsis and septic shock diagnosis in the intensive care unit. World J Crit Care Med. 2019;8(7):120–126. doi: 10.5492/wjccm.v8.i7.120.",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Liu R, Greenstein JL, Granite SJ, et al. Data-driven discovery of a novel sepsis pre-shock state predicts impending septic shock in the ICU. Sci Rep. 2019;9(1):6145. doi: 10.1038/s41598-019-42637-5.",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.LANL Earthquake Prediction. 2019. https://www.kaggle.com/c/LANL-EarthquakePrediction. Accessed 15 Mar 2020.",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Franzosi OS, Nunes DSL, Klanovicz TM, et al. Hemodynamic and skin perfusion is associated with successful enteral nutrition therapy in septic shock patients. Clin Nutr. 2020;S0261–5614(20):30151–30155. doi: 10.1016/j.clnu.2020.03.033.",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Pinheiro KHE, Azêdo FA, Areco KCN, et al. Risk factors and mortality in patients with sepsis, septic and non septic acute kidney injury in ICU. J Bras Nefrol. 2019;41(4):462–471. doi: 10.1590/2175-8239-jbn-2018-0240.",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Lin PC, Huang HC, Komorowski M, et al. A machine learning approach for predicting urine output after fluid administration. Comput Methods Programs Biomed. 2019;177:155–159. doi: 10.1016/j.cmpb.2019.05.009.",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Teixeira C, Garzotto F, Piccinni P, et al. Fluid balance and urine volume are independent predictors of mortality in acute kidney injury. Crit Care. 2013;17(1):R14. doi: 10.1186/cc12484.",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Shirazy M, Omar I, Abduljabbar D, et al. Prevalence and prognostic impact of hypernatremia in sepsis and septic shock patients in the intensive care unit: a single centre experience. J Crit Care Med. 2020;6(1):52–58. doi: 10.2478/jccm-2020-0001.",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Zhang K, Lv D, Deng Y, et al. STAPLAg: a convenient early warning score for use in infected patients in the intensive care unit. Medicine. 2020;99(22):e20274. doi: 10.1097/MD.0000000000020274.",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Ding XF, Yang ZY, Xu ZT, et al. Early goal-directed and lactate-guided therapy in adult patients with severe sepsis and septic shock: a meta-analysis of randomized controlled trials. J Transl Med. 2018;16(1):331. doi: 10.1186/s12967-018-1700-7.",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Liu YL, Zheng J, Zhang DS, et al. Neutrophil-lymphocyte ratio and plasma lactate predict 28-day mortality in patients with sepsis. J Clin Lab Anal. 2019;33(7):e22942. doi: 10.1002/jcla.22942.",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Velissaris D, Karamouzos V, Pantzaris ND, et al. Relation between central venous, peripheral venous and arterial lactate levels in patients with sepsis in the emergency department. J Clin Med Res. 2019;11(9):629–634. doi: 10.14740/jocmr3897.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Lyons PG, Micek ST, Hampton N, et al. Sepsis-associated coagulopathy severity predicts hospital mortality. Crit Care Med. 2018;46(5):736–742. doi: 10.1097/CCM.0000000000002997.",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.Casado-Méndez M, Fernandez-Pacheco J, Arellano-Orden V, et al. Relationship of thromboelastography and conventional clotting test values with severe bleeding in critically ill patients with coagulopathy: a prospective study. Int J Lab Hematol. 2019;41(5):671–678. doi: 10.1111/ijlh.13086.",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Lemiale V, Pons S, Mirouse A, et al. Sepsis and septic shock in patients with malignancies: a Groupe de Recherche Respiratoire en Réanimation Onco-Hématologique study. Crit Care Med. 2020;48(6):822–829. doi: 10.1097/CCM.0000000000004322.",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.Seok H, Jeon JH, Park DW. Antimicrobial therapy and antimicrobial stewardship in sepsis. Infect Chemother. 2020;52(1):19–30. doi: 10.3947/ic.2020.52.1.19.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Hou N, Li M, He L, Xie B, Wang L, Zhang R, Yu Y, Sun X, Pan Z, Wang K.",
+  "journal": "J Transl Med",
+  "year": "2020",
+  "pmid": "33287854",
+  "pmcid": "PMC7720497",
+  "doi": "10.1186/s12967-020-02620-5",
+  "source": {
+    "retrieved_at": "2026-11-14T16:52:26.256877+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7720497/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC7720497.xml"
+}

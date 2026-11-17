@@ -1,0 +1,859 @@
+{
+  "key": "32518413",
+  "body_available": true,
+  "title": "Weakly-supervised learning for lung carcinoma classification using deep learning",
+  "source_url": "https://europepmc.org/articles/PMC7283481",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Fahdi Kanavati",
+    "Gouji Toyokawa",
+    "Seiya Momosaki",
+    "Michael Rambeau",
+    "Yuka Kozuma",
+    "Fumihiro Shoji",
+    "Koji Yamazaki",
+    "Sadanori Takeo",
+    "Osamu Iizuka",
+    "Masayuki Tsuneki"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2020",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2020",
+        "month": "6",
+        "day": "9"
+      },
+      {
+        "type": "collection",
+        "year": "2020",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2"
+          ],
+          "en": "Lung cancer is one of the leading causes of cancer-related deaths in many countries around the world, and its histopathological diagnosis is crucial for deciding on optimum treatment strategies. According to global cancer statistics1, in 2018, there were 2,093,876 (11.6% of all sites) new cases and 1,761,007 (18.4% of all sites) deaths due to lung cancer. Microscopic histopathology remains the gold standard in diagnostic surgical pathology; however, the main limitation to morphological diagnosis is diagnostic variability among pathologists2. These problems may have a negative impact on the quality of the pathological diagnosis, which should be addressed urgently.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR3",
+            "CR4",
+            "CR16",
+            "CR10",
+            "CR11"
+          ],
+          "en": "The progressive use and adoption of digitised Whole Slide Images (WSIs) has allowed the use of biomedical image analysis techniques from computer vision and machine learning to aid the pathologists in obtaining diagnoses and has led to the emergence of computational pathology as a field3. Over the past few years, deep learning has been shown to have successful applications in computational pathology4–16. Most notably, Coudray et al.10 trained a deep learning model to classify and predict mutations from non–small cell lung cancer histopathology. While Wei et al.11 trained a deep learning model to classify lung adenocarcinoma on surgical resection slides using 279 WSIs for training and only 143 WSIs for testing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [],
+          "en": "One of the primary challenges of computational pathology is the size of the WSI. A single image scanned at a magnification of x20 can have a height and width in tens of thousands of pixels, which makes it time-consuming to visually inspect in an exhaustive manner by a pathologist. Due to this, the application of deep learning models has required splitting the image into a set consisting of thousands of tiles and applying the classification model on each tile separately, and then later combining the result for the WSI. In addition, the application of deep learning requires an annotated dataset to use to train the models, with larger datasets typically achieving better performance. However, what this entails is that detailed cell-level WSI annotations by expert pathologists are required, making it extremely difficult to compile a large dataset, especially for WSIs consisting of surgical specimens.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR17",
+            "CR18",
+            "CR19",
+            "CR22",
+            "CR15"
+          ],
+          "en": "There are two extremes when it comes to annotating a WSI: detailed cell-level annotations and slide-level diagnosis. The former is the most tedious and time consuming to obtain and is a requirement for fully-supervised machine learning, while the latter is the fastest to obtain, and typically readily available from diagnostic reports. Applying machine learning using only a dataset of slide-level diagnoses involves posing the problem within a weakly-supervised learning17 setting, where the slide-level diagnoses constitute weak labels. Based on the slide-level diagnosis label of a given WSI, the following assumption can be made about the labels of its tiles: if a WSI has cancer then at least one tile from the WSI must contain cancer cells, while if the WSI has no cancer, then none of the tiles will contain any cancer cells. This formulation is called Multiple Instance Learning18 (MIL) and has found many applications in machine learning19–22. The most notable application of MIL in computational pathology was done recently by Campanella et al.15 in which they used it to train on a dataset of 44,732 WSIs using only slide-level diagnoses as labels with impressive results obtained on test sets of prostate cancer, basal cell carcinoma, and breast cancer metastases.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "Fig1",
+            "CR23"
+          ],
+          "en": "Here, we propose a weakly-supervised deep learning method to predict carcinoma in WSIs of lung using a dataset annotated at a level in between the two extremes of annotations, where annotations were carried out but not at a cell-level detail. As our training dataset consisted of surgical specimens, one hurdle we encountered was the level of detail required to carry out the annotations. In some cases, cancer cells spread within necrotic or inflammatory tissues which are also present within purely non-neoplastic lesions. In addition, sometimes it is impossible to annotate carcinoma cells accurately because some undergo cell death due to chemotherapy treatment. If pathologists were to annotate at a cell-level detail it would take hours for a single WSI. Therefore, we opted for annotating the whole carcinoma areas without excluding the necrotic tissues within them. As a result of this, tiles extracted from carcinoma labelled areas could potentially originate from necrotic or inflammatory tissues which would also be similar to tissues in some tiles extracted from non-neoplastic lesions. Figure 1 illustrates examples of the annotations that we carried out. We did this to maximise the use of our collected training dataset which consisted of 3,704 WSIs of surgical lung specimens. We then used a combination of transfer learning and weakly-supervised learning to train an EfficientNet-B323 Convolutional Neural Network (CNN). We evaluated our model on four independent test sets consisting of about 500 cases each. To the best of our knowledge, this makes our study the largest so far to evaluate on independent test sets for lung carcinoma classification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "A deep learning model for WSI carcinoma classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR24"
+          ],
+          "en": "The purpose of this study was to train a deep learning model to classify carcinoma in WSIs and evaluate it on multiple independent cohorts. We used a dataset of 3,704 WSIs obtained from Kyushu Medical Centre. 3,554 WSI were used for training while 150 were used for validation. We then evaluated our model on five independent test sets: 500 from Kyushu Medical Centre, 500 from Mita Hospital, 670 from the publicly available repository of The Cancer Genome Atlas (TCGA) program24, and 500 from the Cancer Imaging Archive (TCIA).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [],
+          "en": "Taking into account the nature of the annotations that we performed on the surgical specimens, we trained two models using the following two approaches: fully-supervised learning and weakly-supervised learning. The former typically performs best when detailed cell-level annotations are available. The latter approach can be used with weak labels, such as when only the slide-level diagnoses are available; however, it typically requires a much larger dataset of WSIs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "To obtain a WSI classification, the model was applied in a sliding window fashion with input tiles of 512 × 512 pixels and a stride of 256. The WSI classification was then obtained by taking the maximum probability of all its tiles.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "Fig2",
+            "Tab1",
+            "Fig3"
+          ],
+          "en": "We then computed the ROC curves and their corresponding AUCs and the log losses. Figure 2 and Table 1 summarise the results on the four independent test sets using the two training methods. Figure 3 shows example heatmap output visualisations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "In this work we trained a deep learning model for the classification of carcinoma in WSIs. The model was trained on WSIs obtained from a single medical institution and was then applied on four independent test sets obtained from different sources to demonstrate the generalisation of the model on unseen data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "We showed that it was possible to exploit the use of a moderately-size training dataset of 3,554 WSIs to train a deep learning model using a combination of transfer learning and weakly-supervised learning, and we have obtained high ROC AUC performance on four independent test sets, which is highly promising in terms of the generalisation performance of our model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "Fig4",
+            "CR36",
+            "CR37"
+          ],
+          "en": "We used two approaches to train the models: fully-supervised learning and weakly-supervised learning. The latter consistently performed statistically significantly better than the former, with an average improvement of about 0.05 in the AUC on the test sets. The TCGA set had the largest improvement in AUC of about 0.10; however, this could also be explained by the larger proportion of carcinoma cases vs non-neoplastic (591 vs 89) as compared to the other test sets, and therefore a reduction in the number of false-positives using the weakly-supervised method would lead to a larger improvement in AUC. One of the main issues of directly using fully-supervised learning was that due to the large size of the WSI surgical specimens, the annotations could not be carried at a detailed cell level as it would have taken a considerable amount of time to annotate a single WSI. As a result of the non-cell-level annotations, tiles extracted from regions labelled as carcinoma could originate from the stromata including necrotic or inflammatory tissues, which also could be shared with non-neoplastic lesions. This would result in such tiles either having a carcinoma label or a non-neoplastic label, depending on which labelled regions they originated from. This would introduce noise within the training set and result in a decrease in model performance, which is what we have observed using the fully-supervised learning method. Figure 4 illustrates two examples of false positive predictions by the the fully-supervised method on inflammatory tissues, which were correctly predicted as non-neoplastic by the weakly-supervised method. Using the weakly-supervised MIL method allowed us to train on our dataset and obtain high performance despite the non-cell level nature of the annotations. This means that it is possible to train a high performing model for lung carcinoma classification without having to have detailed cell-level annotations or requiring an extremely large number of WSI to perform pure MIL using only slide-level labels.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "Fig5"
+          ],
+          "en": "Using the weakly-supervised method, an inspection of false-negative cases showed that the majority were due to presence of only a few cancer cells in a small area, which might have made it difficult for the model to pick up at the chosen magnification or stride. Albeit a smaller number than that of the fully-supervised method, the majority of false-positives were due to false detections on inflammatory tissues. Figure 5 illustrates two examples of false positive carcinoma predictions using the weakly-supervised method.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR25",
+            "CR26"
+          ],
+          "en": "Our model is currently limited to differentiating between carcinoma and non-neoplastic lesion. However, despite this limitation our model could be used as an initially applied algorithm in a workflow in which subsequently applied algorithms further subclassify neoplastic tissue and perform clinically useful functions, such as outlining lesional cells (which would be useful for detecting lymphovascular invasion), assessing pleural involvement (a feature that pathologists can struggle with) and assessing margin status. As future work, we are working on developing additional models to subclassify lung carcinoma, in surgical as well as biopsy specimens, into adenocarcinoma, squamous cell carcinoma, and small cell carcinoma; this subclassification is important for triaging tumors to receive appropriate molecular testing and to determine optimal therapy25,26.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec6",
+      "title": "Clinical cases",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "In the present retrospective study, 4,204 cases of human pulmonary lesions HE (hematoxylin & eosin) stained histopathological specimens were collected from the surgical pathology files of Kyushu Medical Center after histopathological review of those specimens by surgical pathologists. 500 cases of human pulmonary lesions HE stained surgical specimens were collected from International University of Health and Welfare, Mita Hospital (Tokyo) after histopathological review and approval by surgical pathologists. The experimental protocols were approved by the Institutional Review Board (IRB) of the Kyushu Medical Center (No. 19C106) and International University of Health and Welfare (No. 19-Im-007). All research activities comply with all relevant ethical regulations and were performed in accordance with relevant guidelines and regulations in Kyushu Medical Center and International University of Health and Welfare, Mita Hospital. Informed consent to use histopathological samples and pathological diagnostic reports for research purposes had previously been obtained from all patients prior to the surgical procedures at both hospitals and the opportunity for refusal to participate in research has been guaranteed by an opt-out manner. The test cases were selected randomly, so the ratio of neoplastic to non-neoplastic cases in test sets was reflective of the case distributions at the providing institutions. All WSIs from both Kyushu Medical Center and Mita were scanned at a magnification of x20.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Dataset and annotations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "Tab2",
+            "Tab3",
+            "Fig1",
+            "CR27",
+            "CR28",
+            "Fig6"
+          ],
+          "en": "The dataset obtained from Kyushu Medical Center and International University of Health and Welfare, Mita Hospital, consisted of 4,204 and 500 WSIs, respectively. Tables 2 and 3 break down the distribution of the dataset into training and test sets. The training set was solely composed of surgical images, while the test set contained some biopsy specimens (5%). All cases used for annotation were looked over carefully and verified by three pathologists prior to annotation. The WSIs were manually annotated by a group of 39 surgical pathologists (annotation pathologists) who perform routine histopathological diagnoses by drawing around the areas that corresponded to one of the two labels: carcinoma and non-neoplastic lesion. Carcinoma annotation was performed to include both carcinoma cells (tumor parenchyma) and non-neoplastic or non-viable tissue within regions of carcinoma (inflammatory cell infiltration, fibrosis, or necrosis). Figure 1 shows examples of carcinoma annotations. Several histopathological classifications of lung carcinoma exist; the one most widely used is originally proposed by Dr. Kreyberg in 196127. It includes the following major categories: adenocarcinoma, squamous cell carcinoma, small cell carcinoma, large cell carcinoma, adenosquamous carcinoma, and sarcomatoid carcinoma/carcinosarcoma. The relative frequencies of the various microscopic types of lung carcinoma have changed over the years; squamous cell carcinoma used to be the more common type, however, presently, there is a majority of adenocarcinomas28. In this study, annotated training sets included the following major categories (subtypes): adenocarcinoma (including bronchioloalveolar carcinoma and some types of clear cell carcinoma), squamous cell carcinoma (including some types of clear cell carcinoma) and small cell carcinoma. Any large regions that did not contain carcinoma were included under the non-neoplastic labels, which consisted of cystic diseases, bronchopulmonary sequestration, bronchiectasis, abscess, granulomatous inflammation, diffuse pulmonary injury, interstitial lung disease, pneumonia, and other non-neoplastic diseases as well as normal. Non-neoplastic annotation was performed to include both parenchymal and stromal cells. Annotations performed by pathologists were modified (if necessary), confirmed, and verified by another group of two pathologists and used as training datasets. Each annotated WSI was observed by at least two pathologists, with the final checking and verification performed by a senior pathologist. Cases that had discrepancies in the annotation labels were excluded from training. Some WSIs contained multiple annotation labels. Therefore, a single WSI label of major diagnosis was assigned to a given WSI based on the following order of priority: carcinoma, non-neoplastic. For instance, if the WSI contained annotations for both carcinoma and non-neoplastic, then the WSI diagnosis was carcinoma. Figure 6 gives an overview of the collected datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR29",
+            "CR30"
+          ],
+          "en": "In addition to the above two datasets, we used WSIs from The Cancer Genome Atlas (TCGA) and The Cancer Imaging Archive (TCIA)29. We used a total of 680 WSIs from the TCGA-LUAD and TCGA-LUSC projects, and a total of 500 from the CPTAC-LSCC30 project.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Deep learning models",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR23",
+            "Fig7"
+          ],
+          "en": "We used the EfficientNet-B3 CNN architecture23. We used two approaches for training: supervised learning and weakly-supervised learning to train the models. We operated on the WSIs by downsampling the magnification to x10, which was chosen as a good compromise between classification performance and speed. Figure 7 gives an overview of the two training methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR31"
+          ],
+          "en": "For the supervised learning approach, the WSIs were divided into grids and tiles of size 512 × 512 pixels were extracted, resulting in about three million tiles for training. The label of the tile was assigned based on the label of the annotation region it belonged to. We then trained the CNN using the Adam optimisation algorithm31 with beta_1 = 0.9 and beta_2 = 0.999. We used a decaying learning rate, with a decay of 0.9 after each epoch, and with a warm start, starting from a learning rate of 0.001 up to a maximum learning rate of 0.05 during the first epoch, with an epoch being a single pass through the tiles training set. We used a batch size of 64, and the training was run for 22 epochs, with a total of about 1 M iterations. The performance of the model was tracked on a validation set. We used an early stopping approach with a patience of 10 epochs, meaning that training would stop if no improvement was observed for 10 epochs past the lowest validation loss. The model with the lowest validation loss was chosen as the final model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR15"
+          ],
+          "en": "For the weakly-supervised learning approach using MIL, we used an approach inspired by Campanella et al.15 with a couple of changes. We started from a pre-trained model on the ImageNet dataset, we then performed an initial phase of training on randomly sampled 512 × 512 tiles (k = 32 from each WSI) from the positively and negatively annotated regions that lasted for two epochs, with an epoch being a single sweep through the WSIs training set. After the 2nd epoch, training was switched to MIL. During a training epoch, the WSIs are iterated through in a random order. On each WSI, the model was applied in inference mode using a sliding window fashion on all its tiles, and the tiles with the top k (we used a linear decay from k = 5 to k = 1) probabilities for carcinoma were selected for training. The reason for selecting the tiles with top k probabilities is as follows: if the WSI contains carcinoma, then there should be at least one tile that contains carcinoma tissue, and, therefore, its probability should be close to one, so it should be used for training as an example of carcinoma. However, if the WSI does not contain carcinoma, then the top k tiles represent non-neoplastic tiles that have the highest probabilities for carcinoma, and, therefore, should be used for training as they are most likely to be misclassified. Once a given number of tiles has been accumulated (n = 512), a training step was performed using the Adam optimiser with a batch size of 64. We used a decaying learning rate starting from 0.001.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "In both approaches, we used data augmentation in the form of tile flips, translations, and colour shifts in order increase robustness and add regularisation to the networks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [],
+          "en": "To obtain a WSI classification, the model was applied in a sliding window fashion using a stride of 256, then the WSI was assigned the label of the maximum probability of its tiles.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Software and statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR32",
+            "CR33",
+            "CR34",
+            "CR35"
+          ],
+          "en": "The deep learning models were implemented and trained using TensorFlow32. AUCs were calculated in python using the scikit-learn package33 and plotted using matplotlib34. The 95% CIs of the AUCs were estimated using the bootstrap method35 with 1000 iterations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-11",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-11-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-11-p2",
+          "reference_ids": [],
+          "en": "These authors contributed equally: Fahdi Kanavati, Gouji Toyokawa and Seiya Momosaki.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-11-p3",
+          "reference_ids": [],
+          "en": "We are grateful for the support provided by Professor Takayuki Shiomi at Department of Pathology, Faculty of Medicine, International University of Health and Welfare; Dr. Ryosuke Matsuoka at Diagnostic Pathology Center, International University of Health and Welfare, Mita Hospital; Dr. Naoki Haratake at Department of Thoracic Oncology, National Hospital Organization Kyushu Cancer Center; Dr. Naoko Aoki (pathologist); Ms. Ikuko Mii at Department of Pathology, Clinical Research Institute, National Hospital Organization, Kyushu Medical Center; Messrs. Shintaro Asako, Kengo Tateishi, Ryuta Murakami, Kosuke Saigusa, Kyosuke Yamamoto, Ms. Leona Shinkai, and Imaging Center staffs at Medmain Inc. We thank the pathologists from around the world who have been engaged in the annotation work for this study. The computation was carried out using the computing resources offered under the category of Intensively Promoted Projects by Research Institute for Information Technology, Kyushu University.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-11-p4",
+          "reference_ids": [],
+          "en": "F.K., G.T. and S.M. contributed equally to this work; F.K., G.T., S.M., O.I. and M.T. designed the experiments; F.K., G.T., S.M., M.R. and M.T. performed experiments and analyzed the data; S.M. performed pathological diagnoses and helped with pathological discussion and diagnosis; G.T., S.M., Y.K., F.S., K.Y. and S.T. collected histopathological cases with pathological diagnoses; G.T., S.M., Y.K., F.S., K.Y. and S.T. helped with pathophysiological discussion and clinical diagnosis; F.K., G.T. and M.T. wrote the manuscript; M.T. supervised the project. All authors reviewed the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-11-p5",
+          "reference_ids": [],
+          "en": "Due to specific institutional requirements governing privacy protection, the majority of datasets used in this study are not publicly available. The external lung TCGA (TCGA-LUAD and TCGA-LUSC projects) and TCIA datasets are publicly available through the Genomic Data Commons Data Portal (https://portal.gdc.cancer.gov/) and the Cancer Image Archive (https://www.cancerimagingarchive.net/), respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "F.K., M.R., O.I., and M.T. are employees of Medmain Inc. None of the other authors have any conflicts of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Summary of ROC AUC and log loss results of the two training methods, fully-supervised (FS) and weakly-supervised (WS), on the 4 independent test sets: Kyushu Medical Centre, Mita Hospital, TCGA, and TCIA.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Kyushu Medical Centre",
+          "Mita Hospital",
+          "TCGA",
+          "TCIA"
+        ],
+        [
+          "WS",
+          "ROC AUC",
+          "0.975 (0.950–0.993)",
+          "0.974 (0.962–0.985)",
+          "0.988 (0.981–0.994)",
+          "0.981 (0.969–0.990)"
+        ],
+        [
+          "Log loss",
+          "0.1338",
+          "0.4045",
+          "0.1819",
+          "0.3506"
+        ],
+        [
+          "FS",
+          "ROC AUC",
+          "0.937 (0.908–0.958)",
+          "0.922 (0.898–0.945)",
+          "0.880 (0.840–0.917)",
+          "0.963 (0.944–0.977)"
+        ],
+        [
+          "Log loss",
+          "0.7022",
+          "0.8138",
+          "0.2977",
+          "0.2813"
+        ]
+      ],
+      "footnotes": "The values between parenthesis indicate the 95% Confidence Intervals (CI)s.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Summary of ROC AUC and log loss results of the two training methods, fully-supervised (FS) and weakly-supervised (WS), on the 4 independent test sets: Kyushu Medical Centre, Mita Hospital, TCGA, and TCIA.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"2\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Kyushu Medical Centre</th><th colspan=\"1\" rowspan=\"1\">Mita Hospital</th><th colspan=\"1\" rowspan=\"1\">TCGA</th><th colspan=\"1\" rowspan=\"1\">TCIA</th></tr></thead><tbody><tr><td rowspan=\"2\" colspan=\"1\">WS</td><td colspan=\"1\" rowspan=\"1\">ROC AUC</td><td colspan=\"1\" rowspan=\"1\">0.975 (0.950–0.993)</td><td colspan=\"1\" rowspan=\"1\">0.974 (0.962–0.985)</td><td colspan=\"1\" rowspan=\"1\">0.988 (0.981–0.994)</td><td colspan=\"1\" rowspan=\"1\">0.981 (0.969–0.990)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Log loss</td><td colspan=\"1\" rowspan=\"1\">0.1338</td><td colspan=\"1\" rowspan=\"1\">0.4045</td><td colspan=\"1\" rowspan=\"1\">0.1819</td><td colspan=\"1\" rowspan=\"1\">0.3506</td></tr><tr><td rowspan=\"2\" colspan=\"1\">FS</td><td colspan=\"1\" rowspan=\"1\">ROC AUC</td><td colspan=\"1\" rowspan=\"1\">0.937 (0.908–0.958)</td><td colspan=\"1\" rowspan=\"1\">0.922 (0.898–0.945)</td><td colspan=\"1\" rowspan=\"1\">0.880 (0.840–0.917)</td><td colspan=\"1\" rowspan=\"1\">0.963 (0.944–0.977)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Log loss</td><td colspan=\"1\" rowspan=\"1\">0.7022</td><td colspan=\"1\" rowspan=\"1\">0.8138</td><td colspan=\"1\" rowspan=\"1\">0.2977</td><td colspan=\"1\" rowspan=\"1\">0.2813</td></tr></tbody></table><table-wrap-foot><p>The values between parenthesis indicate the 95% Confidence Intervals (CI)s.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Number of WSIs used in the training set from Kyushu Medical Centre.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Number of WSIs"
+        ],
+        [
+          "Carcinoma",
+          "1,941"
+        ],
+        [
+          "Non-neoplastic",
+          "1,613"
+        ],
+        [
+          "Total",
+          "3,554"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Number of WSIs used in the training set from Kyushu Medical Centre.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Number of WSIs</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Carcinoma</td><td colspan=\"1\" rowspan=\"1\">1,941</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Non-neoplastic</td><td colspan=\"1\" rowspan=\"1\">1,613</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Total</td><td colspan=\"1\" rowspan=\"1\">3,554</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Summary of number of WSIs in each test set.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Kyushu Medical Centre",
+          "Mita Hospital",
+          "TCGA",
+          "TCIA"
+        ],
+        [
+          "Carcinoma",
+          "148",
+          "227",
+          "591",
+          "333"
+        ],
+        [
+          "Non-neoplastic",
+          "352",
+          "273",
+          "89",
+          "167"
+        ],
+        [
+          "Total",
+          "500",
+          "500",
+          "680",
+          "500"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Summary of number of WSIs in each test set.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Kyushu Medical Centre</th><th colspan=\"1\" rowspan=\"1\">Mita Hospital</th><th colspan=\"1\" rowspan=\"1\">TCGA</th><th colspan=\"1\" rowspan=\"1\">TCIA</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Carcinoma</td><td colspan=\"1\" rowspan=\"1\">148</td><td colspan=\"1\" rowspan=\"1\">227</td><td colspan=\"1\" rowspan=\"1\">591</td><td colspan=\"1\" rowspan=\"1\">333</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Non-neoplastic</td><td colspan=\"1\" rowspan=\"1\">352</td><td colspan=\"1\" rowspan=\"1\">273</td><td colspan=\"1\" rowspan=\"1\">89</td><td colspan=\"1\" rowspan=\"1\">167</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Total</td><td colspan=\"1\" rowspan=\"1\">500</td><td colspan=\"1\" rowspan=\"1\">500</td><td colspan=\"1\" rowspan=\"1\">680</td><td colspan=\"1\" rowspan=\"1\">500</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "(a–c) Highlights showing three examples of carcinoma WSI annotations. The left column shows thumbnails of the WSIs, while the right shows zoomed-in crops from regions labelled as carcinoma. The yellow boxes indicate necrotic tissues within the tumour. Extracting tiles from tissue within yellow boxes would result in tiles consisting of necrotic tissue labelled as carcinoma. This would introduce noise within the dataset as necrotic tissue can also be part of non-neoplastic lesions.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "ROC curves of carcinoma WSI classification trained using the weakly-supervised MIL approach on four independent test sets: (a) Kyushu Medical Centre, (b) Mita Hospital (c) TCGA, and (d) TCIA.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "Example heatmap outputs for carcinoma prediction using the weakly-supervised method on (a) adenocarcinoma and (b) squamous cell carcinoma. A stride of 256 × 256 was used on a magnification of x10.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Examples of two carcinoma false positive prediction outputs using the fully-supervised method. Both were correctly predicted as non-neoplastic by the weakly-supervised method. (a) is a case of caseating granulomatous inflammation36 which consists of necrotic tissues (caseation necrosis is defined as a region in granulomas with eosinophilic, granular and cheese-like cellular debris with necrosis) and chronic inflammation. (b) is a case of granulomatous inflammation37, which is a distinctive form of chronic inflammation produced in response to various infection. The inflammatory tissue is the main cause of false positives due to its analogous tissue structure to cancer stroma.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "Examples of two carcinoma false positive prediction outputs using the weakly-supervised method. (a) Is a case of chronic interstitial pneumonia: there are prominent appearances of macrophages in the alveolar space and fibrosis of the alveolar septum as a background of mild to moderate chronic active inflammation. Infiltrating inflammatory cells include lymphocytes, monocytes, and neutrophils. (b) Is a case of emphysematous bulla: there is a cystic emphysematous space in the lung beneath the pleura. Chronic inflammation, congestion and hemorrhage are seen. The inflammatory tissues in (a,b) is the main cause of false positive prediction due to the resemblance to cancer stroma.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Figure 6",
+      "caption": "Overview of the data collection and annotation process for the training and test sets. Training data collected from Kyushu Medical Centre was first pre-selected by a pathologist and then sent over to Medmain for further filtering and selection. WSIs with concordant diagnoses were annotated by pathologists. For the test set, we collected WSIs from Kyushu medical centre, Mita hospital, and the publicly available TCGA and TCIA datasets.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig6_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig7",
+      "label": "Figure 7",
+      "caption": "Overview of the two training methods: fully-supervised learning and weakly supervised learning. In the fully-supervised learning all the tiles from the WSIs were used for training and their labels were assigned directly based on the labels of the annotation regions they belonged to. In the weakly-supervised method, we iteratively alternated between inference and training. During inference, the model weights were frozen, and it was applied in a sliding window fashion on each WSI. The top k tiles with the highest probabilities were then selected from each WSI. During training the selected tiles were then used to train the model.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66333_Fig7_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.BrayFGlobal cancer statistics 2018: Globocan estimates of incidence and mortality worldwide for 36 cancers in 185 countriesCA: a cancer journal for clinicians2018683944243020759310.3322/caac.21492",
+      "doi": [
+        "10.3322/caac.21492"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.ChangHYArtificial intelligence in pathologyJournal of pathology and translational medicine201953110.4132/jptm.2018.12.1630599506PMC6344799",
+      "doi": [
+        "10.4132/jptm.2018.12.16"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.FuchsTJBuhmannJMComputational pathology: Challenges and promises for tissue analysisComputerized Medical Imaging and Graphics20113551553010.1016/j.compmedimag.2011.02.00621481567",
+      "doi": [
+        "10.1016/j.compmedimag.2011.02.006"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.Hou, L. et al. Patch-based convolutional neural network for whole slide tissue image classification. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition 2424–2433 (2016).10.1109/CVPR.2016.266PMC508527027795661",
+      "doi": [
+        "10.1109/CVPR.2016.266"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.MadabhushiALeeGImage analysis and machine learning in digital pathology: Challenges and opportunitiesMedical Image Analysis20163317017510.1016/j.media.2016.06.03727423409PMC5556681",
+      "doi": [
+        "10.1016/j.media.2016.06.037"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.LitjensGDeep learning as a tool for increased accuracy and efficiency of histopathological diagnosisScientific reports201662628610.1038/srep2628627212078PMC4876324",
+      "doi": [
+        "10.1038/srep26286"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.KrausOZBaJLFreyBJClassifying and segmenting microscopy images with deep multiple instance learningBioinformatics201632i52i5910.1093/bioinformatics/btw25227307644PMC4908336",
+      "doi": [
+        "10.1093/bioinformatics/btw252"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.Korbar, B. et al. Deep learning for classification of colorectal polyps on whole-slide images. Journal of pathology informatics8 (2017).10.4103/jpi.jpi_34_17PMC554577328828201",
+      "doi": [
+        "10.4103/jpi.jpi_34_17"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.LuoXComprehensive computational pathological image analysis predicts lung cancer prognosisJournal of Thoracic Oncology20171250150910.1016/j.jtho.2016.10.01727826035PMC5462113",
+      "doi": [
+        "10.1016/j.jtho.2016.10.017"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.CoudrayNClassification and mutation prediction from non–small cell lung cancer histopathology images using deep learningNature medicine2018241559156710.1038/s41591-018-0177-5PMC984751230224757",
+      "doi": [
+        "10.1038/s41591-018-0177-5"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.WeiJWPathologist-level classification of histologic patterns on resected lung adenocarcinoma slides with deep neural networksScientific reports201991810.1038/s41598-018-37186-230833650PMC6399447",
+      "doi": [
+        "10.1038/s41598-018-37186-2"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.GertychAConvolutional neural networks can accurately distinguish four histologic growth patterns of lung adenocarcinoma in digital slidesScientific reports20199148310.1038/s41598-018-37638-930728398PMC6365499",
+      "doi": [
+        "10.1038/s41598-018-37638-9"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.BejnordiBEDiagnostic assessment of deep learning algorithms for detection of lymph node metastases in women with breast cancerJama20173182199221010.1001/jama.2017.1458529234806PMC5820737",
+      "doi": [
+        "10.1001/jama.2017.14585"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.SaltzJSpatial organization and molecular correlation of tumor-infiltrating lymphocytes using deep learning on pathology imagesCell reports20182318119310.1016/j.celrep.2018.03.08629617659PMC5943714",
+      "doi": [
+        "10.1016/j.celrep.2018.03.086"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.CampanellaGClinical-grade computational pathology using weakly supervised deep learning on whole slide imagesNature medicine2019251301130910.1038/s41591-019-0508-1PMC741846331308507",
+      "doi": [
+        "10.1038/s41591-019-0508-1"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.IizukaODeep learning models for histopathological classification of gastric and colonic epithelial tumoursScientific Reports20201011110.1038/s41598-020-58467-932001752PMC6992793",
+      "doi": [
+        "10.1038/s41598-020-58467-9"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.ZhouZ-HA brief introduction to weakly supervised learningNational Science Review20185445310.1093/nsr/nwx106",
+      "doi": [
+        "10.1093/nsr/nwx106"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.DietterichTGLathropRHLozano-PérezTSolving the multiple instance problem with axis-parallel rectanglesArtificial intelligence199789317110.1016/S0004-3702(96)00034-3",
+      "doi": [
+        "10.1016/S0004-3702(96)00034-3"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.Andrews, S., Hofmann, T. & Tsochantaridis, I. Multiple instance learning with generalized support vector machines. Eighteenth national conference on Artificial intelligence 943–944 (2002).",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Zhang, C., Platt, J. C. & Viola, P. A. Multiple instance boosting for object detection. Advances in neural information processing systems 1417–1424 (2006).",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.BabenkoBYangM-HBelongieSRobust object tracking with online multiple instance learningIEEE transactions on pattern analysis and machine intelligence2010331619163210.1109/TPAMI.2010.22621173445",
+      "doi": [
+        "10.1109/TPAMI.2010.226"
+      ]
+    },
+    {
+      "id": "CR22",
+      "text": "22.SudharshanPMultiple instance learning for histopathological breast cancer image classificationExpert Systems with Applications201911710311110.1016/j.eswa.2018.09.049",
+      "doi": [
+        "10.1016/j.eswa.2018.09.049"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.Tan, M. & Le, Q. Efficientnet: Rethinking model scaling for convolutional neural networks. In International Conference on Machine Learning, 6105–6114 (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.GrossmanRLToward a shared vision for cancer genomic dataNew England Journal of Medicine20163751109111210.1056/NEJMp160759127653561PMC6309165",
+      "doi": [
+        "10.1056/NEJMp1607591"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.MitsudomiTGefitinib versus cisplatin plus docetaxel in patients with non-small-cell lung cancer harbouring mutations of the epidermal growth factor receptor (wjtog3405): an open label, randomised phase 3 trialThe lancet oncology20101112112810.1016/S1470-2045(09)70364-X20022809",
+      "doi": [
+        "10.1016/S1470-2045(09)70364-X"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.HidaTAlectinib versus crizotinib in patients with alk-positive non-small-cell lung cancer (j-alex): an open-label, randomised phase 3 trialThe Lancet2017390293910.1016/S0140-6736(17)30565-228501140",
+      "doi": [
+        "10.1016/S0140-6736(17)30565-2"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.KreybergLMain histological types of primary epithelial lung tumoursBritish journal of cancer19611520610.1038/bjc.1961.2513754309PMC2070911",
+      "doi": [
+        "10.1038/bjc.1961.25"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.WahbahMBoroumandNCastroCEl-ZekyFEltorkyMChanging trends in the distribution of the histologic types of lung cancer: a review of 4,439 casesAnnals of diagnostic pathology200711899610.1016/j.anndiagpath.2006.04.00617349566",
+      "doi": [
+        "10.1016/j.anndiagpath.2006.04.006"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.ClarkKThe cancer imaging archive (tcia): maintaining and operating a public information repositoryJournal of digital imaging2013261045105710.1007/s10278-013-9622-723884657PMC3824915",
+      "doi": [
+        "10.1007/s10278-013-9622-7"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.National cancer institute clinical proteomic tumor analysis consortium (cptac). radiology data from the clinical proteomic tumor analysis consortium lung squamous cell carcinoma [cptac-lscc] collection [data set], 10.7937/k9/tcia.2018.6emub5l2 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Kingma, D. P. & Ba, J. Adam: A method for stochastic optimization. In Bengio, Y. & LeCun, Y. (eds) 3rd International Conference on Learning Representations, Conference Track Proceedings (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Abadi, M. et al. TensorFlow: Large-scale machine learning on heterogeneous systems. Software available from tensorflow.org (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.PedregosaFScikit-learn: Machine learning in PythonJournal of Machine Learning Research20111228252830",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.HunterJDMatplotlib: A 2d graphics environmentComputing in Science & Engineering20079909510.1109/MCSE.2007.55",
+      "doi": [
+        "10.1109/MCSE.2007.55"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.Efron, B. & Tibshirani, R. J. An introduction to the bootstrap (CRC press, 1994).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.TimmermansWMCVan LaarJAMVan HagenPMVan ZelmMCImmunopathogenesis of granulomas in chronic autoinflammatory diseasesClinical & translational immunology20165e11810.1038/cti.2016.7528090320PMC5192066",
+      "doi": [
+        "10.1038/cti.2016.75"
+      ]
+    },
+    {
+      "id": "CR37",
+      "text": "37.ShahKKPrittBSAlexanderMPHistopathologic review of granulomatous inflammationJournal of clinical tuberculosis and other Mycobacterial Diseases2017711210.1016/j.jctube.2017.02.00131723695PMC6850266",
+      "doi": [
+        "10.1016/j.jctube.2017.02.001"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Kanavati F, Toyokawa G, Momosaki S, Rambeau M, Kozuma Y, Shoji F, Yamazaki K, Takeo S, Iizuka O, Tsuneki M.",
+  "journal": "Sci Rep",
+  "year": "2020",
+  "pmid": "32518413",
+  "pmcid": "PMC7283481",
+  "doi": "10.1038/s41598-020-66333-x",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:39.923501+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7283481/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC7283481.xml"
+}

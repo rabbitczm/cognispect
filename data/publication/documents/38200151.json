@@ -1,0 +1,2579 @@
+{
+  "key": "38200151",
+  "body_available": true,
+  "title": "Large language models to identify social determinants of health in electronic health records",
+  "source_url": "https://europepmc.org/articles/PMC10781957",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Marco Guevara",
+    "Shan Chen",
+    "Spencer Thomas",
+    "Tafadzwa L. Chaunzwa",
+    "Idalid Franco",
+    "Benjamin H. Kann",
+    "Shalini Moningi",
+    "Jack M. Qian",
+    "Madeleine Goldstein",
+    "Susan Harper",
+    "Hugo J. W. L. Aerts",
+    "Paul J. Catalano",
+    "Guergana K. Savova",
+    "Raymond H. Mak",
+    "Danielle S. Bitterman"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2024",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2024",
+        "month": "1",
+        "day": "11"
+      },
+      {
+        "type": "collection",
+        "year": "2024",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR3",
+            "CR4",
+            "CR5",
+            "CR8",
+            "CR9"
+          ],
+          "en": "Health disparities have been extensively documented across medical specialties1–3. However, our ability to address these disparities remains limited due to an insufficient understanding of their contributing factors. Social determinants of health (SDoH), are defined by the World Health Organization as “the conditions in which people are born, grow, live, work, and age…shaped by the distribution of money, power, and resources at global, national, and local levels”4. SDoH may be adverse or protective, impacting health outcomes at multiple levels as they likely play a major role in disparities by determining access to and quality of medical care. For example, a patient cannot benefit from an effective treatment if they don’t have transportation to make it to the clinic. There is also emerging evidence that exposure to adverse SDoH may directly affect physical and mental health via inflammatory and neuro-endocrine changes5–8. In fact, SDoH are estimated to account for 80–90% of modifiable factors impacting health outcomes9.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR10",
+            "CR12"
+          ],
+          "en": "SDoH are rarely documented comprehensively in structured data in the electronic health records (EHRs)10–12, creating an obstacle to research and clinical care. Instead, issues related to SDoH are most frequently described in the free text of clinic notes, which creates a bottleneck for incorporating these critical factors into databases to research the full impact and drivers of SDoH, and for proactively identifying patients who may benefit from additional social work and resource support.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR13",
+            "CR23",
+            "CR24",
+            "CR26",
+            "CR27",
+            "CR28"
+          ],
+          "en": "Natural language processing (NLP) could address these challenges by automating the abstraction of these data from clinical texts. Prior studies have demonstrated the feasibility of NLP for extracting a range of SDoH13–23. Yet, there remains a need to optimize performance for the high-stakes medical domain and to evaluate state-of-the-art language models (LMs) for this task. In addition to anticipated performance changes scaling with model size, large LMs may support EHR mining via data augmentation. Across medical domains, data augmentation can boost performance and alleviate domain transfer issues and so is an especially promising approach for the nearly ubiquitous challenge of data scarcity in clinical NLP24–26. The advanced capabilities of state-of-the-art large LMs to generate coherent text open new avenues for data augmentation through synthetic text generation. However, the optimal methods for generating and utilizing such data remain uncertain. Large LM-generated synthetic data may also be a means to distill knowledge represented in larger LMs to more computationally accessible smaller LMs27. In addition, few studies assess the potential bias of SDoH information extraction methods across patient populations. LMs could contribute to the health inequity crisis if they perform differently in diverse populations and/or recapitulate societal prejudices28. Therefore, understanding bias is critical for future development and deployment decisions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [],
+          "en": "Here, we characterize optimal methods, including the role of synthetic clinical text, for SDoH extraction using large language models. Specifically, we develop models to extract six key SDoH: employment status, housing issues, transportation issues, parental status, and social support. We investigate the value of incorporating large LM-generated synthetic SDoH data during the fine-tuning stage. We assess the performance of large LMs, including GPT3.5 and GPT4, in zero- and few-shot settings for identifying SDoH, and we explore the potential for algorithmic bias in LM predictions. Our methods could yield real-world evidence on SDoH, assist in identifying patients who could benefit from resource and social work support, and draw attention to the under-documented impact of social factors on health outcomes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Model performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "Tab1"
+          ],
+          "en": "Table 1 shows the performance of fine-tuned models for both SDoH tasks on the radiotherapy test set. The best-performing model for any SDoH mention task was Flan-T5 XXL (3 out of 6 categories) using synthetic data (Macro-F1 0.71). The best-performing model for the adverse SDoH mention task was Flan-T5 XL without synthetic data (Macro-F1 0.70). In general, the Flan-T5 models outperformed BERT, and model performance scaled with size. However, although the Flan-T5 XL and XXL models were the largest models evaluated in terms of total parameters because LoRA was used for their fine-tuning, the fewest parameters were tuned for these models: 9.5 M and 18 M for Flan-TX XL and XXL, respectively, compared to 110 M for BERT. The negative class generally had the best performance overall, followed by Relationship and Employment. Performance varied quite a bit across the models for the other classes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "For both tasks, the best-performing models with synthetic data augmentation used sentences from both rounds of GPT3.5 prompting. Synthetic data augmentation tended to lead to the largest performance improvements for classes with few instances in the training dataset and for which the model trained on gold-only data had very low performance (Housing, Parent, and Transportation).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "The performance of the best-performing models for each task on the immunotherapy and MIMIC-III datasets is shown in Table 2. Performance was similar in the immunotherapy dataset, which represents a separate but similar patient population treated at the same hospital system. We observed a performance decrement in the MIMIC-III dataset, representing a more dissimilar patient population from a different hospital system. Performance was similar between models developed with and without synthetic data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Ablation studies",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "Fig1",
+            "MOESM1"
+          ],
+          "en": "The ablation studies showed a consistent deterioration in model performance across all SDoH tasks and categories as the volume of real gold SDoH sentences progressively decreased, although models that included synthetic data maintained performance at higher levels throughout and were less sensitive to decreases in gold data (Fig. 1, Supplementary Table 1). When synthetic data were included in the training, performance was maintained until ~50% of gold data were removed from the train set. Conversely, without synthetic data, performance dropped after about 10–20% of the gold data were removed from the train set, mimicking a true low-resource setting.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Error analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "The leading discrepancies between ground truth and model prediction for each task are in Supplementary Table 2. Qualitative analysis revealed 4 distinct error patterns: Human annotator error; false positives and false negatives for Relationship and Support labels in the presence of any family mentions that did not correlate with the correct label; incorrect labels due to information present in the note but external to the sentence and therefore not accessible to the model or that required implied/assumed knowledge; and incorrect labeling of a non-adverse SDoH as an adverse SDoH.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "ChatGPT-family model performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "Tab3",
+            "Fig2"
+          ],
+          "en": "When evaluating our fine-tuned Flan-T5 models on the synthetic test dataset against GPT-turbo-0613 and GPT4–0613, our model surpassed the performance of the top-performing 10-shot learning GPT model by a margin of Macro-F1 0.03 on any SDoH task (p < 0.01), but fall shorts on adverse SDoH task (p < 0.01) (Table 3, Fig. 2).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Language model bias evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "Fig3"
+          ],
+          "en": "Both fine-tuned Flan-T5 models and ChatGPT provided discrepant classification for synthetic sentence pairs with and without demographic information injected (Fig. 3). However, the discrepancy rate of our fine-tuned models was nearly half that of ChatGPT: 14.3% vs. 21.5% of sentence pairs for any SDoH (P = 0.007) and 9.9% vs. 18.2% of sentence pairs for adverse SDoH (P = 0.005) for fine-tuned Flan-T5 vs. ChatGPT, respectively. ChatGPT was significantly more likely to change its classification when a female gender was injected compared to a male gender for the Any SDoH task (P = 0.01); no other within-model comparisons were statistically significant. Sentences gold-labeled as Support for both any SDoH and adverse SDoH mentions were most likely to lead to discrepant predictions for ChatGPT (56.3% (27/48)) and (21.0% (9/29)), respectively). Employment gold-labeled sentences were most likely to lead to discrepant prediction for any SDoH mention fine-tuned model (14.4% (13/90)), and Transportation for adverse SDoH mention fine-tuned model (12.2% (6/49)).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Comparison with structured EHR data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1",
+            "MOESM1",
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "Our best-performing models for any SDoH mention correctly identified 95.7% (89/93) patients with at least one SDoH mention, and 93.8% (45/48) patients with at least one adverse SDoH mention (Supplementary Tables 3 and 4). SDoH entered as structured Z-code in the EHR during the same timespan identified 2.0% (1/48) with at least one adverse SDoH mention (all mapped Z-codes were adverse) (Supplementary Table 5). Supplementary Figs. 1 and 2 show that patient-level performance when using model predictions out-performed Z-codes by a factor of at least 3 for every label for each task (Macro-F1 0.78 vs. 0.17 for any SDoH mention and 0.71 vs. 0.17 for adverse SDoH mention).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "We developed multilabel classifiers to identify the presence of 6 different SDoH documented in clinical notes, demonstrating the potential of large LMs to improve the collection of real-world data on SDoH and support the appropriate allocation of resources support to patients who need it most. We identified a performance gap between a more traditional BERT classifier and larger Flan-T5 XL and XXL models. Our fine-tuned models outperformed ChatGPT-family models with zero- and few-shot learning for most SDoH classes and were less sensitive to the injection of demographic descriptors. Compared to diagnostic codes entered as structured data, text-extracted data identified 91.8% more patients with an adverse SDoH. We also contribute new annotation guidelines as well as synthetic SDoH datasets to the research community.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "All of our models performed well at identifying sentences that do not contain SDoH mentions (F1 ≥ 0.99 for all). For any SDoH mentions, performance was worst for parental status and transportation issues. For adverse SDoH mentions, performance was worst for parental status and social support. These findings are unsurprising given the marked class imbalance for all SDoH labels—only 3% of sentences in our training set contained any SDoH mention. Given this imbalance, our models’ ability to identify sentences that contain SDoH language is impressive. In addition, these SDoH descriptions are semantically and linguistically complex. In particular, sentences describing social support are highly variable, given the variety of ways individuals can receive support from their social systems during care. Interestingly, our best-performing models demonstrated strong performance in classifying housing issues (Macro-F1 0.67), which was our scarcest label with only 20 instances in the training dataset. This speaks to the potential of large LMs in improved real-world data collection for very sparsely documented information, which is the most likely to be missed via manual review.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR29",
+            "CR30",
+            "CR31"
+          ],
+          "en": "The recent advancements in large LMs have opened a pathway for synthetic text generation that may improve model performance via data augmentation and enable experiments that better protect patient privacy29. This is an emerging area of research that falls within a larger body of work on synthetic patient data across a range of data types and end-uses30,31. Our study is among the first to evaluate the role of contemporary generative large LMs for synthetic clinical text to help unlock the value of unstructured data within the EHR. We were particularly interested in synthetic clinical data as a means to address the aforementioned scarcity of SDoH documentation, and our findings may provide generalizable insights for the common clinical NLP challenge of class imbalance—many clinically important data are difficult to identify among the huge amounts of text in a patient’s EHR. We found variable benefits of synthetic data augmentation across model architecture and size; the strategy was most beneficial for the smaller Flan-T5 models and for the rarest classes where performance was dismal using gold data alone. Importantly, the ablation studies demonstrated that only approximately half of the gold-labeled dataset was needed to maintain performance when synthetic data was included in training, although synthetic data alone did not produce high-quality models. Of note, we aimed to understand whether synthetic data for augmentation could be automatically generated using ChatGPT-family models without additional human annotation, and so it is possible that manual gold-labeling could further enhance the value of these data. However, this would decrease the value of synthetic data in terms of reducing annotation effort.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "CR32",
+            "CR34",
+            "CR34"
+          ],
+          "en": "Our novel approach to generating synthetic clinical sentences also enabled us to explore the potential for ChatGPT-family models, GPT3.5 and GPT4, for supporting the collection of SDoH information from the EHR. We found that fine-tuning LMs that are orders of magnitude smaller than ChatGPT-family models, even with our relatively small dataset, generally out-performed zero-shot and few-shot learning with ChatGPT-family models, consistent with prior work evaluating large LMs for clinical uses32–34. Nevertheless, these models showed promising performance given that they were not explicitly trained for clinical tasks, with the caveat that it is hard to make definite conclusions based on synthetic data. Additional prompt engineering could improve the performance of ChatGPT-family models, such as developing prompts that provide details of the annotation guidelines as done by Ramachandran et al.34. This is an area for future study, especially once these models can be readily used with real clinical data. With additional prompt engineering and model refinement, performance of these models could improve in the future and provide a promising avenue to extract SDoH while reducing the human effort needed to label training datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR35",
+            "CR38",
+            "CR1",
+            "CR3"
+          ],
+          "en": "It is well-documented that LMs learn the biases, prejudices, and racism present in the language they are trained on35–38. Thus, it is essential to evaluate how LMs could propagate existing biases, which in clinical settings could amplify the health disparities crisis1–3. We were especially concerned that SDoH-containing language may be particularly prone to eliciting these biases. Both our fine-tuned models and ChatGPT altered their SDoH classification predictions when demographics and gender descriptors were injected into sentences, although the fine-tuned models were significantly more robust than ChatGPT. Although not significantly different, it is worth noting that for both the fine-tuned models and ChatGPT, Hispanic and Black descriptors were most likely to change the classification for any SDoH and adverse SDoH mentions, respectively. This lack of significance may be due to the small numbers in this evaluation, and future work is critically needed to further evaluate bias in clinical LMs. We have made our paired demographic-injected sentences openly available for future efforts on LM bias evaluation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR10",
+            "CR12",
+            "CR39",
+            "CR10",
+            "CR11",
+            "CR22"
+          ],
+          "en": "SDoH are notoriously under-documented in existing EHR structured data10–12,39. Our findings that text-extracted SDoH information was better able to identify patients with adverse SDoH than relevant billing codes are in agreement with prior work showing under-utilization of Z-codes10,11. Most EMR systems have other ways to enter SDoH information as structured data, which may have more complete documentation, however, these did not exist for most of our target SDoH. Lyberger et al. evaluated other EHR sources of structured SDoH data and similarly found that NLP methods are a complementary source SDoH information extraction and were able to identify 10–30% of patients with tobacco, alcohol, and homelessness risk factors documented only in unstructured text22.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR13",
+            "CR21",
+            "CR40",
+            "CR23",
+            "CR41",
+            "CR42",
+            "CR43",
+            "CR51"
+          ],
+          "en": "There have been several prior studies developing NLP methods to extract SDoH from the EHR13–21,40. The most common SDoH targeted in prior efforts include smoking history, substance use, alcohol use, and homelessness23. In addition, many prior efforts focus only on text in the Social History section of notes. In a recent shared task on alcohol, drug, tobacco, employment, and living situation event extraction from Social History sections, pre-trained LMs similarly provided the best performance41. Using this dataset, one study found that sequence-to-sequence approaches outperformed classification approaches, in line with our findings42. In addition to our technical innovations, our work adds to prior efforts by investigating SDoH which are less commonly targeted for extraction but nonetheless have been shown to impact healthcare43–51. We also developed methods that can mine information from full clinic notes, not only from Social History sections—a fundamentally more challenging task with a much larger class imbalance. Clinically-impactful SDoH information is often scattered throughout other note sections, and many note types, such as many inpatient progress notes and notes written by nurses and social workers, do not consistently contain Social History sections.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR52"
+          ],
+          "en": "Our study has limitations. First, our training and out-of-domain datasets come from a predominantly white population treated at hospitals in Boston, Massachusetts, in the United States of America. This limits the generalizability of our findings. We could not exhaustively assess the many methods to generate synthetic data from ChatGPT. Instead, we chose to investigate prompting methods that could be easily reproduced by others and did not require extensive task-specific optimization, as this is likely not feasible for the many clinical NLP tasks for one may wish to generate synthetic data on. Incorporating real clinical examples in the prompt may improve the quality of the synthetic data and is an area of future research when large generative LMs become more widely available for use with protected health information and within the resource constraints of academic researchers and healthcare systems. Because we could not evaluate ChatGPT-family models using protected health information, our evaluations are limited to manually-verified synthetic sentences. Thus, our reported performance may not completely reflect true performance on real clinical text. Because the synthetic sentences were generated using ChatGPT itself, and ChatGPT presumably has not been trained on clinical text, we hypothesize that, if anything, performance would be worse on real clinical data. Finally, our models can only be as good as the annotated corpus. SDoH annotation is challenging due to its conceptually complex nature, especially for the Support tag, and labeling may also be subject to annotator bias52, all of which may impact ultimate performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "Our findings highlight the potential of large LMs to improve real-world data collection and identification of SDoH from the EHR. In addition, synthetic clinical text generated by large LMs may enable better identification of rare events documented in the EHR, although more work is needed to optimize generation methods. Our fine-tuned models were less prone to bias than ChatGPT-family models and outperformed for most SDoH classes, especially any SDoH mentions, despite being orders of magnitude smaller. In the future, these models could improve our understanding of drivers of health disparities by improving real-world evidence and could directly support patient care by flagging patients who may benefit most from proactive resource and social work referral.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec11",
+      "title": "Data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "Tab4",
+            "CR53",
+            "CR55"
+          ],
+          "en": "Table 4 describes the patient populations of the datasets used in this study. Gender and race/ethnicity data and descriptors were collected from the EHR. These are generally collected either directly from the patient at registration, or by a provider, but the mode of collection for each data point was not available. Our primary dataset consisted of a corpus of 800 clinic notes from 770 patients with cancer who received radiotherapy (RT) at the Department of Radiation Oncology at Brigham and Women’s Hospital/Dana-Farber Cancer Institute in Boston, Massachusetts, from 2015 to 2022. We also created two out-of-domain test datasets. First, we collected 200 clinic notes from 170 patients with cancer treated with immunotherapy at Dana-Farber Cancer, and not present in the RT dataset. Second, we collected 200 notes from 183 patients in the MIMIC (Medical Information Mart for Intensive Care)-III database53–55, which includes data associated with patients admitted to the critical care units at Beth Israel Deaconess Medical Center in Boston, Massachusetts from 2001 to 2008. This study was approved by the Mass General Brigham institutional review board, and consent was waived as this was deemed exempt from human subjects research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR56",
+            "CR57"
+          ],
+          "en": "Only notes written by physicians, physician assistants, nurse practitioners, registered nurses, and social workers were included. To maintain a minimum threshold of information, we excluded notes with fewer than 150 tokens across all provider types. This helped ensure that the selected notes contained sufficient textual content. For notes written by all providers save social workers, we excluded notes containing any section longer than 500 tokens to avoid excessively lengthy sections that might have included less relevant or redundant information. For physician, physician assistant, and nurse practitioner notes, we used a customized medSpacy56,57 sectionizer to include only notes that contained at least one of the following sections: Assessment and Plan, Social History, and History/Subjective.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "In addition, for the RT dataset, we established a date range, considering notes within a window of 30 days before the first treatment and 90 days after the last treatment. Additionally, in the fifth round of annotation, we specifically excluded notes from patients with zero social work notes. This decision ensured that we focused on individuals who had received social work intervention or had pertinent social context documented in their notes. For the immunotherapy dataset, we ensured that there was no patient overlap between RT and immunotherapy notes. We also specifically selected notes from patients with at least one social work note. To further refine the selection, we considered notes with a note date one month before or after the patient’s first social work note after it. For the MIMIC-III dataset, only notes written by physicians, social workers, and nurses were included for analysis. We focused on patients who had at least one social work note, without any specific date range criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "CR58"
+          ],
+          "en": "Prior to annotation, all notes were segmented into sentences using the syntok58 sentence segmenter as well as split into bullet points “•”. This method was used for all notes in the radiotherapy, immunotherapy, and MIMIC datasets for sentence-level annotation and subsequent classification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Task definition and data labeling",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "We defined our label schema and classification tasks by first carrying out interviews with subject matter experts, including social workers, resource specialists, and oncologists, to determine SDoH that are clinically relevant but not readily available as structured data in the EHR, especially as dynamic features over time. After initial interviews, a set of exploratory pilot annotations was conducted on a subset of clinical notes and preliminary annotation guidelines were developed. The guidelines were then iteratively refined and finalized based on the pilot annotations and additional input from subject matter experts. The following SDoH categories and their attributes were selected for inclusion in the project: Employment status (employed, unemployed, underemployed, retired, disability, student), Housing issue (financial status, undomiciled, other), Transportation issue (distance, resource, other), Parental status (if the patient has a child under 18 years old), Relationship (married, partnered, widowed, divorced, single), and Social support (presence or absence of social support).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "We defined two multilabel sentence-level classification tasks:Any SDoH mentions: The presence of language describing an SDoH category as defined above, regardless of the attribute.Adverse SDoH mentions: The presence or absence of language describing an SDoH category with an attribute that could create an additional social work or resource support need for patients:Employment status: unemployed, underemployed, disabilityHousing issue: financial status, undomiciled, otherTransportation issue: distance, resources, otherParental status: having a child under 18 years oldRelationship: widowed, divorced, singleSocial support: absence of social support",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "Any SDoH mentions: The presence of language describing an SDoH category as defined above, regardless of the attribute.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [],
+          "en": "Adverse SDoH mentions: The presence or absence of language describing an SDoH category with an attribute that could create an additional social work or resource support need for patients:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par31",
+          "reference_ids": [],
+          "en": "Employment status: unemployed, underemployed, disability",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "Housing issue: financial status, undomiciled, other",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "Transportation issue: distance, resources, other",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "Parental status: having a child under 18 years old",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "Relationship: widowed, divorced, single",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [],
+          "en": "Social support: absence of social support",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [
+            "CR59",
+            "MOESM1",
+            "MOESM1",
+            "Tab5"
+          ],
+          "en": "After finalizing the annotation guidelines, two annotators manually annotated the RT corpus. In total, ten thousand one hundred clinical notes were annotated line-by-line using the annotation software Multi-document Annotation Environment (MAE v2.2.13)59. A total of 300/800 (37.5%) of the notes underwent dual annotation by two data scientists across four rounds. After each round, the data scientists and an oncologist performed discussion-based adjudication. Before adjudication, dually annotated notes had a Krippendorf’s alpha agreement of 0.86 and Cohen’s Kappa of 0.86 for any SDoH mention categories. For adverse SDoH mentions, notes had a Krippendorf’s alpha agreement of 0.76 and Cohen’s Kappa of 0.76. Detailed agreement metrics are in Supplementary Tables 6 and 7. A single annotator then annotated the remaining radiotherapy notes, the immunotherapy dataset, and the MIMIC-III dataset. Table 5 describes the distribution of labels across the datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "The annotation/adjudication team was composed of one board-certified radiation oncologist who completed a postdoctoral fellowship in clinical natural language processing, a Master’s-level computational linguist with a Bachelor’s degree in linguistics and 1-year prior experience working specifically with clinical text, and a Master’s student in computational linguistics with a Bachelor’s degree in linguistics. The radiation oncologist and Master’s level computational linguist led the development of the annotation guidelines, and trained the Master’s student in SDoH annotation over a period of 1 month via review of the annotation guidelines and iterative review of pilot annotations. During adjudication, if there was still ambiguity, we discussed with the two Resource Specialists on the research team to provide input in adjudication.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Data augmentation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "CR60",
+            "MOESM1"
+          ],
+          "en": "We employed synthetic data generation methods to assess the impact of data augmentation for the positive class, and also to enable an exploratory evaluation of proprietary large LMs that could not be downloaded locally and thus cannot be used with protected health information. In round 1, GPT-turbo-0301(ChatGPT) version of GPT3.5 via the OpenAI60 API was prompted to generate new sentences for each SDoH category, using sentences from the annotation guidelines as references. In round 2, in order to generate more linguistic diversity, the sample synthetic sentences output from round 1 were taken as references to generate another set of synthetic sentences. One-hundred sentences per category were generated in each round. Supplementary Table 8 shows the prompts for each sentence label type.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Synthetic test set generation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "Tab5"
+          ],
+          "en": "Iteration 1 for generating SDoH sentences involved prompting the 538 synthetic sentences to be manually validated to evaluate ChatGPT, which cannot be used with protected health information. Of these, after human review only 480 were found to have any SDoH mention, and 289 to have an adverse SDoH mention (Table 5). For all synthetic data generation methods, no real patient data were used in prompt development or fine-tuning.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Model development",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "The radiotherapy corpus was split into a 60%/20%/20% distribution for training, development, and testing respectively. The entire immunotherapy and MIMIC-III corpora were held-out for out-of-domain tests and were not used during model development.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR61",
+            "CR62",
+            "CR63",
+            "CR64"
+          ],
+          "en": "The experimental phase of this study focused on investigating the effectiveness of different machine learning models and data settings for the classification of SDoH. We explored one multilabel BERT model as a baseline, namely bert-base-uncased61, as well as a range of Flan-T5 models62,63 including Flan-T5 base, large, XL, and XXL; where XL and XXL used a parameter efficient tuning method (low-rank adaptation (LoRA)64). Binary cross-entropy loss with logits was used for BERT, and cross-entropy loss for the Flan-T5 models. Given the large class imbalance, non-SDoH sentences were undersampled during training. We assessed the impact of adding synthetic data on model performance. Details on model hyper-parameters are in Supplementary Methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "For sequence-to-sequence models, input consisted of the input sentence with “summarize” appended in front, and the target label (when used during training) was the text span of the label from the target vocabulary. Because the output did not always exactly correspond to the target vocabulary, we post-processed the model output, which was a simple split function on “,” and dictionary mapping from observed miss-generation e.g., “RELAT → RELATIONSHIP”. Examples of this label resolution are in Supplementary Methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Ablation studies",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "Ablation studies were carried out to understand the impact of manually labeled training data quantity on performance when synthetic SDoH data is included in the training dataset. First, models were trained using 10%, 25%, 40%, 50%, 70%, 75%, and 90% of manually labeled sentences; both SDoH and non-SDoH sentences were reduced at the same rate. The evaluation was on the RT test set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "During training and fine-tuning, we evaluated all models using the RT development set and assessed their final performance using bootstrap sampling of the held-out RT test set. Bootstrap sample number and size were calculated to achieve a precision level for the standard error of macro F1 of ±0.01. The mean and 95% confidence intervals from the bootstrap samples were calculated from the resulting bootstrap samples. We also sampled to ensure that our standard error on the 95% confidence interval limits was <0.01 as follows: Our selected bootstrap sample size matched the test data size, sampling with replacement. We then computed the 5th and 95th percentile values for each of the calculated k samples from the resulting distributions. The standard deviation of these percentile values was subsequently determined to establish the precision of the confidence interval limits. Examples of the bootstrap sampling calculations are in Supplementary Methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "For each classification task, we calculated precision/positive predictive value, recall/sensitivity, and F1 (harmonic mean of recall and precision) as follows:Precision = TP/(TP + FP)Recall = TP/(TP + FN)F1 = (2*Precision*Recall)/(Precision+Recall)TP = true positives, FP = false positives, FN = false negatives",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "Precision = TP/(TP + FP)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "Recall = TP/(TP + FN)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [],
+          "en": "F1 = (2*Precision*Recall)/(Precision+Recall)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [],
+          "en": "TP = true positives, FP = false positives, FN = false negatives",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par51",
+          "reference_ids": [],
+          "en": "Manual error analysis was conducted on the radiotherapy dataset using the best-performing model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "ChatGPT-family model evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par52",
+          "reference_ids": [
+            "CR65",
+            "Fig4"
+          ],
+          "en": "To evaluate ChatGPT, the Scikit-LLM65 multilabel zero-shot classifier and few-shot binary classifier were adapted to form a multilabel zero- and few-shot classifier (Fig. 4). A subset of 480 synthetic sentences whose labels were manually validated, were used for testing. Test sentences were inserted into the following prompt template, which instructs ChatGPT to act as a multilabel classifier model, and to label the sentences accordingly:“Sample input: [TEXT]Sample target: [LABELS]”[TEXT] was the exemplar from the development/exemplar set.[LABELS] was a comma-separated list of the labels for that exemplar, e.g. PARENT,RELATIONSHIP.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par53",
+          "reference_ids": [],
+          "en": "“Sample input: [TEXT]",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par54",
+          "reference_ids": [],
+          "en": "Sample target: [LABELS]”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par55",
+          "reference_ids": [],
+          "en": "[TEXT] was the exemplar from the development/exemplar set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par56",
+          "reference_ids": [],
+          "en": "[LABELS] was a comma-separated list of the labels for that exemplar, e.g. PARENT,RELATIONSHIP.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par57",
+          "reference_ids": [],
+          "en": "Of note, because we were unable to generate high-quality synthetic non-SDoH sentences, these classifiers did not include a negative class. We evaluated the most current ChatGPT model freely available at the time of this work, GPT-turbo-0613, as well as GPT4–0613, via the OpenAI API with temperature 0 for reproducibility.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec19",
+      "title": "Language model bias evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par58",
+          "reference_ids": [
+            "Fig5"
+          ],
+          "en": "In order to test for bias in our best-performing models and in large LMs pre-trained on general text, we used GPT4 to insert demographic descriptors into our synthetic data, as illustrated in Fig. 5. GPT4 was supplied with our synthetically generated test sentences, and prompted to insert demographic information into them. For example, a sentence starting with “Widower admits fears surrounding potential judgment…” might become “Hispanic widower admits fears surrounding potential judgment…”. The prompt was as follows (in a batch of 10 ensure demographic variations):“role”: “user”, “content”: “[ORIGINAL SENTENCE]\\n swap the sentences patients above to one of the race/ethnicity [Asian, Black, white, Hispanic] and gender, and put the modified race and gender in bracket at the beginning like this \\n Owner operator food truck selling gourmet grilled cheese sandwiches around town => \\n [Asian female] Asian woman owner operator of a food truck selling gourmet grilled cheese sandwiches around town”[ORIGINAL SENTENCE] was a sentence from a selected subset of our GPT3.5-generated synthetic data",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par59",
+          "reference_ids": [],
+          "en": "“role”: “user”, “content”: “[ORIGINAL SENTENCE]\\n swap the sentences patients above to one of the race/ethnicity [Asian, Black, white, Hispanic] and gender, and put the modified race and gender in bracket at the beginning like this \\n Owner operator food truck selling gourmet grilled cheese sandwiches around town => \\n [Asian female] Asian woman owner operator of a food truck selling gourmet grilled cheese sandwiches around town”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par60",
+          "reference_ids": [],
+          "en": "[ORIGINAL SENTENCE] was a sentence from a selected subset of our GPT3.5-generated synthetic data",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par61",
+          "reference_ids": [],
+          "en": "These sentences were then manually validated; 419 had any SDoH mention, and 253 had an adverse SDoH mention.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec20",
+      "title": "Comparison with structured EHR data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par62",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "To assess the completeness of SDoH documentation in structured versus unstructured EHR data, we collected Z-codes for all patients in our test set. Z-codes are SDoH-related ICD-10-CM diagnostic codes, mapped most closely with our SDoH categories present as structured data for the radiotherapy dataset (Supplementary Table 9). Text-extracted patient-level SDoH information was defined as the presence of one or more labels in any note. We compared these patient-level labels to structured Z-codes entered in the EHR during the same time frame.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec21",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par63",
+          "reference_ids": [],
+          "en": "Macro-F1 performance for each model type was compared when developed with or without synthetic data and for the ChatGPT-family model comparisons using the Mann–Whitney U test. The rate of discrepant SDoH classifications with and without the injection of demographic information was compared between the best-performing fine-tuned models and ChatGPT using chi-squared tests for multi-class comparisons and 2-proportion z tests for binary comparisons. A two-sided P ≤ 0.05 was considered statistically significant. Statistical analyses were carried out using the statistical Python package in scipy (Scipy.org). Python version 3.9.16 (Python Software Foundation) was used to carry out this work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-23",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec22",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-25",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-25-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-25-p2",
+          "reference_ids": [],
+          "en": "These authors contributed equally: Marco Guevara, Shan Chen.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-25-p3",
+          "reference_ids": [],
+          "en": "The authors acknowledge the following funding sources: D.S.B.: Woods Foundation, Jay Harris Junior Faculty Award, Joint Center for Radiation Therapy Foundation. T.L.C.: Radiation Oncology Institute, Conquer Cancer Foundation, Radiological Society of North America. I.F.: Diversity Supplement (NIH-3R01CA240582-01A1S1), NIH/NCI LRP, NRG Oncology Health Equity ASTRO/RTOG Fellow, CDA BWH Center for Diversity and Inclusion. G.K.S.: R01LM013486 from the National Library of Medicine, National Institute of Health. R.H.M.: National Institute of Health, ViewRay, H.A.: (H.A.: NIH-USA U24CA194354, NIH-USA U01CA190234, NIH-USA U01CA209414, and NIH-USA R35CA22052), and the European Union - European Research Council (H.A.: 866504). S.C., M.G., B.K., H.A., G.K.S., H.A., and D.S.B.: NIH-USA U54CA274516-01A1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-25-p4",
+          "reference_ids": [],
+          "en": "M.G. and S.C.: conceptualization, data curation, formal analysis, investigation, methodology, visualization, writing—original draft, writing—review & editing. S.T.: data curation, formal analysis, investigation, methodology. T.L.C., I.F., B.H.K., S.M., J.M.Q.: data curation, investigation, writing—review & editing. M.G. and S.H.: data curation, methodology. H.J.W.L.A.: funding acquisition, writing—review & editing. P.J.C., G.K.S., and R.H.M.: conceptualization, investigation, methodology, writing—review & editing. D.S.B.: funding acquisition, conceptualization, data curation, formal analysis, investigation, methodology, supervision, writing—original draft, writing—review & editing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-25-p5",
+          "reference_ids": [
+            "CR66",
+            "CR67"
+          ],
+          "en": "The RT and immunotherapy datasets cannot be shared for the privacy of the individuals whose data were used in this study. All synthetic datasets used in this study are available at: https://github.com/AIM-Harvard/SDoH. The annotated MIMIC-III dataset is available after completion of a data use agreement at: 10.13026/6149-mb2566. The demographic-injected paired sentence dataset is available at: https://huggingface.co/datasets/m720/SHADR67.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-25-p6",
+          "reference_ids": [],
+          "en": "The final annotation guidelines and all synthetic datasets used in this study are available at: https://github.com/AIM-Harvard/SDoH.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par64",
+          "reference_ids": [],
+          "en": "M.G., S.C., S.T., T.L.C., I.F., B.H.K., S.M., J.M.Q., M.G., S.H.: none. H.J.W.L.A.: advisory and consulting, unrelated to this work (Onc.AI, Love Health Inc, Sphera, Editas, A.Z., and BMS). P.J.C. and G.K.S.: None. R.H.M.: advisory board (ViewRay, AstraZeneca), Consulting (Varian Medical Systems, Sio Capital Management), Honorarium (Novartis, Springer Nature). D.S.B.: Associate Editor of Radiation Oncology, HemOnc.org (no financial compensation, unrelated to this work); funding from American Association for Cancer Research (unrelated to this work).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-26",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-26-p1",
+          "reference_ids": [],
+          "en": "The online version contains supplementary material available at 10.1038/s41746-023-00970-0.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Model performance on the in-domain RT test dataset.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Any social determinant of health (SDoH)"
+        ],
+        [
+          "Model",
+          "Parameters (total/tuned)",
+          "Macro-F1",
+          "No SDoH (F1)",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship (F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "Mean (95% CI)a",
+          "Delta F1b",
+          "P value"
+        ],
+        [
+          "BERT-base",
+          "110 M/110 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.53 (0.46–0.59)",
+          "−0.06",
+          "<0.01",
+          "1.00",
+          "0.72",
+          "0.00",
+          "0.00",
+          "0.96",
+          "0.59",
+          "0.50"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.47 (0.44–0.52)",
+          "1.00",
+          "0.62",
+          "0.00",
+          "0.29",
+          "0.93",
+          "0.49",
+          "0.00"
+        ],
+        [
+          "Flan-T5-base",
+          "250 M/250 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.36 (0.34–0.39)",
+          "+0.13",
+          "<0.01",
+          "0.99",
+          "0.34",
+          "0.00",
+          "0.00",
+          "0.83",
+          "0.38",
+          "0.00"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.49 (0.40–0.60)",
+          "1.00",
+          "0.67",
+          "0.37",
+          "0.00",
+          "0.93",
+          "0.28",
+          "0.25"
+        ],
+        [
+          "Flan-T5-large",
+          "780 M/780 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.42 (0.40–0.45)",
+          "+0.18",
+          "<0.01",
+          "1.00",
+          "0.72",
+          "0.00",
+          "0.00",
+          "0.93",
+          "0.31",
+          "0.00"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.60 (0.50–0.68)",
+          "1.00",
+          "0.76",
+          "0.67",
+          "0.24",
+          "0.91",
+          "0.48",
+          "0.18"
+        ],
+        [
+          "Flan-T5 XL",
+          "3B/9.5 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.65 (0.54–0.73)",
+          "+0.03",
+          "<0.01",
+          "0.99",
+          "0.71",
+          "0.57",
+          "0.55",
+          "0.92",
+          "0.50",
+          "0.31"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.68 (0.59–0.76)",
+          "1.00",
+          "0.73",
+          "0.55",
+          "0.56",
+          "0.94",
+          "0.52",
+          "0.53"
+        ],
+        [
+          "Flan-T5 XXL",
+          "11B/18 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.65 (0.56–0.75)",
+          "+0.05",
+          "<0.01",
+          "1.00",
+          "0.76",
+          "0.33",
+          "0.65",
+          "0.95",
+          "0.51",
+          "0.44"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.70 (0.60–0.77)",
+          "1.00",
+          "0.80",
+          "0.67",
+          "0.47",
+          "0.93",
+          "0.60",
+          "0.47"
+        ],
+        [
+          "Adverse Social Determinants of Health (SDoH)"
+        ],
+        [
+          "Model",
+          "Parameters (total/tuned)",
+          "Macro-F1",
+          "No SDoH (F1)",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship (F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "Mean (95% CI)",
+          "Delta F1",
+          "P value"
+        ],
+        [
+          "BERT-base",
+          "110 M/110 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.64 (0.55–0.73)",
+          "−0.09",
+          "<0.01",
+          "1.00",
+          "0.68",
+          "0.67",
+          "0.31",
+          "0.90",
+          "0.37",
+          "0.60"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.55 (0.45–0.67)",
+          "",
+          "",
+          "1.00",
+          "0.75",
+          "0.37",
+          "0.36",
+          "0.78",
+          "0.38",
+          "0.4"
+        ],
+        [
+          "Flan-T5-base",
+          "250 M/250 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.24 (0.18–0.31)",
+          "+0.11",
+          "<0.01",
+          "1.00",
+          "0.00",
+          "0.00",
+          "0.00",
+          "0.43",
+          "0.00",
+          "0.25"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.35 (0.26–0.45)",
+          "",
+          "",
+          "1.00",
+          "0.30",
+          "0.33",
+          "0.00",
+          "0.56",
+          "0.00",
+          "0.25"
+        ],
+        [
+          "Flan-T5-large",
+          "780 M/780 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.27 (0.23–0.31)",
+          "+0.22",
+          "<0.01",
+          "0.99",
+          "0.46",
+          "0.00",
+          "0.00",
+          "0.47",
+          "0.00",
+          "0.00"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.49 (0.40–0.59)",
+          "",
+          "",
+          "1.00",
+          "0.58",
+          "0.54",
+          "0.33",
+          "0.66",
+          "0.22",
+          "0.17"
+        ],
+        [
+          "Flan-T5 XL",
+          "3B/9.5 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.69 (0.57–0.78)",
+          "0.00",
+          "0.53",
+          "1.00",
+          "0.76",
+          "0.57",
+          "0.52",
+          "0.93",
+          "0.44",
+          "0.67"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.69 (0.57–0.77)",
+          "",
+          "",
+          "1.00",
+          "0.72",
+          "0.67",
+          "0.49",
+          "0.87",
+          "0.56",
+          "0.57"
+        ],
+        [
+          "Flan-T5 XXL",
+          "11B/18 M",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Gold data only",
+          "",
+          "0.63 (0.52–0.72)",
+          "+0.03",
+          "<0.01",
+          "1.00",
+          "0.67",
+          "0.50",
+          "0.60",
+          "0.91",
+          "0.31",
+          "0.45"
+        ],
+        [
+          "Gold + synthetic data",
+          "",
+          "0.66 (0.55–0.74)",
+          "",
+          "",
+          "1.00",
+          "0.62",
+          "0.60",
+          "0.55",
+          "0.89",
+          "0.53",
+          "0.46"
+        ]
+      ],
+      "footnotes": "The 95% CI for Macro-F1 is calculated by bootstrapping 3400 times (to achieve bootstrap SE < 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0091, ascertained by performing bootstrapping 3,400 times on three distinct samples. Delta F1 score is the change in Macro-F1 when synthetic data are added to the fine-tuning data. Bolded text indicates the best performance with and without synthetic data augmentation. p values are computed with Mann–Whitney U test. CI confidence interval, SE standard error.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Model performance on the in-domain RT test dataset.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"12\" rowspan=\"1\">Any social determinant of health (SDoH)</th></tr><tr><th rowspan=\"2\" colspan=\"1\">Model</th><th rowspan=\"2\" colspan=\"1\">Parameters (total/tuned)</th><th colspan=\"3\" rowspan=\"1\">Macro-F1</th><th rowspan=\"2\" colspan=\"1\">No SDoH (F1)</th><th rowspan=\"2\" colspan=\"1\">Employment (F1)</th><th rowspan=\"2\" colspan=\"1\">Housing (F1)</th><th rowspan=\"2\" colspan=\"1\">Parent (F1)</th><th rowspan=\"2\" colspan=\"1\">Relationship (F1)</th><th rowspan=\"2\" colspan=\"1\">Social support (F1)</th><th rowspan=\"2\" colspan=\"1\">Transportation (F1)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Mean (95% CI)<sup>a</sup></th><th colspan=\"1\" rowspan=\"1\">Delta F1<sup>b</sup></th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">P</italic> value</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">BERT-base</td><td colspan=\"1\" rowspan=\"1\">110 M/110 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.53 (0.46–0.59)</td><td rowspan=\"2\" colspan=\"1\">−0.06</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\"><bold>0.96</bold></td><td colspan=\"1\" rowspan=\"1\">0.59</td><td colspan=\"1\" rowspan=\"1\">0.50</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.47 (0.44–0.52)</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.62</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.29</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.49</td><td colspan=\"1\" rowspan=\"1\">0.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5-base</td><td colspan=\"1\" rowspan=\"1\">250 M/250 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.36 (0.34–0.39)</td><td rowspan=\"2\" colspan=\"1\">+0.13</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.34</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.38</td><td colspan=\"1\" rowspan=\"1\">0.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.49 (0.40–0.60)</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.37</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.28</td><td colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5-large</td><td colspan=\"1\" rowspan=\"1\">780 M/780 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.42 (0.40–0.45)</td><td rowspan=\"2\" colspan=\"1\">+0.18</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.31</td><td colspan=\"1\" rowspan=\"1\">0.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.60 (0.50–0.68)</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.76</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.24</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.48</td><td colspan=\"1\" rowspan=\"1\">0.18</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5 XL</td><td colspan=\"1\" rowspan=\"1\">3B/9.5 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.65 (0.54–0.73)</td><td rowspan=\"2\" colspan=\"1\">+0.03</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.71</td><td colspan=\"1\" rowspan=\"1\">0.57</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">0.31</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.68 (0.59–0.76)</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.56</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.52</td><td colspan=\"1\" rowspan=\"1\"><bold>0.53</bold></td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5 XXL</td><td colspan=\"1\" rowspan=\"1\">11B/18 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.65 (0.56–0.75)</td><td rowspan=\"2\" colspan=\"1\">+0.05</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.76</td><td colspan=\"1\" rowspan=\"1\">0.33</td><td colspan=\"1\" rowspan=\"1\"><bold>0.65</bold></td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.51</td><td colspan=\"1\" rowspan=\"1\">0.44</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\"><bold>0.70 (0.60–0.77)</bold></td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\"><bold>0.80</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.67</bold></td><td colspan=\"1\" rowspan=\"1\">0.47</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\"><bold>0.60</bold></td><td colspan=\"1\" rowspan=\"1\">0.47</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"12\" rowspan=\"1\">Adverse Social Determinants of Health (SDoH)</th></tr><tr><th rowspan=\"2\" colspan=\"1\">Model</th><th rowspan=\"2\" colspan=\"1\">Parameters (total/tuned)</th><th colspan=\"3\" rowspan=\"1\">Macro-F1</th><th rowspan=\"2\" colspan=\"1\">No SDoH (F1)</th><th rowspan=\"2\" colspan=\"1\">Employment (F1)</th><th rowspan=\"2\" colspan=\"1\">Housing (F1)</th><th rowspan=\"2\" colspan=\"1\">Parent (F1)</th><th rowspan=\"2\" colspan=\"1\">Relationship (F1)</th><th rowspan=\"2\" colspan=\"1\">Social support (F1)</th><th rowspan=\"2\" colspan=\"1\">Transportation (F1)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Mean (95% CI)</th><th colspan=\"1\" rowspan=\"1\">Delta F1</th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">P</italic> value</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">BERT-base</td><td colspan=\"1\" rowspan=\"1\">110 M/110 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.64 (0.55–0.73)</td><td colspan=\"1\" rowspan=\"1\">−0.09</td><td colspan=\"1\" rowspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.31</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.37</td><td colspan=\"1\" rowspan=\"1\"><bold>0.60</bold></td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.55 (0.45–0.67)</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\"><bold>0.75</bold></td><td colspan=\"1\" rowspan=\"1\">0.37</td><td colspan=\"1\" rowspan=\"1\">0.36</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">0.38</td><td colspan=\"1\" rowspan=\"1\">0.4</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5-base</td><td colspan=\"1\" rowspan=\"1\">250 M/250 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.24 (0.18–0.31)</td><td colspan=\"1\" rowspan=\"1\">+0.11</td><td colspan=\"1\" rowspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.43</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.35 (0.26–0.45)</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.30</td><td colspan=\"1\" rowspan=\"1\">0.33</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.56</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.25</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5-large</td><td colspan=\"1\" rowspan=\"1\">780 M/780 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.27 (0.23–0.31)</td><td colspan=\"1\" rowspan=\"1\">+0.22</td><td colspan=\"1\" rowspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.46</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.47</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.49 (0.40–0.59)</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.58</td><td colspan=\"1\" rowspan=\"1\">0.54</td><td colspan=\"1\" rowspan=\"1\">0.33</td><td colspan=\"1\" rowspan=\"1\">0.66</td><td colspan=\"1\" rowspan=\"1\">0.22</td><td colspan=\"1\" rowspan=\"1\">0.17</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5 XL</td><td colspan=\"1\" rowspan=\"1\">3B/9.5 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\"><bold>0.69 (0.57–0.78)</bold></td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.76</td><td colspan=\"1\" rowspan=\"1\">0.57</td><td colspan=\"1\" rowspan=\"1\">0.52</td><td colspan=\"1\" rowspan=\"1\"><bold>0.93</bold></td><td colspan=\"1\" rowspan=\"1\">0.44</td><td colspan=\"1\" rowspan=\"1\">0.67</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\"><bold>0.69 (0.57–0.77)</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\"><bold>0.67</bold></td><td colspan=\"1\" rowspan=\"1\">0.49</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\"><bold>0.56</bold></td><td colspan=\"1\" rowspan=\"1\">0.57</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Flan-T5 XXL</td><td colspan=\"1\" rowspan=\"1\">11B/18 M</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold data only</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.63 (0.52–0.72)</td><td colspan=\"1\" rowspan=\"1\">+0.03</td><td colspan=\"1\" rowspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\"><bold>0.60</bold></td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.31</td><td colspan=\"1\" rowspan=\"1\">0.45</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.66 (0.55–0.74)</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.62</td><td colspan=\"1\" rowspan=\"1\">0.60</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.89</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">0.46</td></tr></tbody></table><table-wrap-foot><p>The 95% CI for Macro-F1 is calculated by bootstrapping 3400 times (to achieve bootstrap SE &lt; 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0091, ascertained by performing bootstrapping 3,400 times on three distinct samples. Delta F1 score is the change in Macro-F1 when synthetic data are added to the fine-tuning data. Bolded text indicates the best performance with and without synthetic data augmentation. <italic toggle=\"yes\">p</italic> values are computed with Mann–Whitney <italic toggle=\"yes\">U</italic> test. <italic toggle=\"yes\">CI</italic> confidence interval, <italic toggle=\"yes\">SE</italic> standard error.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Results of the best-performing models on the out-of-domain test datasets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Any social determinant of health (SDoH)"
+        ],
+        [
+          "Dataset",
+          "Macro-F1",
+          "No SDoH (F1)",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship (F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "",
+          "Mean (95% CI)",
+          "Delta F1",
+          "P value"
+        ],
+        [
+          "Immunotherapy"
+        ],
+        [
+          "FlanXXL: Gold data only",
+          "0.70 (0.63–0.76)",
+          "+0.01",
+          "<0.01",
+          "0.99",
+          "0.83",
+          "0.55",
+          "0.69",
+          "0.93",
+          "0.46",
+          "0.46"
+        ],
+        [
+          "FlanXXL: Gold + synthetic data",
+          "0.71 (0.64–0.76)",
+          "0.99",
+          "0.79",
+          "0.55",
+          "0.68",
+          "0.91",
+          "0.63",
+          "0.40"
+        ],
+        [
+          "MIMIC-III",
+          ""
+        ],
+        [
+          "FlanXXL: Gold data only",
+          "0.57 (0.49–0.63)",
+          "−0.02",
+          "<0.01",
+          "0.98",
+          "0.65",
+          "0.00",
+          "0.63",
+          "0.91",
+          "0.32",
+          "0.50"
+        ],
+        [
+          "FlanXXL: Gold + synthetic data",
+          "0.55 (0.49–0.61)",
+          "0.98",
+          "0.69",
+          "0.24",
+          "0.44",
+          "0.91",
+          "0.33",
+          "0.24"
+        ],
+        [
+          "Adverse social determinants of health (SDoH)"
+        ],
+        [
+          "Dataset",
+          "Macro-F1",
+          "No SDoH (F1)",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship (F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "",
+          "Mean (95% CI)a",
+          "Delta F1b",
+          "P value"
+        ],
+        [
+          "Immunotherapy"
+        ],
+        [
+          "FlanXL: Gold data only",
+          "0.63 (0.54–0.72)",
+          "+0.03",
+          "<0.01",
+          "1.00",
+          "0.56",
+          "0.46",
+          "0.68",
+          "0.81",
+          "0.50",
+          "0.46"
+        ],
+        [
+          "FlanXL: Gold + synthetic data",
+          "0.66 (0.58–0.72)",
+          "1.00",
+          "0.60",
+          "0.63",
+          "0.60",
+          "0.81",
+          "0.59",
+          "0.40"
+        ],
+        [
+          "MIMIC-III",
+          ""
+        ],
+        [
+          "FLANXL: Gold data only",
+          "0.53 (0.47–0.60)",
+          "−0.02",
+          "<0.01",
+          "0.99",
+          "0.51",
+          "0.50",
+          "0.53",
+          "0.65",
+          "0.22",
+          "0.20"
+        ],
+        [
+          "FLANXL: Gold + synthetic data",
+          "0.51 (0.43–0.59)",
+          "0.99",
+          "0.55",
+          "0.35",
+          "0.54",
+          "0.68",
+          "0.43",
+          "0.20"
+        ]
+      ],
+      "footnotes": "The 95% CI for Macro-F1 is calculated by bootstrapping 3400 times (to achieve bootstrap SE < 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0074, ascertained by performing bootstrapping 3400 times on three distinct samples. Delta F1 score is the change in Macro-F1 when synthetic data are added to the fine-tuning data. Bolded text indicates the best performance with and without synthetic data augmentation. p values are computed with Mann–Whitney U test. CI confidence interval, SE standard error.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Results of the best-performing models on the out-of-domain test datasets.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"11\" rowspan=\"1\">Any social determinant of health (SDoH)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Dataset</th><th colspan=\"3\" rowspan=\"1\">Macro-F1</th><th rowspan=\"2\" colspan=\"1\">No SDoH (F1)</th><th rowspan=\"2\" colspan=\"1\">Employment (F1)</th><th rowspan=\"2\" colspan=\"1\">Housing (F1)</th><th rowspan=\"2\" colspan=\"1\">Parent (F1)</th><th rowspan=\"2\" colspan=\"1\">Relationship (F1)</th><th rowspan=\"2\" colspan=\"1\">Social support (F1)</th><th rowspan=\"2\" colspan=\"1\">Transportation (F1)</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Mean (95% CI)</th><th colspan=\"1\" rowspan=\"1\">Delta F1</th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">P</italic> value</th></tr></thead><tbody><tr><td colspan=\"11\" rowspan=\"1\">Immunotherapy</td></tr><tr><td colspan=\"1\" rowspan=\"1\">FlanXXL: Gold data only</td><td colspan=\"1\" rowspan=\"1\">0.70 (0.63–0.76)</td><td rowspan=\"2\" colspan=\"1\">+0.01</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.46</td><td colspan=\"1\" rowspan=\"1\">0.46</td></tr><tr><td colspan=\"1\" rowspan=\"1\">FlanXXL: Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\">0.71 (0.64–0.76)</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\">0.40</td></tr><tr><td colspan=\"1\" rowspan=\"1\">MIMIC-III</td><td colspan=\"10\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> FlanXXL: Gold data only</td><td colspan=\"1\" rowspan=\"1\">0.57 (0.49–0.63)</td><td rowspan=\"2\" colspan=\"1\">−0.02</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.00</td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.32</td><td colspan=\"1\" rowspan=\"1\">0.50</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> FlanXXL: Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\">0.55 (0.49–0.61)</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">0.24</td><td colspan=\"1\" rowspan=\"1\">0.44</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.33</td><td colspan=\"1\" rowspan=\"1\">0.24</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"11\" rowspan=\"1\">Adverse social determinants of health (SDoH)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Dataset</th><th colspan=\"3\" rowspan=\"1\">Macro-F1</th><th rowspan=\"2\" colspan=\"1\">No SDoH (F1)</th><th rowspan=\"2\" colspan=\"1\">Employment (F1)</th><th rowspan=\"2\" colspan=\"1\">Housing (F1)</th><th rowspan=\"2\" colspan=\"1\">Parent (F1)</th><th rowspan=\"2\" colspan=\"1\">Relationship (F1)</th><th rowspan=\"2\" colspan=\"1\">Social support (F1)</th><th rowspan=\"2\" colspan=\"1\">Transportation (F1)</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Mean (95% CI)<sup>a</sup></th><th colspan=\"1\" rowspan=\"1\">Delta F1<sup>b</sup></th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">P</italic> value</th></tr></thead><tbody><tr><td colspan=\"11\" rowspan=\"1\">Immunotherapy</td></tr><tr><td colspan=\"1\" rowspan=\"1\">FlanXL: Gold data only</td><td colspan=\"1\" rowspan=\"1\">0.63 (0.54–0.72)</td><td rowspan=\"2\" colspan=\"1\">+0.03</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.56</td><td colspan=\"1\" rowspan=\"1\">0.46</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.81</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">0.46</td></tr><tr><td colspan=\"1\" rowspan=\"1\">FlanXL: Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\">0.66 (0.58–0.72)</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.60</td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\">0.60</td><td colspan=\"1\" rowspan=\"1\">0.81</td><td colspan=\"1\" rowspan=\"1\">0.59</td><td colspan=\"1\" rowspan=\"1\">0.40</td></tr><tr><td colspan=\"1\" rowspan=\"1\">MIMIC-III</td><td colspan=\"10\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> FLANXL: Gold data only</td><td colspan=\"1\" rowspan=\"1\">0.53 (0.47–0.60)</td><td rowspan=\"2\" colspan=\"1\">−0.02</td><td rowspan=\"2\" colspan=\"1\">&lt;0.01</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.51</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.22</td><td colspan=\"1\" rowspan=\"1\">0.20</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> FLANXL: Gold + synthetic data</td><td colspan=\"1\" rowspan=\"1\">0.51 (0.43–0.59)</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.35</td><td colspan=\"1\" rowspan=\"1\">0.54</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.43</td><td colspan=\"1\" rowspan=\"1\">0.20</td></tr></tbody></table><table-wrap-foot><p>The 95% CI for Macro-F1 is calculated by bootstrapping 3400 times (to achieve bootstrap SE &lt; 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0074, ascertained by performing bootstrapping 3400 times on three distinct samples. Delta F1 score is the change in Macro-F1 when synthetic data are added to the fine-tuning data. Bolded text indicates the best performance with and without synthetic data augmentation. <italic toggle=\"yes\">p</italic> values are computed with Mann–Whitney <italic toggle=\"yes\">U</italic> test. <italic toggle=\"yes\">CI</italic> confidence interval, <italic toggle=\"yes\">SE</italic> standard error.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Model performance on synthetic test data.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Any social determinant of health (SDoH)"
+        ],
+        [
+          "Model parameters",
+          "Mean Macro-F1 (95% CI)",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship (F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "FT Flan-T5 XXL",
+          "11B",
+          "0.92 (0.62–0.95)",
+          "0.92",
+          "0.91",
+          "0.63",
+          "0.95",
+          "0.77",
+          "0.93"
+        ],
+        [
+          "GPT3.5",
+          "175B",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Zero-shot",
+          "",
+          "0.84 (0.48–0.95)",
+          "0.94",
+          "0.87",
+          "0.85",
+          "0.82",
+          "0.49",
+          "0.84"
+        ],
+        [
+          "10-shot",
+          "",
+          "0.82 (0.60–0.90)",
+          "0.89",
+          "0.89",
+          "0.76",
+          "0.79",
+          "0.61",
+          "0.85"
+        ],
+        [
+          "GPT4",
+          "Unknown",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Zero-shot",
+          "",
+          "0.85 (0.48–0.94)",
+          "0.94",
+          "0.83",
+          "0.72",
+          "0.88",
+          "0.49",
+          "0.86"
+        ],
+        [
+          "10-shot",
+          "",
+          "0.88 (0.58–0.93)",
+          "0.91",
+          "0.90",
+          "0.96",
+          "0.82",
+          "0.59",
+          "0.91"
+        ],
+        [
+          "Adverse social determinants of health (SDoH)",
+          ""
+        ],
+        [
+          "Model parameters",
+          "Mean Macro-F1 (95% CI)a",
+          "Employment (F1)",
+          "Housing (F1)",
+          "Parent (F1)",
+          "Relationship(F1)",
+          "Social support (F1)",
+          "Transportation (F1)"
+        ],
+        [
+          "FT Flan-T5 XL",
+          "3B",
+          "0.86 (0.65–0.98)",
+          "0.86",
+          "0.86",
+          "0.65",
+          "0.98",
+          "0.84",
+          "0.86"
+        ],
+        [
+          "GPT3.5",
+          "175B",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Zero-shot",
+          "",
+          "0.82 (0.51–0.95)",
+          "0.77",
+          "0.93",
+          "0.87",
+          "0.72",
+          "0.52",
+          "0.94"
+        ],
+        [
+          "10-shot",
+          "",
+          "0.81 (0.50–0.94)",
+          "0.93",
+          "0.83",
+          "0.78",
+          "0.70",
+          "0.50",
+          "0.93"
+        ],
+        [
+          "GPT4",
+          "Unknown",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Zero-shot",
+          "",
+          "0.84 (0.52–0.94)",
+          "0.79",
+          "0.94",
+          "0.94",
+          "0.78",
+          "0.53",
+          "0.89"
+        ],
+        [
+          "10-shot",
+          "",
+          "0.90 (0.71–0.96)",
+          "0.92",
+          "0.91",
+          "0.90",
+          "0.73",
+          "0.73",
+          "0.96"
+        ]
+      ],
+      "footnotes": "The 95% CI (confidence interval) for Macro-F1 is calculated by bootstrapping 10000 times (to achieve bootstrap SE < 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0038, ascertained by performing bootstrapping 10,000 times on three distinct samples. Bolded text indicates the best performance. FT fine-tuned, CI confidence interval, SE standard error.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Model performance on synthetic test data.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"9\" rowspan=\"1\">Any social determinant of health (SDoH)</th></tr><tr><th colspan=\"2\" rowspan=\"1\">Model parameters</th><th colspan=\"1\" rowspan=\"1\">Mean Macro-F1 (95% CI)</th><th colspan=\"1\" rowspan=\"1\">Employment (F1)</th><th colspan=\"1\" rowspan=\"1\">Housing (F1)</th><th colspan=\"1\" rowspan=\"1\">Parent (F1)</th><th colspan=\"1\" rowspan=\"1\">Relationship (F1)</th><th colspan=\"1\" rowspan=\"1\">Social support (F1)</th><th colspan=\"1\" rowspan=\"1\">Transportation (F1)</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">FT Flan-T5 XXL</td><td colspan=\"1\" rowspan=\"1\">11B</td><td colspan=\"1\" rowspan=\"1\"><bold>0.92 (0.62–0.95)</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.92</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.91</bold></td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\"><bold>0.95</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.77</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.93</bold></td></tr><tr><td colspan=\"1\" rowspan=\"1\">GPT3.5</td><td colspan=\"1\" rowspan=\"1\">175B</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Zero-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.84 (0.48–0.95)</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.85</td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">0.49</td><td colspan=\"1\" rowspan=\"1\">0.84</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> 10-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.82 (0.60–0.90)</td><td colspan=\"1\" rowspan=\"1\">0.89</td><td colspan=\"1\" rowspan=\"1\">0.89</td><td colspan=\"1\" rowspan=\"1\">0.76</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\">0.61</td><td colspan=\"1\" rowspan=\"1\">0.85</td></tr><tr><td colspan=\"1\" rowspan=\"1\">GPT4</td><td colspan=\"1\" rowspan=\"1\">Unknown</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Zero-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.85 (0.48–0.94)</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.49</td><td colspan=\"1\" rowspan=\"1\">0.86</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> 10-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.88 (0.58–0.93)</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\"><bold>0.96</bold></td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">0.59</td><td colspan=\"1\" rowspan=\"1\">0.91</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"8\" rowspan=\"1\">Adverse social determinants of health (SDoH)</th><th colspan=\"1\" rowspan=\"1\" /></tr><tr><th colspan=\"2\" rowspan=\"1\">Model parameters</th><th colspan=\"1\" rowspan=\"1\">Mean Macro-F1 (95% CI)<sup>a</sup></th><th colspan=\"1\" rowspan=\"1\">Employment (F1)</th><th colspan=\"1\" rowspan=\"1\">Housing (F1)</th><th colspan=\"1\" rowspan=\"1\">Parent (F1)</th><th colspan=\"1\" rowspan=\"1\">Relationship(F1)</th><th colspan=\"1\" rowspan=\"1\">Social support (F1)</th><th colspan=\"1\" rowspan=\"1\">Transportation (F1)</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">FT Flan-T5 XL</td><td colspan=\"1\" rowspan=\"1\">3B</td><td colspan=\"1\" rowspan=\"1\">0.86 (0.65–0.98)</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\"><bold>0.98</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.84</bold></td><td colspan=\"1\" rowspan=\"1\">0.86</td></tr><tr><td colspan=\"1\" rowspan=\"1\">GPT3.5</td><td colspan=\"1\" rowspan=\"1\">175B</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Zero-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.82 (0.51–0.95)</td><td colspan=\"1\" rowspan=\"1\">0.77</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.52</td><td colspan=\"1\" rowspan=\"1\">0.94</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> 10-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.81 (0.50–0.94)</td><td colspan=\"1\" rowspan=\"1\"><bold>0.93</bold></td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">0.70</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">0.93</td></tr><tr><td colspan=\"1\" rowspan=\"1\">GPT4</td><td colspan=\"1\" rowspan=\"1\">Unknown</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"1\" rowspan=\"1\"> Zero-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\">0.84 (0.52–0.94)</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\"><bold>0.94</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>0.94</bold></td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">0.89</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> 10-shot</td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\"><bold>0.90 (0.71–0.96)</bold></td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\"><bold>0.96</bold></td></tr></tbody></table><table-wrap-foot><p>The 95% CI (confidence interval) for Macro-F1 is calculated by bootstrapping 10000 times (to achieve bootstrap SE &lt; 0.01) with replacement. The SE of the 95% confidence interval limits is 0.0038, ascertained by performing bootstrapping 10,000 times on three distinct samples. Bolded text indicates the best performance. <italic toggle=\"yes\">FT</italic> fine-tuned, <italic toggle=\"yes\">CI</italic> confidence interval, <italic toggle=\"yes\">SE</italic> standard error.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab4",
+      "label": "Table 4",
+      "caption": "Patient demographics across datasets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Patients",
+          "Radiotherapy (in-domain) dataset",
+          "Out-of-domain validation datasets"
+        ],
+        [
+          "Total (n = 770)",
+          "Train Set (n = 462)",
+          "Development set (n = 154)",
+          "Test set (n = 154)",
+          "Immunotherapy (n = 170)",
+          "MIMIC-III (n = 183)",
+          "Synthetic Validated (n = 480)",
+          "Synthetic Demo (n = 419)"
+        ],
+        [
+          "Gender"
+        ],
+        [
+          "Male",
+          "344 (44.7%)",
+          "210 (45.5%)",
+          "70 (45.5%)",
+          "64 (41.6%)",
+          "75 (44.1%)",
+          "101 (55.2%)",
+          "N/A",
+          "168 (40.1%)"
+        ],
+        [
+          "Female",
+          "426 (55.3%)",
+          "252 (54.5%)",
+          "84 (54.5%)",
+          "90 (58.4%)",
+          "95 (55.9%)",
+          "82 (44.8%)",
+          "N/A",
+          "177 (42.2%)"
+        ],
+        [
+          "Not specified",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "N/A",
+          "74 (17.7%)"
+        ],
+        [
+          "Race"
+        ],
+        [
+          "White",
+          "664 (86.2%)",
+          "396 (85.7%)",
+          "134 (87.0%)",
+          "134 (87.0%)",
+          "137 (80.6%)",
+          "132 (72.1%)",
+          "N/A",
+          "113 (26.9%)"
+        ],
+        [
+          "Asian",
+          "21 (2.7%)",
+          "11 (2.4%)",
+          "6 (3.9%)",
+          "4 (2.6%)",
+          "9 (5.3%)",
+          "5 (2.7%)",
+          "N/A",
+          "106 (21.6%)"
+        ],
+        [
+          "Black",
+          "37 (4.8%)",
+          "24 (5.2%)",
+          "5 (3.2%)",
+          "8 (5.2%)",
+          "11 (6.5%)",
+          "16 (8.7%)",
+          "N/A",
+          "84 (25.7%)"
+        ],
+        [
+          "Two or more",
+          "3 (0.4%)",
+          "2 (0.4%)",
+          "0",
+          "1 (0.6%)",
+          "0",
+          "3 (1.6%)",
+          "N/A",
+          "0"
+        ],
+        [
+          "Others",
+          "25 (3.2%)",
+          "17 (3.7%)",
+          "5 (3.2%)",
+          "3 (1.9%)",
+          "10 (5.9%)",
+          "1 (0.6%)",
+          "N/A",
+          "97 (23.2%)"
+        ],
+        [
+          "Unknown",
+          "20 (2.6%)",
+          "12 (2.6%)",
+          "4 (2.6%)",
+          "4 (2.6%)",
+          "3 (1.8%)",
+          "25 (13.7%)",
+          "N/A",
+          "19 (4.5%)"
+        ],
+        [
+          "Ethnicity"
+        ],
+        [
+          "Non-Hispanic",
+          "682 (88.6%)",
+          "420 (90.9%)",
+          "130 (84.4%)",
+          "132 (85.7%)",
+          "160 (94.1%)",
+          "158 (86.3%)",
+          "N/A",
+          "322 (76.8%)"
+        ],
+        [
+          "Hispanic",
+          "11 (1.4%)",
+          "8 (1.7%)",
+          "2 (1.3%)",
+          "1 (0.6%)",
+          "20 (5.9%)",
+          "11 (6.0%)",
+          "N/A",
+          "97 (23.2%)"
+        ],
+        [
+          "Unknown",
+          "77 (10.0%)",
+          "34 (7.4%)",
+          "22 (14.3%)",
+          "21 (13.6%)",
+          "0",
+          "14 (7.7%)",
+          "N/A",
+          "0"
+        ]
+      ],
+      "footnotes": "All data presented as n (%) unless otherwise noted. Synthetic Validated are the sentences used to evaluate GPT models, thus, there is no demographic information for this dataset. Synthetic Demo is the sentence used for bias evaluation, where demographic descriptors were inserted. N/A not applicable.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab4\" position=\"float\" orientation=\"portrait\"><label>Table 4</label><caption><p>Patient demographics across datasets.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">Patients</th><th colspan=\"4\" rowspan=\"1\">Radiotherapy (in-domain) dataset</th><th colspan=\"4\" rowspan=\"1\">Out-of-domain validation datasets</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Total (<italic toggle=\"yes\">n</italic> = 770)</th><th colspan=\"1\" rowspan=\"1\">Train Set (<italic toggle=\"yes\">n</italic> = 462)</th><th colspan=\"1\" rowspan=\"1\">Development set (<italic toggle=\"yes\">n</italic> = 154)</th><th colspan=\"1\" rowspan=\"1\">Test set (<italic toggle=\"yes\">n</italic> = 154)</th><th colspan=\"1\" rowspan=\"1\">Immunotherapy (<italic toggle=\"yes\">n</italic> = 170)</th><th colspan=\"1\" rowspan=\"1\">MIMIC-III (<italic toggle=\"yes\">n</italic> = 183)</th><th colspan=\"1\" rowspan=\"1\">Synthetic Validated (<italic toggle=\"yes\">n</italic> = 480)</th><th colspan=\"1\" rowspan=\"1\">Synthetic Demo (<italic toggle=\"yes\">n</italic> = 419)</th></tr></thead><tbody><tr><td colspan=\"9\" rowspan=\"1\">Gender</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Male</td><td colspan=\"1\" rowspan=\"1\">344 (44.7%)</td><td colspan=\"1\" rowspan=\"1\">210 (45.5%)</td><td colspan=\"1\" rowspan=\"1\">70 (45.5%)</td><td colspan=\"1\" rowspan=\"1\">64 (41.6%)</td><td colspan=\"1\" rowspan=\"1\">75 (44.1%)</td><td colspan=\"1\" rowspan=\"1\">101 (55.2%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">168 (40.1%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Female</td><td colspan=\"1\" rowspan=\"1\">426 (55.3%)</td><td colspan=\"1\" rowspan=\"1\">252 (54.5%)</td><td colspan=\"1\" rowspan=\"1\">84 (54.5%)</td><td colspan=\"1\" rowspan=\"1\">90 (58.4%)</td><td colspan=\"1\" rowspan=\"1\">95 (55.9%)</td><td colspan=\"1\" rowspan=\"1\">82 (44.8%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">177 (42.2%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Not specified</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">74 (17.7%)</td></tr><tr><td colspan=\"9\" rowspan=\"1\">Race</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> White</td><td colspan=\"1\" rowspan=\"1\">664 (86.2%)</td><td colspan=\"1\" rowspan=\"1\">396 (85.7%)</td><td colspan=\"1\" rowspan=\"1\">134 (87.0%)</td><td colspan=\"1\" rowspan=\"1\">134 (87.0%)</td><td colspan=\"1\" rowspan=\"1\">137 (80.6%)</td><td colspan=\"1\" rowspan=\"1\">132 (72.1%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">113 (26.9%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Asian</td><td colspan=\"1\" rowspan=\"1\">21 (2.7%)</td><td colspan=\"1\" rowspan=\"1\">11 (2.4%)</td><td colspan=\"1\" rowspan=\"1\">6 (3.9%)</td><td colspan=\"1\" rowspan=\"1\">4 (2.6%)</td><td colspan=\"1\" rowspan=\"1\">9 (5.3%)</td><td colspan=\"1\" rowspan=\"1\">5 (2.7%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">106 (21.6%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Black</td><td colspan=\"1\" rowspan=\"1\">37 (4.8%)</td><td colspan=\"1\" rowspan=\"1\">24 (5.2%)</td><td colspan=\"1\" rowspan=\"1\">5 (3.2%)</td><td colspan=\"1\" rowspan=\"1\">8 (5.2%)</td><td colspan=\"1\" rowspan=\"1\">11 (6.5%)</td><td colspan=\"1\" rowspan=\"1\">16 (8.7%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">84 (25.7%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Two or more</td><td colspan=\"1\" rowspan=\"1\">3 (0.4%)</td><td colspan=\"1\" rowspan=\"1\">2 (0.4%)</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">1 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">3 (1.6%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">0</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Others</td><td colspan=\"1\" rowspan=\"1\">25 (3.2%)</td><td colspan=\"1\" rowspan=\"1\">17 (3.7%)</td><td colspan=\"1\" rowspan=\"1\">5 (3.2%)</td><td colspan=\"1\" rowspan=\"1\">3 (1.9%)</td><td colspan=\"1\" rowspan=\"1\">10 (5.9%)</td><td colspan=\"1\" rowspan=\"1\">1 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">97 (23.2%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Unknown</td><td colspan=\"1\" rowspan=\"1\">20 (2.6%)</td><td colspan=\"1\" rowspan=\"1\">12 (2.6%)</td><td colspan=\"1\" rowspan=\"1\">4 (2.6%)</td><td colspan=\"1\" rowspan=\"1\">4 (2.6%)</td><td colspan=\"1\" rowspan=\"1\">3 (1.8%)</td><td colspan=\"1\" rowspan=\"1\">25 (13.7%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">19 (4.5%)</td></tr><tr><td colspan=\"9\" rowspan=\"1\">Ethnicity</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Non-Hispanic</td><td colspan=\"1\" rowspan=\"1\">682 (88.6%)</td><td colspan=\"1\" rowspan=\"1\">420 (90.9%)</td><td colspan=\"1\" rowspan=\"1\">130 (84.4%)</td><td colspan=\"1\" rowspan=\"1\">132 (85.7%)</td><td colspan=\"1\" rowspan=\"1\">160 (94.1%)</td><td colspan=\"1\" rowspan=\"1\">158 (86.3%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">322 (76.8%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Hispanic</td><td colspan=\"1\" rowspan=\"1\">11 (1.4%)</td><td colspan=\"1\" rowspan=\"1\">8 (1.7%)</td><td colspan=\"1\" rowspan=\"1\">2 (1.3%)</td><td colspan=\"1\" rowspan=\"1\">1 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">20 (5.9%)</td><td colspan=\"1\" rowspan=\"1\">11 (6.0%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">97 (23.2%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\"> Unknown</td><td colspan=\"1\" rowspan=\"1\">77 (10.0%)</td><td colspan=\"1\" rowspan=\"1\">34 (7.4%)</td><td colspan=\"1\" rowspan=\"1\">22 (14.3%)</td><td colspan=\"1\" rowspan=\"1\">21 (13.6%)</td><td colspan=\"1\" rowspan=\"1\">0</td><td colspan=\"1\" rowspan=\"1\">14 (7.7%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">0</td></tr></tbody></table><table-wrap-foot><p>All data presented as <italic toggle=\"yes\">n</italic> (%) unless otherwise noted. Synthetic Validated are the sentences used to evaluate GPT models, thus, there is no demographic information for this dataset. Synthetic Demo is the sentence used for bias evaluation, where demographic descriptors were inserted. <italic toggle=\"yes\">N/A</italic> not applicable.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab5",
+      "label": "Table 5",
+      "caption": "Distribution of documents and sentence labels in each dataset.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Number of documents"
+        ],
+        [
+          "",
+          "Radiotherapy",
+          "Immunotherapy",
+          "MIMIC-III",
+          "Synthetic validated",
+          "Synthetic demo"
+        ],
+        [
+          "",
+          "Train set",
+          "Development set",
+          "Test set"
+        ],
+        [
+          "Documents",
+          "481",
+          "160",
+          "159",
+          "200",
+          "200",
+          "N/A",
+          "N/A"
+        ],
+        [
+          "Number of sentences–any SDoH mentions"
+        ],
+        [
+          "",
+          "Radiotherapy",
+          "Immunotherapy (n = 14,761)",
+          "MIMIC-III (n = 5328)",
+          "Synthetic validated (n = 480)",
+          "Synthetic demo (n = 419)"
+        ],
+        [
+          "Label",
+          "Train set (n = 29,869)",
+          "Development set (n = 10,712)",
+          "Test set (n = 10,860)"
+        ],
+        [
+          "No SDoH",
+          "28992 (97.1%)",
+          "10429 (97.4%)",
+          "10582 (97.4%)",
+          "14319 (97.0%)",
+          "4968 (93.2%)",
+          "N/A",
+          "N/A"
+        ],
+        [
+          "Employment",
+          "218 (0.7%)",
+          "65 (0.6%)",
+          "64 (0.6%)",
+          "103 (0.7%)",
+          "70 (1.3%)",
+          "136 (28.3%)",
+          "132 (31.5%)"
+        ],
+        [
+          "Housing",
+          "20 (0.1%)",
+          "7 (0.1%)",
+          "4 (0.0%)",
+          "13 (0.1%)",
+          "3 (0.1%)",
+          "69 (14.4%)",
+          "64 (15.3%)"
+        ],
+        [
+          "Parent",
+          "53 (0.2%)",
+          "24 (0.2%)",
+          "22 (0.2%)",
+          "30 (0.2%)",
+          "27 (0.5%)",
+          "67 (14.0%)",
+          "43 (10.3%)"
+        ],
+        [
+          "Relationship",
+          "464 (1.6%)",
+          "153 (1.4%)",
+          "158 (1.5%)",
+          "241 (1.6%)",
+          "180 (3.4%)",
+          "152 (31.7%)",
+          "134 (32.0%)"
+        ],
+        [
+          "Social Support",
+          "234 (0.8%)",
+          "51 (0.5%)",
+          "61 (0.6%)",
+          "86 (0.6%)",
+          "122 (2.3%)",
+          "102 (21.3%)",
+          "90 (21.5%)"
+        ],
+        [
+          "Transportation",
+          "41 (0.1%)",
+          "13 (0.1%)",
+          "6 (0.1%)",
+          "25 (0.2%)",
+          "3 (0.1%)",
+          "61 (12.7%)",
+          "58 (13.8%)"
+        ],
+        [
+          "Number of sentences–adverse SDoH mentions"
+        ],
+        [
+          "",
+          "Radiotherapy",
+          "Immunotherapy (n = 14,761)",
+          "MIMIC-III (n = 5328)",
+          "Synthetic validated (n = 289)",
+          "Synthetic demo (n = 253)"
+        ],
+        [
+          "Label",
+          "Train Set (n = 29,869)",
+          "Development set (n = 10,712)",
+          "Test set (n = 10,860)"
+        ],
+        [
+          "No Adverse SDoH",
+          "29550 (98.9%)",
+          "10615 (99.1%)",
+          "10761 (99.1%)",
+          "14621 (99.1%)",
+          "5213 (97.8%)",
+          "N/A",
+          "N/A"
+        ],
+        [
+          "Employment",
+          "93 (0.3%)",
+          "23 (0.2%)",
+          "30 (0.3%)",
+          "37 (0.3%)",
+          "39 (0.7%)",
+          "40 (13.8%)",
+          "39 (15.4%)"
+        ],
+        [
+          "Housing",
+          "20 (0.1%)",
+          "7 (0.1%)",
+          "4 (0.0%)",
+          "13 (0.1%)",
+          "3 (0.1%)",
+          "69 (23.9%)",
+          "64 (25.3%)"
+        ],
+        [
+          "Parent",
+          "53 (0.2%)",
+          "24 (0.2%)",
+          "22 (0.2%)",
+          "30 (0.2%)",
+          "27 (0.5%)",
+          "67 (23.2%)",
+          "43 (17.0%)"
+        ],
+        [
+          "Relationship",
+          "86 (0.3%)",
+          "27 (0.3%)",
+          "31 (0.3%)",
+          "30 (0.2%)",
+          "23 (0.4%)",
+          "68 (23.5%)",
+          "62 (24.5%)"
+        ],
+        [
+          "Social support",
+          "54 (0.2%)",
+          "8 (0.1%)",
+          "12 (0.1%)",
+          "12 (0.1%)",
+          "27 (0.5%)",
+          "39 (13.5%)",
+          "43 (17.0%)"
+        ],
+        [
+          "Transportation",
+          "41 (0.1%)",
+          "13 (0.1%)",
+          "6 (0.1%)",
+          "25 (0.2%)",
+          "3 (0.1%)",
+          "61 (21.1%)",
+          "58 (22.9%)"
+        ]
+      ],
+      "footnotes": "All data presented as n (%) unless otherwise noted. Synthetic Validated are the sentences used to evaluate GPT models, thus, there is no demographic information for this dataset. Synthetic Demo is the sentence used for bias evaluation, where demographic descriptors were inserted. Labels sum to >100% because some sentences had more than 1 SDoH label. SDoH social determinants of health, N/A not applicable.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab5\" position=\"float\" orientation=\"portrait\"><label>Table 5</label><caption><p>Distribution of documents and sentence labels in each dataset.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"8\" rowspan=\"1\">Number of documents</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"3\" rowspan=\"1\">Radiotherapy</th><th rowspan=\"2\" colspan=\"1\">Immunotherapy</th><th rowspan=\"2\" colspan=\"1\">MIMIC-III</th><th rowspan=\"2\" colspan=\"1\">Synthetic validated</th><th rowspan=\"2\" colspan=\"1\">Synthetic demo</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Train set</th><th colspan=\"1\" rowspan=\"1\">Development set</th><th colspan=\"1\" rowspan=\"1\">Test set</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Documents</td><td colspan=\"1\" rowspan=\"1\">481</td><td colspan=\"1\" rowspan=\"1\">160</td><td colspan=\"1\" rowspan=\"1\">159</td><td colspan=\"1\" rowspan=\"1\">200</td><td colspan=\"1\" rowspan=\"1\">200</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">N/A</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"8\" rowspan=\"1\">Number of sentences–any SDoH mentions</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"3\" rowspan=\"1\">Radiotherapy</th><th rowspan=\"2\" colspan=\"1\">Immunotherapy (<italic toggle=\"yes\">n</italic> = 14,761)</th><th rowspan=\"2\" colspan=\"1\">MIMIC-III (<italic toggle=\"yes\">n</italic> = 5328)</th><th rowspan=\"2\" colspan=\"1\">Synthetic validated (<italic toggle=\"yes\">n</italic> = 480)</th><th rowspan=\"2\" colspan=\"1\">Synthetic demo (<italic toggle=\"yes\">n</italic> = 419)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Label</th><th colspan=\"1\" rowspan=\"1\">Train set (<italic toggle=\"yes\">n</italic> = 29,869)</th><th colspan=\"1\" rowspan=\"1\">Development set (<italic toggle=\"yes\">n</italic> = 10,712)</th><th colspan=\"1\" rowspan=\"1\">Test set (<italic toggle=\"yes\">n</italic> = 10,860)</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">No SDoH</td><td colspan=\"1\" rowspan=\"1\">28992 (97.1%)</td><td colspan=\"1\" rowspan=\"1\">10429 (97.4%)</td><td colspan=\"1\" rowspan=\"1\">10582 (97.4%)</td><td colspan=\"1\" rowspan=\"1\">14319 (97.0%)</td><td colspan=\"1\" rowspan=\"1\">4968 (93.2%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">N/A</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Employment</td><td colspan=\"1\" rowspan=\"1\">218 (0.7%)</td><td colspan=\"1\" rowspan=\"1\">65 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">64 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">103 (0.7%)</td><td colspan=\"1\" rowspan=\"1\">70 (1.3%)</td><td colspan=\"1\" rowspan=\"1\">136 (28.3%)</td><td colspan=\"1\" rowspan=\"1\">132 (31.5%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Housing</td><td colspan=\"1\" rowspan=\"1\">20 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">7 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">4 (0.0%)</td><td colspan=\"1\" rowspan=\"1\">13 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">3 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">69 (14.4%)</td><td colspan=\"1\" rowspan=\"1\">64 (15.3%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Parent</td><td colspan=\"1\" rowspan=\"1\">53 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">24 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">22 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">30 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">27 (0.5%)</td><td colspan=\"1\" rowspan=\"1\">67 (14.0%)</td><td colspan=\"1\" rowspan=\"1\">43 (10.3%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Relationship</td><td colspan=\"1\" rowspan=\"1\">464 (1.6%)</td><td colspan=\"1\" rowspan=\"1\">153 (1.4%)</td><td colspan=\"1\" rowspan=\"1\">158 (1.5%)</td><td colspan=\"1\" rowspan=\"1\">241 (1.6%)</td><td colspan=\"1\" rowspan=\"1\">180 (3.4%)</td><td colspan=\"1\" rowspan=\"1\">152 (31.7%)</td><td colspan=\"1\" rowspan=\"1\">134 (32.0%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Social Support</td><td colspan=\"1\" rowspan=\"1\">234 (0.8%)</td><td colspan=\"1\" rowspan=\"1\">51 (0.5%)</td><td colspan=\"1\" rowspan=\"1\">61 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">86 (0.6%)</td><td colspan=\"1\" rowspan=\"1\">122 (2.3%)</td><td colspan=\"1\" rowspan=\"1\">102 (21.3%)</td><td colspan=\"1\" rowspan=\"1\">90 (21.5%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Transportation</td><td colspan=\"1\" rowspan=\"1\">41 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">13 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">6 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">25 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">3 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">61 (12.7%)</td><td colspan=\"1\" rowspan=\"1\">58 (13.8%)</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"8\" rowspan=\"1\">Number of sentences–adverse SDoH mentions</th></tr><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"3\" rowspan=\"1\">Radiotherapy</th><th rowspan=\"2\" colspan=\"1\">Immunotherapy (<italic toggle=\"yes\">n</italic> = 14,761)</th><th rowspan=\"2\" colspan=\"1\">MIMIC-III (<italic toggle=\"yes\">n</italic> = 5328)</th><th rowspan=\"2\" colspan=\"1\">Synthetic validated (<italic toggle=\"yes\">n</italic> = 289)</th><th rowspan=\"2\" colspan=\"1\">Synthetic demo (<italic toggle=\"yes\">n</italic> = 253)</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Label</th><th colspan=\"1\" rowspan=\"1\">Train Set (<italic toggle=\"yes\">n</italic> = 29,869)</th><th colspan=\"1\" rowspan=\"1\">Development set (<italic toggle=\"yes\">n</italic> = 10,712)</th><th colspan=\"1\" rowspan=\"1\">Test set (<italic toggle=\"yes\">n</italic> = 10,860)</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">No Adverse SDoH</td><td colspan=\"1\" rowspan=\"1\">29550 (98.9%)</td><td colspan=\"1\" rowspan=\"1\">10615 (99.1%)</td><td colspan=\"1\" rowspan=\"1\">10761 (99.1%)</td><td colspan=\"1\" rowspan=\"1\">14621 (99.1%)</td><td colspan=\"1\" rowspan=\"1\">5213 (97.8%)</td><td colspan=\"1\" rowspan=\"1\">N/A</td><td colspan=\"1\" rowspan=\"1\">N/A</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Employment</td><td colspan=\"1\" rowspan=\"1\">93 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">23 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">30 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">37 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">39 (0.7%)</td><td colspan=\"1\" rowspan=\"1\">40 (13.8%)</td><td colspan=\"1\" rowspan=\"1\">39 (15.4%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Housing</td><td colspan=\"1\" rowspan=\"1\">20 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">7 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">4 (0.0%)</td><td colspan=\"1\" rowspan=\"1\">13 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">3 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">69 (23.9%)</td><td colspan=\"1\" rowspan=\"1\">64 (25.3%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Parent</td><td colspan=\"1\" rowspan=\"1\">53 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">24 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">22 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">30 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">27 (0.5%)</td><td colspan=\"1\" rowspan=\"1\">67 (23.2%)</td><td colspan=\"1\" rowspan=\"1\">43 (17.0%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Relationship</td><td colspan=\"1\" rowspan=\"1\">86 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">27 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">31 (0.3%)</td><td colspan=\"1\" rowspan=\"1\">30 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">23 (0.4%)</td><td colspan=\"1\" rowspan=\"1\">68 (23.5%)</td><td colspan=\"1\" rowspan=\"1\">62 (24.5%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Social support</td><td colspan=\"1\" rowspan=\"1\">54 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">8 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">12 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">12 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">27 (0.5%)</td><td colspan=\"1\" rowspan=\"1\">39 (13.5%)</td><td colspan=\"1\" rowspan=\"1\">43 (17.0%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Transportation</td><td colspan=\"1\" rowspan=\"1\">41 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">13 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">6 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">25 (0.2%)</td><td colspan=\"1\" rowspan=\"1\">3 (0.1%)</td><td colspan=\"1\" rowspan=\"1\">61 (21.1%)</td><td colspan=\"1\" rowspan=\"1\">58 (22.9%)</td></tr></tbody></table><table-wrap-foot><p>All data presented as <italic toggle=\"yes\">n</italic> (%) unless otherwise noted. Synthetic Validated are the sentences used to evaluate GPT models, thus, there is no demographic information for this dataset. Synthetic Demo is the sentence used for bias evaluation, where demographic descriptors were inserted. Labels sum to &gt;100% because some sentences had more than 1 SDoH label. <italic toggle=\"yes\">SDoH</italic> social determinants of health, <italic toggle=\"yes\">N/A</italic> not applicable.</p></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "Ablation studies.Performance in Macro-F1 of Flan-T5 XL models fine-tuned using gold data only (orange line) and gold and synthetic data (green line), as gold-labeled sentences are gradually reduced by undersample value from the training dataset for the a adverse social determinant of health (SDoH) mention task and b any SDoH mention task. The full gold-labeled training set is comprised of 29,869 sentences, augmented with 1800 synthetic SDoH sentences, and tested on the in-domain RT test dataset. SDoH Social determinants of health.",
+      "caption_zh": "",
+      "graphics": [
+        "41746_2023_970_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Fine-tuned LLMs versus ChatGPT-family models.Comparison of model performance between our fine-tuned Flan-T5 models against zero- and 10-shot GPT. Macro-F1 was measured using our manually validated synthetic dataset. The GPT-turbo-0613 version of GPT3.5 and the GPT4–0613 version of GPT4 were used. Error bars indicate the 95% confidence intervals. LLM large language model.",
+      "caption_zh": "",
+      "graphics": [
+        "41746_2023_970_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "LLM bias evaluation.The proportion of synthetic sentence pairs with and without demographics injected led to a classification mismatch, meaning that the model predicted a different SDoH label for each sentence in the pair. Results are shown across race/ethnicity and gender for a any SDoH mention task and b adverse SDoH mention task. Asterisks indicate statistical significance (P ≤ 0.05) chi-squared tests for multi-class comparisons and 2-proportion z tests for binary comparisons. LLM large language model, SDoH Social determinants of health.",
+      "caption_zh": "",
+      "graphics": [
+        "41746_2023_970_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "Prompting methods.Example of prompt templates used in the SKLLM package for GPT-turbo-0301 (GPT3.5) and GPT4 with temperature 0 to classify our labeled synthetic data. {labels} and {training_data} were sampled from a separate synthetic dataset, which was not human-annotated. The final label output is highlighted in green.",
+      "caption_zh": "",
+      "graphics": [
+        "41746_2023_970_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Demographic-injected SDoH language development.Illustration of generating and comparing synthetic demographic-injected SDoH language pairs to assess how adding race/ethnicity and gender information into a sentence may impact model performance. FT fine-tuned, SDoH Social determinants of health.",
+      "caption_zh": "",
+      "graphics": [
+        "41746_2023_970_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Lavizzo-MoureyRJBesserREWilliamsDRUnderstanding and mitigating health inequities - past, current, and future directionsN. Engl. J. Med2021384168116843395137610.1056/NEJMp2008628",
+      "doi": [
+        "10.1056/NEJMp2008628"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.ChettyRThe association between income and life expectancy in the United States, 2001-2014JAMA2016315175017662706399710.1001/jama.2016.4226PMC4866586",
+      "doi": [
+        "10.1001/jama.2016.4226"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.CaraballoCExcess mortality and years of potential life lost among the black population in the US, 1999-2020JAMA2023329166216703719170210.1001/jama.2023.7022PMC10189563",
+      "doi": [
+        "10.1001/jama.2023.7022"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.Social determinants of health. http://www.who.int/social_determinants/sdh_definition/en/.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.FrankeHAToxic stress: effects, prevention and treatmentChildren201413904022741748610.3390/children1030390PMC4928741",
+      "doi": [
+        "10.3390/children1030390"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.NelsonCAAdversity in childhood is linked to mental and physical health throughout lifeBMJ2020371m30483311571710.1136/bmj.m3048PMC7592151",
+      "doi": [
+        "10.1136/bmj.m3048"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.ShonkoffJPGarnerASCommittee on psychosocial aspects of child and family health, committee on early childhood, adoption, and dependent care & section on developmental and behavioral pediatrics. the lifelong effects of early childhood adversity and toxic stressPediatrics2012129e232e2462220115610.1542/peds.2011-2663",
+      "doi": [
+        "10.1542/peds.2011-2663"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.Turner-CobbJMSephtonSEKoopmanCBlake-MortimerJSpiegelDSocial support and salivary cortisol in women with metastatic breast cancerPsychosom. Med.2000623373451084534710.1097/00006842-200005000-00007",
+      "doi": [
+        "10.1097/00006842-200005000-00007"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.HoodCMGennusoKPSwainGRCatlinBBCounty health rankings: relationships between determinant factors and health outcomesAm. J. Prev. Med2016501291352652616410.1016/j.amepre.2015.08.024",
+      "doi": [
+        "10.1016/j.amepre.2015.08.024"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.TruongHPUtilization of social determinants of health ICD-10 Z-codes among hospitalized patients in the United States, 2016-2017Med. Care202058103710433292545310.1097/MLR.0000000000001418PMC7666017",
+      "doi": [
+        "10.1097/MLR.0000000000001418"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.HeidariEZalmaiRRichardsKSakthisivabalanLBrownCZ-code documentation to identify social determinants of health among medicaid beneficiariesRes. Soc. Adm. Pharm.20231918018310.1016/j.sapharm.2022.10.01036333228",
+      "doi": [
+        "10.1016/j.sapharm.2022.10.010"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.WangMPantellMSGottliebLMAdler-MilsteinJDocumentation and review of social determinants of health data in the EHR: measures and associated insightsJ. Am. Med. Inform. Assoc.202128260826163454929410.1093/jamia/ocab194PMC8633631",
+      "doi": [
+        "10.1093/jamia/ocab194"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.ConwayMMoonstone: a novel natural language processing system for inferring social risk from clinical narrativesJ. Biomed. Semant.20191011010.1186/s13326-019-0198-0PMC645870930975223",
+      "doi": [
+        "10.1186/s13326-019-0198-0"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.BejanCAMining 100 million notes to find homelessness and adverse childhood experiences: 2 case studies of rare and severe social determinants of health in electronic health recordsJ. Am. Med. Inform. Assoc.201725617110.1093/jamia/ocx059PMC608081029016793",
+      "doi": [
+        "10.1093/jamia/ocx059"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.TopazMMurgaLBar-BacharOCatoKCollinsSExtracting alcohol and substance abuse status from clinical notes: the added value of nursing dataStud. Health Technol. Inform.2019264105610603143808610.3233/SHTI190386",
+      "doi": [
+        "10.3233/SHTI190386"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.GundlapalliAVUsing natural language processing on the free text of clinical documents to screen for evidence of homelessness among US veteransAMIA Annu. Symp. Proc.2013201353754624551356PMC3900197",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.HammondKWBen-AriAYLaundryRJBoykoEJSamoreMHThe feasibility of using large-scale text mining to detect adverse childhood experiences in a VA-treated populationJ. Trauma. Stress2015285055142657962410.1002/jts.22058",
+      "doi": [
+        "10.1002/jts.22058"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.HanSClassifying social determinants of health from unstructured electronic health records using deep learning-based natural language processingJ. Biomed. Inform.20221271039843500775410.1016/j.jbi.2021.103984",
+      "doi": [
+        "10.1016/j.jbi.2021.103984"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.RouillardCJNasserMAHuHRoblinDWEvaluation of a natural language processing approach to identify social determinants of health in electronic health records in a diverse community cohortMed. Care2022602482553498498910.1097/MLR.0000000000001683",
+      "doi": [
+        "10.1097/MLR.0000000000001683"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.FellerDJDetecting social and behavioral determinants of health with structured and free-text clinical dataAppl. Clin. Inform.2020111721813213111710.1055/s-0040-1702214PMC7056402",
+      "doi": [
+        "10.1055/s-0040-1702214"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.YuZA study of social and behavioral determinants of health in lung cancer patients using transformers-based natural language processing modelsAMIA Annu. Symp. Proc.202120211225123335309014PMC8861705",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.LybargerKLeveraging natural language processing to augment structured social determinants of health data in the electronic health recordJ. Am. Med. Inform. Assoc.202330138913973713034510.1093/jamia/ocad073PMC10354760",
+      "doi": [
+        "10.1093/jamia/ocad073"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.PatraBGExtracting social determinants of health from electronic health records using natural language processing: a systematic reviewJ. Am. Med. Inform. Assoc.202128271627273461339910.1093/jamia/ocab170PMC8633615",
+      "doi": [
+        "10.1093/jamia/ocab170"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.Xu, D., Chen, S. & Miller, T. BCH-NLP at BioCreative VII Track 3: medications detection in tweets using transformer networks and multi-task learning. Preprint at https://arxiv.org/abs/2111.13726 (2021).",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.ChenSNatural language processing to automatically extract the presence and severity of esophagitis in notes of patients undergoing radiotherapyJCO Clin. Cancer Inf.20237e230004810.1200/CCI.23.0004837506330",
+      "doi": [
+        "10.1200/CCI.23.00048"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.TanRSYCInferring cancer disease response fromradiology reports using large language models with data augmentation and promptingJ. Am. Med Inf. Assoc.2023301657166410.1093/jamia/ocad133PMC1053110537451682",
+      "doi": [
+        "10.1093/jamia/ocad133"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.Jung, J. et al. Impossible distillation: from low-quality model to high-quality dataset & model for summarization and paraphrasing. Preprint at https://arxiv.org/pdf/2305.16635.pdf (2023).",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.LettELa CavaWGTranslating intersectionality to fair machine learning in health sciencesNat. Mach. Intell.202354764793760014410.1038/s42256-023-00651-3PMC10437125",
+      "doi": [
+        "10.1038/s42256-023-00651-3"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.LiJAre synthetic clinical notes useful for real natural language processing tasks: a case study on clinical entity recognitionJ. Am. Med. Inform. Assoc.202128219322013427295510.1093/jamia/ocab112PMC8449609",
+      "doi": [
+        "10.1093/jamia/ocab112"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.ChenRJLuMYChenTYWilliamsonDFKMahmoodFSynthetic data in machine learning for medicine and healthcareNat. Biomed. Eng.202154934973413132410.1038/s41551-021-00751-8PMC9353344",
+      "doi": [
+        "10.1038/s41551-021-00751-8"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.JacobsFOpportunities and challenges of synthetic data generation in oncologyJCO Clin. Cancer Inf.20237e230004510.1200/CCI.23.0004537535875",
+      "doi": [
+        "10.1200/CCI.23.00045"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.Chen, S. et al. Evaluation of ChatGPT family of models for biomedical reasoning and classification. Preprint at https://arxiv.org/abs/2304.02496 (2023).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Lehman, E. et al. Do we still need clinical language models? arXivhttps://arxiv.org/abs/2302.08091 (2023).",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Ramachandran, G. K. et al. Prompt-based extraction of social determinants of health using few-shot learning. In: Proceedings of the 5th Clinical Natural Language Processing Workshop, 385–393 (Association for Computational Linguistics, 2023).",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Feng, S., Park, C. Y., Liu, Y. & Tsvetkov, Y. From pretraining data to language models to downstream tasks: tracking the trails of political biases leading to unfair NLP models. In: Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) 11737–11762 (Association for Computational Linguistics, 2023).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Zhao, J., Wang, T., Yatskar, M., Ordonez, V. & Chang, K.-W. Men also like shopping: reducing gender bias amplification using corpus-level constraints. In: Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing 2979–2989 (Association for Computational Linguistics, 2017).",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.CaliskanABrysonJJNarayananASemantics derived automatically from language corpora contain human-like biasesScience20173561831862840860110.1126/science.aal4230",
+      "doi": [
+        "10.1126/science.aal4230"
+      ]
+    },
+    {
+      "id": "CR38",
+      "text": "38.Davidson, T., Warmsley, D., Macy, M. & Weber, I. Automated hate speech detection and the problem of offensive language. In Proceedings of the Eleventh International AAAI Conference on Web and Social Media. 512–515 (Association for the Advancement of Artificial Intelligence, 2017).",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.KharraziHThe value of unstructured electronic health record data in geriatric syndrome case identificationJ. Am. Geriatr. Soc.201866149915072997259510.1111/jgs.15411",
+      "doi": [
+        "10.1111/jgs.15411"
+      ]
+    },
+    {
+      "id": "CR40",
+      "text": "40.DertonANatural language processing methods to empirically explore social contexts and needs in cancer patient notesJCO Clin. Cancer Inf.20237e220019610.1200/CCI.22.0019637235847",
+      "doi": [
+        "10.1200/CCI.22.00196"
+      ]
+    },
+    {
+      "id": "CR41",
+      "text": "41.LybargerKYetisgenMUzunerÖThe 2022 n2c2/UW shared task on extracting social determinants of healthJ. Am. Med. Inform. Assoc.202330136713783679506610.1093/jamia/ocad012PMC10354764",
+      "doi": [
+        "10.1093/jamia/ocad012"
+      ]
+    },
+    {
+      "id": "CR42",
+      "text": "42.RomanowskiBBen AbachaAFanYExtracting social determinants of health from clinical note text with classification and sequence-to-sequence approachesJ. Am. Med. Inform. Assoc.202330144814553710076810.1093/jamia/ocad071PMC10354779",
+      "doi": [
+        "10.1093/jamia/ocad071"
+      ]
+    },
+    {
+      "id": "CR43",
+      "text": "43.HatefEAssessing the availability of data on social and behavioral determinants in structured and unstructured electronic health records: a retrospective analysis of a multilevel health care systemJMIR Med. Inf.20197e1380210.2196/13802PMC669685531376277",
+      "doi": [
+        "10.2196/13802"
+      ]
+    },
+    {
+      "id": "CR44",
+      "text": "44.GreenwaldJLCroninPRCarballoVDanaeiGChoyGA novel model for predicting rehospitalization risk incorporating physical function, cognitive status, and psychosocial support using natural language processingMed. Care2017552612662763276710.1097/MLR.0000000000000651",
+      "doi": [
+        "10.1097/MLR.0000000000000651"
+      ]
+    },
+    {
+      "id": "CR45",
+      "text": "45.BlosnichJRSocial determinants and military veterans’ suicide ideation and attempt: a cross-sectional analysis of electronic health record dataJ. Gen. Intern. Med.202035175917673174585610.1007/s11606-019-05447-zPMC7280399",
+      "doi": [
+        "10.1007/s11606-019-05447-z"
+      ]
+    },
+    {
+      "id": "CR46",
+      "text": "46.WrayCMExamining the interfacility variation of social determinants of health in the veterans health administrationFed. Pract.20213815193357464410.12788/fp.0080PMC7870278",
+      "doi": [
+        "10.12788/fp.0080"
+      ]
+    },
+    {
+      "id": "CR47",
+      "text": "47.WangLDisease trajectories and end-of-life care for dementias: latent topic modeling and trend analysis using clinical notesAMIA Annu. Symp. Proc.201820181056106530815148PMC6371376",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.NavatheASHospital readmission and social risk factors identified from physician notesHealth Serv. Res.201853111011362829526010.1111/1475-6773.12670PMC5867172",
+      "doi": [
+        "10.1111/1475-6773.12670"
+      ]
+    },
+    {
+      "id": "CR49",
+      "text": "49.KroenkeCHKubzanskyLDSchernhammerESHolmesMDKawachiISocial networks, social support, and survival after breast cancer diagnosisJ. Clin. Oncol.200624110511111650543010.1200/JCO.2005.04.2846",
+      "doi": [
+        "10.1200/JCO.2005.04.2846"
+      ]
+    },
+    {
+      "id": "CR50",
+      "text": "50.MaunsellEBrissonJDeschênesLSocial support and survival among women with breast cancerCancer199576631637862515710.1002/1097-0142(19950815)76:4<631::aid-cncr2820760414>3.0.co;2-9",
+      "doi": [
+        "10.1002/1097-0142(19950815)76:4<631::aid-cncr2820760414>3.0.co;2-9"
+      ]
+    },
+    {
+      "id": "CR51",
+      "text": "51.SchulzRBeachSRCaregiving as a risk factor for mortality: the Caregiver health effects studyJAMA1999282221522191060597210.1001/jama.282.23.2215",
+      "doi": [
+        "10.1001/jama.282.23.2215"
+      ]
+    },
+    {
+      "id": "CR52",
+      "text": "52.HovyDPrabhumoyeSFive sources of bias in natural language processingLang. Linguist. Compass202115e124323586493110.1111/lnc3.12432PMC9285808",
+      "doi": [
+        "10.1111/lnc3.12432"
+      ]
+    },
+    {
+      "id": "CR53",
+      "text": "53.JohnsonAPollardTMarkRMIMIC-III Clin. database202310.13026/C2XW26",
+      "doi": [
+        "10.13026/C2XW26"
+      ]
+    },
+    {
+      "id": "CR54",
+      "text": "54.JohnsonAEWMIMIC-III, a freely accessible critical care databaseSci. Data201631600352721912710.1038/sdata.2016.35PMC4878278",
+      "doi": [
+        "10.1038/sdata.2016.35"
+      ]
+    },
+    {
+      "id": "CR55",
+      "text": "55.GoldbergerAPhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signalsCirculation2000101e215e2201085121810.1161/01.cir.101.23.e215",
+      "doi": [
+        "10.1161/01.cir.101.23.e215"
+      ]
+    },
+    {
+      "id": "CR56",
+      "text": "56.EyreHLaunching into clinical space with medspaCy: a new clinical text processing toolkit in PythonAMIA Annu. Symp. Proc.2021202143844735308962PMC8861690",
+      "doi": []
+    },
+    {
+      "id": "CR57",
+      "text": "57.MedspaCy · spaCy universe. medspaCy https://spacy.io/universe/project/medspacy.",
+      "doi": []
+    },
+    {
+      "id": "CR58",
+      "text": "58.Leitner, F. syntok: Text tokenization and sentence segmentation (segtok v2). (Github).",
+      "doi": []
+    },
+    {
+      "id": "CR59",
+      "text": "59.Multi-document annotation environment. MAEhttps://keighrim.github.io/mae-annotation/.",
+      "doi": []
+    },
+    {
+      "id": "CR60",
+      "text": "60.OpenAI API. http://platform.openai.com.",
+      "doi": []
+    },
+    {
+      "id": "CR61",
+      "text": "61.Devlin, J., Chang, M.-W., Lee, K. & Toutanova, K. BERT: pre-training of deep bidirectional transformers for language understanding. In: Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Vol. 1 (Long and Short Papers) 4171–4186 (Association for Computational Linguistics, 2019).",
+      "doi": []
+    },
+    {
+      "id": "CR62",
+      "text": "62.Chung, H. W. et al. Scaling instruction-finetuned language models. Preprint at https://arxiv.org/abs/2210.11416 (2022).",
+      "doi": []
+    },
+    {
+      "id": "CR63",
+      "text": "63.Longpre, S. et al. The flan collection: designing data and methods for effective instruction tuning. arXivhttps://arxiv.org/abs/2301.13688 (2023).",
+      "doi": []
+    },
+    {
+      "id": "CR64",
+      "text": "64.Hu, E. J. et al. LoRA: Low-Rank Adaptation of Large Language Models. International Conference on Learning Representations (2022).",
+      "doi": []
+    },
+    {
+      "id": "CR65",
+      "text": "65.Kondrashchenko, I. scikit-llm: seamlessly integrate powerful language models like ChatGPT into scikit-learn for enhanced text analysis tasks. (Github).",
+      "doi": []
+    },
+    {
+      "id": "CR66",
+      "text": "66.Guevara, M. et al. Annotation dataset of social determinants of health from MIMIC-III Clinical Care Database. Physionet, 1.0.0, 10.13026/6149-mb25 (2023).",
+      "doi": []
+    },
+    {
+      "id": "CR67",
+      "text": "67.Guevara, M. et al. SDoH Human Annotated Demographic Robustness (SHADR) Dataset. Huggingface, 2308.06354 (2023).",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Guevara M, Chen S, Thomas S, Chaunzwa TL, Franco I, Kann BH, Moningi S, Qian JM, Goldstein M, Harper S, Aerts HJWL, Catalano PJ, Savova GK, Mak RH, Bitterman DS.",
+  "journal": "NPJ Digit Med",
+  "year": "2024",
+  "pmid": "38200151",
+  "pmcid": "PMC10781957",
+  "doi": "10.1038/s41746-023-00970-0",
+  "source": {
+    "retrieved_at": "2026-11-14T16:56:43.449615+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10781957/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC10781957.xml"
+}

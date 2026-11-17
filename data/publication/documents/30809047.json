@@ -1,0 +1,1096 @@
+{
+  "key": "30809047",
+  "body_available": true,
+  "title": "Deep learning in head & neck cancer outcome prediction",
+  "source_url": "https://europepmc.org/articles/PMC6391436",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "André Diamant",
+    "Avishek Chatterjee",
+    "Martin Vallières",
+    "George Shenouda",
+    "Jan Seuntjens"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2019",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2019",
+        "month": "2",
+        "day": "26"
+      },
+      {
+        "type": "collection",
+        "year": "2019",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5"
+          ],
+          "en": "Radiation therapy is often used (74%)1 to treat head and neck (H&N) cancers, a group of neoplasms originating from the squamous cells that line the mucosal surfaces of the oral cavity, paranasal sinuses, pharynx or larynx. Although loco-regional control of most H&N cancers is reasonably good (≈90%)2, long-term survival can be quite poor (5-year survival rates as low as 50%)2, in large part due to the development of distant metastasis or second primary cancers3,4. Thus, the development of a model capable of identifying potential high-risk patients prior to treatment is critical. With such a model, a better-informed decision could be made regarding patient risk stratification. A high-risk patient could be assigned a more aggressive treatment regimen, potentially improving their outcome. Similarly, a low-risk patient could receive a more conservative treatment, delivering less radiation in order to reduce the chance of harmful side effects, such as hormonal disorders, tismus, xerostomia or dental disease5. The primary focus of this work is to build a model that is capable of discerning high-risk H&N cancer patients prior to their treatment using solely their computed tomography (CT) image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR6",
+            "CR7",
+            "CR8",
+            "CR9",
+            "CR10",
+            "CR11",
+            "CR19"
+          ],
+          "en": "Machine learning has played an increasingly prominent role over the past few decades in nearly every aspect of the STEM (science, technology, engineering and medicine) fields6,7. Recently, deep learning, a sub-field of machine learning, has risen to the forefront of the artificial intelligence community8. One of the most popular deep learning tools is the convolutional neural network (CNN), a type of algorithm inspired by the biological neural networks within the animal visual cortex. CNNs consist of sequential layers which contain increasingly complex representations of data, eventually resulting in a classification of the input data9,10. In particular, they are very effective at analyzing images and have achieved enormous success in numerous computer vision tasks, such as object detection, semantic segmentation, object classification and CADx (computer-aided diagnosis)11–19.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR20",
+            "CR21",
+            "CR28",
+            "CR29",
+            "CR21",
+            "CR28",
+            "CR17",
+            "CR18",
+            "CR30",
+            "CR32",
+            "CR9",
+            "CR10",
+            "CR25",
+            "CR25",
+            "CR29",
+            "CR11",
+            "CR12",
+            "CR16",
+            "CR25"
+          ],
+          "en": "Radiomics is the study of “image biomarkers” - the characterization of tumor phenotypes via the extraction of data from all types of medical images20. In the past few years, it has been extensively deployed for outcome prediction, among other applications21–28. For image-based outcome prediction, there are three common approaches. The first is the use of handcrafted features29 which are directly extracted from the medical images. Often, these features are then fed into a machine learning algorithm for outcome prediction (e.g., random forest, support vector machine)21–28. We refer to this as “traditional radiomics”. The second approach uses the outputs of the deeper layers in a CNN (often the final or penultimate fully connected layer) as “deep features”. Similar to the first approach, these “deep features” are then fed into a secondary machine learning algorithm for outcome prediction17,18,30–32. The third approach employs transfer learning to fine-tune the weights of a pre-existing network to predict outcomes9,10. Our methodology represents a novel fourth approach in that we use a single end-to-end CNN trained de novo (with no secondary machine learning algorithms) to predict oncological outcomes. To our knowledge, this is something that has not been successfully attempted in this context. This study will be specifically benchmarked against a previous study on the same data by Vallières et al.25 which correlated a number of radiomic features from pre-treatment pre-segmented CT images with the outcome of H&N cancer patients. We use a novel deep CNN framework on the same cohort of patients, improving on a number of metrics, both quantitative and qualitative; detailed comparisons are made throughout this report. In the benchmark study, the most predictive combination of radiomic features related with distant metastasis involved LRHGEGLRLM (long run high grey level emphasis of the grey level run length matrix), ZSVGLSZM (zone size variance of the grey level size zone matrix) and ZSNGLSZM (zone size non-uniformity of the grey level size zone matrix)25,29. We show that our network is capable of directly recognizing these radiomic features without having any prior information regarding their mathematical definition. While CNNs can be used for image segmentation11,12,16, our methodology functions on pre-segmented tumor volumes, both to stay consistent with the benchmark study25 and to simplify the task at hand.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR9",
+            "CR10",
+            "CR33",
+            "CR34",
+            "CR35",
+            "CR36"
+          ],
+          "en": "One of our primary hypotheses is that a carefully trained CNN could learn the ability to recognize radiomic features. Typically, when attempting to apply a CNN framework to an unexplored image dataset that is of limited size, one uses a methodology called transfer learning. In transfer learning, a network that has already been trained and evaluated on another (much-larger) dataset is used as a starting point, and subsequently fine-tuned for the dataset of interest9,10. This often results in excellent performance33. As an example, ImageNet34 is a database of over 1 million RGB images which programmers compete on in an attempt to accurately classify the images into 1 of over 20,000 categories (e.g., dog, cat, plane, car, bench). Transfer learning was used to teach a top-performing network (Google’s Inception-v335) to classify dogs into one of eleven breeds (e.g., bulldog, dachshund) with 96% accuracy36. The success is largely because of the similarity in the features that distinguish objects and dog breeds, features such as sharp edges or color gradients. In accordance with our goal of training a CNN that can recognize radiomic features, employing a transfer learning approach is possibly less successful. Furthermore, if an adequately sized dataset is available for the relevant classification task, it may not be necessary to use transfer learning as a methodology. Since medical images look substantially different from the everyday world to the human eye, and we have a dataset of 300 patients at our disposal, we decided to explore training a network de novo using gray-scale CT images. A comparison to a more traditional transfer learning approach is included in the Supplementary Information to quantitatively evaluate this hypothesis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "The novel contributions of this work are three-fold. Firstly, we develop a deep CNN-based framework capable of accurately predicting H&N cancer treatment outcomes based solely on a patient’s pre-treatment CT image. Secondly, the framework is an externally validated medical gray-scale end-to-end CNN built de novo, rather than using transfer learning. Finally, the CNN is shown to explicitly recognize previously engineered radiomic features with proven predictive power25 on a benchmark study, and is shown to complement their performance in a number of qualitative and quantitative ways which will be discussed throughout this report.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Benchmark study comparison",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR25",
+            "CR25",
+            "Tab1",
+            "Tab2",
+            "Tab1",
+            "CR25",
+            "CR25",
+            "CR37",
+            "CR25",
+            "CR25",
+            "CR25",
+            "CR25",
+            "CR25",
+            "CR25",
+            "CR25",
+            "CR25"
+          ],
+          "en": "The testing set of 106 patients used in the benchmark study25 is used as an independent validation set in this study. The training set used was identical to that of the benchmark study. The results obtained from our CNN framework are shown alongside the results of the compared study25 in Tables 1 and 2. The training and evaluation was done on the central tumor slice, which was defined as the slice with the maximum number of tumor pixels within a patient’s entire set of CT images. This is in contrast to the benchmark study, where the model was trained and evaluated on the entire tumor volume. To evaluate the model’s robustness with respect to the precise choice of tumor slice, the same network was also trained and evaluated on the slice directly above (superior) and below (inferior) the central slice. In summary, the most powerful network resulted in an area under the receiver operating characteristic curve (AUC) of 0.88 when predicting distant metastasis, comparable to the benchmark result. The most improved network, trained to predict loco-regional failure, had an AUC of 0.65, a substantial improvement over the prior study which was unable to find any predictive radiomic features. An AUC of 0.70 was found when predicting overall survival, comparable to the benchmark result. These improvements will have to be further verified by using an additional independent testing set on which the CNN is applied without any change to the hyper-parameters. The precise choice of the evaluation slice did not have a significant impact on the results, as shown in Table 1. It is noted that this study calculated specificity and sensitivity based on an optimized threshold, while the benchmark study25 performed imbalance adjustments and used a threshold of 0.5. Additionally, using the same logistic regression methodology described in the benchmark study25, we combined the final output score of our DM CNN model with the three aforementioned features used in the DM model of the benchmark study. The DeLong test was used to assess whether the combined model resulted in a statistically significant change in the AUC37. The new four-feature model had an AUC of 0.92 in the validation set (p-value of 0.04 when compared to the benchmark model, p-value of 0.12 when compared to the CNN model). This combination approach could not be implemented for the other outcomes, due to the traditional radiomics model’s inability to find strong individual features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Cross validation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "To better assess the stability of our results, we performed 5-fold cross validation on the entire set of 300 DM images. No changes to the hyper-parameters were made between any of the folds and thus remained identical to the hyper-parameters used in the comparison presented above. The mean AUC was found to be 0.85 (range: 0.80 to 0.88). It is noted that the 5-fold cross validation results should not be directly compared to the results of the benchmark study25 due to the differing data partitioning scheme.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Visualization of results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "CR38",
+            "Fig1",
+            "CR39",
+            "CR39"
+          ],
+          "en": "There are a number of visualization tools that we can use to better understand the behaviour of the CNN, many of which are facilitated by the Keras-vis toolbox38. All visualization examples in this section represent the highest performing network (i.e., trained on the central tumor slice to predict distant metastasis). Figure 1 represents a montage of four patient CTs, two of whom developed DM (top), and two who did not (bottom). These particular CT images are chosen to represent the diversity in features perceivable by the human eye (e.g., shape, first-order textures). The leftmost column is a zoomed-in view of the 512 × 12 pixel CT image that enters the model, representing the pre-processing done (which merely amounts to setting any pixels outside of the gross tumor volume to zero). The middle column shows gradient class activation maps (Grad-CAMs39) on the penultimate convolutional block, which depict what areas of the image the CNN found most relevant for outcome prediction. The heat map represents how important each region of the image is to the given classification. This information can potentially be used by clinicians to make further hypotheses regarding the nature of the tumor. The final column depicts a merger of the Grad-CAM and the CT image. This is the image we recommend is used when attempting to understand the network’s behavior on a particular input image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "Fig2",
+            "CR40",
+            "CR43",
+            "MOESM1",
+            "Fig2"
+          ],
+          "en": "Another method of visualizing our network is through an activation map. Shown in Fig. 2, an activation map represents a procedurally generated image that would result in a distant metatasis classification of maximal probability (a score of 1). We stress that this image was generated on the fully trained network and thus does not represent an individual CT image within the dataset. The image appears quite disorderly at first, but there are some interesting aspects that we can discern from it. Firstly, the image appears mostly homogeneous on a large scale, meaning no region of the image favors one pattern over another. This is an indication that our network is approaching location invariance, due to tumor locations being highly variable regardless of outcome within the training set. Secondly, when focusing on a small portion of the image, the image appears heterogeneous both in shape and intensity. This is indicative of heterogeneous tumors being more aggressive and likely to be assigned a poor outcome, an observation consistent with the published literature40–43. The corresponding minimal activation map (i.e., a score of 0) is shown and discussed in the Supplementary Note/Fig. A1. Although Fig. 2 does not directly explain any specific patient prediction, it gives insight into the trained network and the patterns it is associating with a specific classification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Filters within the CNN explicitly recognize radiomic features",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "CR9",
+            "Fig3",
+            "Fig2",
+            "Fig3",
+            "CR29",
+            "Fig3",
+            "Fig4",
+            "CR25",
+            "Fig3",
+            "CR25",
+            "Fig4",
+            "CR25",
+            "Fig3"
+          ],
+          "en": "To determine whether the CNN trained de novo could be recognizing radiomic features, we visualized a montage of filters. Each convolutional block within the network functions by convolving a variable number of learned filters with the input data9. Figure 3 represents 4 of the 128 filters that make up the final convolutional block. Similar to Figs 2 and 3 is not representative of any specific CT image but rather the final trained network. Each square represents the procedurally generated input image that would maximize the mean output of a specific filter, thus informing us at an abstract level what sort of image each filter is interested in when making a decision. It is evident that each of these filters is maximally activated by various textures, rather than a particular shape or object as is common in more typical convolutional neural networks. In order to determine whether any of the filters were specifically activated by previously engineered radiomic features, we extracted 94 radiomic features (as described in the Image Biomarker Standardization Initiative (IBSI29)) from each filter’s maximal activation map (Fig. 3). An example of this analysis when performed on 64 of the filters (chosen among those whose maximal activation maps converged) is shown in Fig. 4. The y-axis represents the normalized value of a specific radiomic feature that Vallières et al.25 found to be predictive (blue: ZSVGLSZM, red: ZSNGLSZM, yellow: LRHGEGLRLM). These features were calculated using the exact same extraction parameters as the benchmark study. The letters indicate the corresponding square in Fig. 3. Of particular interest are the numerous blue peaks (a,c and d). These filters are strongly activated by an input region with a high value of the radiomic feature ZSVGLSZM, precisely the feature that Vallières et al.25 found to be most predictive. Many of these filters are also strongly activated by extreme (high or low) values of ZSNGLSZM and LRHGEGLRLM (red and yellow respectively). In particular, many filters represent various permutations of the three features. As an example, (a) is activated by all three radiomic features, (b) is mostly activated by red, (c) is mostly activated by blue and yellow, while (d) is mostly activated by blue. In essence, these filters are recognizing and combining various radiomic features to help classify a particular input image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "MOESM1",
+            "CR29",
+            "MOESM1"
+          ],
+          "en": "The 64 filters’ maximal activation maps are displayed in Supplementary Fig. A2. The radiomic analysis for these 64 filters and all 94 radiomic features (as described in the Image Biomarker Standardization Initiative (IBSI29) and extracted using 128 gray levels and a scale of 1 mm) is displayed in Supplementary Fig. A3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "Fig3",
+            "Fig4",
+            "Fig4",
+            "Fig4",
+            "CR25",
+            "CR25",
+            "Tab1"
+          ],
+          "en": "These results show great potential in using convolutional neural networks trained de novo on medical gray-scale images to predict oncological treatment outcomes. The average adult human is capable of looking at an object or person and immediately classifying it properly (type of object/name) with virtually 100% accuracy. This is largely due to the types of features that our brains have developed to subconsciously look for and associate with a particular object or person (e.g. sharp edges/color gradients combining into shapes). These concepts are precisely what networks trained on ImageNet have learned to process. A major benefit to training a network de novo is that it can learn abstract concepts unique to the dataset of interest such as specific radiomic texture features. This is explicitly shown in Figs 3 and 4. The radiomic analysis performed (Fig. 4) shows that many of these filters are able to process and distinguish radiomic features without explicitly being told the definition of any feature. The primary example of this are the numerous blue peaks in Fig. 4. Effectively, these filters have learned the ability to see an image from a perspective that is interested in the value of the radiomic feature ZSVGLS′ZM. Furthermore, this feature is one of the radiomic features that Vallières et al.25 found to be predictive. Similarly, many of the filters are strongly attuned to the features LRHGEGLRLM and ZSNGLSZM, the two other features that Vallières et al.25 found predictive. The ability of our network to directly recognize radiomic features without being told their definition is powerful for a number of reasons, one of which being it may remove the need to specifically engineer new features. The relationship between the filters of our network and the most predictive radiomic features of the compared study also helps build confidence in the network’s output. As seen in Table 1, a combination approach does increase the AUC from 0.88 to 0.92. This indicates that although our network does recognize the features to some extent, it does not directly represent them. In other words, there is still some orthogonality between the quantitative value of a radiomic feature and the filter’s impact on our network’s output score. Future work could be done to further investigate the difference between the two representations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "The visualization tools we used in this work begin to overcome one of the primary obstacles in outcome analysis using a machine learning model: interpretability. The benchmark study found the most predictive combination of radiomic features related with distant metastasis to be LRHGEGLRLM, ZSVGLSZM and ZSNGLSZM. While these features are mathematically well-defined, it is difficult for humans to visualize them, let alone develop an intuition for them. In comparison, the visualization tools our framework uses, particularly the class activation maps (Fig. 1), are more interpretable. It is noted that the interpretations discussed thus far do not exhaust all the information our method can extract. Through future research and collaboration, it is our belief that our framework can lead to further hypotheses. The visualization tools grant the ability to not only have more confidence in the output, but also provide a tool to the medical community that may help discover unknown aspects of these gray-scale images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR25",
+            "CR25",
+            "CR44"
+          ],
+          "en": "One major advantage of this framework is the lack of feature engineering, in stark contrast to traditional radiomic frameworks. In particular, the benchmark study25 required the extraction of 55 pre-defined radiomic features, 40 of which were extracted using combinations of three parameters (isotropic voxel size, quantization algorithm and number of gray levels). In total, this resulted in the extraction of 1615 radiomic features. Prior to the extraction, an elaborate and complex feature selection process was required to identify the “potentially useful” features25. Elaborate procedures for the selection of potentially useful features have also been developed for radiomic analyses of other cancer types44. The approach developed in this report eschews this problem by giving the algorithm the full set of un-altered pixel data of the tumor and allowing the algorithm to tell the user what is important rather than the user explicitly telling the algorithm what is important. This is one of the primary motivations behind our exploration of a end-to-end CNN, without any feature or machine learning algorithm selection. Similarly, as the handcrafted features were extracted from pre-segmented tumors, maintaining this segmentation allows us to better evaluate the hypothesized connection between the CNN’s behavior and the radiomic features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR25",
+            "CR25"
+          ],
+          "en": "There are improvements that could be made to this framework to potentially increase prediction performance and generalizablity. As an example of a potential pre-processing step, the CT images could be cropped to include only the field-of-view surrounding the tumor itself. This could improve the learning capabilities of the algorithm particularly by improving the location invariance of the model. However, this would be (albeit slightly) complicating the framework, directly opposing one of its primary advantages. There are two sources of information that could be added to our framework. The first would be to fully incorporate 3-dimensional information. In contrast to the radiomic study25 which used the entire tumor volume, our framework only considers the central slice (with robustness estimated by training on one slice superior/inferior). It is emphasized that this study was capable of surpassing the predictive power of the benchmark study solely using a single 2-dimensional image. By incorporating the entire tumor, the performance could potentially be further improved. However, convolutional neural networks which incorporate 3-dimensional image information are architecturally complex and computationally expensive. Another information source is each patient’s positron emission tomography (PET) image. Vallières et al.25 found additional predictive power in each patient’s PET image, so incorporating this information into our framework should improve performance. Potential image manipulation needs aside, this would be computationally simpler than incorporating volumetric information. The CT + PET image could be introduced into the network in a 2-channel fashion: input data would be 512 × 512 × 2 pixels, rather than 512 × 512 × 1 pixels. This is akin to the 3-channel RGB input that many traditional CNNs use. Additionally, our framework uses solely the pre-segmented gross tumor volume as an input rather than including the surrounding tissue. Ideally one would include the surrounding tissue and build a network capable of incorporating any information within. This would also remove the need for location invariance, as there could be additional information contained in the tumor’s precise location within the anatomy. Finally, while we performed a relatively simple combination approach (logistic regression), future work could study the different methods that could be used to better combine traditional radiomics and CNN information. An in-depth study regarding transfer learning and whether a transfer-learnt network is capable of recognizing the same radiomic features could also be performed. These improvements were not included to align with the goal of assessing our primary hypothesis, keeping the initial framework as simple as possible and to reduce training time.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "This report showed the power and potential of using a deep convolutional neural network built de novo to perform outcome predictions on the pre-treatment CT image of head and neck cancer patients. Often transfer learning is used to train a CNN on a new dataset due to the perception that thousands, if not millions of images are required to build an accurate model. Our framework shows that a training set of 200 medical gray-scale images may be sufficient to train a network de novo, with proper data augmentation. The model was shown to have the ability to explicitly recognize radiomic features and further improve on the performance of a traditional radiomics framework. Performance gains aside, our framework overcomes many of the typical issues when building a traditional radiomics-based model. Specifically, our model is capable of being interpreted in a more intuitive fashion and completely eschews the need for feature engineering. We believe our framework could serve as the base of a gray-scale image analysis tool capable of being adapted to other imaging modalities (e.g., PET, MRI) or other cancer sites (e.g., liver, lung, breast).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec9",
+      "title": "Patient cohorts",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR25",
+            "CR45",
+            "CR25",
+            "Tab3",
+            "CR25",
+            "CR45"
+          ],
+          "en": "Extensive details regarding the patient cohort used throughout this report are publicly available on The Cancer Imaging Archive (TCIA)25,45 repository. Eligible patients were taken from four separate institutions (Hôpital général juif (HGJ), Centre hospitalier universitaire de Sherbooke (CHUS), Hôpital Maisonneuve-Rosemont (HMR) and Centre hospitalier de l’Université de Montréal (CHUM)). The majority received chemotherapy adjuvant to radiotherapy (92%) while the remainder solely received radiation (8%). All patients underwent joint FDG-PET/CT scans, however this study only made use of the CT image. The training set was defined as the patients from HGJ and CHUS, while the validation set was defined as the patients from HMR and CHUM. This was the same distribution used in the compared study25, specifically notable due to the validation set only containing patients from independent institutions. Any patients with metastases or recurrent H&N cancer at presentation were excluded, along with any patients receiving palliative care. The median age of patients across the total cohort was 63 years (range: 18–88). The median follow-up period across all patients was 43 months (range: 6–112). Any patients that did not develop cancer recurrence and had a follow-up period of less than 24 months were discarded. The outcome distribution for both cohorts is shown in Table 3. It is noted that 2 patients from the training cohort were lost to data corruption.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Convolutional neural network architecture",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR46"
+          ],
+          "en": "Our CNN contains four main operations: convolution, non-linearity, pooling and classification. These four operations are facilitated by layers, which are the building blocks of the overall framework. The convolution operation is ultimately what learns and subsequently extracts features from the input data. The layer includes a variable number of convolutional filters, each of which acts as a sliding window (of a small size, e.g., 5 × 5 pixels) applying a convolution over the input data. By learning a number of different filters (e.g., 64), the network is able to incorporate a large variety of features. The more filters we choose to learn, the more image features the network is able to ultimately extract and recognize in unseen images. The non-linearity operation is needed to accurately model the type of real-world data we are interested in. Many CNNs have adopted the use of a rectified linear unit (ReLU), which simply replaces all negative input values (from the preceding convolutional layer) by 0. Instead, we use a parametrized rectified linear unit (PReLU), which has largely the same effect but allows a small amount of the negative input values to propagate through the network by multiplying the negative portion of the input domain by a learnt non-zero slope46. Next, the pooling operation serves to progressively reduce the spatial size of the input information. This is important for computational efficiency, to ensure that the model can be generalized and most importantly, to introduce location invariance. In our model we utilize “max-pooling”, an operation that replaces every 4 × 4 region of input data with the maximum value among them. Finally, the classification operation takes all the high-level features from the previous representations and combines them using a sigmoid activation function to determine which class the input represents.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [],
+          "en": "Henceforth, we will refer to convolutional blocks, which contain the convolution operation, the non-linearity operation and the pooling operation stacked one after another. By stacking convolutional blocks, the network is able to progressively learn complex image features that humans are not used to processing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "Fig5",
+            "Fig5",
+            "CR9"
+          ],
+          "en": "Our CNN architecture is shown in Fig. 5 and was largely chosen for its simplicity, a characteristic that increases the model’s ability to generalize and reduces the risk of over-fitting. Of particular note is the usage of a 512 × 512 pixel input layer, allowing any standard CT image to directly be analyzed by the network with minimal pre-processing. The input layer is followed by 3 consecutive convolutional blocks. Each block consists of a convolutional layer, a max-pooling layer and a PReLu layer. It is noted that the PReLu layers are not explicitly depicted in Fig. 5. The convolutional layers used a filter size of 5 × 5 pixels, 3 × 3 pixels and 3 × 3 pixels, respectively. These layers formed the foundation of the network, each subsequent layer uncovering more complex features. The first block containing a larger filter allowed the later layers to have larger effective fields of view, combining a larger number of input pixels to determine important features. Notably, the max-pooling layers grant the network some degree of location invariance, a crucial attribute given the fact that the location of the tumor within the CT should not impact the outcome. The 3 convolutional blocks were followed by two consecutive fully connected layers and a final PReLu. Finally, a drop-out layer was included after the last fully connected layer, directly prior to the classification layer. Drop-out played a major role in reducing over-fitting by removing half of the information every single stochastic gradient descent iteration. Each iteration, the output of half of the nodes in the final fully connected layer were set to 0. This teaches the network that it must be capable of functioning even with a substantial amount of missing information, effectively forcing it to not rely too heavily on a single piece of information9.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Implementation details",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "CR47",
+            "CR48",
+            "CR9"
+          ],
+          "en": "Our framework was built on Python3 using the Keras library operating on the well-optimized tensor manipulation library Tensorflow47,48. The final outcome probability (in the classification layer) was computed using a sigmoid classifier. Each convolutional block used a PReLU as an activation function. The network weights were optimized using a stochastic gradient descent algorithm with a fixed learning rate of 0.001 and a momentum of 0.5. The mini-batch size was 32 and the objective function used was binary cross-entropy. Image augmentation was performed to increase generalization and reduce the training bias that the network is inherently subjected to9. Prior to training, each image was randomly flipped (horizontally and/or vertically), rotated a random amount (0–20°), and shifted a random fraction (0 to 0.4 times the total width of the image) in a random direction. This resulted in the total training dataset (and thus a single epoch) consisting of 4000 images (each tumor is augmented roughly 20 times). Our algorithm was trained and evaluated on a pair of NVIDIA GTX 1080TI graphic processing units to exploit their computational speed. Total training time for one network required approximately 5 hours (100 epochs). The time required to predict outcomes on the validation cohort is approximately 100 milliseconds. More details regarding the implementation and the specific range of parameters tested can be found in the Supplementary Methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Code availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [],
+          "en": "Code to build, compile, train and evaluate each model along with all visualization scripts will be publicly available on Github.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-14",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec13",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-16",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-16-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note: Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p2",
+          "reference_ids": [],
+          "en": "We acknowledge majority financial support from grant FRQNT-205163 and partial support from the grants NSERC CREATE 432290, CIHR FDN-143257 and MOP-114910. None of the funding sources had any role in the creation or execution of the study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p3",
+          "reference_ids": [],
+          "en": "A.D., A.C. and J.S. conceived the initial project: using deep learning to perform outcome prediction on head and neck cancer patients. A.D. developed the framework including the connection to radiomics and the concept of training de novo, analyzed the data, and wrote the manuscript. M.V. provided the base of the in-house script which extracted the radiomic variables. A.C., J.S., M.V. and G.S. provided expert knowledge and consultation throughout the course of the research. All authors edited the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p4",
+          "reference_ids": [
+            "CR25",
+            "CR45",
+            "CR49"
+          ],
+          "en": "The dataset analyzed throughout this study is publicly available on The Cancer Imaging Archive (TCIA) repository (10.7937/K9/TCIA.2017.8oje5q00)25,45,49.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-17",
+      "title": "Electronic supplementary material",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-17-p1",
+          "reference_ids": [],
+          "en": "Supplementary information accompanies this paper at 10.1038/s41598-019-39206-1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Competing Interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "FPar1-p1",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Validation set AUC results compared to Vallières et al’s25 testing set results on the same patient cohort.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "AUC (Area under the curve)",
+          "Combined model AUC"
+        ],
+        [
+          "Central slice",
+          "Superior slice",
+          "Inferior slice",
+          "Vallières et al.25"
+        ],
+        [
+          "Distant metastasis (DM)",
+          "0.88",
+          "0.88",
+          "0.88",
+          "0.86",
+          "0.92"
+        ],
+        [
+          "Loco-regional failure (LRF)",
+          "0.65",
+          "0.63",
+          "0.64",
+          "0.50",
+          "—"
+        ],
+        [
+          "Overall survival (OS)",
+          "0.70",
+          "0.68",
+          "0.67",
+          "0.65",
+          "—"
+        ]
+      ],
+      "footnotes": "Robustness was evaluated by training and evaluating networks on the center slice, the inferior slice and the superior slice. Final column represents a combined model utilizing the CNN score and the traditional features from Vallières et al.25. The combined model was only implemented for DM, due to the traditional radiomics model’s inability to find strong individual features for the other two outcomes.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Validation set AUC results compared to Vallières <italic toggle=\"yes\">et al’s</italic><sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup> testing set results on the same patient cohort.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\" /><th colspan=\"4\" rowspan=\"1\">AUC (Area under the curve)</th><th rowspan=\"2\" colspan=\"1\">Combined model AUC</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Central slice</th><th colspan=\"1\" rowspan=\"1\">Superior slice</th><th colspan=\"1\" rowspan=\"1\">Inferior slice</th><th colspan=\"1\" rowspan=\"1\">Vallières <italic toggle=\"yes\">et al</italic>.<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup></th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Distant metastasis (DM)</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.92</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Loco-regional failure (LRF)</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\">0.64</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">—</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Overall survival (OS)</td><td colspan=\"1\" rowspan=\"1\">0.70</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">—</td></tr></tbody></table><table-wrap-foot><p>Robustness was evaluated by training and evaluating networks on the center slice, the inferior slice and the superior slice. Final column represents a combined model utilizing the CNN score and the traditional features from Vallières <italic toggle=\"yes\">et al</italic>.<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup>. The combined model was only implemented for DM, due to the traditional radiomics model’s inability to find strong individual features for the other two outcomes.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Validation set results compared to Vallières et al.’s25 testing set results on the same patient cohort.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Specificity",
+          "Sensitivity",
+          "Balanced Accuracy"
+        ],
+        [
+          "Present study",
+          "Vallières et al.25",
+          "Present study",
+          "Vallières et al.25",
+          "Present study",
+          "Vallières et al.25"
+        ],
+        [
+          "DM",
+          "0.89",
+          "0.77",
+          "0.86",
+          "0.79",
+          "88%",
+          "77%"
+        ],
+        [
+          "LRF",
+          "0.67",
+          "0.61",
+          "0.65",
+          "0.39",
+          "66%",
+          "58%"
+        ],
+        [
+          "OS",
+          "0.67",
+          "0.67",
+          "0.68",
+          "0.55",
+          "68%",
+          "62%"
+        ]
+      ],
+      "footnotes": "Balanced accuracy is defined as the average of the specificity and sensitivity. It is noted that this study calculated specificity and sensitivity based on thresholds optimized in the training set, while the benchmark study25 performed imbalance adjustments during training and then used a single probability threshold of 0.5 in the testing phase. DM: Distant metastasis; LRF: Loco-regional failure; OS: Overall survival.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Validation set results compared to Vallières <italic toggle=\"yes\">et al.</italic>’<italic toggle=\"yes\">s</italic><sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup> testing set results on the same patient cohort.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\" /><th colspan=\"2\" rowspan=\"1\">Specificity</th><th colspan=\"2\" rowspan=\"1\">Sensitivity</th><th colspan=\"2\" rowspan=\"1\">Balanced Accuracy</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Present study</th><th colspan=\"1\" rowspan=\"1\">Vallières <italic toggle=\"yes\">et al</italic>.<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup></th><th colspan=\"1\" rowspan=\"1\">Present study</th><th colspan=\"1\" rowspan=\"1\">Vallières <italic toggle=\"yes\">et al</italic>.<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup></th><th colspan=\"1\" rowspan=\"1\">Present study</th><th colspan=\"1\" rowspan=\"1\">Vallières <italic toggle=\"yes\">et al</italic>.<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup></th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">DM</td><td colspan=\"1\" rowspan=\"1\">0.89</td><td colspan=\"1\" rowspan=\"1\">0.77</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\">88%</td><td colspan=\"1\" rowspan=\"1\">77%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">LRF</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.61</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.39</td><td colspan=\"1\" rowspan=\"1\">66%</td><td colspan=\"1\" rowspan=\"1\">58%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">OS</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">68%</td><td colspan=\"1\" rowspan=\"1\">62%</td></tr></tbody></table><table-wrap-foot><p>Balanced accuracy is defined as the average of the specificity and sensitivity. It is noted that this study calculated specificity and sensitivity based on thresholds optimized in the training set, while the benchmark study<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref></sup> performed imbalance adjustments during training and then used a single probability threshold of 0.5 in the testing phase. DM: Distant metastasis; LRF: Loco-regional failure; OS: Overall survival.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Patient/outcome distribution25,45.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Training cohort",
+          "Validation cohort"
+        ],
+        [
+          "Total",
+          "194",
+          "106"
+        ],
+        [
+          "Outcome"
+        ],
+        [
+          "Distant metastasis (DM)",
+          "26 (13%)",
+          "14 (13%)"
+        ],
+        [
+          "Loco-regional failure (LRF)",
+          "29 (15%)",
+          "16 (15%)"
+        ],
+        [
+          "Death",
+          "32 (16%)",
+          "24 (23%)"
+        ],
+        [
+          "Institution"
+        ],
+        [
+          "Hôpital général juif (HGJ)",
+          "92 (47%)",
+          "—"
+        ],
+        [
+          "Centre hospitalier universitaire de Sherbooke (CHUS)",
+          "102 (53%)",
+          "—"
+        ],
+        [
+          "Hôpital Maisonneuve-Rosemont (HMR)",
+          "—",
+          "41 (39%)"
+        ],
+        [
+          "Centre hospitalier de l’Université de Montréal (CHUM)",
+          "—",
+          "65 (61%)"
+        ],
+        [
+          "Tumor type"
+        ],
+        [
+          "Oropharynx",
+          "129 (66%)",
+          "77 (73%)"
+        ],
+        [
+          "Hypopharynx",
+          "5 (3%)",
+          "7 (7%)"
+        ],
+        [
+          "Nasopharynx",
+          "20 (10%)",
+          "8 (7%)"
+        ],
+        [
+          "Larynx",
+          "36 (19%)",
+          "9 (8%)"
+        ],
+        [
+          "Unknown",
+          "4 (2%)",
+          "5 (5%)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Patient/outcome distribution<sup><xref ref-type=\"bibr\" rid=\"CR25\">25</xref>,<xref ref-type=\"bibr\" rid=\"CR45\">45</xref></sup>.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Training cohort</th><th colspan=\"1\" rowspan=\"1\">Validation cohort</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Total</td><td colspan=\"1\" rowspan=\"1\">194</td><td colspan=\"1\" rowspan=\"1\">106</td></tr><tr><td colspan=\"3\" rowspan=\"1\">Outcome</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Distant metastasis (DM)</td><td colspan=\"1\" rowspan=\"1\">26 (13%)</td><td colspan=\"1\" rowspan=\"1\">14 (13%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Loco-regional failure (LRF)</td><td colspan=\"1\" rowspan=\"1\">29 (15%)</td><td colspan=\"1\" rowspan=\"1\">16 (15%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Death</td><td colspan=\"1\" rowspan=\"1\">32 (16%)</td><td colspan=\"1\" rowspan=\"1\">24 (23%)</td></tr><tr><td colspan=\"3\" rowspan=\"1\">Institution</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Hôpital général juif (HGJ)</td><td colspan=\"1\" rowspan=\"1\">92 (47%)</td><td colspan=\"1\" rowspan=\"1\">—</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Centre hospitalier universitaire de Sherbooke (CHUS)</td><td colspan=\"1\" rowspan=\"1\">102 (53%)</td><td colspan=\"1\" rowspan=\"1\">—</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Hôpital Maisonneuve-Rosemont (HMR)</td><td colspan=\"1\" rowspan=\"1\">—</td><td colspan=\"1\" rowspan=\"1\">41 (39%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Centre hospitalier de l’Université de Montréal (CHUM)</td><td colspan=\"1\" rowspan=\"1\">—</td><td colspan=\"1\" rowspan=\"1\">65 (61%)</td></tr><tr><td colspan=\"3\" rowspan=\"1\">Tumor type</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Oropharynx</td><td colspan=\"1\" rowspan=\"1\">129 (66%)</td><td colspan=\"1\" rowspan=\"1\">77 (73%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Hypopharynx</td><td colspan=\"1\" rowspan=\"1\">5 (3%)</td><td colspan=\"1\" rowspan=\"1\">7 (7%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Nasopharynx</td><td colspan=\"1\" rowspan=\"1\">20 (10%)</td><td colspan=\"1\" rowspan=\"1\">8 (7%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Larynx</td><td colspan=\"1\" rowspan=\"1\">36 (19%)</td><td colspan=\"1\" rowspan=\"1\">9 (8%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">      Unknown</td><td colspan=\"1\" rowspan=\"1\">4 (2%)</td><td colspan=\"1\" rowspan=\"1\">5 (5%)</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Montage of tumors and gradient class activation maps (Grad-CAM): First two rows represent patients who developed distant metastasis (DM). Last two rows represent patients who did not develop DM. (a) Raw image input into the model (zoomed in for visualization purposes). Note that tumor segmentation is performed prior to being input into the model. (b) Gradient class activation map (Grad-CAM39) of the penultimate convolutional block, red represents a region more significant to the designated classification. (c) Image merge of the first two columns.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2019_39206_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "Maximal activation map depicting a procedurally generated image that results in a classification of maximal probability. Represents a procedurally generated image input that would result in a maximal classification score of 1 (i.e. distant metastasis). Of particular interest is the large scale homogeneity and the small scale heterogeneity. Color map chosen solely for visualization purposes. The maximal activation map was generated as a 512 × 512 image to spatially represent the input CT shape.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2019_39206_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "Maximal activation maps of four filters within the final convolutional layer. Represents procedurally generated images that would each result in a particular filter being maximally activated. While humans are capable of distinguishing between these four images, we are currently unable to directly interpret them. Our framework is capable of analyzing the type of data that these images represent. The lettering scheme is relevant to Fig. 4. Color map chosen solely for visualization purposes.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2019_39206_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Normalized value of three radiomic features of interest across 64 convolutional filters within the final convolutional layer. x-axis represents which filter within the third convolutional block. y-axis represents the value of the radiomic feature, normalized across all filters. Blue bars represent ZSVGLSZM, red bars represent ZSNGLSZM and yellow bars represent LRHGEGLRLM. Of particular interest are the numerous blue peaks (a, c and d). These filters are strongly activated by an input region with a high value of the radiomic feature ZSVGLSZM, precisely the feature that Vallières et al.25 found to be most predictive. Many of these filters are also strongly activated by extreme (high or low) values of ZSNGLSZM and LRHGEGLRLM (red and yellow respectively). In particular, many filters represent various permutations of the three features. As an example, (a) is activated by all three radiomic features, (b) is mostly activated by red, (c) is mostly activated by blue and yellow, while (d) is mostly activated by blue. The lettering scheme corresponds to the maximal activation maps shown in Fig. 3.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2019_39206_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "Depiction of our convolutional neural network’s architecture. Text below the graphic represents the operation between layers. Text above the graphic represents the number of feature maps or nodes within the layer. The CNN consists of three consecutive convolutional blocks, each of which contain a convolutional layer (of varying filter size), a max-pooling layer (4 × 4 kernel) and a parametric rectified linear unit (not shown). Following this, the output is flattened and proceeds through two fully connected layers, a parametric rectified linear unit (not shown) and a dropout layer prior to being classified via a sigmoid activation function.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2019_39206_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.AtunRExpanding global access to radiotherapyThe Lancet. Oncology20151611538610.1016/S1470-2045(15)00222-326419354",
+      "doi": [
+        "10.1016/S1470-2045(15)00222-3"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.YehS-ARadiotherapy for head and neck cancerSeminars in plastic surgery2010241273610.1055/s-0030-125533022550433PMC3324252",
+      "doi": [
+        "10.1055/s-0030-1255330"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.BaxiSSCauses of death in long-term survivors of head and neck cancerCancer20141201507151310.1002/cncr.2858824863390PMC4101810",
+      "doi": [
+        "10.1002/cncr.28588"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.FerlitoAShahaARSilverCERinaldoAMondinVIncidence and Sites of Distant Metastases from Head and Neck CancerORL20016320220710.1159/00005574011408812",
+      "doi": [
+        "10.1159/000055740"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.TolentinoEdSOral adverse effects of head and neck radiotherapy: literature review and suggestion of a clinical oral care guideline for irradiated patientsJournal of applied oral science: revista FOB2011194485410.1590/S1678-7757201100050000321986648PMC3984189",
+      "doi": [
+        "10.1590/S1678-77572011000500003"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.DeoRCMachine Learning in MedicineCirculation20151321920193010.1161/CIRCULATIONAHA.115.00159326572668PMC5831252",
+      "doi": [
+        "10.1161/CIRCULATIONAHA.115.001593"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.JordanMIMitchellTMMachine learning: Trends, perspectives, and prospectsScience (New York, N.Y.)20153492556010.1126/science.aaa841526185243",
+      "doi": [
+        "10.1126/science.aaa8415"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.SchmidhuberJDeep learning in neural networks: An overviewNeural Networks2015618511710.1016/j.neunet.2014.09.00325462637",
+      "doi": [
+        "10.1016/j.neunet.2014.09.003"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.Goodfellow, I., Bengio, Y. & Courville, A. Deep Learning (MIT Press, 2016).",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Buduma, N. Fundamentals of Deep Learning (O’Reilly, 2015).",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Dinggang ShenDeep Learning in Medical Image AnalysisAnnual Review of Biomedical Engineering20171922124810.1146/annurev-bioeng-071516-044442PMC547972228301734",
+      "doi": [
+        "10.1146/annurev-bioeng-071516-044442"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.BroschTDeep 3D Convolutional Encoder Networks With Shortcuts for Multiscale Feature Integration Applied to Multiple Sclerosis Lesion SegmentationIEEE transactions on medical imaging2016351229123910.1109/TMI.2016.252882126886978",
+      "doi": [
+        "10.1109/TMI.2016.2528821"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.Qi DouQAutomatic Detection of Cerebral Microbleeds From MR Images via 3D Convolutional Neural NetworksIEEE transactions on medical imaging2016351182119510.1109/TMI.2016.252812926886975",
+      "doi": [
+        "10.1109/TMI.2016.2528129"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.van TulderGde BruijneMCombining Generative and Discriminative Representation Learning for Lung CT Analysis With Convolutional Restricted Boltzmann MachinesIEEE transactions on medical imaging2016351262127210.1109/TMI.2016.252668726886968",
+      "doi": [
+        "10.1109/TMI.2016.2526687"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.KleesiekJDeep MRI brain extraction: A 3D convolutional neural network for skull strippingNeuroImage201612946046910.1016/j.neuroimage.2016.01.02426808333",
+      "doi": [
+        "10.1016/j.neuroimage.2016.01.024"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.ZhangWDeep convolutional neural networks for multi-modality isointense infant brain image segmentationNeuroImage201510821422410.1016/j.neuroimage.2014.12.06125562829PMC4323729",
+      "doi": [
+        "10.1016/j.neuroimage.2014.12.061"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.HuynhBQLiHGigerMLDigital mammographic tumor classification using transfer learning from deep convolutional neural networksJournal of Medical Imaging2016303450110.1117/1.JMI.3.3.03450127610399PMC4992049",
+      "doi": [
+        "10.1117/1.JMI.3.3.034501"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.Antropova, N., Huynh, B. Q. & Giger, M. L. A deep feature fusion methodology for breast cancer diagnosis demonstrated on three imaging modality datasets. Med. Phys. 44 (2017).10.1002/mp.12453PMC564622528681390",
+      "doi": [
+        "10.1002/mp.12453"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.TrebeschiSDeep Learning for Fully-Automated Localization and Segmentation of Rectal Cancer on Multiparametric MR OPEN Background WorkScientific reports20177530110.1038/s41598-017-05728-928706185PMC5509680",
+      "doi": [
+        "10.1038/s41598-017-05728-9"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.GilliesRJKinahanPEHricakHRadiomics: Images Are More than Pictures, They Are DataRadiology201627856357710.1148/radiol.201515116926579733PMC4734157",
+      "doi": [
+        "10.1148/radiol.2015151169"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.AertsHJWLDecoding tumour phenotype by noninvasive imaging using a quantitative radiomics approachNature Communications20145400610.1038/ncomms5006PMC405992624892406",
+      "doi": [
+        "10.1038/ncomms5006"
+      ]
+    },
+    {
+      "id": "CR22",
+      "text": "22.VallièresMFreemanCRSkameneSREl NaqaIA radiomics model from joint FDG-PET and MRI texture features for the prediction of lung metastases in soft-tissue sarcomas of the extremitiesPhysics in medicine and biology20156054719610.1088/0031-9155/60/14/547126119045",
+      "doi": [
+        "10.1088/0031-9155/60/14/5471"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.van TimmerenJESurvival prediction of non-small cell lung cancer patients using radiomics analyses of cone-beam CT imagesRadiotherapy and Oncology201712336336910.1016/j.radonc.2017.04.01628506693",
+      "doi": [
+        "10.1016/j.radonc.2017.04.016"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.CorollerTPCT-based radiomic signature predicts distant metastasis in lung adenocarcinomaRadiotherapy and Oncology201511434535010.1016/j.radonc.2015.02.01525746350PMC4400248",
+      "doi": [
+        "10.1016/j.radonc.2015.02.015"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.VallièresMRadiomics strategies for risk assessment of tumour failure in head-and-neck cancerScientific Reports2017713310.1038/s41598-017-10371-528860628PMC5579274",
+      "doi": [
+        "10.1038/s41598-017-10371-5"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.ParmarCRadiomic Machine-Learning Classifiers for Prognostic Biomarkers of Head and Neck CancerFrontiers in Oncology2015527210.3389/fonc.2015.0027226697407PMC4668290",
+      "doi": [
+        "10.3389/fonc.2015.00272"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.ParmarCGrossmannPBussinkJLambinPAertsHJWLMachine Learning methods for Quantitative Radiomic BiomarkersScientific Reports201551308710.1038/srep1308726278466PMC4538374",
+      "doi": [
+        "10.1038/srep13087"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.Parmar, C. et al. Radiomic feature clusters and Prognostic Signatures specific for Lung and Head & Neck cancer. Nature Publishing Group (2015).10.1038/srep11044PMC493749626251068",
+      "doi": [
+        "10.1038/srep11044"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.Zwanenburg, A., Leger, S., Vallières, M. & Löck, S. Image biomarker standardisation initiative. Arxiv (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.PaulRDeep Feature Transfer Learning in Combination with Traditional Features Predicts Survival Among Patients with Lung AdenocarcinomaTomography (Ann Arbor, Mich.)2016238839510.18383/j.tom.2016.00211PMC521882828066809",
+      "doi": [
+        "10.18383/j.tom.2016.00211"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.PaulRPredicting malignant nodules by fusing deep features with classical radiomics featuresJournal of Medical Imaging20185110.1117/1.JMI.5.1.011021PMC586212729594181",
+      "doi": [
+        "10.1117/1.JMI.5.1.011021"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.Paul, R., Hawkins, S. H., Hall, L. O., Goldgof, D. B. & Gillies, R. J. Combining deep neural network and traditional image features to improve survival prediction accuracy for lung cancer patients from diagnostic CT. In 2016 IEEE International Conference on Systems, Man, and Cybernetics (SMC), 002570–002575 (IEEE, 2016).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.PanSJYangQA Survey on Transfer LearningIEEE Transactions on Knowledge and Data Engineering2010221345135910.1109/TKDE.2009.191",
+      "doi": [
+        "10.1109/TKDE.2009.191"
+      ]
+    },
+    {
+      "id": "CR34",
+      "text": "34.RussakovskyOImageNet Large Scale Visual Recognition ChallengeInternational Journal of Computer Vision201511521125210.1007/s11263-015-0816-y",
+      "doi": [
+        "10.1007/s11263-015-0816-y"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J. & Wojna, Z. Rethinking the Inception Architecture for Computer Vision. Arxiv (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.DevikarPTransfer Learning for Image Classification of various dog breedsInternational Journal of Advanced Research in Computer Engineering & Technology (IJARCET)2016522781323",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.DeLongERDeLongDMClarke-PearsonDLComparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approachBiometrics1988448374510.2307/25315953203132",
+      "doi": [
+        "10.2307/2531595"
+      ]
+    },
+    {
+      "id": "CR38",
+      "text": "38.Kotikalapudi, R. keras-vis (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Selvaraju, R. R. et al. Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization. Arxiv (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.MarusykAPolyakKTumor heterogeneity: causes and consequencesBiochimica et biophysica acta20101805105171993135310.1016/j.bbcan.2009.11.002PMC2814927",
+      "doi": [
+        "10.1016/j.bbcan.2009.11.002"
+      ]
+    },
+    {
+      "id": "CR41",
+      "text": "41.FisherRPusztaiLSwantonCCancer heterogeneity: implications for targeted therapeuticsBritish journal of cancer20131084798510.1038/bjc.2012.58123299535PMC3593543",
+      "doi": [
+        "10.1038/bjc.2012.581"
+      ]
+    },
+    {
+      "id": "CR42",
+      "text": "42.Gay, L., Baker, A.-M. & Graham, T. A. Tumour Cell Heterogeneity. F1000Research5 (2016).10.12688/f1000research.7210.1PMC477667126973786",
+      "doi": [
+        "10.12688/f1000research.7210.1"
+      ]
+    },
+    {
+      "id": "CR43",
+      "text": "43.CaswellDRSwantonCThe role of tumour heterogeneity and clonal cooperativity in metastasis, immune evasion and clinical outcomeBMC Medicine20171513310.1186/s12916-017-0900-y28716075PMC5514532",
+      "doi": [
+        "10.1186/s12916-017-0900-y"
+      ]
+    },
+    {
+      "id": "CR44",
+      "text": "44.Chatterjee, A. et al. An empirical approach for avoiding false discoveries when applying high-dimensional radiomics to small datasets. IEEE Transactions on Radiation and Plasma Medical Sciences 1–1 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Vallières, M. et al. Data from Head-Neck-PET-CT. The Cancer Imaging Archive (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.He, K., Zhang, X., Ren, S. & Sun, J. Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. Arxiv (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR47",
+      "text": "47.Chollet, F. Keras (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.Abadi, M. et al. TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR49",
+      "text": "49.ClarkKThe Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information RepositoryJournal of Digital Imaging2013261045105710.1007/s10278-013-9622-723884657PMC3824915",
+      "doi": [
+        "10.1007/s10278-013-9622-7"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Diamant A, Chatterjee A, Vallières M, Shenouda G, Seuntjens J.",
+  "journal": "Sci Rep",
+  "year": "2019",
+  "pmid": "30809047",
+  "pmcid": "PMC6391436",
+  "doi": "10.1038/s41598-019-39206-1",
+  "source": {
+    "retrieved_at": "2026-11-14T17:00:54.980686+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6391436/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6391436.xml"
+}

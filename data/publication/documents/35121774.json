@@ -1,0 +1,1059 @@
+{
+  "key": "35121774",
+  "body_available": true,
+  "title": "Federated learning and differential privacy for medical image analysis",
+  "source_url": "https://europepmc.org/articles/PMC8816913",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Mohammed Adnan",
+    "Shivam Kalra",
+    "Jesse C. Cresswell",
+    "Graham W. Taylor",
+    "Hamid R. Tizhoosh"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2022",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2022",
+        "month": "2",
+        "day": "4"
+      },
+      {
+        "type": "collection",
+        "year": "2022",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3"
+          ],
+          "en": "Deep neural networks have achieved and established state-of-the-art results in many domains. However, deep learning models are data-intensive, i.e., they often require millions of training examples to learn effectively. Medical images may contain confidential and sensitive information about patients that often cannot be shared outside the institutions of their origin, especially when complete de-identification cannot be guaranteed. The European General Data Protection Regulation (GDPR) and the United States Health Insurance Portability and Accountability Act (HIPAA) enforce guidelines and regulations for storing and exchanging personally identifiable data and health data. Ethical guidelines also encourage respecting privacy, that is, the ability to retain complete control and secrecy about one’s personal information1. As a result, large archives of medical data from various consortia remain widely untapped sources of information. For instance, histopathology images cannot be collected and shared in large quantities due to the aforementioned regulations, as well as due to data size constraints given their high resolution and gigapixel nature. Without sufficient and diverse datasets, deep models trained on histopathology images from one hospital may fail to generalize well on data from a different hospital (out-of-distribution)2. The existence of bias or the lack of diversity in images from a single institution brings about the need for a collaborative approach which does not require data centralization. One way to overcome this problem is by collaborative data sharing (CDS) or federated learning among different hospitals3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR4",
+            "CR5"
+          ],
+          "en": "In this paper, we explore federated learning (FL) as a collaborative learning paradigm, in which models can be trained across several institutions without explicitly sharing patient data. We study the impact of data distribution on the performance of FL, i.e., when hospitals have more or less data, and IID or non-IID data. We also show that using federated learning with additional privacy preservation techniques can improve the performance of histopathology image analysis compared to training without collaboration and quantitatively measure the privacy using Rényi Differential Privacy Accountant4. We discuss its benefits, drawbacks, potential weaknesses, as well as technical implementation considerations. Finally, we use lung cancer images from The Cancer Genome Atlas (TCGA) dataset5 to construct a simulated environment of several institutions to validate our approach.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Federated learning (FL)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR6",
+            "CR6",
+            "CR7"
+          ],
+          "en": "Federated learning algorithms learn from decentralized data distributed across various client devices, in contrast to conventional learning algorithms. In most examples of FL, there is a centralized server which facilitates training a shared model and addresses critical issues such as data privacy, security, access rights, and heterogeneity6. In FL, every client locally trains a copy of the centralized model, represented by the model weights ω, and reports its updates back to the server for aggregation across clients, without disclosing local private data. Mathematically, FL can be formulated as:where f (ω) represents the total loss function over n clients, and fi(ω) represents the loss function with respect to client i’s local data. The objective is to find weights ω that minimize the overall loss. McMahan et al.6 introduced federated averaging, or FedAvg (Algorithm 1), in which each client receives the current model ωt from the server, and computes ∇ fi(ωt), the average gradient of the loss function over its local data. The gradients are used to update each client’s model weights using stochastic gradient descent (SGD) as \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\omega_{t + 1}^{i} \\leftarrow \\omega_{t} - \\eta \\nabla f_{i} (\\omega_{t} )$$\\end{document}ωt+1i←ωt-η∇fi(ωt) according to the learning rate η. Next, the central server receives the updated weights \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\omega_{{t + {1}}}^{i} \\leftarrow \\omega \\sum\\limits_{i = 1}^{n} {\\frac{{n_{i} }}{n}\\omega_{{t + {1}}}^{i} }$$\\end{document}ωt+1i←ω∑i=1nninωt+1i, where n is t + 1 from all participating clients and averages them to update the central model, t + 1 ← i = 1 n the number of data points used by client i. To reduce communication costs, several local steps of SGD can be taken before communication and aggregation, however, this affects the convergence properties of FedAvg7.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR8",
+            "CR9",
+            "CR10",
+            "CR11",
+            "CR12"
+          ],
+          "en": "Other methods for FL have also been proposed. Yurochkin et al.8 proposed a Bayesian framework for FL. Claici et al.9 used KL divergence to fuse different models. Much work has also been done to improve the robustness of FL algorithms. Pillutla et al.10 proposed a robust and secure aggregation oracle based on the geometric median using a constant number of calls to a regular non-robust secure average oracle. Andrychowicz et al.11 proposed a meta-learning approach to coordinate the learning process in client/server distributed systems by using a recurrent neural network in the central server to learn how to optimally aggregate the gradients from the client models. Li et al.12 proposed a new framework for robust FL where the central server learns to detect and remove malicious updates using a spectral anomaly detection model, leading to targeted defense. Most of the algorithms cannot be directly compared or benchmarked as they address different problems in FL such as heterogeneity, privacy, adversarial robustness, etc. FedAvg is most commonly used because of its scalability to large datasets and comparable performance to other FL algorithms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec3",
+      "title": "Federated learning in histopathology",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR13",
+            "CR14",
+            "CR15",
+            "CR6"
+          ],
+          "en": "FL is especially important for histopathology departments, as it facilitates collaboration among institutions without sharing private patient data. One prominent challenge when applying FL to medical images, and specifically histopathology, is the problem of domain adaptation. Since most hospitals have diverse imaging methods and devices, images from a group of hospitals will be markedly different, and machine learning methods risk overfitting to non-semantic differences between them. Models trained using FL can suffer from serious performance drops when applied to images from previously unseen hospitals. Several recent works have explored applications of FL in histopathology, and grapple with this problem. Lu et al.13 demonstrated the feasibility and effectiveness of FL for a large-scale computational pathology studies. FedDG proposed by Liu et al.14 is a privacy-preserving solution to learn a generalizable FL model through an effective continuous frequency space interpolation mechanism across clients. Sharing frequency domain information enables the separation of semantic information from noise in the original images. Li et al.15 tackles the problem of domain adaptation with a physics-driven generative approach to disentangle the information about model and geometry from the imaging sensor6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Differential privacy",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR16",
+            "CR17",
+            "CR18"
+          ],
+          "en": "While FL attempts to provide privacy by keeping private data on client devices, it does not provide a meaningful privacy guarantee. Updated model parameters are still sent from the clients to a centralized server, and these can contain private information16, such that even individual data points can be reconstructed17. Differential privacy (DP) is a formal framework for quantifying the privacy that a protocol provides18. The core idea of DP is that privacy should be viewed as a resource, something that is used up as information is extracted from a dataset. The goal of private data analysis is to extract as much useful information as possible while consuming the least privacy. To formalize this concept, consider a database D, which is simply a set of datapoints, and a probabilistic function M acting on databases, called a mechanism. The mechanism is said to be (ε, δ)-differentially private if for all subsets of possible outputs \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$S \\subseteq {\\text{Range}}(M)$$\\end{document}S⊆Range(M), and for all pairs of databases D and D′ that differ by one element,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "Equ2"
+          ],
+          "en": "When both ε and δ are small positive numbers, Eq. (2) implies that the outcomes of M will be almost unchanged in distribution if one datapoint is changed in the database. In other words, adding one patient’s data to a differentially private study will not affect the outcomes, with high probability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR19",
+            "CR20"
+          ],
+          "en": "The advantage of DP is that it is quantitative. It yields a numerical guarantee on the amount of privacy that can be expected, in the stochastic sense, where lower ε and δ implies that the mechanism preserves more privacy. The framework also satisfies several useful properties. When multiple DP-mechanisms are composed, the total operation is also a DP-mechanism with well defined ε and δ19. Also, once the results of a DP-mechanism are known, no amount of post-processing can change the (ε, δ) guarantee20. Hence, while FL alone does not guarantee privacy, we can apply FL in conjunction with DP to give rigorous bounds on the amount of privacy afforded to clients and patients who participate in the collaboration.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "CR21",
+            "CR22",
+            "CR23"
+          ],
+          "en": "The simplest way to create a DP-mechanism is by adding Gaussian noise to the outcomes of a deterministic function with bounded sensitivity21. This method can be used in the context of training a machine learning model by clipping the norm of gradients to bound them, then adding noise, a process called differentially private stochastic gradient descent (DP-SGD)22. McMahan et al.23 applied this at scale to FL.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Differential privacy for medical imaging",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "CR1",
+            "CR24",
+            "CR25",
+            "CR13",
+            "CR26"
+          ],
+          "en": "Past works have noted the potential solution DP provides for machine learning in the healthcare domain. Kaissis et al.1 surveyed privacy-preservation techniques to be used in conjunction with machine learning, which were then implemented for classifying chest X-rays and segmenting CT scans24,25. In histopathology, Lu et al.13 reported DP guarantees for a neural network classifier trained with FL, following Li et al.26. Their treatment involved adding Gaussian noise to trained model weights, however, neural networks weights do not have bounded sensitivity making their DP guarantee vacuous. A meaningful guarantee would require clipping the model weights before adding noise. We propose the more standard approach of DP-SGD, which clips gradient updates and adds noise, for use in histopathology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Multiple instance learning (MIL)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "CR27",
+            "CR28",
+            "CR29",
+            "CR30",
+            "CR31",
+            "CR32"
+          ],
+          "en": "MIL is a type of supervised learning approach which uses a set of instances known as a bag. Instead of individual instances having an associated label, only the bag as a whole has one27. MIL is thus a natural candidate for learning to classify WSIs which must be broken into smaller representations due to size limitations. Permutation invariant operators for MIL were introduced by Tomczak et al.28 and successfully applied to digital pathology images. Isle et al.29 used MIL for digital pathology and introduced a different variety of MIL pooling functions, while Sudarshan et al.30 used MIL for histopathological breast cancer image classification. Graph neural networks (GNNs) have been used for MIL applications because of their permutation invariant characteristics. Tu et al.31 showed that GNNs can be used for MIL, where each instance acts as a node in a graph. Adnan et al.32 demonstrated an application of graph convolution neural networks to MIL in digital pathology and achieved state of the art accuracy on a lung sub cancer classification task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Method",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "CR33",
+            "Fig1",
+            "CR33",
+            "CR34",
+            "CR6",
+            "CR22"
+          ],
+          "en": "Our proposed method (local to each client) consists of two steps, bag preparation and Multiple-Instance Learning (MIL). In the first step, we extract multiple patches from the full-resolution WSI and create a mosaic (set) of patches. In the second step, we formulate the representation learning of WSIs as a set learning problem by applying a MEM model, an attention based MIL algorithm proposed by Kalra et al.33. The MEM model is locally trained through DP-SGD to provide quantitative privacy bounds, and the local MEM models are centrally aggregated through FedAvg. In this section, we discuss the bag preparation step and MIL. An overview of the proposed method is visualized in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Bag preparation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR35",
+            "Fig2",
+            "CR34",
+            "CR35"
+          ],
+          "en": "A patch selection method proposed by Kalra et al.35 is used to extract representative patches (called mosaics) from each WSI. A sample WSI and its mosaic is illustrated in Fig. 2. The steps involved in creations of a mosaic are: (1) removal of non-tissue regions using colour thresholding; (2) grouping the remaining tissue-containing patches into a pre-set number of categories through a clustering algorithm; and (3) randomly selecting a portion of all clustered patches (e.g., 10%) within each cluster, yielding a mosaic. The mosaic is transformed into a bag X = x1, ..., xn for MIL, where xi is the feature vector of the ith patch, obtained through a pre-trained feature extractor network. We use a DenseNet model for the feature extractor34. Each patch in the mosaic has size 1000 × 1000 pixels at 20× magnification (0.5 mpp resolution).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "MIL method",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR33",
+            "Fig3",
+            "CR33"
+          ],
+          "en": "We used the MEM model proposed by Kalra et al.33 to get a single vector representation of all feature vectors of patches in a mosaic. MEM consists of memory units composed within a memory block. A memory block is the main component of MEM and produces a permutation invariant representation from a input sequence. Multiple memory blocks can be stacked together for modeling complex relationships and dependencies in set data. The memory block is made of memory units and a bijective transformation unit shown in Fig. 3. A memory unit transforms an input sequence into an attention vector. A higher attention value represents a higher “importance” of the corresponding element of the input sequence. Essentially, it captures the relationships among different elements of the input. Multiple memory units enable the memory block to capture many complex dependencies and relationships among the elements. Each memory unit consists of an embedding matrix Ai that transforms a f-dimensional input vector x j to a d-dimensional memory vector ui j according towhere ρ is some non-linearity. The memory vectors are stacked to form a matrix Ui = [ui0, ..., uin] of shape (n d). The relative degree of correlations among the memory vectors are computed using cross-correlation followed by a column-wise softmax and then taking a row-wise average,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "Fig3"
+          ],
+          "en": "The pi is the final output vector (1 n) from the ith memory unit Ui, as shown in Fig. 3. The purpose of each memory unit is to embed feature vectors into another space that could correspond to a distinct “attribute” or “characteristic” of instances. The cross correlation of the calculated attention vectors highlights instances which are highly suggestive of those attributes. Memory vectors are non-normalized as the magnitude may play an important role during the cross correlation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "In summary, a memory block is a sequence-to-sequence model, i.e., it transforms a given input sequence X = x1, ..., xn to another representative sequence \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\hat{X} = \\widehat{{x_{1} }}, \\ldots \\widehat{{x_{m} }}$$\\end{document}X^=x1^,…xm^. A memory block contains m memory units, each of which takes sequential data as an input and generates an attention vector. These attention vectors are subsequently used to compute the final output sequence. By design, the output sequence is invariant to element-wise permutations of the input sequence as needed for MIL.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Experiments and discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR1",
+            "CR13",
+            "CR36"
+          ],
+          "en": "We validated the performance of FL for the classification of histopathology images using a simulated distributed environment and also using real-world hospital data. Previous studies have mostly experimented with a fixed number of clients having similar distributions of data1,13,36. Since real-world data is not necessarily IID, it is important to study the effect of non-IID data on the performance of FL, specifically FedAvg. Furthermore, we provide a privacy analysis of the method through the differential privacy framework, suggesting that FL can outperform non-collaborative training while maintaining a strong privacy guarantee.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "In the first experiment series, we vary the number of clients, with each client representing one hospital. To make our simulated environment better approach the non-IID real-world data, each client can have a different number of patients and a different distribution of cancer sub-types. In the second experiment series, we calculate the privacy bound of differentially private FL using real-world hospital data. We used the available attributes in TCGA to divide the dataset across the tissue origin site (hospital) and created four client datasets as shown in Table 2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Lung cancer dataset—LUAD vs LUSC classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR37",
+            "CR37",
+            "CR38",
+            "CR39",
+            "CR33",
+            "CR35",
+            "CR34"
+          ],
+          "en": "Lung Adenocarcinoma (LUAD) and Lung Squamous Cell Carcinoma (LUSC) are two main sub-types of non-small cell lung cancer (NSCLC) that account for 65–70% of all lung cancers37. An automated classification of these two main sub-types of NSCLC is a crucial step to assist pathologists for more informed diagnoses37,38. We obtained 2580 hematoxylin and eosin (H&E) stained WSIs of lung cancer from TCGA39, comprising about two TB of data. The images were split into two groups of 1806 training, and 774 testing samples WSIs33. We transformed each raw image into a mosaic35, and then into a bag of features X using a pre-trained DenseNet34. From the data, we carried out two experiment series by varying the parameters of FedAvg, or by varying the data distributions across clients. These experiment series are discussed as follows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Experiment series 1—effect of number of clients and data distributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "Tab1",
+            "Fig4",
+            "Fig5"
+          ],
+          "en": "We studied the effect of IID and non-IID distributions on the performance of FedAvg by randomly dividing the training images without replacement among different clients (hospitals). We also varied the number of clients (n) while keeping the total number of images fixed. IID data is generated by uniformly dividing each cancer sub-type, i.e. LUAD and LUSC, among different clients. For each cancer sub-type, a probability distribution is created by assigning a random value to each client and then dividing it by the total sum. Subsequently, images are divided among different clients by sampling from the probability distribution. FL achieves superior performance for both IID and non-IID distributions of data compared to non-collaborative training. FL performs comparably to centralized training for reasonably sized datasets (n = 4, 8). Results are summarized in Table 1 and Fig. 4. The number of training samples for each client model is in Fig. 5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "Tab1",
+            "Tab1"
+          ],
+          "en": "We compared the performance with and without FedAvg for each setting. In total we tested 16 experimental settings in Table 1. In each of the experiments, the server model trained using FedAvg outperformed the models trained using local client datasets, showing the advantage of collaboration. As the total dataset is divided into smaller partitions for more clients, both client and server model performances deteriorate. We used SGD optimizer with learning rate = 0.01. The local epoch for each client was set to 1 and the server model was trained for 250 communication rounds. We visualize the relative improvement of FedAvg in Table 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Experiment series 2—real-world setting",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "In the second experiment series, we considered the effect of distributional differences from different source hospitals, and a requirement to preserve privacy. Histopathology images can differ greatly, among others depending on the staining and imaging protocols of the source hospital. We selected seven hospitals from the TCGA dataset, four to act as clients in FL, and an additional three to provide externally collected data for model robustness testing. The distribution of images by hospital is described in Table 2. For each of the four clients, we divided their available images in an 80:20 ratio for training and internal testing datasets, respectively. Then we combined the images from the remaining three hospitals into a single external validation dataset to study the effects of distributions shifts on FedAvg.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [
+            "CR4",
+            "CR40",
+            "CR22",
+            "Tab3"
+          ],
+          "en": "In this experiment, we use Differential Private Federated Learning (DP-FL) to ensure data privacy. Differential Privacy (DP) was not considered in experiment series 1 since the objective was to study the effects of data size, distribution, and the number of clients on the performance of distributed learning/federated learning in general. In experiment series 2, we compared the performance of privacy-preserving FL training with both centralized training and non-collaborative training. In the FL training, the four hospitals act as clients collaborating to train one central model. Performance is evaluated on each client’s internal test set, as well as the external validation set. For comparison, we train a single model on the combined (centralized) training datasets which gives an upper bound on what could be achieved in the absence of privacy regulations. Finally, in the non-collaborative setting each client hospital trains their own model on only their own training dataset. We used DP-SGD to train the FL and combined models and computed the privacy guarantees (ε, δ) using a Rényi DP accountant4. It was observed that the MEM model was sensitive to DP-SGD hyper parameters. We used a vectorized Adam optimizer40 with the following hyper-parameter values22: epochs = 180, training set size = 705, batch size = 32, gradient clipping norm = 1.0, Gaussian noise standard deviation = 4.0, number of microbatches = 32, learning rate = 2 × 10−5. Ablation study is provided in the Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "Tab4",
+            "Tab4"
+          ],
+          "en": "As shown in Table 4, FL training achieves strong privacy bounds (ε = 2.90 at δ = 0.0001) with better performance than non-collaborative training, comparable to centralized training. This demonstrates that FL could be effectively used in clinical settings to ensure data privacy with no significant degradation in performance. Results are shown in Table 4. FedAvg achieves comparable performance to centralized training without explicitly sharing private data with strong privacy guarantees. Due to distribution shifts, accuracy decreases on external validation for both Federated Learning and centralized training. Therefore, we experimentally demonstrate the Federated Learning can be used for medical image analysis in real-world setting without explicitly sharing data, while achieving similar performance to centralized training with data sharing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "There is a vast reserve of knowledge in mass archives of clinical data held by hospitals which remains mostly untapped due to many confidentiality and privacy concerns. In this work, we proposed differentially private federated learning as a potential method for learning from decentralized medical data such as histopathology images. Federated learning allows training models without explicitly sharing patient data and thus mitigates some confidentiality and privacy issues associated with clinical data. Differential privacy supplements this with quantitative bounds on the amount of privacy provided. We demonstrated the efficacy of federated learning (FedAvg) with simulated real-world data, using both IID and non-IID data distributions. Private federated learning achieves a comparable result compared to conventional centralized training, and hence it could be considered for distributed training on medical data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-16",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-16-p1",
+          "reference_ids": [],
+          "en": "Publisher's note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p3",
+          "reference_ids": [],
+          "en": "We would like to thank the Ontario Government for awarding an ORF-RE grant for this project (Ontario Research Fund Research Excellence) (ORF-RE Gigapixel Identification-Tizhoosh). The first author is supported by a Vector Institute internship. The basic research of the corresponding author leading to this work has been supported by The Natural Sciences and Engineering Research Council of Canada (NSERC) through multiple Discovery Grants. For access to computational and storage facilities, we would like to thank Compute Canada.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p4",
+          "reference_ids": [],
+          "en": "M.A. designed and conducted the experiments, and wrote the first draft of the paper. S.K. helped in designing the datasets, figures experimental setup, and provided important edits to the paper. J.C.C. was involved in the discussion, contributed to the differential privacy analysis of the method, reviewed the code, and provided important edits to the paper. G.W.T. and H.R.T. were involved in the discussions of the approach, and provided critical feedback to the paper. H.R.T. guided the external validations with TCGA images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p5",
+          "reference_ids": [
+            "CR39"
+          ],
+          "en": "The publicly available dataset of 30,072 WSIs from TCGA39 (Genomic Data Commons GDC) was used for conducting this study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Evaluation on different data distributions.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Data distribution",
+          "Number of clients n",
+          "Accuracy"
+        ],
+        [
+          "Without FL",
+          "With FL",
+          "Centralized"
+        ],
+        [
+          "IID",
+          "4",
+          "0.731 ± 0.03",
+          "0.824 ± 0.02",
+          "0.848 ± 0.02"
+        ],
+        [
+          "8",
+          "0.620 ± 0.06",
+          "0.780 ± 0.05"
+        ],
+        [
+          "16",
+          "0.570 ± 0.03",
+          "0.726 ± 0.06"
+        ],
+        [
+          "32",
+          "0.527 ± 0.02",
+          "0.641 ± 0.09"
+        ],
+        [
+          "Non IID",
+          "4",
+          "0.682 ± 0.10",
+          "0.824 ± 0.01",
+          "0.848 ± 0.02"
+        ],
+        [
+          "8",
+          "0.561 ± 0.08",
+          "0.823 ± 0.05"
+        ],
+        [
+          "16",
+          "0.524 ± 0.03",
+          "0.750 ± 0.06"
+        ],
+        [
+          "32",
+          "0.520 ± 0.03",
+          "0.550 ± 0.20"
+        ]
+      ],
+      "footnotes": "Centralized accuracy denotes the accuracy when the data is centralized. The accuracy without FL is the mean and standard deviation of accuracy values across multiple clients without any collaboration. The accuracy with FL is the mean and standard deviation of the central model trained at the end of FL evaluated on each client dataset.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Evaluation on different data distributions.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"2\" colspan=\"1\">Data distribution</th><th align=\"left\" rowspan=\"2\" colspan=\"1\">Number of clients <italic toggle=\"yes\">n</italic></th><th align=\"left\" colspan=\"3\" rowspan=\"1\">Accuracy</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Without FL</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">With FL</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Centralized</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"4\" colspan=\"1\">IID</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">4</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>731 ± 0<italic toggle=\"yes\">.</italic>03</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>824 ± 0<italic toggle=\"yes\">.</italic>02</td><td char=\"±\" align=\"char\" rowspan=\"4\" colspan=\"1\">0<italic toggle=\"yes\">.</italic>848 ± 0<italic toggle=\"yes\">.</italic>02</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">8</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>620 ± 0<italic toggle=\"yes\">.</italic>06</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>780 ± 0<italic toggle=\"yes\">.</italic>05</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">16</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>570 ± 0<italic toggle=\"yes\">.</italic>03</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>726 ± 0<italic toggle=\"yes\">.</italic>06</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">32</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>527 ± 0<italic toggle=\"yes\">.</italic>02</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>641 ± 0<italic toggle=\"yes\">.</italic>09</td></tr><tr><td align=\"left\" rowspan=\"4\" colspan=\"1\">Non IID</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">4</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>682 ± 0<italic toggle=\"yes\">.</italic>10</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>824 ± 0<italic toggle=\"yes\">.</italic>01</td><td char=\"±\" align=\"char\" rowspan=\"4\" colspan=\"1\">0<italic toggle=\"yes\">.</italic>848 ± 0<italic toggle=\"yes\">.</italic>02</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">8</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>561 ± 0<italic toggle=\"yes\">.</italic>08</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>823 ± 0<italic toggle=\"yes\">.</italic>05</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">16</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>524 ± 0<italic toggle=\"yes\">.</italic>03</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>750 ± 0<italic toggle=\"yes\">.</italic>06</td></tr><tr><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">32</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>520 ± 0<italic toggle=\"yes\">.</italic>03</td><td char=\"±\" align=\"char\" colspan=\"1\" rowspan=\"1\">0<italic toggle=\"yes\">.</italic>550 ± 0<italic toggle=\"yes\">.</italic>20</td></tr></tbody></table><table-wrap-foot><p>Centralized accuracy denotes the accuracy when the data is centralized. The accuracy without FL is the mean and standard deviation of accuracy values across multiple clients without any collaboration. The accuracy with FL is the mean and standard deviation of the central model trained at the end of FL evaluated on each client dataset.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Source hospitals for test/train and external dataset and their data distribution.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset type",
+          "Source hospital (clients)",
+          "LUAD images",
+          "LUSC images",
+          "Total"
+        ],
+        [
+          "Train/test",
+          "International Genomics Consortium",
+          "189",
+          "78",
+          "267"
+        ],
+        [
+          "Indivumed",
+          "94",
+          "117",
+          "211"
+        ],
+        [
+          "Asterand",
+          "90",
+          "117",
+          "207"
+        ],
+        [
+          "Johns Hopkins",
+          "121",
+          "78",
+          "199"
+        ],
+        [
+          "External",
+          "Christiana Healthcare",
+          "169",
+          "54",
+          "223"
+        ],
+        [
+          "Roswell Park",
+          "35",
+          "75",
+          "110"
+        ],
+        [
+          "Princess Margaret Hospital (Canada)",
+          "0",
+          "52",
+          "52"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Source hospitals for test/train and external dataset and their data distribution.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Dataset type</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Source hospital (clients)</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">LUAD images</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">LUSC images</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Total</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"4\" colspan=\"1\">Train/test</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">International Genomics Consortium</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">189</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">78</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">267</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Indivumed</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">94</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">117</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">211</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Asterand</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">90</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">117</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">207</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Johns Hopkins</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">121</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">78</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">199</td></tr><tr><td align=\"left\" rowspan=\"3\" colspan=\"1\">External</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Christiana Healthcare</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">169</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">54</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">223</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Roswell Park</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">35</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">75</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">110</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Princess Margaret Hospital (Canada)</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">52</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">52</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Ablation study of DP hyperparameters (gradient clipping and noise multiplier).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Gradient clipping",
+          "Noise multiplier",
+          "Privacy budget (ε)",
+          "Test accuracy",
+          "External accuracy"
+        ],
+        [
+          "1.0",
+          "4",
+          "2.90",
+          "0.815",
+          "0.740"
+        ],
+        [
+          "1.5",
+          "4",
+          "3.26",
+          "0.759",
+          "0.719"
+        ],
+        [
+          "2.0",
+          "4",
+          "3.89",
+          "0.765",
+          "0.732"
+        ],
+        [
+          "1.0",
+          "6.0",
+          "2.34",
+          "0.832",
+          "0.737"
+        ],
+        [
+          "1.0",
+          "2.0",
+          "10.01",
+          "0.782",
+          "0.748"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Ablation study of DP hyperparameters (gradient clipping and noise multiplier).</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Gradient clipping</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Noise multiplier</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Privacy budget (<italic toggle=\"yes\">ε</italic>)</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test accuracy</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">External accuracy</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">4</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">2.90</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.815</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.740</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.5</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">4</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">3.26</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.759</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.719</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">2.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">4</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">3.89</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.765</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.732</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">6.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">2.34</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.832</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.737</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">2.0</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">10.01</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.782</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.748</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab4",
+      "label": "Table 4",
+      "caption": "Evaluation of collaborative and non-collaborative learning on Test and External Datasets using DP-SGD, achieving privacy parameter ε = 2.90 for δ = 0.0001.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Source hospital",
+          "Non-collaborative training",
+          "DP-FL training",
+          "FL training",
+          "Combined training"
+        ],
+        [
+          "Test",
+          "External",
+          "Test",
+          "External",
+          "Test",
+          "External",
+          "Test",
+          "External"
+        ],
+        [
+          "International Genomics Consortium",
+          "0.654",
+          "0.631",
+          "0.823 ± 0.01",
+          "0.707 ± 0.01",
+          "0.823 ± 0.01",
+          "0.741 ± 0.01",
+          "0.839 ± 0.01",
+          "0.768 ± 0.003"
+        ],
+        [
+          "Indivumed",
+          "0.648",
+          "0.556"
+        ],
+        [
+          "Asterand",
+          "0.709",
+          "0.701"
+        ],
+        [
+          "John Hopkins",
+          "0.681",
+          "0.600"
+        ]
+      ],
+      "footnotes": "For FL and combined training we report the mean accuracy and standard deviation across the client’s test datasets. On the external dataset we ran the experiments using three random initializations, and report the mean accuracy and standard deviation across them.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab4\" position=\"float\" orientation=\"portrait\"><label>Table 4</label><caption><p>Evaluation of collaborative and non-collaborative learning on Test and External Datasets using DP-SGD, achieving privacy parameter <italic toggle=\"yes\">ε</italic> = 2<italic toggle=\"yes\">.</italic>90 for <italic toggle=\"yes\">δ</italic> = 0<italic toggle=\"yes\">.</italic>0001.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"2\" colspan=\"1\">Source hospital</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">Non-collaborative training</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">DP-FL training</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">FL training</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">Combined training</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">External</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">External</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">External</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">External</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">International Genomics Consortium</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.654</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.631</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.823 ± 0.01</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.707 ± 0.01</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.823 ± 0.01</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.741 ± 0.01</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.839 ± 0.01</td><td align=\"left\" rowspan=\"4\" colspan=\"1\">0.768 ± 0.003</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Indivumed</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.648</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.556</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Asterand</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.709</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.701</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">John Hopkins</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.681</td><td char=\".\" align=\"char\" colspan=\"1\" rowspan=\"1\">0.600</td></tr></tbody></table><table-wrap-foot><p>For FL and combined training we report the mean accuracy and standard deviation across the client’s test datasets. On the external dataset we ran the experiments using three random initializations, and report the mean accuracy and standard deviation across them.</p></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "The proposed federated learning algorithm to train a MEM model33 for WSIs (disease) classification among multiple hospitals. Each client in FL is represented by a blue rectangle. Each client, first transforms their local WSIs into mosaics (sets of representative patches). The patches in each mosaic are converted to feature vectors using a DenseNet model34. Finally the sets of feature vectors are classified using a MEM model. A shared central MEM model is trained using FedAvg6 among multiple clients (mimicking hospitals). Furthermore, DP-SGD22 is used for training the central MEM model with strict privacy bounds.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2022_5539_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "Illustration of a sample WSI and its mosaic extracted using the approach in Kalra et al.35.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2022_5539_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "Schematic of a MEM model used for the classification of WSI mosaics. X is an input sequence containing a number n of f -dimensional vectors. (a) The memory block is a sequence-to-sequence model that takes X and returns another sequence \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\hat{X}$$\\end{document}X^. The output \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\hat{X}$$\\end{document}X^ is a permutation-invariant representation of X. A bijective transformation model (an autoencoder) converts the input X to a permutation-equivariant sequence C. The weighted sum of C is computed over different probability distributions pi from memory units. The hyper-parameters of a memory block are (1) the dimensions of the bijective transformation h, and (2) the number of memory units m. (b) The memory unit has Ai, a trainable embedding matrix that transforms elements of X to a d-dimensional space (memories). The output pi is a probability distribution over the input X, also known as attention. The memory unit has a single hyper-parameter d, i.e. the dimension of the embedding space33 (* represents learnable parameters).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2022_5539_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Comparison of the mean accuracy across clients versus the accuracy of the central model trained with FL for the fabricated clients (not the real hospitals). The accuracy is computed on two types of data distribution settings across clients—IID and Non-IID.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2022_5539_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "Visualisation of IID and non-IID distribution of data among client models.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2022_5539_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\mathop {\\min }\\limits_{\\omega \\in R} f\\left( \\omega \\right)\\quad {\\text{with}}\\quad f\\left( \\omega \\right) = \\frac{1}{n}\\sum\\limits_{i = 1}^{n} {fi\\left( \\omega \\right)} ,$$\\end{document}minω∈Rfωwithfω=1n∑i=1nfiω,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ1\"><label>1</label><alternatives><tex-math id=\"M1\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\mathop {\\min }\\limits_{\\omega \\in R} f\\left( \\omega \\right)\\quad {\\text{with}}\\quad f\\left( \\omega \\right) = \\frac{1}{n}\\sum\\limits_{i = 1}^{n} {fi\\left( \\omega \\right)} ,$$\\end{document}</tex-math><ns0:math id=\"M2\" display=\"block\"><ns0:mrow><ns0:munder><ns0:mo movablelimits=\"false\">min</ns0:mo><ns0:mrow><ns0:mi>ω</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi>R</ns0:mi></ns0:mrow></ns0:munder><ns0:mi>f</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>ω</ns0:mi></ns0:mfenced><ns0:mspace width=\"1em\" /><ns0:mtext>with</ns0:mtext><ns0:mspace width=\"1em\" /><ns0:mi>f</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>ω</ns0:mi></ns0:mfenced><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>n</ns0:mi></ns0:mfrac><ns0:munderover><ns0:mo movablelimits=\"false\">∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>n</ns0:mi></ns0:munderover><ns0:mrow><ns0:mi>f</ns0:mi><ns0:mi>i</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>ω</ns0:mi></ns0:mfenced></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2022_5539_Article_Equ1.gif\" /></alternatives></disp-formula>where "
+    },
+    {
+      "id": "Equ2",
+      "text": "2\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Pr [M(D) \\in S] \\le \\exp (\\varepsilon )\\Pr [M(D^{\\prime}) \\in S] + \\delta .$$\\end{document}Pr[M(D)∈S]≤exp(ε)Pr[M(D′)∈S]+δ.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ2\"><label>2</label><alternatives><tex-math id=\"M9\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\Pr [M(D) \\in S] \\le \\exp (\\varepsilon )\\Pr [M(D^{\\prime}) \\in S] + \\delta .$$\\end{document}</tex-math><ns0:math id=\"M10\" display=\"block\"><ns0:mrow><ns0:mo>Pr</ns0:mo><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mi>M</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>D</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>∈</ns0:mo><ns0:mi>S</ns0:mi><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow><ns0:mo>≤</ns0:mo><ns0:mo>exp</ns0:mo><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>ε</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>Pr</ns0:mo><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mi>M</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>D</ns0:mi><ns0:mo>′</ns0:mo></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>∈</ns0:mo><ns0:mi>S</ns0:mi><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mi>δ</ns0:mi><ns0:mo>.</ns0:mo></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2022_5539_Article_Equ2.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$u_{ij} = \\rho (x_{j} {\\mathbf{A}}_{{\\mathbf{i}}} ),$$\\end{document}uij=ρ(xjAi),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ3\"><label>3</label><alternatives><tex-math id=\"M11\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$u_{ij} = \\rho (x_{j} {\\mathbf{A}}_{{\\mathbf{i}}} ),$$\\end{document}</tex-math><ns0:math id=\"M12\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">ij</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mi>ρ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:msub><ns0:mi mathvariant=\"bold\">A</ns0:mi><ns0:mi mathvariant=\"bold\">i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2022_5539_Article_Equ3.gif\" /></alternatives></disp-formula>where "
+    },
+    {
+      "id": "Equ4",
+      "text": "4\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} S_{i} &= {\\text{column-wise-softmax}}\\left( {{\\mathbf{U}}_{{\\mathbf{i}}} {\\mathbf{U}}}_{{\\mathbf{i}}} ^{{\\mathbf{T}}}\\right), \\\\ p_{i} &= {\\text{row-wise-average}}(S_{i} ). \\\\ \\end{aligned}$$\\end{document}Si=column-wise-softmaxUiUiT,pi=row-wise-average(Si).",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ4\"><label>4</label><alternatives><tex-math id=\"M13\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} S_{i} &amp;= {\\text{column-wise-softmax}}\\left( {{\\mathbf{U}}_{{\\mathbf{i}}} {\\mathbf{U}}}_{{\\mathbf{i}}} ^{{\\mathbf{T}}}\\right), \\\\ p_{i} &amp;= {\\text{row-wise-average}}(S_{i} ). \\\\ \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"M14\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:mtext>column-wise-softmax</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:msubsup><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"bold\">U</ns0:mi><ns0:mi mathvariant=\"bold\">i</ns0:mi></ns0:msub><ns0:mi mathvariant=\"bold\">U</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"bold\">i</ns0:mi></ns0:mrow><ns0:mi mathvariant=\"bold\">T</ns0:mi></ns0:msubsup></ns0:mfenced><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mrow /><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:mtext>row-wise-average</ns0:mtext><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow /></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2022_5539_Article_Equ4.gif\" /></alternatives></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.KaissisGAMakowskiMRRückertDBrarenRFSecure, privacy-preserving and federated machine learning in medical imagingNat. Mach. Intell.2020230531110.1038/s42256-020-0186-1",
+      "doi": [
+        "10.1038/s42256-020-0186-1"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.AggarwalRDiagnostic accuracy of deep learning in medical imaging: A systematic review and meta-analysisNPJ Digital Med.2021412310.1038/s41746-020-00373-5PMC802789233828217",
+      "doi": [
+        "10.1038/s41746-020-00373-5"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.ShellerMJFederated learning in medicine: Facilitating multi-institutional collaborations without sharing patient dataSci. Rep.2020101259810.1038/s41598-020-69250-132724046PMC7387485",
+      "doi": [
+        "10.1038/s41598-020-69250-1"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.Mironov, I. Rényi differential privacy. in 2017 IEEE 30th Computer Security Foundations Symposium (CSF) (2017). 10.1109/CSF.2017.11.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.WeinsteinJNThe cancer genome atlas pan-cancer analysis projectNat. Genet.2013451113112010.1038/ng.276424071849PMC3919969",
+      "doi": [
+        "10.1038/ng.2764"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.McMahan, B., Moore, E., Ramage, D., Hampson, S. & y Arcas, B. A. (eds.) Communication-efficient learning of deep networks from decentralized data. in Proceedings of the 20th International Conference on Artificial Intelligence and Statistics, PMLR 54:1273–1282, 2017.",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Li, X., Huang, K., Yang, W., Wang, S. & Zhang, Z. On the Convergence of FedAvg on Non-IID Data. in International Conference on Learning Representations (2020). https://openreview.net/forum?id=HJxNAnVtDS. Accessed 11 Nov 2021.",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Yurochkin, M., Mayank, A., Soumya, G., Kristjan, G., Nghia, H., & Yasaman, K. Bayesian nonparametric federated learning of neural networks. in International Conference on Machine Learning, 7252–7261. (PMLR, 2019).",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Claici, S., Yurochkin, M., Ghosh, S. & Solomon, J. Model Fusion with Kullback–Leibler Divergence. arXiv:2007.06168 [cs, stat] (2020). http://arxiv.org/abs/2007.06168. ArXiv: 2007.06168.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Pillutla, K., Kakade, S. M. & Harchaoui, Z. Robust Aggregation for Federated Learning. arXiv:1912.13445 [cs, stat] (2019). http://arxiv.org/abs/1912.13445. ArXiv: 1912.13445.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Andrychowicz, M. et al. Learning to learn by gradient descent by gradient descent. Diagn. Pathol. (2016, under review).",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.LiSChengYWangWLiuYChenTLearning to detect malicious clients for robust federatedLearning2020200200211",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Lu, M. Y. et al. Federated learning for computational pathology on gigapixel whole slide images. arXiv preprint arXiv:2009.10190 (2020).10.1016/j.media.2021.102298PMC934056934911013",
+      "doi": [
+        "10.1016/j.media.2021.102298"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.Liu, Q., Chen, C., Qin, J., Dou, Q. & Heng, P.-A. FedDG: Federated Domain Generalization on Medical Image Segmentation via Episodic Learning in Continuous Frequency Space. in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 1013–1023 (2021).",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Li, D., Kar, A., Ravikumar, N., Frangi, A. F. & Fidler, S. Fed-Sim: Federated simulation for medical imaging. Diagn. Pathol. (2020, under review).",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Bhowmick, A., Duchi, J., Freudiger, J., Kapoor, G. & Rogers, R. Protection against reconstruction and its applications in private federated learning. arXiv preprint arXiv:1812.00984 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Melis, L., Song, C., De Cristofaro, E. & Shmatikov, V. Exploiting unintended feature leakage in collaborative learning. in 2019 IEEE Symposium on Security and Privacy (SP), 691–706 (IEEE, 2019).",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.DworkCMcSherryFNissimKSmithAHaleviSRabinTCalibrating noise to sensitivity in private data analysisTheory of Cryptography2006Springer265284",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Dwork, C., Rothblum, G. N. & Vadhan, S. Boosting and differential privacy. in 2010 IEEE 51st Annual Symposium on Foundations of Computer Science, 51–60 (IEEE, 2010).",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.DworkCRothAThe algorithmic foundations of differential privacyFound. Trends Theor. Comput. Sci.2014921140710.1561/0400000042",
+      "doi": [
+        "10.1561/0400000042"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.Dwork, C., Kenthapadi, K., McSherry, F., Mironov, I. & Naor, M. Our data, ourselves: privacy via distributed noise generation. in Advances in Cryptology (EUROCRYPT 2006), vol. 4004 of Lecture Notes in Computer Science, 486–503 (Springer Verlag, 2006). https://www.microsoft.com/en-us/research/publication/our-data-ourselves-privacy-via-distributed-noise-generation/. Accessed 11 Nov 2021.",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Abadi, M. et al. Deep learning with differential privacy. in Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security (2016). 10.1145/2976749.2978318.",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.McMahan, H. B., Ramage, D., Talwar, K. & Zhang, L. Learning differentially private recurrent language models. in International Conference on Learning Representations (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.KaissisGEnd-to-end privacy preserving deep learning on multi-institutional medical imagingNat. Mach. Intell.2021347348410.1038/s42256-021-00337-8",
+      "doi": [
+        "10.1038/s42256-021-00337-8"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.ZillerAMedical imaging deep learning with differential privacySci. Rep.2021111810.1038/s41598-021-93030-034188157PMC8242021",
+      "doi": [
+        "10.1038/s41598-021-93030-0"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.LiXMulti-site fMRI analysis using privacy-preserving federated learning and domain adaptation: ABIDE resultsMed. Image Anal.20206510176510.1016/j.media.2020.10176532679533PMC7569477",
+      "doi": [
+        "10.1016/j.media.2020.101765"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.CarbonneauM-ACheplyginaVGrangerEGagnonGMultiple instance learning: A survey of problem characteristics and applicationsPattern Recognit.20187732935310.1016/j.patcog.2017.10.009",
+      "doi": [
+        "10.1016/j.patcog.2017.10.009"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.Tomczak, J. M., Ilse, M. & Welling, M. Deep learning with permutation-invariant operator for multi-instance histopathology classification. in Workshop on Bayesian Deep Learning at 31st Conference on Neural Information Processing Systems (2017). http://arxiv.org/abs/1712.00310.",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Ilse, M., Tomczak, J. & Welling, M. Attention-based deep multiple instance learning. in International conference on machine learning, 2127–2136 (PMLR, 2018).",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.SudharshanPMultiple instance learning for histopathological breast cancer image classificationExpert Syst. Appl.201911710311110.1016/j.eswa.2018.09.049",
+      "doi": [
+        "10.1016/j.eswa.2018.09.049"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.Tu, M., Huang, J., He, X. & Zhou, B. Multiple instance learning with graph neural networks. in ICML 2019 Workshop on Learning and Reasoning with Graph-Structured Representations (2019). http://arxiv.org/abs/1906.04881.",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Adnan, M., Kalra, S. & Tizhoosh, H. R. Representation learning of histopathology images using graph neural networks. in 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW), 4254–4261 (2020).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Kalra, S., Adnan, M., Taylor, G. & Tizhoosh, H. R. Learning permutation invariant representations using memory networks. in European Conference on Computer Vision, 677–693 (Springer, 2020).",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Huang, G., Liu, Z., Van Der Maaten, L. & Weinberger, K. Q. Densely connected convolutional networks. in Proceedings of the IEEE conference on computer vision and pattern recognition, 4700–4708 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.KalraSYottixel—An image search engine for large archives of histopathology whole slide imagesMed. Image Anal.20206510175710.1016/j.media.2020.10175732623275",
+      "doi": [
+        "10.1016/j.media.2020.101757"
+      ]
+    },
+    {
+      "id": "CR36",
+      "text": "36.ChangKDistributed deep learning networks among institutions for medical imagingJ. Am. Med. Inform. Assoc.20182594595410.1093/jamia/ocy01729617797PMC6077811",
+      "doi": [
+        "10.1093/jamia/ocy017"
+      ]
+    },
+    {
+      "id": "CR37",
+      "text": "37.ZappaCMousaSANon-small cell lung cancer: Current treatment and future advancesTransl. Lung Cancer Res.2016528810.21037/tlcr.2016.06.0727413711PMC4931124",
+      "doi": [
+        "10.21037/tlcr.2016.06.07"
+      ]
+    },
+    {
+      "id": "CR38",
+      "text": "38.Graham, S., Muhammad, S., Talha, Q., Navid Alemi K., Syed Ali K., & Nasir, R. Classification of lung cancer histology images using patch-level summary statistics. in Medical Imaging : Digital Pathology, vol. 10581, 1058119 (International Society for Optics and Photonics, 2018).",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.TomczakKCzerwinskaPWiznerowiczMThe Cancer Genome Atlas (TCGA): An immeasurable source of knowledgeContemp. Oncol.201519A6810.5114/wo.2014.47136PMC432252725691825",
+      "doi": [
+        "10.5114/wo.2014.47136"
+      ]
+    },
+    {
+      "id": "CR40",
+      "text": "40.Subramani, P., Vadivelu, N. & Kamath, G. Enabling fast differentially private sgd via just-in-time compilation and vectorization. Diagn. Pathol. (2020, under review).",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Adnan M, Kalra S, Cresswell JC, Taylor GW, Tizhoosh HR.",
+  "journal": "Sci Rep",
+  "year": "2022",
+  "pmid": "35121774",
+  "pmcid": "PMC8816913",
+  "doi": "10.1038/s41598-022-05539-7",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:45.851444+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8816913/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC8816913.xml"
+}

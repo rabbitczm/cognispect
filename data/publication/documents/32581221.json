@@ -1,0 +1,1403 @@
+{
+  "key": "32581221",
+  "body_available": true,
+  "title": "Performance comparison of modified ComBat for harmonization of radiomic features for multicenter studies",
+  "source_url": "https://europepmc.org/articles/PMC7314795",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "R. Da-ano",
+    "I. Masson",
+    "F. Lucia",
+    "M. Doré",
+    "P. Robin",
+    "J. Alfieri",
+    "C. Rousseau",
+    "A. Mervoyer",
+    "C. Reinhold",
+    "J. Castelli",
+    "R. De Crevoisier",
+    "J. F. Rameé",
+    "O. Pradier",
+    "U. Schick",
+    "D. Visvikis",
+    "M. Hatt"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2020",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2020",
+        "month": "6",
+        "day": "24"
+      },
+      {
+        "type": "collection",
+        "year": "2020",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR4",
+            "CR5",
+            "CR6"
+          ],
+          "en": "Recent advancements in radiomics, the process consisting of the extraction of vast arrays of quantitative features using high-throughput computing from medical images such as magnetic resonance (MR), computed tomography (CT), and positron emission tomography (PET)1–4, leads to large quantitative sets of features made available to both research and clinical communities for investigation of potential impact in the clinical setting5. For oncological applications in particular a number of radiomics-driven prognostic/predictive studies related to numerous cancer types have shown promising results with potential applications for personalized medicine6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR7",
+            "CR10",
+            "CR11",
+            "CR12",
+            "CR13",
+            "CR16",
+            "CR17"
+          ],
+          "en": "In order to generate convincing results regarding the potential clinical value of radiomics as a prognostic tool, it is essential to consider large patient cohorts that can be only available through multicenter studies7–10. Indeed, most radiomics studies to date have been single-center based and retrospective in nature, in small cohorts of patients, and most radiomic models are not externally validated11,12. One of the main benefits of multicenter studies lies in the higher statistical relevance of the results obtained in larger datasets of different samples which naturally leads to more robust inference. However, multicenter radiomic studies are challenging, as gathering data from several centers for a centralized analysis is complex for legal, ethical, administrative and technical reasons. Irrespective of whether or not data and images are stored/analyzed in a centralized manner, variability in scanner models, acquisition protocols and reconstruction settings are unavoidable in the current clinical practice. Yet radiomic features are notoriously sensitive to such variations, which subsequently hinders pooling data to carry out statistical analysis and/or machine learning (ML) in order to build robust models13–16. Hence, there is a clear need for the harmonization of features in order to allow consistent findings in radiomics multicenter studies17. Within this context, there are two main approaches to address this issue: (i). harmonizing images and (ii). harmonizing radiomic features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR18",
+            "CR19",
+            "CR19",
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR23"
+          ],
+          "en": "The first approach addresses the harmonization issue in the image domain and usually considers standardization of acquisition protocols and reconstruction settings, relying for example on guidelines already available for PET/CT imaging18,19. It has been shown recently that although such an approach can help towards reducing multicenter effects, it may still be insufficient to fully compensate them19. More recently, techniques based on generative adversarial networks have also been considered in order to generate images with more similar properties20,21. The second approach addresses the issue in the feature domain by either selecting features prior to the statistical analysis based on their robustness in order to rely only on features insensitive to multicenter variability, or by keeping all features and harmonizing their statistical properties so they can be pooled during the modeling step. Within this context different methods have been considered, such as normalization22 or batch-effect correction using the ComBat method23.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [],
+          "en": "In this study, our objective was to develop and evaluate hybrid techniques based on ComBat to allow for more flexibility in the choice of a reference, and improved robustness in the estimation of the required transform.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Materials and Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "ComBat approach description",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR24",
+            "CR25",
+            "CR26",
+            "CR27",
+            "CR29",
+            "CR26"
+          ],
+          "en": "ComBat consists in dealing with the variability of parameters’ distributions so they can be pooled together. The method was initially described in genomics24, where the so-called “batch effect” is the source of variations in measurements caused by handling of samples by different laboratories, tools and technicians. This “batch effect” is conceptually similar to variations induced in radiomic features by the scanner model, the acquisition protocol and/or the reconstruction settings, sometimes called “center effect”. ComBat identifies a batch-specific transformation to express all data in a common space devoid of center effects. A modified version called M-ComBat which centers the data to the location and scale of a pre-determined “reference” batch was later introduced25. ComBat eliminates batch effects primarily based on an empirical Bayes framework. It has demonstrated robustness with smaller sample sizes26, and continues to be a widely used approach27–29. ComBat was observed as being “best able to reduce and remove batch effects while increasing precision and accuracy” when compared to five other popular batch effect removal methods26. ComBat within the context of radiomic features harmonization works by first standardizing them according to:where ordinary least-squares is used to calculate features-wise mean and standard deviation estimates, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\alpha }}_{g}$$\\end{document}α^g and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\sigma }}_{g}$$\\end{document}σ^g, across feature g, sample j, and center i. Yijg refers to the raw radiomics features values, and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$X{\\widehat{\\beta }}_{g}$$\\end{document}Xβ^g represents potential non-center related covariates and coefficients in the model. The standardized data is assumed to be normally distributed \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Z}_{ijg} \\sim N({\\gamma }_{ig},{\\delta }_{ig}^{2})$$\\end{document}Zijg~N(γig,δig2), where γig and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\delta }_{ig}^{2}$$\\end{document}δig2 are the center effect parameters with Normal and Inverse Gamma prior distributions, respectively. The method of moments is used to estimate hyperparameters which are used to compute the empirical Bayes estimates of conditional posterior means features-wise by center for the center effects parameters. The final center effect adjusted values are given by",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "One of the limitations of ComBat is that it centers the data to the overall, grand mean of all samples, which results in an adjusted data matrix that is shifted to an arbitrary location that no longer coincides with the location of any of the original centers. This can lead to harmonized features losing their original physical meaning (and impossible values, e.g., negative volumes or SUV).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "M-ComBat",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "A modified version of ComBat (M-ComBat) previously proposed25 shifts samples to the mean and variance of the chosen reference batch, rather than the grand mean and pooled variance. This is achieved by changing the standardizing mean and variance of the estimates, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\alpha }}_{g}$$\\end{document}α^g and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\sigma }}_{g}$$\\end{document}σ^g, to center-wise estimates, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\alpha }}_{ig}$$\\end{document}α^ig and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\widehat{\\sigma }}_{ig}$$\\end{document}σ^ig, such that the standardized values are then given by",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "Furthermore, the mean and variance estimates used in the final center effect adjusted data are calculated using the feature-wise mean and variance estimates of the ‘gold-standard’, reference center, i = r.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [],
+          "en": "The M-ComBat adjusted data are then given by",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Proposed modifications: B-ComBat and BM-ComBat",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "Equ2",
+            "Equ4"
+          ],
+          "en": "We propose a parametric bootstrap addition for the parameters in the ComBat and M-ComBat models, respectively. Here, we will use the bootstrap to construct a robust estimate and test improvement of the predictive ability of the models. Thus, from the estimates obtained in Eqs. (2) and (4), we perform the following:From the initial estimates obtained in the fitted ComBat and M-ComBat, resample B = 1000 times with replacement.Fit each resamples in the ComBat and M-ComBat models to obtain the B estimates of the coefficients, denoted by \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\gamma }_{ig}^{\\ast }$$\\end{document}γig⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{g}^{\\ast }$$\\end{document}αg⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{i=r,g}^{\\ast }$$\\end{document}αi=r,g⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\beta }_{g}^{\\ast }$$\\end{document}βg⁎ and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\delta }_{ig}^{\\ast }$$\\end{document}δig⁎.Compute the final estimates of the coefficients using Monte Carlo method by getting the mean of the B estimates, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\gamma }_{igk}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\gamma }_{ig}^{\\ast }}{k}$$\\end{document}γigk⁎=∑iBγig⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{igk}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\alpha }_{ig}^{\\ast }}{k}$$\\end{document}αigk⁎=∑iBαig⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{i=r,g}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\alpha }_{i=r,g}^{\\ast }}{k}$$\\end{document}αi=r,g⁎=∑iBαi=r,g⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\beta }_{g}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\beta }_{ig}^{\\ast }}{k}$$\\end{document}βg⁎=∑iBβig⁎k, and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\delta }_{ig}^{\\ast }={\\sum }_{g}^{B}\\,\\frac{{\\delta }_{ig}^{\\ast }}{k}$$\\end{document}δig⁎=∑gBδig⁎k where k = 1, …, B.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "From the initial estimates obtained in the fitted ComBat and M-ComBat, resample B = 1000 times with replacement.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [],
+          "en": "Fit each resamples in the ComBat and M-ComBat models to obtain the B estimates of the coefficients, denoted by \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\gamma }_{ig}^{\\ast }$$\\end{document}γig⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{g}^{\\ast }$$\\end{document}αg⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{i=r,g}^{\\ast }$$\\end{document}αi=r,g⁎, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\beta }_{g}^{\\ast }$$\\end{document}βg⁎ and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\delta }_{ig}^{\\ast }$$\\end{document}δig⁎.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "Compute the final estimates of the coefficients using Monte Carlo method by getting the mean of the B estimates, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\gamma }_{igk}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\gamma }_{ig}^{\\ast }}{k}$$\\end{document}γigk⁎=∑iBγig⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{igk}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\alpha }_{ig}^{\\ast }}{k}$$\\end{document}αigk⁎=∑iBαig⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\alpha }_{i=r,g}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\alpha }_{i=r,g}^{\\ast }}{k}$$\\end{document}αi=r,g⁎=∑iBαi=r,g⁎k, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\beta }_{g}^{\\ast }={\\sum }_{i}^{B}\\,\\frac{{\\beta }_{ig}^{\\ast }}{k}$$\\end{document}βg⁎=∑iBβig⁎k, and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\delta }_{ig}^{\\ast }={\\sum }_{g}^{B}\\,\\frac{{\\delta }_{ig}^{\\ast }}{k}$$\\end{document}δig⁎=∑gBδig⁎k where k = 1, …, B.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "Hence, the final B-ComBat and BM-ComBat bootstrapped adjusted data are given respectively by",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Datasets: patient cohorts, imaging and clinical endpoints",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec7",
+      "title": "Locally advanced cervical cancer (LACC)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "MOESM1",
+            "CR30"
+          ],
+          "en": "A cohort of 197 patients with locally advanced cervical cancer from 3 centers (Brest, n = 119 and Nantes, n = 50, in France, and Montreal, n = 28, in Canada) was exploited. Fluorodeoxyglucose (FDG)-PET, post-injection gadolinium contrast-enhanced MRI (GADO), T2-weighted MRI (T2) and apparent diffusion coefficients (ADC) maps from diffusion-weighted MRI were available for the radiomics pipeline. PET/CT and MRI settings were the same for all patients in each specific center (see Supplemental Table 1). Treatment consisted of curative radiotherapy (RT, external and brachytherapy) and chemotherapy. Data were retrospectively collected and a minimum follow-up of one year was ensured. Prediction of local failure (LF) was chosen as the endpoint, as an assessment at the time of diagnosis of the likelihood of LF would provide a rationale to adapt treatment (e.g., avoid systemic treatment for patients with low risk of recurrence)30. In this case, labels to rely upon for ComBat harmonization were well-defined and known, as all patients within a given center had the same acquisition and reconstruction settings applied with the same scanner.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Locally advanced laryngeal cancer (LALC)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "A cohort of 98 patients with histologically proven locally advanced laryngeal or hypopharyngeal cancer who were treated with laryngeal preservation using induction chemotherapy regimen (a combination of docetaxel, cisplatin and 5-fluorouracil, TPF) from 5 French centers (Brest, Nantes, Rennes, La Roche-sur-Yon and Quimper) was exploited. All patients had a contrast-enhanced computed tomography (CE-CT) at diagnosis. Response to chemotherapy was assessed after 2 or 3 cycles depending on centers and was based on clinical examination (endoscopic evaluation of larynx mobility) and imaging evaluation (CT scan and/or FDG PET/CT). The chosen primary endpoint is the lack of response to TPF, defined as a non-remobilization of the larynx if laryngeal mobility was decreased or abolished at diagnosis, or a response of the primary tumour <50% (RECIST criteria). This endpoint was chosen, as it significantly modifies the subsequent therapy for patients. Non-responders to TPF were indeed referred for a (pharyngo-)laryngectomy followed by postoperative RT, whereas responders could keep their larynx and received conservative RT with or without chemotherapy, depending on pathological risk factors. In contrast to the LACC case, a great variability was observed in terms of scanner models, collimation/acquisition settings and reconstruction parameters, even within each of the five centres (see Supplemental Table 2). It was thus challenging to set labels manually and it would lead to apply ComBat with an unrealistic number of labels (at least 15 for 98 patients). Hence, we implemented a solution that allows for automatic identification of cluster of patients with similar radiomic features, as well as the optimal number of clusters (see section “Unsupervised hierarchical clustering with silhouette scoring”).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Radiomics: feature extraction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR31",
+            "CR32",
+            "CR33",
+            "CR34",
+            "MOESM1"
+          ],
+          "en": "In the present work, only radiomic features extracted from the images and the available clinical factors were exploited. All image analysis steps including tumor delineation and features extraction are summarized below. Primary tumour volume-of-interests (VOIs) were delineated by one specialist (F. Lucia in the LACC cases and I. Masson in the LALC cases) as corresponding to the gross tumour volume (GTV). VOIs were delineated on every scan independently. PET images were contoured automatically with the fuzzy locally adaptive Bayesian (FLAB) algorithm31 and all CT and MR images, manually with the 3D SlicerTM software32. For each VOI, 79 morphological and intensity-based features, as well as 94 textural features were extracted in 3D according to the most up-to-date reference document of the Image Biomarker Standardization Initiative (IBSI)33 and validated with respect to the consensus values34. Each of the 94 textural features was computed according to two grey-level discretization algorithms: “fixed bin number” (FBN) or “fixed bin width” (FBW). Regarding FBN, 64 bins were considered. For FBW, in the case of PET, width values of 0.25, 0.5, 1 and 2 standardized uptake values (SUVs) were considered, whereas in the case of CT, 10 or 25 Hounsfield Units (HUs) were considered. Texture matrices were built according to the merging strategy (by summation of 13 matrices calculated in each direction before texture calculation). The list of the extracted parameters are available in Supplemental Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Experiments and analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR35",
+            "CR36"
+          ],
+          "en": "All versions of ComBat described in sections A, B and C above were applied using the non-parametric version of ComBat, using the labels defined either as the 3 clinical centers for LACC or the labels obtained through unsupervised hierarchical clustering with silhouette scoring35,36 in the case of LALC (see “Unsupervised hierarchical clustering with silhouette scoring”).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [],
+          "en": "The four different versions of ComBat were evaluated in terms of the resulting coefficient of variation (COV) in the harmonized features, compared to the untransformed variables. Radiomic features were then compared with ANOVA in terms of their statistical distributions across labels before and after harmonization with the four ComBat versions. In order to further evaluate the impact of harmonization, principal components analysis (PCA) was performed. Finally, the impact of the different ComBat versions on the performance of multiparametric models relying on radiomic features (and clinical factors) to predict the endpoints described previously was evaluated.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [],
+          "en": "In LACC, the Brest data (n = 119, 40 LF) was used as the training set (and reference for M-ComBat), whereas the testing set was built by combining Nantes and McGill data (n = 78, 27 LF). In LALC, unsupervised hierarchical clustering was performed to automatically determine the optimal number of clusters to use in ComBat (see Supplemental data and details below). The cluster with the largest number of patients was chosen as the reference (as far as M-ComBat was concerned) and training set, whereas the other was chosen as the testing set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "Models predicting endpoints (as a binary task) for both datasets were built using 3 different ML pipelines: (i) Multivariate regression (MR) with 10-fold cross-validation after feature selection based on least absolute shrinkage and selection operator (LASSO), (ii) Random Forest (RF) and (iii) Support Vector Machine (SVM), both with embedded feature selection. All 3 pipelines used as input either the untransformed or the harmonized (with the 4 ComBat versions) radiomic features in combination with the available clinical factors (age, gender, histology, stage, etc.) and included the use of synthetic minority over-sampling technique (SMOTE) to address the data imbalance during training.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "The overall workflow is illustrated in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Unsupervised hierarchical clustering with silhouette scoring (LALC only)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "Using ComBat directly in LALC was not reliable as it would have led to manually define more than 15 labels for 98 patients, based on a very complex and heterogeneous set of acquisition and reconstruction settings across and also within centers (see Supplemental Table 2). Hence, we decided to rely on unsupervised hierarchical clustering to group patients with similar radiomic features distributions,and we also needed an automatically determined optimal number of clusters. In doing this, we assumed that the differences amongst radiomic features due to imaging have higher impact than differences due to different outcomes (i.e., responders vs. non responders). In order to evaluate the validity of this assumption, we first applied the proposed unsupervised clustering approach to the LACC case where the labels are known and well-defined (i.e., the 3 centers Brest, Nantes and McGill). The unsupervised approach correctly identified 3 clusters and was able to assign all patients except one to its correct center (see results section and Supplemental Fig. 4). As there was still a potential risk that the unsupervised clustering would cluster data based on clinical endpoint instead of imaging differences, the resulting clusters were also checked for consistency in terms of their percentage of events (i.e., lack of response to TPF).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [
+            "CR35",
+            "MOESM1",
+            "CR36"
+          ],
+          "en": "Hierarchical clustering is a type of unsupervised algorithm which groups data by similarity, i.e., it classifies objects without any prior knowledge of the class they belong to, based on the measure of the Euclidean distance35. To determine the optimal number of clusters to consider before running the hierarchical clustering, we used ‘silhouette’ scoring, a tool used to validate the clustering. The ‘silhouette’ is then constructed to determine the optimal number of clusters with a ratio scale data (as in the case of Euclidean distance) that is suitable for clearly separated clusters (Supplemental Fig. 1)36.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Imbalance adjustment",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "CR37"
+          ],
+          "en": "As there were 34% of LF in LACC and 15% of non-responders in LALC, we used SMOTE to facilitate training of the models. SMOTE iteratively performs oversampling of the minority class in order to provide a balanced number of positive and negative cases to the learning algorithm37: At every iteration, a new instance of the minority class is synthesized somewhere between one element of the existing minority class and a chosen closest minority class neighbour.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Machine learning pipelines",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec14",
+      "title": "Multivariate regression with LASSO",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "CR38",
+            "CR38"
+          ],
+          "en": "The multivariate regression was trained using the features selected by LASSO. LASSO serves as a regularization and variable selection methods for any statistical models38. In the case of multivariate cox regression, it penalizes the negative log of the partial likelihood with the LASSO penalty38. The algorithm uses a cyclical coordinate descent, which successively optimizes the objective function over a parameter with others kept fixed, and cycles repeatedly until convergence.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Random forest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "CR39"
+          ],
+          "en": "An RF algorithm, making use of an ensemble method for classification consisting of many simple tree classifiers39, was also considered. The idea behind ensemble methods is that a team of “weak learners” (single trees) can come together to structure a more suitable learner with a couple of trees creating a forest, which when it is randomized is known as RF.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Support vector machine",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "CR40",
+            "CR40"
+          ],
+          "en": "Finally, a SVM algorithm was included40. It works by nonlinearly projecting the training data in the input space to a feature space of higher (infinite) dimension by use of a kernel function. The outcome is a linearly separable dataset that can be separated with the aid of a linear classifier. This undertaking enables the classification of datasets which are usually nonlinearly separable in the input space. In certain instances, classification in high dimension feature spaces results in over-fitting in the input space. Overfitting is controlled through the principle of structural risk minimization40.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Embedded features selection technique",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "CR41",
+            "CR42",
+            "CR43"
+          ],
+          "en": "Both RF and SVM rely on embedded feature selection, which means that the models validation, feature subset selection and hyper parameters optimization steps are performed simultaneously. This technique accommodates feature selection as a section of the model fitting/training process. It is therefore normally specific to a given learning algorithm, i.e., the feature subset selection can be considered as a search in the combined space of feature subsets and hypotheses. For RF, a measure of variable importance estimates the relevance of variables based on a couple of decision trees at the training step41. These importance scores from a RF are then used to guide the feature selection process. The feature selection method follows the nested validation approach. This procedure ensures unbiased feature selection and an optimal model less prone to overfitting and selection bias42. Starting with an inner validation loop, multiple RF with different bootstrap samples are trained (multiple RF models are fitted for multiple bootstrap samples). Then the variables are ranked using the averaged variables importance across the number of bootstrap iterations, which ensures that more stable features are being selected. After this, an outer validation loop that is a stepwise forward feature selection is being considered to select the number of features that minimize the validation error. As previously described, bootstrap setting is used to assess which subset of features provides the optimal mean prediction error rate. In the case of SVM, the same procedure was considered although, instead of the measure of variable importance as in RF, features are ranked based on the best fine cost of the models and are ranked according to the values of leave-one-out error (LOO–i), i.e., the feature i with the highest value of LOO–i is ranked first43.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "Final model construction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [],
+          "en": "In order to exploit the feature selection and parameter tuning results, the multiple regression with LASSO, RF and SVM final models were fitted separately with the selected optimal features subset and parameters.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec19",
+      "title": "Evaluation metrics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1",
+            "CR44"
+          ],
+          "en": "Usual performance metrics were computed. Area under the ROC curve (AUC), accuracy, sensitivity and specificity are provided in the Supplemental Material Figs. 5–10. In order to compare the results obtained without and with the different ComBat versions, we decided to focus on two metrics, balanced accuracy (BAcc) and Matthews correlation coefficient (MCC, worst value = −1; best value = +1)44. BAcc is calculated as the average of sensitivity and specificity and is an appropriate metric in the presence of strong class imbalance, contrary to standard accuracy. MCC is a reliable metric producing a high score only if the prediction obtained good results in all of the 4 confusion matrices (true positives, false negatives, true negatives and false positives).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec20",
+      "title": "Approval, accordance and informed consent",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "The study was approved by the local ethics committee of the University Hospital of Brest (references 29BRC19.0006 and 29BCR18.0015 for LALC and LACC respectively). All patients gave their informed consent via a non-opposition form. All procedures were in accordance with the ethical standards of the institutional research committee and with the 1964 Helsinki declaration and its later amendments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec21",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec22",
+      "title": "Initial analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "The unsupervised clustering applied to the LACC patient cohort (with known labels) was able to almost perfectly identify patients from the 3 different centers (Supplemental Fig. 4). Only 1 patient from Brest was misclassified and associated with the McGill label.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "In the LALC cohort, the unsupervised clustering identified two clusters of 38 and 60 patients, which seems reasonable with respect to the size of the cohort (less than 100 patients), allowing for a sufficiently large number of patients in each label for ComBat estimation (Supplemental Fig. 2). Because both clusters had similar proportion of events (6 non-responders for 38 patients (16%) in cluster 1 and 9 non-responders for 60 patients (15%) in cluster 2), it is very unlikely that this unsupervised differentiation was based on outcome, rather than on differences of features due to center-effect. Subsequently in terms of modelling, cluster 2 was chosen as the reference (for M-ComBat) training set, whereas cluster 1 was chosen as the testing set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "Tab1"
+          ],
+          "en": "The COV measurements (Table 1) in each of the clinical applications show that: (i). The untransformed data exhibit more variability than their ComBat-harmonized counterparts, and (ii). The data harmonized with the bootstrapped ComBat (B-ComBat) exhibit reduced variability compared to the data harmonized with the non-bootstrapped ComBat. This means that B-ComBat and BM-ComBat have lower levels of dispersion around the mean which should in turn provide more precise and accurate estimates.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "According to ANOVA, 98% and 96% (in LACC and LALC respectively) of untransformed radiomic features were significantly different between labels at p < 0.01. After harmonization, all of the four ComBat versions completely eliminated significant label related differences across the different cohorts in both datasets, i.e., none of the radiomic features remained significantly different between labels.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "Fig2",
+            "Fig3"
+          ],
+          "en": "Scatterplots of the top two principal components of PCA (Figs. 2 and 3, representing 61% and 47% of the information in LACC and LALC, respectively) visually demonstrate the efficiency of all four ComBat versions in removing the differences in radiomic features between labels while shifting the data to different locations (shown by the mean and standard deviation in the tables below the graphs). By transforming all of the data to the global mean rather than a label-specific mean, ComBat (and B-ComBat) alter the location of potential reference samples. On the contrary, transformation by means of M-ComBat (and BM-ComBat), allows data from all labels to overlay each other and at the same time be centered on the chosen reference label (Brest in LACC and cluster 2 in LALC, as shown by the mean and standard deviation in the tables below the graphs). This result clearly demonstrates the interest of the M-ComBat: providing the user with the capability to shift data to a chosen reference standard without losing the capability to correct for individual center effects.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec23",
+      "title": "Predictive modelling using machine learning approaches",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "Tab2",
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "Table 2 provides results for the 2 performance evaluation metrics in the testing set, for considering the use of the different ML algorithms in combination with the two clinical datasets, using the 4 versions of ComBat. The same results (including training sets and additional evaluation metrics) are provided in Supplemental Figs. 5–10.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [],
+          "en": "For both patient cohorts, RF provided the best classification accuracy (BAcc of 79-89% in LACC and 82–86% in LALC) compared to MR (60–70% in LACC, 27–71% in LALC) and SVM (75–83% in LACC, 41–62% in LALC).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "The absolute increase in performance between the use of the original, untransformed features and the harmonized ones varied depending on the ML algorithms used and between the patient populations considered. For example, a small improvement was seen with RF for LALC (BAcc from 82% to 83%) and a much larger one for MR with LALC (BAcc from 27% to 69%). However, results using harmonized features (whatever version of ComBat was used) were systematically better than using the untransformed ones for all three ML algorithms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [],
+          "en": "Regarding the two proposed modifications implemented within ComBat, the M modification had a very limited impact on the performance, which was expected since the objective of this modification is simply targeting improved flexibility and not improved performance. It provided very similar (actually most often exactly the same) or slightly better results as the standard ComBat, while allowing for the chosen reference set not to be modified and avoiding some features being transformed into impossible values such as negative volumes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "On the other hand, B-ComBat aimed at improving the harmonization results. Indeed, it provided systematically better (although small in magnitude) performance compared to standard ComBat, in both LACC and LALC and across all ML approaches considered in this study. The comparison between BM-ComBat and B-ComBat led to similar conclusions as with the comparison between M-ComBat and ComBat, with mostly the same or slightly improved performance. All these observations were consistent between the two evaluation metrics (i.e., BAcc and MCC), as well as with the ROC AUC (see Supplemental Figs. 5–10).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec24",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "In this work, we proposed an improvement of a well-known methodology for eliminating center-effects using radiomic feature based signatures. We have shown the added value of this improvement first using principal component analysis, descriptive statistics and coefficients of variation. Within this context we have shown that the proposed modified ComBat slightly but consistently improved the estimates and the resulting predictive ability of models with all ML algorithms implemented in this work. This improvement was observed across all performance metrics and for both clinical cohorts considered.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par45",
+          "reference_ids": [
+            "Fig2",
+            "Fig3"
+          ],
+          "en": "All versions of ComBat were able to remove the differences amongst radiomic features caused by systematic imaging effects. The features’ distributions (mean and standard deviation) were all aligned with the chosen reference using M-ComBat and BM-ComBat (Brest for LACC and cluster 2 for LALC). The non-biological variation introduced by differences in imaging systems, acquisition protocols and reconstruction settings led to a dramatic impact on the overall radiomic features distributions as can be seen in the PCA plots (Figs. 2 and 3). These variations are often unavoidable in multicenter studies, as well as in retrospective studies with a long recruitment duration (e.g., when the scanner is replaced by another model at some point). The four ComBat versions were equally effective in eliminating related differences caused by confounding center effects. However, M-ComBat and BM-ComBat were shown to offer a more flexible and robust framework to overcome these differences. The M-modification provides the ability to control the location and scale of the transformed data, whereas the B-modification improves the accuracy of the estimates. Combining the two lead to an improvement in the development and validation of radiomic signatures by combining data from different centers.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [
+            "CR45",
+            "CR46"
+          ],
+          "en": "Overall, results were consistent for both LACC and LALC cohorts across the 3 different ML approaches in terms of comparison between untransformed and ComBat harmonized datasets, although the absolute performance varied between ML approaches, as already observed in other studies45. The performance of the developed models were always improved with any harmonized data compared to untransformed ones (e.g., 60% BAcc in LACC untransformed data compared to 68–70% for harmonized data and 27% BAcc in LALC vs. 69–71%, when using MR with LASSO). The absolute difference in performance amongst the 3 ML algorithms can be attributed to the different feature selection techniques46. The feature selection techniques embedded within RF and SVM modelling clearly allows to fully span the initial datasets space in order to identify the most relevant combination of features for a given task and are therefore leading to superior results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [
+            "CR17",
+            "CR47",
+            "CR16",
+            "CR48",
+            "CR16",
+            "CR48",
+            "CR26",
+            "CR9",
+            "CR49",
+            "CR7",
+            "CR22"
+          ],
+          "en": "The original ComBat algorithm follows a three steps procedure: (i). Data standardization, (ii). Empirical Bayes estimation of prior distribution hyperparameters from standardized data and subsequent estimation of batch effect parameters, which are used in (iii). Correction of batches17,47. ComBat has several interesting properties for the purpose of radiomics harmonization: it does not require altering the feature definitions16,48 and can therefore be used with any algorithm. It is easy to use and fast. It allows exploiting the entire available information since none of the features are eliminated prior to the analysis16,48 and it can be used for both prospective or retrospective data, provided that same disease and corresponding treatment patient cohorts are available in the different centers. ComBat was previously shown to outperform 6 other methods for batch effect removal in microarray datasets from brain RNA samples and two simulated datasets26. It was subsequently used successfully in several radiomic studies9,49. In contrast, other recent studies exploited basic normalization to achieve the same goal, although with the assumption that while making data more comparable, it does not remove any biological signal of interest7,22. A thorough comparison of ComBat with other normalization techniques remains to be carried out specifically in the context of radiomics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "The M- modification provides the user the flexibility to harmonize the features set to a chosen reference, which can be of interest for example if there is a higher confidence or understanding of one dataset compared to the others. The proposed use of bootstrap for initial estimates reduced variances within each center and helped in facilitating bias reduction during center effect parameter estimation by ComBat and M-ComBat respectively and therefore led to an improved center effect removal and predictive performance. Although relatively small, the improvement provided by the use of BM-ComBat was consistent whatever ML algorithm was used for both clinical datasets considering different cancer types and imaging modalities.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [],
+          "en": "Although the proposed modified ComBat provided a consistent improvement in the predictive performance of the developed models in different ML algorithms, we acknowledge the limitations associated with relatively small improvements in combination with small datasets. Our findings will thus require a validation in larger cohorts, as well as in other configurations of numbers of labels. In the case of LALC patient cohort, one limitation is the use of unsupervised hierarchical clustering to automatically identify a likely and reliable number of labels to apply ComBat to. It was especially important to check that the resulting clusters were not defined based on the clinical endpoint but rather systematic differences due to imaging variability: as each resulting clusters had a similar percentage of non-responders, it can be safely assumed that the clusters were indeed obtained mostly based on measured differences due to imaging acquisition and associated processing protocols, rather than different outcome profiles. In addition, when performing the same technique to the LACC datasets with known labels, the unsupervised clustering identified correctly (except for one patient) its correct label (i.e., center). Although our proposed modifications improved the performance of ComBat for harmonization purposes, they do not alleviate some of its inherent limitations. To work properly, ComBat requires available and labelled data in order to perform the estimate and batch correction. In addition, when new datasets are added, they have to be combined with the other available ones and the harmonization has to be re-established on the entire database. Similarly, in order to apply a developed/validated model (i.e., a combination of harmonized radiomic features with an associated threshold value) to a new patient from another center not previously included, there is currently no direct method to apply the previously determined harmonization transform to the radiomic features values of this new patient in order to determine his/her prediction. Our future work will investigate how to address these remaining limitations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [],
+          "en": "Finally, in the present work we considered the entire set of radiomic features irrespectively of their robustness. An alternative strategy consists in identifying features robust to changes in acquisition and reconstruction settings prior to feeding them to the machine learning pipeline. Such a feature selection procedure can help building more robust models, potentially without the need for harmonization, since only features insensitive to multicenter variability are exploited. However, it suffers from a potential loss of information, as features identified as unreliable are usually discarded before being evaluated and the most robust/reproducible features might not necessarily be the most discriminant. In addition, the size of the radiomic features set would depend on the chosen threshold of what is considered robust enough. A full comparison between the two approaches will be carried out in our future work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec25",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par51",
+          "reference_ids": [],
+          "en": "The hybrid bootstrapped ComBat (B-ComBat and BM-ComBat) versions are modifications to a well-established methodology allowing a more reliable estimation (B) and ability to control the location and scale of center-effect adjusted data (M). It was shown to slightly but consistently improve the performance of predictive radiomics models in a multicenter context, whatever machine learning technique was used. We thus recommend the use of this BM-modified ComBat approach for the future development and validation of predictive models in a multicenter context.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-27",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec26",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-29",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-29-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-29-p2",
+          "reference_ids": [],
+          "en": "These authors contributed equally: D. Visvikis and M. Hatt.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-29-p3",
+          "reference_ids": [],
+          "en": "This study was partly funded by 766276 PREDICT H2020-MSCA-ITN-2017 and M2R201806006004.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-29-p4",
+          "reference_ids": [],
+          "en": "M.H., D.V. and R.D. designed the study. R.D. developed the methods and performed the statistical analysis. U.S., I.M. and F.L. collected and processed the images, and calculated the features. M.D., P.R., J.A., C.R., A.M., C.R., J.C., R.D.C., J.F.R., and O.P. contributed to writing and reviewed/approved the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-29-p5",
+          "reference_ids": [],
+          "en": "Radiomic features can be made available on request for specific research purposes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par52",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-30",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-30-p1",
+          "reference_ids": [],
+          "en": "is available for this paper at 10.1038/s41598-020-66110-w.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "COV computed on the untransformed and four ComBat versions data.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Data",
+          "COV"
+        ],
+        [
+          "LACC",
+          "LALC"
+        ],
+        [
+          "Untransformed",
+          "3039",
+          "1987"
+        ],
+        [
+          "ComBat",
+          "1389",
+          "1108"
+        ],
+        [
+          "B-ComBat",
+          "1385",
+          "1082"
+        ],
+        [
+          "M-ComBat",
+          "1389",
+          "1108"
+        ],
+        [
+          "BM-ComBat",
+          "1385",
+          "1082"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>COV computed on the untransformed and four ComBat versions data.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">Data</th><th colspan=\"2\" rowspan=\"1\">COV</th></tr><tr><th colspan=\"1\" rowspan=\"1\">LACC</th><th colspan=\"1\" rowspan=\"1\">LALC</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Untransformed</td><td colspan=\"1\" rowspan=\"1\">3039</td><td colspan=\"1\" rowspan=\"1\">1987</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ComBat</td><td colspan=\"1\" rowspan=\"1\">1389</td><td colspan=\"1\" rowspan=\"1\">1108</td></tr><tr><td colspan=\"1\" rowspan=\"1\">B-ComBat</td><td colspan=\"1\" rowspan=\"1\">1385</td><td colspan=\"1\" rowspan=\"1\">1082</td></tr><tr><td colspan=\"1\" rowspan=\"1\">M-ComBat</td><td colspan=\"1\" rowspan=\"1\">1389</td><td colspan=\"1\" rowspan=\"1\">1108</td></tr><tr><td colspan=\"1\" rowspan=\"1\">BM-ComBat</td><td colspan=\"1\" rowspan=\"1\">1385</td><td colspan=\"1\" rowspan=\"1\">1082</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Performance metrics evaluation of predictive models in LACC and LALC testing sets using the three ML pipelines.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "ML",
+          "Data",
+          "BAcc(%)",
+          "MCC [−1,+1]"
+        ],
+        [
+          "LACC",
+          "LALC",
+          "LACC",
+          "LALC"
+        ],
+        [
+          "MR",
+          "Untransformed",
+          "60",
+          "27",
+          "0.19",
+          "−0.39"
+        ],
+        [
+          "ComBat",
+          "68",
+          "69",
+          "0.35",
+          "0.31"
+        ],
+        [
+          "B-ComBat",
+          "70",
+          "71",
+          "0.37",
+          "0.31"
+        ],
+        [
+          "M-ComBat",
+          "68",
+          "69",
+          "0.35",
+          "0.31"
+        ],
+        [
+          "BM-ComBat",
+          "70",
+          "71",
+          "0.35",
+          "0.31"
+        ],
+        [
+          "RF",
+          "Untransformed",
+          "79",
+          "82",
+          "0.69",
+          "−0.15"
+        ],
+        [
+          "ComBat",
+          "84",
+          "83",
+          "0.72",
+          "0.18"
+        ],
+        [
+          "B-ComBat",
+          "86",
+          "85",
+          "0.73",
+          "0.23"
+        ],
+        [
+          "M-ComBat",
+          "85",
+          "84",
+          "0.70",
+          "0.16"
+        ],
+        [
+          "BM-ComBat",
+          "89",
+          "86",
+          "0.89",
+          "0.59"
+        ],
+        [
+          "SVM",
+          "Untransformed",
+          "75",
+          "41",
+          "0.53",
+          "−0.13"
+        ],
+        [
+          "ComBat",
+          "79",
+          "48",
+          "0.55",
+          "−0.08"
+        ],
+        [
+          "B-ComBat",
+          "82",
+          "62",
+          "0.63",
+          "0.18"
+        ],
+        [
+          "M-ComBat",
+          "79",
+          "58",
+          "0.55",
+          "0.12"
+        ],
+        [
+          "BM-ComBat",
+          "83",
+          "60",
+          "0.67",
+          "0.17"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Performance metrics evaluation of predictive models in LACC and LALC testing sets using the three ML pipelines.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">ML</th><th rowspan=\"2\" colspan=\"1\">Data</th><th colspan=\"2\" rowspan=\"1\">BAcc(%)</th><th colspan=\"2\" rowspan=\"1\">MCC [−1,+1]</th></tr><tr><th colspan=\"1\" rowspan=\"1\">LACC</th><th colspan=\"1\" rowspan=\"1\">LALC</th><th colspan=\"1\" rowspan=\"1\">LACC</th><th colspan=\"1\" rowspan=\"1\">LALC</th></tr></thead><tbody><tr><td rowspan=\"5\" colspan=\"1\"><bold>MR</bold></td><td colspan=\"1\" rowspan=\"1\">Untransformed</td><td colspan=\"1\" rowspan=\"1\">60</td><td colspan=\"1\" rowspan=\"1\">27</td><td colspan=\"1\" rowspan=\"1\">0.19</td><td colspan=\"1\" rowspan=\"1\">−0.39</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ComBat</td><td colspan=\"1\" rowspan=\"1\">68</td><td colspan=\"1\" rowspan=\"1\">69</td><td colspan=\"1\" rowspan=\"1\">0.35</td><td colspan=\"1\" rowspan=\"1\">0.31</td></tr><tr><td colspan=\"1\" rowspan=\"1\">B-ComBat</td><td colspan=\"1\" rowspan=\"1\">70</td><td colspan=\"1\" rowspan=\"1\">71</td><td colspan=\"1\" rowspan=\"1\">0.37</td><td colspan=\"1\" rowspan=\"1\">0.31</td></tr><tr><td colspan=\"1\" rowspan=\"1\">M-ComBat</td><td colspan=\"1\" rowspan=\"1\">68</td><td colspan=\"1\" rowspan=\"1\">69</td><td colspan=\"1\" rowspan=\"1\">0.35</td><td colspan=\"1\" rowspan=\"1\">0.31</td></tr><tr><td colspan=\"1\" rowspan=\"1\">BM-ComBat</td><td colspan=\"1\" rowspan=\"1\">70</td><td colspan=\"1\" rowspan=\"1\">71</td><td colspan=\"1\" rowspan=\"1\">0.35</td><td colspan=\"1\" rowspan=\"1\">0.31</td></tr><tr><td rowspan=\"5\" colspan=\"1\"><bold>RF</bold></td><td colspan=\"1\" rowspan=\"1\">Untransformed</td><td colspan=\"1\" rowspan=\"1\">79</td><td colspan=\"1\" rowspan=\"1\">82</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">−0.15</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ComBat</td><td colspan=\"1\" rowspan=\"1\">84</td><td colspan=\"1\" rowspan=\"1\">83</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.18</td></tr><tr><td colspan=\"1\" rowspan=\"1\">B-ComBat</td><td colspan=\"1\" rowspan=\"1\">86</td><td colspan=\"1\" rowspan=\"1\">85</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.23</td></tr><tr><td colspan=\"1\" rowspan=\"1\">M-ComBat</td><td colspan=\"1\" rowspan=\"1\">85</td><td colspan=\"1\" rowspan=\"1\">84</td><td colspan=\"1\" rowspan=\"1\">0.70</td><td colspan=\"1\" rowspan=\"1\">0.16</td></tr><tr><td colspan=\"1\" rowspan=\"1\">BM-ComBat</td><td colspan=\"1\" rowspan=\"1\">89</td><td colspan=\"1\" rowspan=\"1\">86</td><td colspan=\"1\" rowspan=\"1\">0.89</td><td colspan=\"1\" rowspan=\"1\">0.59</td></tr><tr><td rowspan=\"5\" colspan=\"1\"><bold>SVM</bold></td><td colspan=\"1\" rowspan=\"1\">Untransformed</td><td colspan=\"1\" rowspan=\"1\">75</td><td colspan=\"1\" rowspan=\"1\">41</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">−0.13</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ComBat</td><td colspan=\"1\" rowspan=\"1\">79</td><td colspan=\"1\" rowspan=\"1\">48</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">−0.08</td></tr><tr><td colspan=\"1\" rowspan=\"1\">B-ComBat</td><td colspan=\"1\" rowspan=\"1\">82</td><td colspan=\"1\" rowspan=\"1\">62</td><td colspan=\"1\" rowspan=\"1\">0.63</td><td colspan=\"1\" rowspan=\"1\">0.18</td></tr><tr><td colspan=\"1\" rowspan=\"1\">M-ComBat</td><td colspan=\"1\" rowspan=\"1\">79</td><td colspan=\"1\" rowspan=\"1\">58</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.12</td></tr><tr><td colspan=\"1\" rowspan=\"1\">BM-ComBat</td><td colspan=\"1\" rowspan=\"1\">83</td><td colspan=\"1\" rowspan=\"1\">60</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.17</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Workflow for the analysis in LACC and LALC datasets.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66110_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "PCA and summary distribution in LACC: Scatter plots of top 2 principal components of the radiomic features across the three labels (centers) using untransformed data or data transformed with the 4 versions of ComBat. (using R (3.5.1) and R Studio (1.1.456, R Studios Inc., Boston, MA, https://cran.rproject. org/).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66110_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "PCA and summary distribution in LALC: Scatter plots of top 2 principal components of theradiomic features across the two labels (clusters) using untransformed data or data transformed with the 4 versions of ComBat (using R (3.5.1) and R Studio (1.1.456, R Studios Inc., Boston, MA, https://cran.rproject. org/).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_66110_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Z}_{ijg}=\\frac{{Y}_{ijg}-{\\widehat{\\alpha }}_{g}-X{\\widehat{\\beta }}_{g}}{{\\widehat{\\sigma }}_{g}}$$\\end{document}Zijg=Yijg−α^g−Xβ^gσ^g",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ1\"><label>1</label><alternatives><tex-math id=\"M1\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Z}_{ijg}=\\frac{{Y}_{ijg}-{\\widehat{\\alpha }}_{g}-X{\\widehat{\\beta }}_{g}}{{\\widehat{\\sigma }}_{g}}$$\\end{document}</tex-math><ns0:math id=\"M2\" display=\"block\"><ns0:msub><ns0:mrow><ns0:mi>Z</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:mi>X</ns0:mi><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>σ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:mfrac></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ1.gif\" /></alternatives></disp-formula>where ordinary least-squares is used to calculate features-wise mean and standard deviation estimates, "
+    },
+    {
+      "id": "Equ2",
+      "text": "2\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Y}_{ijg}^{\\ast }=\\frac{{\\widehat{\\sigma }}_{g}}{{\\widehat{\\delta }}_{ig}^{\\ast }}({Z}_{ijg}-{\\widehat{\\gamma }}_{ig}^{\\ast })+{\\widehat{\\alpha }}_{g}+X{\\widehat{\\beta }}_{g}$$\\end{document}Yijg⁎=σ^gδ^ig⁎(Zijg−γ^ig⁎)+α^g+Xβ^g",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ2\"><label>2</label><alternatives><tex-math id=\"M13\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Y}_{ijg}^{\\ast }=\\frac{{\\widehat{\\sigma }}_{g}}{{\\widehat{\\delta }}_{ig}^{\\ast }}({Z}_{ijg}-{\\widehat{\\gamma }}_{ig}^{\\ast })+{\\widehat{\\alpha }}_{g}+X{\\widehat{\\beta }}_{g}$$\\end{document}</tex-math><ns0:math id=\"M14\" display=\"block\"><ns0:msubsup><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>σ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>δ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:mfrac><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>Z</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>γ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>X</ns0:mi><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ2.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Z}_{ijg}=\\frac{{Y}_{ijg}-{\\widehat{\\alpha }}_{ig}-X{\\widehat{\\beta }}_{g}}{{\\widehat{\\sigma }}_{ig}}$$\\end{document}Zijg=Yijg−α^ig−Xβ^gσ^ig",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ3\"><label>3</label><alternatives><tex-math id=\"M23\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Z}_{ijg}=\\frac{{Y}_{ijg}-{\\widehat{\\alpha }}_{ig}-X{\\widehat{\\beta }}_{g}}{{\\widehat{\\sigma }}_{ig}}$$\\end{document}</tex-math><ns0:math id=\"M24\" display=\"block\"><ns0:msub><ns0:mrow><ns0:mi>Z</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:mi>X</ns0:mi><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow><ns0:mrow><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>σ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:mfrac></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ3.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ4",
+      "text": "4\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Y}_{ijg}^{\\ast }=\\frac{{\\widehat{\\sigma }}_{i=r,g}}{{\\widehat{\\delta }}_{ig}^{\\ast }}({Z}_{ijg}-{\\widehat{\\gamma }}_{ig}^{\\ast })+{\\widehat{\\alpha }}_{i=r,g}+X{\\widehat{\\beta }}_{g}$$\\end{document}Yijg⁎=σ^i=r,gδ^ig⁎(Zijg−γ^ig⁎)+α^i=r,g+Xβ^g",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ4\"><label>4</label><alternatives><tex-math id=\"M25\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Y}_{ijg}^{\\ast }=\\frac{{\\widehat{\\sigma }}_{i=r,g}}{{\\widehat{\\delta }}_{ig}^{\\ast }}({Z}_{ijg}-{\\widehat{\\gamma }}_{ig}^{\\ast })+{\\widehat{\\alpha }}_{i=r,g}+X{\\widehat{\\beta }}_{g}$$\\end{document}</tex-math><ns0:math id=\"M26\" display=\"block\"><ns0:msubsup><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>σ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mi>r</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>δ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:mfrac><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>Z</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>γ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mi>r</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>X</ns0:mi><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ4.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ5",
+      "text": "5\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Y}_{ijg}^{B-ComBat}=\\frac{{y}_{ijg}-{\\widehat{\\alpha }}_{gk}-{X}_{ij}{\\widehat{\\beta }}_{gk}-{\\gamma }_{igk}^{\\ast }}{{\\delta }_{igk}^{\\ast }}+{\\widehat{\\alpha }}_{gk}+{X}_{ij}{\\widehat{\\beta }}_{gk}$$\\end{document}YijgB−ComBat=yijg−α^gk−Xijβ^gk−γigk⁎δigk⁎+α^gk+Xijβ^gk",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ5\"><label>5</label><alternatives><tex-math id=\"M47\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Y}_{ijg}^{B-ComBat}=\\frac{{y}_{ijg}-{\\widehat{\\alpha }}_{gk}-{X}_{ij}{\\widehat{\\beta }}_{gk}-{\\gamma }_{igk}^{\\ast }}{{\\delta }_{igk}^{\\ast }}+{\\widehat{\\alpha }}_{gk}+{X}_{ij}{\\widehat{\\beta }}_{gk}$$\\end{document}</tex-math><ns0:math id=\"M48\" display=\"block\"><ns0:msubsup><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>B</ns0:mi><ns0:mo>−</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>m</ns0:mi><ns0:mi>B</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>t</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>X</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mi>γ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi>δ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:mfrac><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>X</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ5.gif\" /></alternatives></disp-formula>"
+    },
+    {
+      "id": "Equ6",
+      "text": "6\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${Y}_{ijg}^{BM-ComBat}=\\frac{{y}_{ijg}-{\\widehat{\\alpha }}_{(i=r,g)k}-{X}_{ij}{\\widehat{\\beta }}_{gk}-{\\gamma }_{igk}^{\\ast }}{{\\delta }_{igk}^{\\ast }}+{\\widehat{\\alpha }}_{(i=r,g)k}+{X}_{ij}{\\widehat{\\beta }}_{gk}$$\\end{document}YijgBM−ComBat=yijg−α^(i=r,g)k−Xijβ^gk−γigk⁎δigk⁎+α^(i=r,g)k+Xijβ^gk",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns1=\"http://www.w3.org/1999/xlink\" id=\"Equ6\"><label>6</label><alternatives><tex-math id=\"M49\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${Y}_{ijg}^{BM-ComBat}=\\frac{{y}_{ijg}-{\\widehat{\\alpha }}_{(i=r,g)k}-{X}_{ij}{\\widehat{\\beta }}_{gk}-{\\gamma }_{igk}^{\\ast }}{{\\delta }_{igk}^{\\ast }}+{\\widehat{\\alpha }}_{(i=r,g)k}+{X}_{ij}{\\widehat{\\beta }}_{gk}$$\\end{document}</tex-math><ns0:math id=\"M50\" display=\"block\"><ns0:msubsup><ns0:mrow><ns0:mi>Y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>B</ns0:mi><ns0:mi>M</ns0:mi><ns0:mo>−</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>m</ns0:mi><ns0:mi>B</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>t</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi><ns0:mi>g</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mi>r</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>g</ns0:mi><ns0:mo>)</ns0:mo><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>X</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>−</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mi>γ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi>δ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo>⁎</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:mfrac><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>α</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mi>r</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>g</ns0:mi><ns0:mo>)</ns0:mo><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>X</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">^</ns0:mo></ns0:mrow></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>g</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub></ns0:math><graphic position=\"anchor\" orientation=\"portrait\" ns1:href=\"41598_2020_66110_Article_Equ6.gif\" /></alternatives></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.GilliesRJKinahanPEHricakHRadiomics: Images are more than pictures, they are dataRadiology201625637710.1148/radiol.2015151169PMC473415726579733",
+      "doi": [
+        "10.1148/radiol.2015151169"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.LambinPRadiomics: Extracting more information from medical imagesusing advanced feature analysisEur. J. Cancer20124844144610.1016/j.ejca.2011.11.03622257792PMC4533986",
+      "doi": [
+        "10.1016/j.ejca.2011.11.036"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.KumarVRadiomics: The process and the challengesMagn. Respn. Imag.2012301234124810.1016/j.mri.2012.06.010PMC356328022898692",
+      "doi": [
+        "10.1016/j.mri.2012.06.010"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.Laure, R. T., Defraene, G., De Ruysscher, D., Lambin, P. & van Elmpt, W. Quantitativeradiomics studies for tissue characterization: A review of technology and methodological procedures. Brit. J. Radiol. 90 (2017).10.1259/bjr.20160665PMC568511127936886",
+      "doi": [
+        "10.1259/bjr.20160665"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.LambinPRadiomics: extracting more information from medical images using advanced feature analysisEuropean journal of cancer20124844144610.1016/j.ejca.2011.11.03622257792PMC4533986",
+      "doi": [
+        "10.1016/j.ejca.2011.11.036"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.LeijenaarPRadiomics: the bridge between medical imaging and personalized medicineNature Reviews Clinical Oncology20171474910.1038/nrclinonc.2017.14128975929",
+      "doi": [
+        "10.1038/nrclinonc.2017.141"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.SunCRadiomic analysis for pretreatment predictionof response to neoadjuvant chemotherapy in locally advanced cervical cancer: A multicentre studyEBioMedicine20194616016910.1016/j.ebiom.2019.0731395503PMC6712288",
+      "doi": [
+        "10.1016/j.ebiom.2019.07"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.Dissaux, G. et al. Pre-treatment 18f-fdg pet/ct radiomics predict local recurrence in patients treated with stereotactic radiotherapy for early-stage non-small cell lung cancer: a multicentric study. J Nucl Med., 10.2967/jnumed.119.228106 (2019).10.2967/jnumed.119.22810631732678",
+      "doi": [
+        "10.2967/jnumed.119.228106"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.LuciaFExternal validation of a combined pet and mri radiomics for prediction of recurrence in cervical cancer patients treated with chemotheraphyEur J Nucl Med Mol Imaging.20194686487710.1007/s00259-018-4231-930535746",
+      "doi": [
+        "10.1007/s00259-018-4231-9"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.BaiZCMultiregional radiomics features from multiparametric mri for prediction of mgmt methylation status in glioblastoma multiforme: A multicentre studyEur Radiol.2018283640365010.1007/s00330-017-5302-129564594",
+      "doi": [
+        "10.1007/s00330-017-5302-1"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.ZwanenburgALöckSWhy validation of prognostic models matters?Radiother Oncol.201812737037310.1016/j.radonc.2018.03.00429598835",
+      "doi": [
+        "10.1016/j.radonc.2018.03.004"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.HattMLuciaFSchickUVisvikisDMulticentric validation of radiomics findings:challenges and opportunitiesEBioMedicine.201947202110.1016/j.ebiom.2019.08.05431474549PMC6796519",
+      "doi": [
+        "10.1016/j.ebiom.2019.08.054"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.GalavisPEHollensenCJallowNPaliwalBJerajRVariability of textural featuresin fdg pet images due to different acquisition modes and reconstruction parametersActa Oncol.2010491012101610.3109/0284186X.2010.49843720831489PMC4091820",
+      "doi": [
+        "10.3109/0284186X.2010.498437"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.YanJImpact of image reconstruction settings on texture features in 18f-fdg petJ Nucl Med.2015561667167310.2967/jnumed.115.15692726229145",
+      "doi": [
+        "10.2967/jnumed.115.156927"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.PeerlingsJStability ofradiomics features in apparent diffusion coefficient maps from a multi-centre test-retest trialSci Rep.20199480010.1038/s41598-019-41344-5.30886309PMC6423042",
+      "doi": [
+        "10.1038/s41598-019-41344-5."
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.Shafiq-UI-HassanMIntrinsic dependencies of ct radiomic features on voxel size and number of gray levelsMed Phys.2007441050106210.1002/mp.12123PMC546246228112418",
+      "doi": [
+        "10.1002/mp.12123"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.LuoRRadiomics features harmonization for ct and cbct in rectal cancerRadiotherapy and Oncology2017123S81S8210.1016/S0167-8140(17)30603-5",
+      "doi": [
+        "10.1016/S0167-8140(17)30603-5"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.BoellaardRFdg pet/ct: Eanm procedureguidelines for tumour imaging: version 2.0Eur J Nucl Med Mol Imaging.20154232835410.1007/s00259-014-2961-x25452219PMC4315529",
+      "doi": [
+        "10.1007/s00259-014-2961-x"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.KaalepAFeasibility of state of the art pet/ct systems for performance harmonizationEur J Nucl Med Mol Imaging.2018451344136110.1007/s00259-018-3977-429500480PMC5993859",
+      "doi": [
+        "10.1007/s00259-018-3977-4"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.ChoeJDeep learning-based image conversion of ct reconstruction kernels improves radiomics reproducibility for pulmonary nodules or massesRadiology201929236537310.1148/radiol.201918196031210613",
+      "doi": [
+        "10.1148/radiol.2019181960"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.Hognon, C. et al. Standardization of multicentric image datasets with generative adversarial networks. IEEE MIC (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Chatterjee, A. et al. Creating robust predictive radiomic models for data from independent institutions using normalization. IEEE Trans Radiat Plasma Med Sci. 1–1, 10.1109/TRPMS.2019.2893860 (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Orlhac, F. et al. A post-reconstruction harmonization method for multicenter radiomic studies in pet. J Nucl Med. 10.2967/jnumed.117.199935 (2018).10.2967/jnumed.117.19993529301932",
+      "doi": [
+        "10.2967/jnumed.117.199935"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.JohnsonWELiCRabinovicAAdjusting batch effects in microarray expression data using empirical bayes methodsBiostatistics200781182710.1093/biostatistics/kxj03716632515",
+      "doi": [
+        "10.1093/biostatistics/kxj037"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.SteinCKRemoving batch effects from purified plasma cell gene expression microarrays with modified combatBMC Bioinformatics2015166310.1186/s12859-015-04780325887219PMC4355992",
+      "doi": [
+        "10.1186/s12859-015-047803"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.ChenCRemoving batch effects in analysis of expression microarray data: An evaluation of six batch adjustment methodsPLoS ONE.201161723810.1371/journal.pone.0017238PMC304612121386892",
+      "doi": [
+        "10.1371/journal.pone.0017238"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.LuoJA comparison of batch effect removal methods for enhancement of prediction performance using maqc-ii microarry gene expression dataPharmacogenomics J.2010102789110.1038/tpj.2010.5720676067PMC2920074",
+      "doi": [
+        "10.1038/tpj.2010.57"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.KupferPBatch correction of microarray data substantially improves the identification of genes differentially expressed in rheumatoid arthritis and osteoarthritisBMC Med Genomics.201252310.1186/1755-8794-5-2322682473PMC3528008",
+      "doi": [
+        "10.1186/1755-8794-5-23"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.KonstantinopoulosPAIntegrated analysis of multiple microarray datasets identifies a reproducible survival predictor in ovarian cancerPLoS ONE.201161820210.1371/journal.pone.0018202PMC306621721479231",
+      "doi": [
+        "10.1371/journal.pone.0018202"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.LuciaFPrediction of outcome using pretreatment 18 f-fdg pet/ct and mri radiomics in locally advanced cervical cancer treated with chemoradiotherapyEuropean journal of nuclear medicine and molecular imaging20184576878610.1007/s00259-017-3898-729222685",
+      "doi": [
+        "10.1007/s00259-017-3898-7"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.HattMLe RestCCTurzoARouxCVisvikisDA fuzzy locally adaptive bayesian segmentation approach for volume determination in petIEEE transactions on medical imaging20092888189310.1109/TMI.2008.201203619150782PMC2912931",
+      "doi": [
+        "10.1109/TMI.2008.2012036"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.Pieper, S., Halle, M. & Kikinis, R. 3d slicer”, in biomedical imaging: Nano to macro. IEEE International Symposium on. IEEE 632–635, 10.1109/ISBI.2004.1398617 (2004).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Zwanenburg, A. et al. Image biomarker standardisation initiative-feature definitions. arXiv preprint arXiv:1612.07003 (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Zwanenburg, A. et al. The image biomarker standardization initiative: standardized quantitative radiomics for high throughput image-based phenotyping. Radiology 295(2), 328–338 (2020).10.1148/radiol.2020191145PMC719390632154773",
+      "doi": [
+        "10.1148/radiol.2020191145"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.Murtagh, F. & Contreras, P. Methods of hierarchical clustering. ArXiv11050121 Cs Math Stat https://arxiv.org/abs/1105.0121 (2011).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.RousseeuwPJSilhouettes: A graphical aid to the interpretation and validation of cluster analysisJ Comput Appl Math19871536510.1016/0377-0427(87)90125-7",
+      "doi": [
+        "10.1016/0377-0427(87)90125-7"
+      ]
+    },
+    {
+      "id": "CR37",
+      "text": "37.Witten, I. H., Frank, E., Hall, M. A. & Pal, C. J. Datamining: Practical machine learning tools and techniques. Morgan Kaufmann (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Fonti, V. & Belitser, E. Feature selection using lasso. Research Paper in Business Analytics (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.BreimanLKinahanPEHricakH“random forests”Machine learning20014553210.1023/A:1010933404324",
+      "doi": [
+        "10.1023/A:1010933404324"
+      ]
+    },
+    {
+      "id": "CR40",
+      "text": "40.Vapnik, V. N. The nature of statistical learning theory. New York: Springer-Verlag (1995).",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Hastie, T., Tibshirani, R. & Friedman, J. Unsupervised learning”, in the elements of statistical learning. Springer 485–585 (2009).",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.VarmaSSimonRBias in error estimation when using cross- validation for model selectionBMC bioinformatics200679110.1186/1471-2105-7-9116504092PMC1397873",
+      "doi": [
+        "10.1186/1471-2105-7-91"
+      ]
+    },
+    {
+      "id": "CR43",
+      "text": "43.Lal, T. N., Chapelle, O., Weston, J. & Elisseeff, A. Embedded methods” in feature extraction: Foundations and applications studies in fuzziness and soft computing. Physica-Verlag, Springer 137–165 (2006).",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.ChiccoDTen quick tips for machine learning in computational biologyBioData mining2017103510.1186/s13040-017-0155-329234465PMC5721660",
+      "doi": [
+        "10.1186/s13040-017-0155-3"
+      ]
+    },
+    {
+      "id": "CR45",
+      "text": "45.DeistTMMachine learning algorithms for outcome prediction in (chemo)radiotherapy: An empirical comparison of classifiersMed Phys.2018453449345910.1002/mp.1296729763967PMC6095141",
+      "doi": [
+        "10.1002/mp.12967"
+      ]
+    },
+    {
+      "id": "CR46",
+      "text": "46.UpadhayaRJComparison of radiomics models built through machine learning in a multicentric context with independent testing: Identical data, similar algorithms, different methodologiesIEEE Trans. Radiat. Plasma Med. Sci.2019319220010.1109/TRPMS.2018.2878934",
+      "doi": [
+        "10.1109/TRPMS.2018.2878934"
+      ]
+    },
+    {
+      "id": "CR47",
+      "text": "47.Muller, C. et al. Removing batch effects from longitudinal gene expression–quantile normalization plus combat as best approach for microarray transciptome data. Radiology, 10.1371/journal.pone0156594 (2016).10.1371/journal.pone.0156594PMC489649827272489",
+      "doi": [
+        "10.1371/journal.pone.0156594"
+      ]
+    },
+    {
+      "id": "CR48",
+      "text": "48.Shafiq-UI-HassanMVoxel size and gray level normalization of ct radiomic features in lung cancerSci Rep.20188054510.1038/s41598-017-19071-6PMC604348630002441",
+      "doi": [
+        "10.1038/s41598-017-19071-6"
+      ]
+    },
+    {
+      "id": "CR49",
+      "text": "49.Olrhac, F. et al. Validation of a method to compensate multicenter effects affecting ct radiomics features. Radiological Society of North America, In press. <hal-01953538> 219 (2019).10.1148/radiol.201918202330694160",
+      "doi": [
+        "10.1148/radiol.2019182023"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Da-Ano R, Masson I, Lucia F, Doré M, Robin P, Alfieri J, Rousseau C, Mervoyer A, Reinhold C, Castelli J, De Crevoisier R, Rameé JF, Pradier O, Schick U, Visvikis D, Hatt M.",
+  "journal": "Sci Rep",
+  "year": "2020",
+  "pmid": "32581221",
+  "pmcid": "PMC7314795",
+  "doi": "10.1038/s41598-020-66110-w",
+  "source": {
+    "retrieved_at": "2026-11-14T16:58:13.359411+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7314795/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC7314795.xml"
+}

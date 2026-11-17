@@ -1,0 +1,1274 @@
+{
+  "key": "42909107",
+  "body_available": true,
+  "title": "ROI-SSIM guided framework for 3D knee MRI reconstruction under artifact degradation",
+  "source_url": "https://europepmc.org/articles/PMC13683755",
+  "license": {
+    "text": "This is an open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/).",
+    "urls": [],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Amanali Bekbolat",
+    "Almira Askhatova",
+    "Aibek Niyetkaliyev",
+    "Prashant Jamwal",
+    "Kassymbek Ozhikenov",
+    "Zhadyra Alimbayeva",
+    "Roza Beisembekova",
+    "Yerbolat Igembay"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Authors",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2026",
+        "month": "10",
+        "day": "8"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Body",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0005",
+          "reference_ids": [],
+          "en": "Specifications table",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0001",
+      "title": "Background",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0006",
+          "reference_ids": [
+            "bib0001",
+            "bib0002",
+            "bib0003",
+            "bib0004"
+          ],
+          "en": "Magnetic Resonance Imaging (MRI) is a widely applied clinical method for non-invasive diagnosis of abnormalities, providing high-resolution three-dimensional views of internal anatomy [1]. In this modality, image formation depends on radiofrequency (RF) signal emissions during tissue relaxation, which encode anatomical information [2]. Consequently, this inherent dependence on precise spin alignment and signal acquisition makes MRI particularly sensitive to external disturbances: even slight motion, fluctuations in field homogeneity, or local susceptibility differences can violate the assumptions of spatial encoding and introduce artifacts [3,4].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0007",
+          "reference_ids": [
+            "bib0005",
+            "bib0006",
+            "bib0007",
+            "bib0008",
+            "bib0009"
+          ],
+          "en": "Recent advances in deep learning have significantly improved MRI reconstruction performance. Early convolutional architectures such as the U-Net [5] and its variants successfully learned end-to-end mappings from zero-filled reconstructions to fully sampled images, establishing a strong baseline for subsequent methods. Variational networks (VarNet) [6,7] and model-based unrolled optimization frameworks further advanced this paradigm by embedding domain-specific priors into the learning process, thereby achieving state-of-the-art performance on large-scale benchmarks such as the fastMRI dataset. More recently, transformer-based architectures [8] and diffusion probabilistic models [9] have demonstrated superior global consistency and generalization, marking a shift from local convolutional operators to global self-attention mechanisms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0008",
+          "reference_ids": [],
+          "en": "A reconstruction may achieve a high global SSIM while failing to preserve the structural integrity of small ligaments or cartilage lesions that are critical for diagnosis. This discrepancy between numerical quality metrics and clinical perception highlights a critical limitation of current evaluation protocols. Moreover, most existing reconstruction networks are trained exclusively on clean, artifact-free data, whereas real-world acquisitions are frequently degraded by motion, Gibbs ringing, partial Fourier truncation, bias field inhomogeneity, and metal-induced distortions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0009",
+          "reference_ids": [
+            "bib0010",
+            "bib0011",
+            "bib0008",
+            "bib0012",
+            "bib0005"
+          ],
+          "en": "With the emergence of Vision Transformers (ViTs) [10], self-attention mechanisms enable effective modeling of long-range dependencies in medical imaging. Transformer-based architectures have recently been explored for MRI reconstruction, offering enhanced contextual reasoning across both spatial and slice dimensions. Swin-transformer-based approaches applied to MRI reconstruction leverage hierarchical windowed attention to capture local and global features at multiple resolutions [11]. Similarly, ReconFormer [8] and transformer autoencoders [12] demonstrated improved perceptual quality compared with CNN baselines, particularly in volumetric datasets. Despite these advancements, transformer-based MRI reconstruction models typically employ global loss formulations based on metrics such as SSIM or PSNR averaged over entire volumes [5]. As a result, they may fail to consistently preserve fine-grained anatomical structures, where even minor reconstruction errors can affect diagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0010",
+          "reference_ids": [],
+          "en": "Motivated by these limitations, this study proposes a region-aware MRI reconstruction framework based on a 3D Vision Transformer autoencoder guided by a Region-of-Interest Structural Similarity (ROI-SSIM) loss. By explicitly prioritizing diagnostically relevant anatomical regions and evaluating performance under realistic artifact degradation, the proposed framework aims to improve the clinical relevance and robustness of MRI reconstruction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0002",
+      "title": "Method details",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0003",
+      "title": "Data preparation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0011",
+          "reference_ids": [
+            "bib0013",
+            "bib0014"
+          ],
+          "en": "Experiments were conducted on the fastMRI and fastMRI+ knee MRI datasets [13,14], which provide fully sampled single-coil and multi-coil acquisitions together with bounding-box annotations for the anterior cruciate ligament (ACL), meniscus, and cartilage. The official fastMRI data splits were used throughout this study, with training, validation, and test partitions defined at the study level to prevent data leakage between subsets. Only the training and validation subsets contain publicly available reference reconstructions and were therefore used for supervised learning and quantitative evaluation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0012",
+          "reference_ids": [],
+          "en": "For preprocessing, single-coil k-space data were reconstructed using a centered two-dimensional inverse Fourier transform with orthonormal scaling. Each volume was center-cropped in-plane to a 320×320 reconstruction frame and resampled along the slice dimension to 32 slices using linear interpolation. The analysis was restricted to CORPD_FBK acquisitions to maintain consistent proton-density contrast across the dataset. Each volume was normalized to the [0, 1] range using the 1st and 99th intensity percentiles of the fully sampled reference volume, with the same normalization constants applied to the corresponding degraded input to maintain a common intensity scale.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0013",
+          "reference_ids": [],
+          "en": "For region-aware supervision, anatomy-specific bounding boxes from fastMRI+ were converted into binary volumetric masks MROI corresponding to the ACL, meniscus, and articular cartilage. Each fastMRI+ annotation was converted into a binary mask at its corresponding slice location. The annotated bounding box was rasterized as an axis-aligned rectangular region in the 320×320 reconstruction frame, with pixels inside the bounding box assigned a value of 1 and all remaining pixels assigned a value of 0. The volumetric mask for each anatomical region was constructed by stacking these slice-level masks. Bounding boxes were not extruded or interpolated across unannotated slices, and no smoothing, dilation, erosion, or other morphological operations were applied at the mask boundaries. When multiple bounding boxes corresponding to the same anatomical region overlapped within a slice, their union was used.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0014",
+          "reference_ids": [],
+          "en": "For ROI selection, annotations corresponding to the ACL, meniscus, or articular cartilage were assigned to their respective anatomical regions. Annotations corresponding to other findings, including bone marrow and subchondral edema, subchondral cysts, joint effusion, and posterior cruciate and collateral ligament findings, were excluded from the region-aware objective. The three anatomical regions were maintained as separate masks for region-specific loss computation and evaluation. Volumes without an annotation for a given region did not contribute to that region-specific loss term and were excluded from the corresponding region-specific evaluation metric.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0004",
+      "title": "Artifact simulation framework",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0015",
+          "reference_ids": [],
+          "en": "To ensure robustness and clinical realism, a hybrid artifact simulation pipeline was developed to emulate degradations in both k-space and image domains. All parameters are randomized per volume, and multiple artifacts may co-occur. The physical motivation and modeling of each artifact are detailed below.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0016",
+          "reference_ids": [
+            "bib0013",
+            "bib0015"
+          ],
+          "en": "Undersampling (k-space). MRI acceleration via partial k-space acquisition induces aliasing artifacts. A variable-density Cartesian mask M(kx,ky) with a central coverage fraction fcϵ[0.08,0.15] and acceleration factor Rϵ[2,6] is applied, in accordance with fastMRI and compressed sensing conventions [13,15]. The undersampled data Ku=K⊙M are inverse-FFT reconstructed, leading to characteristic folding artifacts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0017",
+          "reference_ids": [
+            "bib0003"
+          ],
+          "en": "Motion (k-space). Patient motion introduces phase inconsistencies across phase-encoding lines. We simulate rigid in-plane motion using sinusoidal phase modulation [3]:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0004-p4",
+          "reference_ids": [],
+          "en": "whereφmaxϵ[0.5,2.0] rad for 10−20% of lines.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0018",
+          "reference_ids": [],
+          "en": "Partial Fourier (k-space). Partial Fourier sampling acquires slightly more than half of k-space and reconstructs missing data by conjugate symmetry. We truncate high-frequency rows, keeping a fraction fpϵ[0.7,0.9], producing edge blurring.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0019",
+          "reference_ids": [],
+          "en": "Spike Noise (k-space). System spikes are modeled by injecting random high-amplitude impulses at sparse k-space locations:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0004-p7",
+          "reference_ids": [],
+          "en": "where nsϵ[1,3] is the number of spikes and Ai=αimax(|K|),αiϵ[5,12]. Following inverse Fourier reconstruction, these impulses produce characteristic streaking and herringbone-like artifacts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0020",
+          "reference_ids": [],
+          "en": "Zipper Artifact (hybrid). Zipper artifacts from periodic RF interference are synthesized by adding narrow sinusoidal bands (width 1–2 px, amplitude 1.2−1.6× the local signal intensity) in vertical or horizontal orientation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0021",
+          "reference_ids": [
+            "bib0016"
+          ],
+          "en": "Wrap-Around (image). Insufficient field-of-view coverage is emulated by circularly shifting the image by 10–20% of its width [16].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0022",
+          "reference_ids": [
+            "bib0017"
+          ],
+          "en": "Partial Volume (image). Finite slice thickness causes through-plane averaging; Gaussian blurring with σx−sliceϵ[1,2] models this effect [17].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0023",
+          "reference_ids": [
+            "bib0018",
+            "bib0019"
+          ],
+          "en": "Chemical Shift (image). Frequency offsets between fat and water create spatial misregistration; we shift fat-dominant regions by 0.5–1.0 px along the frequency-encoding axis [18,19].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0024",
+          "reference_ids": [
+            "bib0020"
+          ],
+          "en": "Gibbs Ringing (image). Truncated k-space leads to oscillations near edges. A sinc-windowed frequency cutoff (0.7–0.9) produces realistic ringing [20].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0025",
+          "reference_ids": [],
+          "en": "Bias-Field Inhomogeneity (image). Smooth intensity drift due to B-field non-uniformity is modeled as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0004-p14",
+          "reference_ids": [
+            "bib0021"
+          ],
+          "en": "where b(x,y) is a Gaussian low-frequency field (amplitude 0.2−0.4, σ0.4−0.6 of FOV) [21].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0026",
+          "reference_ids": [
+            "bib0022"
+          ],
+          "en": "Metal Susceptibility (image). Magnetic field perturbation near metallic implants is emulated by local phase gradients ∥∇φ∥ϵ[0.01,0.03] rad/pixel within a 30–50 px radius, causing distortion and signal voids [22].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0027",
+          "reference_ids": [
+            "bib0023"
+          ],
+          "en": "Magic-Angle Effect (image). Signal anisotropy in collagenous tissues oriented at ≈ 55° to B₀ is modeled by boosting voxel intensity by 30–60% within a sector at 55∘ [23].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0028",
+          "reference_ids": [
+            "fig0001"
+          ],
+          "en": "All artifact parameters are randomized independently for each volume, and multiple artifacts may be applied simultaneously. Representative examples of the simulated artifact degradations are shown in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0005",
+      "title": "Region-aware 3D vision transformer autoencoder for knee MRI reconstruction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0029",
+          "reference_ids": [
+            "fig0002"
+          ],
+          "en": "To address the limitations of 2D convolutional operators in capturing volumetric dependencies, we propose a 3D Vision Transformer Autoencoder (ViT-AE). The architecture is designed to reconstruct a 3D volume VϵRH×W×D from zero-filled reconstructions obtained from undersampled and artifact-corrupted k-space data (Fig. 2). The proposed model consists of the following key components:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0030",
+          "reference_ids": [],
+          "en": "3D Patch Partitioning. The input volume is divided into non-overlapping 3D patches of size p×p×p. Each patch is flattened into a vector and projected through a linear layer into a d-dimensional embedding space.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0031",
+          "reference_ids": [],
+          "en": "Volumetric Self-Attention. The encoder consists of L transformer blocks. Each block employs Multi-Head Self-Attention (MHSA) to model global spatial relationships across the entire knee volume. This enables the model to leverage anatomical continuity across adjacent and distant slices to resolve local reconstruction artifacts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0032",
+          "reference_ids": [],
+          "en": "Latent Bottleneck and Reconstruction. The decoder mirrors the encoder architecture and employs transformer blocks together with progressive upsampling layers to reconstruct the volume at its original resolution (320×320×32).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0006",
+      "title": "Region-of-interest structural similarity loss",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0033",
+          "reference_ids": [
+            "bib0013",
+            "bib0014",
+            "fig0003"
+          ],
+          "en": "A central component of the proposed framework is the integration of ROI-guided supervision into the reconstruction process. ROI masks corresponding to the ACL, meniscus, and cartilage were generated from fastMRI+ annotations and used for region-aware supervision [13,14] (Fig. 3).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0034",
+          "reference_ids": [],
+          "en": "The total objective function Ltotal is defined as a weighted combination of global and regional fidelity terms:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0006-p3",
+          "reference_ids": [],
+          "en": "where the Region-of-Interest Structural Similarity (ROI-SSIM) loss is formulated as",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0035",
+          "reference_ids": [],
+          "en": "Here, G and G^ represent the ground-truth and reconstructed volumes, respectively; ⊙ denotes the Hadamard (element-wise) product used to isolate specific anatomical regions; and wr are region-specific weighting coefficients. In all experiments, α=1.0,β=1.0,γ=2.0, andwr=1.0 for all three anatomical regions. These coefficients were specified a priori and were not tuned on validation performance; no alternative coefficient configuration was trained. Setting α = β= 1.0 assigns equal weighting to the global L₁ and SSIM terms, while γ=2.0 was selected as a predefined design choice to give greater emphasis to structural fidelity within the annotated regions. Equal region weights wr=1.0 were used so that no anatomical region among the ACL, meniscus, and cartilage was preferentially weighted. These coefficients were kept unchanged across all experiments to maintain a consistent optimization objective.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0036",
+          "reference_ids": [
+            "bib0024"
+          ],
+          "en": "ROI-SSIM was computed using an 11 × 11 local SSIM window. Consequently, for pixels near ROI boundaries, the local SSIM calculation may incorporate neighboring pixels outside the annotated bounding box, although the loss itself is evaluated using the corresponding binary ROI mask. SSIM was chosen as the basis for region-aware supervision due to its sensitivity to local structural contrast and luminance patterns, which correlate more closely with radiological perception than pixel-wise losses such as L1 or L2 [24]. Unlike perceptual losses based on pretrained networks, SSIM is modality-agnostic, does not rely on external training data, and is commonly used in MRI reconstruction benchmarks, ensuring compatibility with established evaluation protocols.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0007",
+      "title": "Method validation",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0008",
+      "title": "Experimental setup and evaluation protocol",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0037",
+          "reference_ids": [],
+          "en": "Quantitative evaluation was restricted to the validation subset because ground-truth reconstructions for the test set are not publicly available. Experiments were conducted under the R=4 Cartesian undersampling configuration, the most commonly reported setting in the fastMRI literature. Zero-filled inverse Fourier reconstructions served as network inputs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0038",
+          "reference_ids": [
+            "bib0013"
+          ],
+          "en": "Reconstruction quality was evaluated using SSIM, PSNR, and NMSE, computed according to the fastMRI evaluation protocol. Metrics were calculated slice-wise and averaged at the volume level. Region-specific fidelity was assessed using the proposed ROI-SSIM, computed within annotated anatomical regions. Unless otherwise stated, reported results correspond to the mean over the validation set. Baseline results were obtained from published validation-set evaluations using the fastMRI knee dataset under the R=4 acceleration setting. No test-server submissions were used. For classical baselines, we report the best-performing configurations under the R=4 setting as provided in the fastMRI benchmark study [13]. Models were trained using AdamW with an initial learning rate of 2·10−4, weight decay of 5·10−2, and β=0.9,0.95. A cosine learning-rate decay schedule was applied over 200 epochs, with a batch size of 4. Gradient norms were clipped at 1.0, and mixed-precision training was used. The output convolution was zero-initialized, and the predicted residual was added to the zero-filled input, such that the initial reconstruction approximated the identity mapping. This residual formulation was used to improve optimization stability during early training. Model checkpoints were selected according to validation ROI-SSIM. All experiments were implemented in Python 3.11 using PyTorch 2.10.0 with CUDA 13.0 and were performed on a single NVIDIA A100 80 GB GPU.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0009",
+      "title": "Computational cost",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0039",
+          "reference_ids": [
+            "bib0010",
+            "bib0011"
+          ],
+          "en": "The proposed 3D ViT-AE contains approximately 47.9M trainable parameters, compared with 53.54M for the U-Net baseline. Training converged in approximately 22 GPU-hours on a single NVIDIA A100 80 GB GPU. Inference time for a full 320×320×32 volume is approximately 135 ms, versus 12 ms for U-Net. The increased computational cost is primarily attributable to volumetric self-attention, which is known to incur substantially higher computational and memory complexity than convolutional operators. Strategies such as windowed attention [10,11] or mixed-precision inference could reduce latency in deployment settings and are left as future work. The increased computational requirements represent a trade-off between efficiency and regional reconstruction fidelity. Although the proposed transformer-based model has substantially higher inference latency than the U-Net baseline (135 ms vs. 12 ms per volume), the absolute difference of approximately 123 ms remains small relative to MRI acquisition times. This additional cost may be justified in applications where preservation of diagnostically relevant structures is prioritized, particularly ligamentous and cartilaginous regions for which the proposed method demonstrated improved region-specific reconstruction fidelity. Conversely, lighter convolutional architectures may be preferable in high-throughput or resource-constrained settings where computational efficiency is the primary consideration.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0010",
+      "title": "Quantitative results on clean validation data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0040",
+          "reference_ids": [
+            "tbl0001"
+          ],
+          "en": "Table 1 reports quantitative reconstruction performance on the fastMRI validation set under the R=4 undersampling condition without additional simulated artifacts. Among the listed methods, the proposed ViT-AE achieves the highest SSIM, although its PSNR is lower than that of the published U-Net baseline. Compared with the baseline ViT-AE trained using only global loss functions, the incorporation of ROI-guided supervision produces a modest improvement in global SSIM. Specifically, ROI-L₁ increases SSIM from 0.819 to 0.820, while ROI-SSIM further improves SSIM to 0.823. These results indicate that emphasizing diagnostically relevant anatomical regions during training does not degrade overall reconstruction quality and may provide measurable benefits in structural fidelity. Among the proposed variants, ROI-SSIM achieves the highest global SSIM while maintaining comparable PSNR and NMSE values. The consistent improvement over ROI-L₁ suggests that structural similarity is a more effective region-aware supervision signal than pixel-wise regional penalties alone, supporting the use of perceptual region-based objectives for MRI reconstruction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0041",
+          "reference_ids": [
+            "tbl0001"
+          ],
+          "en": "For context, Table 1 includes results from established reconstruction methods. These values were taken from the cited studies rather than reproduced under the present training pipeline, and the global metrics do not rank the methods consistently: the proposed model attains a higher SSIM than the published U-Net baseline (0.823 vs. 0.815) but a lower PSNR (32.4 vs. 34.01 dB). Global metrics alone are therefore insufficient to establish the benefit of region-aware supervision; they average reconstruction quality over the entire image volume and may underrepresent changes within small but diagnostically important anatomical structures. Accordingly, the effect of ROI-SSIM is assessed below through the controlled comparison with the global-loss ViT-AE, followed by analyses of region-specific fidelity and robustness under artifact degradation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0042",
+          "reference_ids": [],
+          "en": "The effect of ROI-SSIM is more appropriately assessed by comparison with the global-loss ViT-AE, which shares the same architecture and training protocol. Introducing ROI-SSIM increases global SSIM from 0.819 to 0.823, while PSNR changes from 32.5 to 32.4 dB and NMSE from 0.0145 to 0.0147. Thus, the regional term produces a measurable improvement in structural similarity with only minor changes in global pixel-wise fidelity metrics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0011",
+      "title": "Regional fidelity analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0043",
+          "reference_ids": [
+            "tbl0002"
+          ],
+          "en": "To assess localized reconstruction performance, ROI-SSIM was computed independently for the ACL, meniscus, and articular cartilage using the bounding-box masks from fastMRI+. Table 2 reports ROI-SSIM values for the global-loss baseline (ViT-AE without ROI supervision) and the full proposed model (ViT-AE + ROI-SSIM). Results are presented as mean ± standard deviation over the validation volumes containing an annotation for each structure.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0044",
+          "reference_ids": [],
+          "en": "Across all three anatomical structures, ROI-SSIM supervision yields consistent improvements in region-specific structural similarity. All three improvements are statistically significant under a paired Wilcoxon signed-rank test (p < 0.01). The largest gain is observed for the ACL (+4.9%), but this estimate should be interpreted with caution: it rests on only 14 volumes, substantially fewer than the meniscus (N = 53) and cartilage (N = 43) comparisons, so the ACL test has considerably lower statistical power and the size of the ACL effect is less certain. The meniscus (+4.6%) and cartilage (+4.4%) gains, which are based on larger samples, therefore provide the more reliable evidence of the regional benefit.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0045",
+          "reference_ids": [],
+          "en": "Notably, these regional improvements are observed despite only modest changes in global SSIM (<1%), highlighting the limitations of global fidelity metrics in capturing reconstruction quality within clinically relevant anatomical regions. These findings support the use of region-aware supervision for preserving diagnostically relevant structures during MRI reconstruction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0012",
+      "title": "Ablation study",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0046",
+          "reference_ids": [
+            "tbl0003"
+          ],
+          "en": "To isolate the contribution of each design choice, we conduct a controlled ablation study. Table 3 evaluates five variants of the proposed framework, each differing from the preceding row in a single component: (i) the dimensionality of self-attention (2D slice-wise vs. 3D volumetric), (ii) the loss formulation (global only, ROI-L₁, or ROI-SSIM), and (iii) the training data distribution (clean only vs. artifact-augmented). Except for the attention dimensionality being evaluated, all variants were trained using identical optimization settings and evaluation procedures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0047",
+          "reference_ids": [
+            "tbl0004",
+            "fig0004"
+          ],
+          "en": "The ablation results reveal several consistent trends. First, replacing 2D slice-wise attention with 3D volumetric self-attention increases global SSIM from 0.804 to 0.819 and mean ROI-SSIM from 0.751 to 0.762, indicating that modeling inter-slice dependencies is beneficial for musculoskeletal structures with strong anatomical continuity across slices. Second, the addition of ROI-SSIM supervision provides the largest improvement in regional fidelity, increasing mean ROI-SSIM from 0.762 to 0.797 while only modestly affecting global SSIM. Third, artifact-augmented training adds a further +1.1% in mean ROI-SSIM (0.797 to 0.806), consistent with the robustness results in Table 4, and suggests that exposure to realistic degradations during training improves the model's structural preservation under clean conditions as well. Together, these results demonstrate that volumetric attention, ROI-guided supervision, and artifact augmentation each contribute measurable improvements to reconstruction performance, with the largest gains observed in region-specific structural fidelity. These quantitative improvements are also reflected qualitatively in the reconstruction error maps shown in Fig. 4. Compared with the global-loss baseline, ROI-SSIM-guided reconstruction exhibits reduced reconstruction errors within ligamentous and cartilaginous regions, indicating improved preservation of fine anatomical structures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0013",
+      "title": "Robustness evaluation under artifact degradation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0048",
+          "reference_ids": [],
+          "en": "To evaluate robustness under realistic acquisition imperfections, we assess reconstruction performance under controlled artifact perturbations using the hybrid simulation framework. Validation volumes are corrupted by individual artifact types and by mixed degradation, while ground-truth reconstructions remain unchanged.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0049",
+          "reference_ids": [],
+          "en": "Artifacts are applied at randomly sampled intensities within clinically plausible ranges and include undersampling irregularities, motion-induced phase errors, Gibbs ringing, partial Fourier truncation, zipper artifacts, bias-field inhomogeneity, and metal susceptibility distortions. For each artifact type, performance is evaluated using both global SSIM and ROI-SSIM, allowing simultaneous assessment of overall reconstruction stability and localized anatomical preservation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0050",
+          "reference_ids": [],
+          "en": "Robustness is quantified using the relative degradation metric, ΔSSIM=SSIMclean−SSIMartifactΔSSIM=SSIMartifact−SSIMcleanSSIMclean×100%, with an analogous definition for ROI-SSIM. Values closer to zero indicate higher robustness. All values report the mean relative degradation with respect to clean validation performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0051",
+          "reference_ids": [],
+          "en": "Across all evaluated artifact types, the proposed region-aware 3D ViT-AE exhibits consistently lower degradation in ROI-SSIM compared to global SSIM, indicating enhanced resilience within diagnostically relevant anatomical regions. While global reconstruction quality degrades noticeably under severe distortions—particularly in the presence of motion and metal-induced artifacts—the proposed framework preserves structural integrity within the ACL, meniscus, and cartilage to a substantially greater extent. Notably, the largest discrepancy between global and regional degradation is observed under mixed artifact conditions, where multiple distortions co-occur. In this scenario, global SSIM drops by 6.8%, whereas ROI-SSIM degrades by only 2.9%, highlighting the effectiveness of region-aware supervision in stabilizing reconstruction quality under compounded acquisition imperfections. These results suggest that ROI-SSIM optimization encourages the model to prioritize reconstruction fidelity within anatomically meaningful regions, thereby improving robustness within anatomical regions relevant to diagnostic assessment. In contrast, global metrics weight all image regions equally and may therefore be less sensitive to reconstruction quality within diagnostically relevant anatomical structures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0014",
+      "title": "Practical implications",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0052",
+          "reference_ids": [
+            "tbl0004"
+          ],
+          "en": "Taken together, these results indicate the situations in which ROI-guided optimization is expected to offer the greatest advantage over conventional global optimization. The first is when the clinical question concerns small structures that occupy only a minor fraction of the imaged volume, such as the ACL, menisci, and articular cartilage. A global objective is dominated by large regions of bone, fat, and background, so errors confined to these structures contribute little to the loss; this is reflected in the 4.4–4.9% regional gains obtained with a change of less than 1% in global SSIM. The second is when acquisitions are affected by compounded degradations, for example motion in patients who cannot remain still, or susceptibility distortion in postoperative knees with metallic fixation hardware, where the gap between global and regional degradation in Table 4 was largest. The third is when the reconstruction feeds a region-level downstream task, such as automated lesion detection, segmentation, or quantitative cartilage assessment, whose accuracy depends on fidelity within the target structure rather than across the whole field of view. Conversely, the advantage is expected to be smaller when the diagnostic finding is not confined to the annotated structures (for example bone marrow edema or joint effusion, which were excluded from the region-aware objective), when reliable region annotations are unavailable, or when degradation is mild enough that global optimization already preserves the structures of interest. Whether the benefit grows at higher acceleration factors was not examined here, as the evaluation was restricted to R = 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0015",
+      "title": "Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0053",
+          "reference_ids": [],
+          "en": "Several limitations of the proposed framework should be acknowledged. First, region-aware supervision relies on bounding-box annotations provided by the fastMRI+ dataset. While bounding boxes offer a scalable and practical form of anatomical localization, they provide coarser supervision than pixel-level segmentations and inevitably include surrounding tissues such as fat, bone marrow, and joint fluid. Furthermore, because SSIM is computed using an 11 × 11 local window, pixels near the ROI boundary may also be influenced by neighboring pixels outside the bounding box. Future work could investigate more selective supervision using weak or semi-automatic segmentation, eroded bounding boxes, or distance-weighted masks that concentrate the regional loss toward the target structure.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0054",
+          "reference_ids": [],
+          "en": "Second, the experimental evaluation is limited to knee MRI and the single-coil reconstruction setting. Further validation is required to assess generalizability to other anatomical regions, scanners, and acquisition protocols. Extension to multi-coil acquisition would require multi-coil k-space handling, incorporation or estimation of coil sensitivity maps, and sensitivity-aware data consistency, while the region-aware loss could continue to be applied to the reconstructed magnitude image. Extension to other anatomical regions would primarily require appropriate region annotations and retraining on the target anatomy; the ROI-SSIM formulation itself can be retained, although preprocessing, ROI definitions, and model parameters may require adaptation to the target anatomy and acquisition protocol. Whole-volume PSNR, NMSE, and SSIM do not provide a direct assessment of reconstruction quality outside the annotated regions. A separate ROI/non-ROI error decomposition was not performed; therefore, the present results cannot exclude localized high-frequency noise, intensity bias, or other reconstruction changes in non-ROI regions. Future work should explicitly quantify reconstruction fidelity inside and outside annotated regions to determine whether gains in regional structural preservation introduce any localized trade-offs elsewhere in the image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0055",
+          "reference_ids": [
+            "bib0026"
+          ],
+          "en": "The present evaluation is also restricted to a homogeneous coronal proton-density knee MRI acquisition subset and does not assess generalization across scanner vendors, field strengths, coil configurations, or sequence parameters. Although percentile-based intensity normalization reduces sensitivity to absolute signal scaling, substantial changes in image contrast may alter the relative appearance of anatomical structures and affect reconstruction performance. Similarly, the artifact-simulation parameter ranges used in this study may require recalibration when transferring the framework to different scanners, field strengths, or acquisition protocols. Because the analysis was restricted to CORPD_FBK acquisitions, generalization across different contrast weightings remains to be established experimentally. In particular, the fastMRI knee data were acquired at a single institution on scanners from a single vendor, so the reported gains have not yet been confirmed on independent sites. Future work should therefore validate the framework on multi-vendor, multi-site data spanning 1.5 T and 3 T field strengths, different receive-coil configurations, and both 2D and 3D sequences, including publicly available raw k-space knee datasets acquired on other vendor platforms, such as SKM-TEA [26], which also provides bounding-box pathology annotations compatible with the present region-aware objective, and prospectively acquired clinical scans. Global and regional metrics should be reported separately for each scanner and protocol, so that any protocol-dependent reduction in the regional benefit can be identified and addressed through fine-tuning or recalibration of the artifact-simulation parameter ranges.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0056",
+          "reference_ids": [],
+          "en": "Third, artifact degradations are simulated rather than derived from prospectively acquired corrupted scans. While the simulation framework is grounded in established physical models and clinically plausible parameter ranges, it cannot fully capture the variability encountered in routine clinical practice. Evaluation on prospectively acquired artifact-corrupted data would therefore provide stronger evidence of clinical robustness.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0057",
+          "reference_ids": [],
+          "en": "Finally, the weighting coefficients between the global and region-specific loss components were fixed a priori throughout the study and were not selected through validation-set hyperparameter optimization. No sensitivity analysis over the loss coefficients was performed; consequently, the reported configuration should be interpreted as a predefined design choice rather than an empirically optimized setting. The appropriate balance between global and regional supervision may depend on image normalization, ROI size and distribution, anatomical target, degradation severity, and acquisition protocol. Systematic sensitivity analysis and adaptive or dataset-specific weighting strategies should therefore be investigated in future work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0016",
+      "title": "Ethics statements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0058",
+          "reference_ids": [
+            "bib0013"
+          ],
+          "en": "This study used the publicly available fastMRI dataset provided by NYU Langone Health [13]. The dataset consists of fully de-identified MRI data collected under institutional review board (IRB) approval and in compliance with applicable data protection regulations. No new data involving human participants were collected, and no additional ethical approval or informed consent was required.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "coi0001",
+      "title": "Declaration of competing interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0060",
+          "reference_ids": [],
+          "en": "The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack0001",
+      "title": "Acknowledgments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0061",
+          "reference_ids": [],
+          "en": "This research was funded by the Ministry of Science and Higher Education of the Republic of Kazakhstan, grant number BR24992820.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "refdata001",
+      "title": "Data availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para9001",
+          "reference_ids": [],
+          "en": "Data will be made available on request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "cebibl1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "cebibl1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "Data will be made available on request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "utbl0001",
+      "label": "",
+      "caption": "",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Subject area",
+          "Mathematics and Statistics"
+        ],
+        [
+          "More specific subject area",
+          "Medical Image Reconstruction, Deep Learning for MRI, Region-of-Interest Guided Optimization"
+        ],
+        [
+          "Name of your method",
+          "ROI-SSIM Guided Framework for 3D Knee MRI Reconstruction under Artifact Degradation"
+        ],
+        [
+          "Name and reference of original method",
+          "Modified 3D Vision Transformer Autoencoder (ViT-AE) reconstruction framework incorporating ROI-SSIM supervision and artifact-aware training.Dosovitskiy A. et al. An Image is Worth 16 × 16 Words: Transformers for Image Recognition at Scale. arXiv:2010.11929, 2020;Guo P. et al. ReconFormer: Accelerated MRI Reconstruction Using Recurrent Transformer. IEEE Trans. Med. Imaging, 2024."
+        ],
+        [
+          "Resource availability",
+          "Dataset: fastMRI and fastMRI+ knee MRI datasets (NYU Langone Health): https://fastmri.med.nyu.edu/Zbontar, J.; Knoll, F.; Sriram, A.; Murrell, T.; Huang, Z.; Muckley, M.J.; Defazio, A.; Stern, R.; Johnson, P.; Bruno, M.; et al. fastMRI: An Open Dataset and Benchmarks for Accelerated MRI. arXiv preprint arXiv:1811.08839, 2018.R. Zhao et al., “fastMRI+, Clinical pathology annotations for knee and brain fully sampled magnetic resonance imaging data,” Sci Data, vol. 9, no. 1, p. 152, Apr. 2022, doi: 10.1038/s41597-022-01255-z."
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1999/xlink\" id=\"utbl0001\" position=\"float\"><table frame=\"hsides\" rules=\"groups\"><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Subject area</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><italic>Mathematics and Statistics</italic></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>More specific subject area</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Medical Image Reconstruction, Deep Learning for MRI, Region-of-Interest Guided Optimization</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Name of your method</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">ROI-SSIM Guided Framework for 3D Knee MRI Reconstruction under Artifact Degradation</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Name and reference of original method</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Modified 3D Vision Transformer Autoencoder (ViT-AE) reconstruction framework incorporating ROI-SSIM supervision and artifact-aware training.<break />Dosovitskiy A. et al. An Image is Worth 16 × 16 Words: Transformers for Image Recognition at Scale. arXiv:2010.11929, 2020;<break />Guo P. et al. ReconFormer: Accelerated MRI Reconstruction Using Recurrent Transformer. IEEE Trans. Med. Imaging, 2024.</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Resource availability</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><italic>Dataset</italic>: fastMRI and fastMRI+ knee MRI datasets (NYU Langone Health): <ext-link ns0:href=\"https://fastmri.med.nyu.edu/\" ext-link-type=\"uri\">https://fastmri.med.nyu.edu/</ext-link><break />Zbontar, J.; Knoll, F.; Sriram, A.; Murrell, T.; Huang, Z.; Muckley, M.J.; Defazio, A.; Stern, R.; Johnson, P.; Bruno, M.; et al. fastMRI: An Open Dataset and Benchmarks for Accelerated MRI. arXiv preprint arXiv:1811.08839, 2018.<break />R. Zhao et al., “fastMRI+, Clinical pathology annotations for knee and brain fully sampled magnetic resonance imaging data,” Sci Data, vol. 9, no. 1, p. 152, Apr. 2022, doi: 10.1038/s41597-022-01255-z.</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0001",
+      "label": "Table 1",
+      "caption": "Validation-set performance on fastMRI knee single-coil reconstruction. † indicates results reported in the original fastMRI benchmark study. ‡ indicates single-coil fastMRI results reported by Guo et al. [8]. Published baselines were not retrained in this study. All proposed variants are trained and evaluated under identical settings, without artifact augmentation; the artifact-augmented model is reported in Table 3.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Method",
+          "Params",
+          "SSIM ↑",
+          "PSNR ↑ (dB)",
+          "NMSE ↓"
+        ],
+        [
+          "Published single-coil validation baselines"
+        ],
+        [
+          "Classical TV (BART)† [13]",
+          "N/A",
+          "0.645",
+          "31.4",
+          "0.0287"
+        ],
+        [
+          "U-Net-128† [25]",
+          "53.54 M",
+          "0.815",
+          "34.01",
+          "0.0154"
+        ],
+        [
+          "Published single-coil fastMRI reference"
+        ],
+        [
+          "ReconFormer‡ [8]",
+          "1.141 M",
+          "0.7383",
+          "32.73",
+          "0.0310"
+        ],
+        [
+          "Proposed variants"
+        ],
+        [
+          "ViT-AE (global loss only)",
+          "47.9 M",
+          "0.819",
+          "32.5",
+          "0.0145"
+        ],
+        [
+          "ViT-AE + ROI-L₁",
+          "47.9 M",
+          "0.820",
+          "32.3",
+          "0.0152"
+        ],
+        [
+          "ViT-AE + ROI-SSIM (proposed)",
+          "47.9 M",
+          "0.823",
+          "32.4",
+          "0.0147"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0001\" position=\"float\"><label>Table 1</label><caption><p>Validation-set performance on fastMRI knee single-coil reconstruction. † indicates results reported in the original fastMRI benchmark study. ‡ indicates single-coil fastMRI results reported by Guo et al. [<xref rid=\"bib0008\" ref-type=\"bibr\">8</xref>]. Published baselines were not retrained in this study. All proposed variants are trained and evaluated under identical settings, without artifact augmentation; the artifact-augmented model is reported in <xref rid=\"tbl0003\" ref-type=\"table\">Table 3</xref>.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Method</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Params</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">SSIM ↑</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">PSNR ↑ (dB)</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">NMSE ↓</th></tr></thead><tbody><tr><td colspan=\"5\" align=\"left\" valign=\"top\" rowspan=\"1\"><italic>Published single-coil validation baselines</italic></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Classical TV (BART)† [<xref rid=\"bib0013\" ref-type=\"bibr\">13</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">N/A</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.645</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">31.4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.0287</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">U-Net-128† [<xref rid=\"bib0025\" ref-type=\"bibr\">25</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">53.54 M</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.815</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">34.01</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.0154</td></tr><tr><td colspan=\"5\" align=\"left\" valign=\"top\" rowspan=\"1\"><italic>Published single-coil fastMRI reference</italic></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">ReconFormer‡ [<xref rid=\"bib0008\" ref-type=\"bibr\">8</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">1.141 M</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.7383</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">32.73</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.0310</td></tr><tr><td colspan=\"5\" align=\"left\" valign=\"top\" rowspan=\"1\"><italic>Proposed variants</italic></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">ViT-AE (global loss only)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">47.9 M</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.819</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">32.5</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.0145</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">ViT-AE + ROI-L₁</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">47.9 M</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.820</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">32.3</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.0152</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>ViT-AE + ROI-SSIM (proposed)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>47.9 M</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.823</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>32.4</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.0147</bold></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0002",
+      "label": "Table 2",
+      "caption": "ROI-SSIM within fastMRI+ annotated regions corresponding to ACL, meniscus, and articular cartilage. Results are mean ± standard deviation over validation volumes containing at least one annotation for the corresponding structure. N denotes the number of volumes included in each structure-specific analysis. The ACL comparison (N = 14) is under-powered relative to the meniscus (N = 53) and cartilage (N = 43) comparisons and should be interpreted with caution. *Statistically significant improvement over the global-loss baseline (p < 0.01, paired two-sided Wilcoxon signed-rank test performed at the volume level, with predictions paired by volume identifier).",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Structure",
+          "N (volumes tested)",
+          "Annotated slices",
+          "ViT-AE (global loss)",
+          "ViT-AE + ROI-SSIM",
+          "Δ ROI-SSIM"
+        ],
+        [
+          "ACL",
+          "14",
+          "87",
+          "0.742 ± 0.031",
+          "0.779 ± 0.028",
+          "+4.9% *"
+        ],
+        [
+          "Meniscus",
+          "53",
+          "336",
+          "0.764 ± 0.024",
+          "0.799 ± 0.021",
+          "+4.6% *"
+        ],
+        [
+          "Cartilage",
+          "43",
+          "203",
+          "0.779 ± 0.019",
+          "0.813 ± 0.018",
+          "+4.4% *"
+        ],
+        [
+          "Mean (all ROIs)",
+          "-",
+          "-",
+          "0.762 ± 0.025",
+          "0.797 ± 0.022",
+          "+4.6% *"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0002\" position=\"float\"><label>Table 2</label><caption><p>ROI-SSIM within fastMRI+ annotated regions corresponding to ACL, meniscus, and articular cartilage. Results are mean ± standard deviation over validation volumes containing at least one annotation for the corresponding structure. N denotes the number of volumes included in each structure-specific analysis. The ACL comparison (<italic>N</italic> = 14) is under-powered relative to the meniscus (<italic>N</italic> = 53) and cartilage (<italic>N</italic> = 43) comparisons and should be interpreted with caution. *Statistically significant improvement over the global-loss baseline (<italic>p</italic> &lt; 0.01, paired two-sided Wilcoxon signed-rank test performed at the volume level, with predictions paired by volume identifier).</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Structure</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">N (volumes tested)</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Annotated slices</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">ViT-AE (global loss)</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">ViT-AE + ROI-SSIM</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Δ ROI-SSIM</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">ACL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">14</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">87</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.742 ± 0.031</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.779 ± 0.028</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">+4.9% *</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Meniscus</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">53</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">336</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.764 ± 0.024</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.799 ± 0.021</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">+4.6% *</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Cartilage</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">43</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">203</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.779 ± 0.019</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.813 ± 0.018</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">+4.4% *</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mean (all ROIs)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>-</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>-</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.762 ± 0.025</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.797 ± 0.022</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>+4.6% *</bold></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0003",
+      "label": "Table 3",
+      "caption": "Ablation study on the fastMRI knee validation set (single-coil, R = 4). Each row differs from the previous one in a single component. Global SSIM and mean ROI-SSIM (averaged over ACL, meniscus, cartilage) are reported.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Variant",
+          "3D Attention",
+          "Region-Aware Loss",
+          "SSIM ↑",
+          "Mean ROI-SSIM ↑"
+        ],
+        [
+          "2D slice ViT-AE (global loss)",
+          "✗",
+          "✗",
+          "0.804",
+          "0.751"
+        ],
+        [
+          "3D ViT-AE (global loss)",
+          "✓",
+          "✗",
+          "0.819",
+          "0.762"
+        ],
+        [
+          "3D ViT-AE + ROI-L₁ (no artifact aug.)",
+          "✓",
+          "✓",
+          "0.820",
+          "0.774"
+        ],
+        [
+          "3D ViT-AE + ROI-SSIM (no artifact aug.)",
+          "✓",
+          "✓",
+          "0.823",
+          "0.797"
+        ],
+        [
+          "3D ViT-AE + ROI-SSIM + artifact aug. (full)",
+          "✓",
+          "✓",
+          "0.825",
+          "0.806"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0003\" position=\"float\"><label>Table 3</label><caption><p>Ablation study on the fastMRI knee validation set (single-coil, R = 4). Each row differs from the previous one in a single component. Global SSIM and mean ROI-SSIM (averaged over ACL, meniscus, cartilage) are reported.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Variant</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">3D Attention</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Region-Aware Loss</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">SSIM ↑</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Mean ROI-SSIM ↑</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2D slice ViT-AE (global loss)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✗</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✗</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.804</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.751</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3D ViT-AE (global loss)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✓</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✗</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.819</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.762</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3D ViT-AE + ROI-L₁ (no artifact aug.)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✓</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✓</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.820</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.774</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3D ViT-AE + ROI-SSIM (no artifact aug.)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✓</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">✓</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.823</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.797</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3D ViT-AE + ROI-SSIM + artifact aug. (full)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>✓</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>✓</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.825</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.806</bold></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0004",
+      "label": "Table 4",
+      "caption": "Robustness evaluation on the fastMRI knee validation set under simulated artifact degradation. Values represent relative decreases in SSIM and ROI-SSIM compared with clean validation performance.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Artifact Type",
+          "Global SSIM ↓",
+          "ROI-SSIM ↓"
+        ],
+        [
+          "Undersampling",
+          "−3.1%",
+          "−1.8%"
+        ],
+        [
+          "Motion (k-space)",
+          "−4.6%",
+          "−2.5%"
+        ],
+        [
+          "Gibbs ringing",
+          "−3.8%",
+          "−2.1%"
+        ],
+        [
+          "Partial Fourier",
+          "−4.2%",
+          "−2.7%"
+        ],
+        [
+          "Zipper artifact",
+          "−2.9%",
+          "−1.6%"
+        ],
+        [
+          "Bias-field inhomogeneity",
+          "−3.4%",
+          "−1.9%"
+        ],
+        [
+          "Metal susceptibility",
+          "−5.3%",
+          "−3.2%"
+        ],
+        [
+          "Mixed artifacts",
+          "−6.8%",
+          "−2.9%"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"tbl0004\" position=\"float\"><label>Table 4</label><caption><p>Robustness evaluation on the fastMRI knee validation set under simulated artifact degradation. Values represent relative decreases in SSIM and ROI-SSIM compared with clean validation performance.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Artifact Type</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Global SSIM ↓</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">ROI-SSIM ↓</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Undersampling</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−3.1%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−1.8%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Motion (k-space)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−4.6%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−2.5%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Gibbs ringing</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−3.8%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−2.1%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Partial Fourier</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−4.2%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−2.7%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Zipper artifact</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−2.9%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−1.6%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Bias-field inhomogeneity</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−3.4%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−1.9%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Metal susceptibility</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−5.3%</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">−3.2%</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mixed artifacts</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>−6.8%</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>−2.9%</bold></td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "fig0005",
+      "label": "",
+      "caption": "",
+      "caption_zh": "",
+      "graphics": [
+        "ga1.webp",
+        "ga1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0001",
+      "label": "Fig. 1",
+      "caption": "Representative artifact simulations for a single-coil coronal proton-density (PD) knee MRI. (a) Clean reference image with annotated regions of interest; (b) chemical-shift artifact; (c) Gibbs ringing; (d) metal-induced susceptibility artifact; (e) R=4 undersampling; (f) partial-Fourier acquisition; and (g) wrap-around artifact. Absolute difference maps relative to the clean reference are shown below each degraded image, with the corresponding mean absolute error (MAE) and maximum absolute error.",
+      "caption_zh": "",
+      "graphics": [
+        "gr1.webp",
+        "gr1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0002",
+      "label": "Fig. 2",
+      "caption": "Region-aware 3D Vision Transformer Autoencoder (ViT-AE) architecture for knee MRI reconstruction. ROI-SSIM supervision is applied using ACL, meniscus, and cartilage region masks to prioritize diagnostically relevant anatomical structures during reconstruction.",
+      "caption_zh": "",
+      "graphics": [
+        "gr2.webp",
+        "gr2.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0003",
+      "label": "Fig. 3",
+      "caption": "Ground-truth knee MRI slice with fastMRI+ annotations used to generate volumetric ROI masks for ACL, meniscus, and cartilage supervision.",
+      "caption_zh": "",
+      "graphics": [
+        "gr3.webp",
+        "gr3.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0004",
+      "label": "Fig. 4",
+      "caption": "Qualitative comparison of global-loss and ROI-SSIM-guided knee MRI reconstructions.",
+      "caption_zh": "",
+      "graphics": [
+        "gr4.webp",
+        "gr4.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "ueqn0001",
+      "text": "Km(kx,ky)=K(kx,ky)·eiφ(ky),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0001\"><ns0:math id=\"M11\" display=\"block\" altimg=\"si10.svg\"><ns0:mrow><ns0:msub><ns0:mi>K</ns0:mi><ns0:mi>m</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>x</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>K</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>x</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"0.28em\" /><ns0:mo>·</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msup><ns0:mi>e</ns0:mi><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>φ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:msup><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "ueqn0002",
+      "text": "φ(ky)=φmax·sin(2πfky+θ),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0002\"><ns0:math id=\"M12\" display=\"block\" altimg=\"si11.svg\"><ns0:mrow><ns0:mi>φ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>φ</ns0:mi><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>x</ns0:mi></ns0:mrow></ns0:msub><ns0:mspace width=\"0.28em\" /><ns0:mo>·</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>s</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>n</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mi>π</ns0:mi><ns0:msub><ns0:mi>f</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mi>y</ns0:mi><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"badbreak\">+</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>θ</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "ueqn0003",
+      "text": "Ks(kx,ky)=K(kx,ky)+∑i=1nsAiδ(kx−kx,i,ky−ky,i),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0003\"><ns0:math id=\"M16\" display=\"block\" altimg=\"si15.svg\"><ns0:mrow><ns0:msub><ns0:mi>K</ns0:mi><ns0:mi>s</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>x</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mi>K</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>x</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:msub><ns0:mi>n</ns0:mi><ns0:mi>s</ns0:mi></ns0:msub></ns0:munderover><ns0:msub><ns0:mi>A</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mi>δ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>x</ns0:mi></ns0:msub><ns0:mo linebreak=\"badbreak\">−</ns0:mo><ns0:msub><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>y</ns0:mi></ns0:msub><ns0:mo linebreak=\"badbreak\">−</ns0:mo><ns0:msub><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mi>y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "ueqn0004",
+      "text": "xb(x,y)=x(x,y)·(1+b(x,y)),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0004\"><ns0:math id=\"M21\" display=\"block\" altimg=\"si20.svg\"><ns0:mrow><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>b</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"0.28em\" /><ns0:mo>·</ns0:mo><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mn>1</ns0:mn><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"badbreak\">+</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:msub><ns0:mi>b</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow></ns0:msub></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "ueqn0005",
+      "text": "Ltotal=αL1+βLGlobal−SSIM+γLROI−SSIM,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0005\"><ns0:math id=\"M32\" display=\"block\" altimg=\"si31.svg\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>t</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>t</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>l</ns0:mi></ns0:mrow></ns0:msub><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>α</ns0:mi><ns0:mi>L</ns0:mi><ns0:mn>1</ns0:mn><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>β</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>G</ns0:mi><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>b</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>l</ns0:mi><ns0:mo>−</ns0:mo><ns0:mi>S</ns0:mi><ns0:mi>S</ns0:mi><ns0:mi>I</ns0:mi><ns0:mi>M</ns0:mi></ns0:mrow></ns0:msub><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>γ</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>R</ns0:mi><ns0:mi>O</ns0:mi><ns0:mi>I</ns0:mi><ns0:mo>−</ns0:mo><ns0:mi>S</ns0:mi><ns0:mi>S</ns0:mi><ns0:mi>I</ns0:mi><ns0:mi>M</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "ueqn0006",
+      "text": "LROI−SSIM=∑rϵ{ACL,Men.,Cart.}wr(1−SSIM(G⊙Mr,G^⊙Mr)),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"ueqn0006\"><ns0:math id=\"M33\" display=\"block\" altimg=\"si32.svg\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>R</ns0:mi><ns0:mi>O</ns0:mi><ns0:mi>I</ns0:mi><ns0:mo>−</ns0:mo><ns0:mi>S</ns0:mi><ns0:mi>S</ns0:mi><ns0:mi>I</ns0:mi><ns0:mi>M</ns0:mi></ns0:mrow></ns0:msub><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"normal\">ϵ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"true\">{</ns0:mo><ns0:mrow><ns0:mi>A</ns0:mi><ns0:mi>C</ns0:mi><ns0:mi>L</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>M</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>n</ns0:mi><ns0:mo>.</ns0:mo><ns0:mo>,</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>t</ns0:mi><ns0:mo>.</ns0:mo></ns0:mrow><ns0:mo stretchy=\"true\">}</ns0:mo></ns0:mrow></ns0:mrow></ns0:munder><ns0:msub><ns0:mi>w</ns0:mi><ns0:mi>r</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mn>1</ns0:mn><ns0:mspace width=\"0.28em\" /><ns0:mo linebreak=\"badbreak\">−</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>S</ns0:mi><ns0:mi>S</ns0:mi><ns0:mi>I</ns0:mi><ns0:mi>M</ns0:mi><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mi>G</ns0:mi><ns0:mspace width=\"0.28em\" /><ns0:mo>⊙</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>M</ns0:mi><ns0:mi>r</ns0:mi><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mover accent=\"true\"><ns0:mi>G</ns0:mi><ns0:mo>^</ns0:mo></ns0:mover><ns0:mspace width=\"0.28em\" /><ns0:mo>⊙</ns0:mo><ns0:mspace width=\"0.28em\" /><ns0:mi>M</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mspace width=\"0.28em\" /></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "bib0001",
+      "text": "1.Sobol W.T. Recent advances in MRI technology: implications for image quality and patient safety. Saudi J. Ophthalmol. 2012;26(4):393–399. doi: 10.1016/j.sjopt.2012.07.005.",
+      "doi": []
+    },
+    {
+      "id": "bib0002",
+      "text": "2.Bojorquez J.Z., Bricq S., Acquitter C., Brunotte F., Walker P.M., Lalande A. What are normal relaxation times of tissues at 3 T? Magn. Reson. ImAging. 2017;35:69–80. doi: 10.1016/j.mri.2016.08.021.",
+      "doi": []
+    },
+    {
+      "id": "bib0003",
+      "text": "3.Zaitsev M., Maclaren J., Herbst M. Motion artifacts in MRI: a complex problem with many partial solutions. J. Magn. Resonance Imaging. 2015;42(4):887–901. doi: 10.1002/jmri.24850.",
+      "doi": []
+    },
+    {
+      "id": "bib0004",
+      "text": "4.Bekiesińska-Figatowska M. Artifacts in magnetic resonance imaging. Pol. J. Radiol. 2015;80:93–106. doi: 10.12659/PJR.892628.",
+      "doi": []
+    },
+    {
+      "id": "bib0005",
+      "text": "5.Safari M., Eidex Z., Chang C.-W., Qiu R.L.J., Yang X. Advancing MRI reconstruction: a systematic review of deep learning and compressed sensing integration. Biomed. Signal. Process. Control. 2026;111 doi: 10.1016/j.bspc.2025.108291.",
+      "doi": []
+    },
+    {
+      "id": "bib0006",
+      "text": "6.Sriram A., et al. In: Medical Image Computing and Computer Assisted Intervention – MICCAI 2020. Martel A.L., Abolmaesumi P., Stoyanov D., Mateus D., Zuluaga M.A., Zhou S.K., Racoceanu D., Joskowicz L., editors. Vol. 12262. Springer International Publishing; Cham: 2020. End-to-end variational networks for accelerated MRI reconstruction; pp. 64–73. (Medical Image Computing and Computer Assisted Intervention – MICCAI 2020). Lecture Notes in Computer Science, vol. 12262.",
+      "doi": []
+    },
+    {
+      "id": "bib0007",
+      "text": "7.Giannakopoulos I.I., et al. Accelerated MRI reconstructions via variational network and feature domain learning. Sci. Rep. 2024;14(1) doi: 10.1038/s41598-024-59705-0.",
+      "doi": []
+    },
+    {
+      "id": "bib0008",
+      "text": "8.Guo P., Mei Y., Zhou J., Jiang S., Patel V.M. ReconFormer: accelerated MRI reconstruction using recurrent transformer. IEEE Trans. Med. ImAging. 2024;43(1):582–593. doi: 10.1109/TMI.2023.3314747.",
+      "doi": []
+    },
+    {
+      "id": "bib0009",
+      "text": "9.Webber G., Reader A.J. Diffusion models for medical image reconstruction. BJR|Artif. Intell. 2024;1(1) doi: 10.1093/bjrai/ubae013.",
+      "doi": []
+    },
+    {
+      "id": "bib0010",
+      "text": "10.Dosovitskiy, A., et al. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. International Conference on Learning Representations (ICLR). https://arxiv.org/abs/2010.11929.",
+      "doi": []
+    },
+    {
+      "id": "bib0011",
+      "text": "11.Huang, J., et al. (2022). Swin Transformer for Fast MRI. 2022 IEEE 19th International Symposium on Biomedical Imaging (ISBI). 10.1109/ISBI52829.2022.9761581.",
+      "doi": []
+    },
+    {
+      "id": "bib0012",
+      "text": "12.Zhang Y., Xiao X., Guo J. TransMCS: a hybrid CNN-transformer autoencoder for end-to-end multi-modal medical signals compressive sensing. Theor. Comput. Sci. 2025;1051 doi: 10.1016/j.tcs.2025.115409.",
+      "doi": []
+    },
+    {
+      "id": "bib0013",
+      "text": "13.Zbontar, J., et al. (2018). fastMRI: An open dataset and benchmarks for accelerated MRI. arXiv, arXiv:1811.08839. 10.48550/arXiv.1811.08839.",
+      "doi": []
+    },
+    {
+      "id": "bib0014",
+      "text": "14.Zhao R., et al. fastMRI+, Clinical pathology annotations for knee and brain fully sampled magnetic resonance imaging data. Sci. Data. 2022;9(1):152. doi: 10.1038/s41597-022-01255-z.",
+      "doi": []
+    },
+    {
+      "id": "bib0015",
+      "text": "15.Lustig M., Donoho D., Pauly J.M. Sparse MRI: the application of compressed sensing for rapid MR imaging. Magn. Reson. Med. 2007;58(6):1182–1195. doi: 10.1002/mrm.21391.",
+      "doi": []
+    },
+    {
+      "id": "bib0016",
+      "text": "16.Hu R., Yang R., Liu Y., Li X. Simulation and mitigation of the wrap-around artifact in the MRI image. Front. Comput. Neurosci. 2021;15 doi: 10.3389/fncom.2021.746549.",
+      "doi": []
+    },
+    {
+      "id": "bib0017",
+      "text": "17.González Ballester M.A., Zisserman A.P., Brady M. Estimation of the partial volume effect in MRI. Med. Image Anal. 2002;6(4):389–405. doi: 10.1016/S1361-8415(02)00061-0.",
+      "doi": []
+    },
+    {
+      "id": "bib0018",
+      "text": "18.Huang S.Y., Seethamraju R.T., Patel P., Hahn P.F., Kirsch J.E., Guimaraes A.R. Body MR imaging: artifacts, k-space, and solutions. Radiographics. 2015;35(5):1439–1460. doi: 10.1148/rg.2015140289.",
+      "doi": []
+    },
+    {
+      "id": "bib0019",
+      "text": "19.Hood M.N., Ho V.B., Smirniotopoulos J.G., Szumowski J. Chemical shift: the artifact and clinical tool revisited. Radiographics. 1999;19(2):357–371. doi: 10.1148/radiographics.19.2.g99mr07357.",
+      "doi": []
+    },
+    {
+      "id": "bib0020",
+      "text": "20.Kellner E., Dhital B., Kiselev V.G., Reisert M. Gibbs-ringing artifact removal based on local subvoxel-shifts. Magn. Reson. Med. 2016;76(5):1574–1581. doi: 10.1002/mrm.26054.",
+      "doi": []
+    },
+    {
+      "id": "bib0021",
+      "text": "21.Tustison N.J., Avants B.B., Cook P.A., Gee J.C. 2010 IEEE International Symposium on Biomedical Imaging: From Nano to Macro. IEEE; Rotterdam, Netherlands: 2010. N4ITK: improved N3 bias correction with robust B-spline approximation; pp. 708–711.",
+      "doi": []
+    },
+    {
+      "id": "bib0022",
+      "text": "22.Koch K.M., Hargreaves B.A., Pauly K.B., Chen W., Gold G.E., King K.F. Magnetic resonance imaging near metal implants. J. Magn. Resonance Imaging. 2010;32(4):773–787. doi: 10.1002/jmri.22313.",
+      "doi": []
+    },
+    {
+      "id": "bib0023",
+      "text": "23.Erickson S.J., Prost R.W., Timins M.E. The ‘magic angle’ effect: background physics and clinical relevance. Radiology. 1993;188(1):23–25. doi: 10.1148/radiology.188.1.7685531.",
+      "doi": []
+    },
+    {
+      "id": "bib0024",
+      "text": "24.Tolpadi A.A., Han M., Calivà F., Pedoia V., Majumdar S. Region of interest-specific loss functions improve T2 quantification with ultrafast T2 mapping MRI sequences in knee, hip and lumbar spine. Sci. Rep. 2022;12(1) doi: 10.1038/s41598-022-26266-z.",
+      "doi": []
+    },
+    {
+      "id": "bib0025",
+      "text": "25.Ronneberger O., Fischer P., Brox T. In: Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015. Navab N., Hornegger J., Wells W.M., Frangi A.F., editors. Vol. 9351. Springer International Publishing; Cham: 2015. U-Net: convolutional networks for biomedical image segmentation; pp. 234–241. (Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015). Lecture Notes in Computer Science, vol. 9351.",
+      "doi": []
+    },
+    {
+      "id": "bib0026",
+      "text": "26.Desai A.D., et al. Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks. 2021. SKM-TEA: a dataset for accelerated MRI reconstruction with dense image labels for quantitative clinical evaluation.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Bekbolat A, Askhatova A, Niyetkaliyev A, Jamwal P, Ozhikenov K, Alimbayeva Z, Beisembekova R, Igembay Y.",
+  "journal": "MethodsX",
+  "year": "2026",
+  "pmid": "42909107",
+  "pmcid": "PMC13683755",
+  "doi": "10.1016/j.mex.2026.104196",
+  "source": {
+    "retrieved_at": "2026-11-14T17:07:06.626373+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13683755/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13683755.xml"
+}

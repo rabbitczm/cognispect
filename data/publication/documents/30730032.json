@@ -1,0 +1,1668 @@
+{
+  "key": "30730032",
+  "body_available": true,
+  "title": "A review on lung boundary detection in chest X-rays",
+  "source_url": "https://europepmc.org/articles/PMC6420899",
+  "license": {
+    "text": "OpenAccessThis article is distributed under the terms of the Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/), which permits unrestricted use, distribution, and reproduction in any medium, provided you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made.",
+    "urls": [],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Sema Candemir",
+    "Sameer Antani"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2019",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2019",
+        "month": "2",
+        "day": "7"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR6",
+            "CR1",
+            "CR7",
+            "CR8",
+            "CR6",
+            "CR9",
+            "CR10"
+          ],
+          "en": "Chest radiography is one of the most common diagnostic imaging techniques for cardiothoracic and pulmonary disorders [1]. It is an early diagnosis tool that is commonly used in clinical settings to observe abnormalities in the cardiothoracic region which includes lung and heart pathologies, e.g., atelectasis, consolidation, pneumothorax, pleural and pericardial effusion, cardiac hypertrophy and hyperinflation [2]. It also serves as a valuable tool for tuberculosis (TB) screening for HIV+ population in resource-constrained regions [3–6]. Chest radiography is widely available, affordable, and has lower radiation dose compared to other imaging tools [1]. Particularly, under-resourced regions of the world that also have to face a heavy burden of infectious diseases, such as TB, commonly use chest X-ray (CXR) as frontline diagnostic imaging due to lower infrastructure setup, operational costs, and portability [7, 8]. Automated analysis of CXR can assist in population screening as well as the radiologist in triaging and interpretation, thereby reducing their workload [6, 9]. Further, they provide a valuable visual aid for the frontline clinician in diagnosing the patient. Also, automated analysis can help control inter-reader variability across radiologists, better discriminate abnormal cases for further expert interpretation, and even serve as a B-reader in the diagnostic decision-making process [10].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR4",
+            "CR11",
+            "CR12",
+            "CR13",
+            "CR15",
+            "CR16",
+            "CR17"
+          ],
+          "en": "The typical steps in a conventional CXR analysis system include: (1) localizing the region of interest (ROI) (e.g., lung lobes) to focus the useful area for further processing; (2) extracting imaging features from ROI; and (3) applying a machine learning technique to detect/diagnose the abnormality [4, 11, 12]. Accurate localization of ROI impacts the performance of subsequent steps and the overall system. Therefore, it is an essential pre-processing stage in an abnormality detection/diagnostic process. With the recent resurgence of interest in artificial intelligence (AI), computer-aided detection/diagnosis systems have started to be developed with deep neural networks (DNNs) [13–15]. DNNs search abnormal patterns from the raw image data without setting explicit rules, detecting ROI, extracting features or user-in-the-loop intervention. However, DNNs are computationally expensive due to optimization of large number of model parameters which increase with image size. Therefore, restricting the processing area by removing background noise and processing only the relevant region becomes essential for improving the algorithm’s accuracy and lowering computational time in DNN-based approaches. In [16], researchers analyzed the impact of lung segmentation and bone shadow exclusion techniques in a DNN-based lung nodule detection algorithm. Higher training and validation accuracy are observed for segmented and bone shadow removed CXRs. Another recent DNN-based study applies histogram equalization and ROI detection before processing CXR images to increase the algorithm’s accuracy [17].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "Sec2",
+            "Sec12",
+            "CR18",
+            "CR20",
+            "CR20",
+            "Fig1"
+          ],
+          "en": "For pulmonary diseases, the objective ROI is the lung region within the thorax. However, lung region detection for posterior–anterior (PA) CXRs is a well-studied problem (c.f. “Lung boundary detection in posterior–anterior CXR” section). Most of these algorithms are evaluated on adult CXR images with “normal” or unaltered lung anatomy appearance. The pathology and anatomical alterations can impact the intensity distribution in lung regions and result in ambiguous lung silhouettes which introduce challenges for automated border delineation algorithms. In addition to the lack of lung region detection algorithms robust to pathological deformities, the studies on pediatric CXRs (c.f. “Pediatric chest radiography” section) are limited in the literature. The lung appearance in pediatrics, especially in infant cases, deviates from adult lung appearance due to the pediatric development stages [18–20]. Therefore, a lung boundary detection algorithm developed on adult lungs may not accurately perform in pediatric cases [20]. Moreover, pediatric CXRs are noisier than adult CXRs due to holding hands, patient’s head, legs positioning, and rotation (Fig. 1e), which increases the importance of localizing the ROI and processing within it.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "Sec2",
+            "Sec8",
+            "Sec9",
+            "Sec12",
+            "Sec13",
+            "Sec14",
+            "Sec15"
+          ],
+          "en": "Considering all these challenges that are not very well addressed in the literature, developing lung boundary detection algorithms that are robust to pathological deformities, drastic shape irregularities, CXR orientation, CXR projection (posterior–anterior (PA), anterior–posterior (AP), lateral), and gross background noise in thoracic cavity remains a challenging task. We believe that a broad review of lung region detection algorithms would be useful for researchers working in the field of automated detection/diagnosis algorithms for lung/heart pathologies in CXRs. The paper is organized as follows. First, methods developed for PA-view CXRs are described in “Lung boundary detection in posterior–anterior CXR” section, and studies which include lateral-view CXRs are discussed in “Lung boundary detection in lateral view” section. We mention lung boundary detection algorithms for deformed lungs in “Lungs with deformed appearance” section and pediatric studies in “Pediatric chest radiography” section. The deviation in lung silhouette could be used as visual signs of abnormality and can be an additional feature for pathology detection/diagnose. In “Radiographic measures: radiological signs for pulmonary abnormalities” section, we survey studies which extract radiographic measurements from lung boundaries and make a diagnostic decision from these measurements. Finally, we list the main evaluation metrics for measuring lung region detection algorithms performance in “Evaluation of lung region detection algorithms” section and publicly available CXR datasets in “DataSets”section.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Lung boundary detection in posterior–anterior CXR",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "Fig1",
+            "CR21",
+            "CR11",
+            "CR22"
+          ],
+          "en": "Lung boundary detection in a CXR image can be thought of as two types of processes: (1) rule-based edge detection, where the edge belongs to the lung boundary; or (2) cast as a binary classification (region detection), where the goal is to label each pixel in the image as belonging to the lung region or background. There are several challenges in segmenting lung region in a CXR, which are depicted in Fig. 1, such as (1) lung appearance variations due to age, gender, heart dimension, pathology, and genetic variations between patients; (2) pixel intensity difference within the lung at hilum, apex, clavicle, and rib regions; (3) imaging inhomogeneities due to various breath states; (4) patient position during scanning; and (5) foreign objects such as implanted devices, buttons on patient clothes. Lung boundary detection in PA CXR is a well-studied problem. Earlier works have been reviewed in [21]; more recent methods are compared in [11] on a public dataset. However, these articles contain studies before 2001 and before 2006. In this study, we update an understanding of the field and review the studies published in period 2006–2018. Shi et al. [22] classified the segmentation algorithms into the following groups: (1) rule-based methods, (2) pixel classification methods, (3) deformable-based methods, and (4) hybrid methods. We adopt the same classes in this study. Although deep learning techniques can be listed in pixel classification methods, we consider them as a separate group due to their surpassing performance in computer vision.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec3",
+      "title": "Rule-based methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR23",
+            "CR24",
+            "CR25",
+            "CR11",
+            "CR26"
+          ],
+          "en": "The algorithms in this group set sequential steps and heuristic assumptions to locate the lung region. They are generally used as initialization of more robust segmentation algorithms. For example, in [23], researchers propose using level sets which combine the global statistics, prior shape, and edge information. The level set is initialized at a seed mask which is computed using rule-based steps such as thresholding, morphology, and connected component analysis. In [24], lung region is extracted using Euler number method and refined through morphological operations. In [25], before applying fuzzy C-means clustering algorithms, sequential steps are applied such as Gaussian derivative filtering, thresholding, border cleaning, noise removal, and clavicle elimination. Several earlier approaches in this group are mentioned in [11] and in [26]. The algorithms in this group have an easier implementation. However, the output boundaries obtained with this algorithms may not be optimal due to sequential steps, e.g., applying morphological operations, resulting in cascaded accumulation of errors.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Pixel classification-based methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "CR11"
+          ],
+          "en": "In these algorithms, each pixel is labeled as a lung or a non-lung pixel using a classifier (e.g., support vector machines, neural networks) that is trained with example CXRs and their corresponding lung masks. For example in [11], the proposed method employs multiscale filter bank of Gaussian derivatives and k-nearest neighbor (k-NN) classifier. The limitation of the conventional classification approaches is the lack of model constraint to keep the boundary in the expected lung shape. The classifier might fail at segmenting lung with lesions or other pathology without a reference model due to the difference in imaging characteristics in these areas.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Model-based methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "CR27",
+            "CR28",
+            "CR11",
+            "CR29"
+          ],
+          "en": "The algorithms in this group use both low level appearance and shape priors. The earliest model-based algorithms are Active Shape Model (ASM) [27] and Active Appearance Model (AAM) [28] in which the shape is modeled with the distribution of landmark points on training images and is fitted to the test image by adjusting the distribution parameters. They are applied to lung region detection in [11, 29]. Despite their broad applicability due to shape flexibility, ASM and AAM do not perform well at widely varying shapes, require proper initialization for a successful convergence, and output boundary strongly rely on tuning the parameters. For lung region segmentation, the algorithm can get trapped at local minima due to strong rib cage and clavicle bone edges.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "CR30",
+            "CR33",
+            "CR22",
+            "CR34",
+            "CR35"
+          ],
+          "en": "Several studies have been proposed as an extension of ASM and AAM to cope with their disadvantages by incorporating prior shape statistics in objective functions [30–33]. For example, in [22] the lung boundary is characterized by a scale-invariant feature transform, and ASM is constrained by statistics collected from previous CXRs of same and other patient’s CXRs. In [34], a shape particle filtering approach is used to prevent getting trapped at a local minimum. In [35], global edge and region forces are added as additional terms to the objective function to reach the global minimum.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Hybrid methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "CR11",
+            "CR36",
+            "CR37"
+          ],
+          "en": "In these methods, the best parts of the schemes are combined to produce a better approach to overcome the challenges of lung boundary detection. For instance, in [11], deformable models and pixel classification approach are combined with majority voting, and a better boundary detection performance is reported. In [36], an atlas-based approach is used in which the model atlases are registered to the patient CXR using the SIFT-flow algorithm [37] and combined with graph cut boundary detection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Deep learning methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "With advances in GPU technology, computer vision systems designed with deep neural networks trained on a massive amount of data have been shown to produce more accurate results than conventional approaches. In deep neural networks, input data is processed through deep convolutional layers, which learn feature representation hierarchically, starting from low-level to more abstract representations. In particular, convolutional neural networks (CNNs) have received considerable attention in image analysis problems, since they preserve the spatial relationship between the image pixels.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR38",
+            "CR39",
+            "CR40",
+            "CR39",
+            "CR41",
+            "CR42",
+            "CR43",
+            "CR44"
+          ],
+          "en": "Despite the popularity of deep learning algorithms in medical imaging, only a few studies have been reported in the literature for lung boundary detection in CXRs. A recent study uses semantic segmentation approach [38] in which the input is a CXR image and output is a map indicating lung region probability of each pixel. In [39], researchers proposed using fully convolutional networks (FCN) [40] for segmenting lung, clavicle and heart regions. FCN is an encoder-decoder architecture. The encoder models the semantic information in the image; the decoder recovers the location information which is lost during the pooling process and produces a map contains lung region probability of each pixel. FCN produces rough map due to its basic decoder architecture. Therefore, researchers [39] applied architectural modifications by adding a drop out layer after every convolutional layer, by re-ordering the feature maps and by replacing pooling layers with convolutional layers. In [41] SegNet [42], performance is investigated for lung region detection in CXRs. SegNet is a semantic segmentation approach which has similar encoder-decoder architecture as in FCN. However, each deconvolutional layer in the decoder stage corresponds to a convolutional layer at the same level; upsampling is performed based on the pooling indices in the corresponding encoder stage which provides more accurate segmentation map compared to FCN. In [43], researchers proposed using generative adversarial network (GAN) [44] for lung boundary detection in CXRs. GANs consist of two networks: a generator and a discriminator. For segmentation problem, the generator produces artificial lung masks using manually delineated lung regions; the discriminator produces probability if the mask is synthetic or it is from ground-truth mask set. Based on the probability, the discriminator guides the generator to generate masks more similar to the ground-truth masks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "Tab1",
+            "Tab2"
+          ],
+          "en": "All proposed DNN-based approaches perform as good as inter-observer performance for lung regions detection. The advantages and disadvantages of algorithms (as in groups) are summarized in Table 1. Quantitative comparisons of lung boundary detection algorithms are given in Table 2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Lung boundary detection in lateral view",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR1",
+            "CR54",
+            "CR55",
+            "CR56",
+            "CR57",
+            "CR45",
+            "CR58",
+            "Fig2"
+          ],
+          "en": "15% of the lung is not clearly visible in PA view because of the cardiovascular structure and the diaphragm [1]. Therefore, radiologists include lateral chest radiograph, when relevant, in their decision-making process [54]. Although they are routinely used in clinical decision-making, few automated schemes are reported in the literature that include lung region detection in lateral-view CXRs. One of the earlier algorithms which uses both frontal and lateral views is in [55, 56] for automatically assessing the costophrenic angle blunting. CXRs are segmented with iterative global and local thresholding followed by polynomial curve fitting for boundary smoothing. In [57], researchers developed an automated computer-based method for the calculation of total lung capacity by determining the pulmonary contours from PA and lateral CXRs. The lung borders are computed using lung shape profiles and thresholding. The edges are then completed using curve fitting techniques. A recent effort [45] was aimed at the automated computation of emphysema utilizing the shape of lung fields in both frontal and lateral chest radiographs. The lung boundary is modeled as a closed fuzzy curve and estimated by self-organizing networks [58] (Fig. 2).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Lungs with deformed appearance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "Fig3",
+            "CR36",
+            "CR5"
+          ],
+          "en": "The lung boundary detection in PA chest radiograph is a well-explored problem. However, most of the algorithms in the literature are evaluated on CXRs with “normal” lung anatomy appearance, i.e., without structural deformities. A reliable computer-aided diagnosis (CAD) system would need to support a greater variety of lung shapes, deformed/occluded due to disease, accidents, or postsurgical alterations, e.g., pneumonectomy or lobectomy. Pathology and anatomical alterations impact the intensity distribution in the lung region, deform the lung anatomy shape, or result in an ambiguous lung silhouette. In addition to textural and shape deformations in lung appearance, the regions outside the lung might appear like part of the lung (e.g., stomach gas). As in Fig. 3, the algorithm’s decision [36] for lung boundary (red contour) is significantly different from the expected lung anatomy (green contour delineated by an expert). The missing parts may contain important clues about the abnormality and could be useful for algorithm’s decision [5]. Therefore, automated lung boundary detection algorithms that are robust to cardiopulmonary deformities in thoracic cavity remains a challenging task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR60",
+            "Sec18",
+            "CR11",
+            "CR59",
+            "CR36",
+            "Sec15",
+            "CR36",
+            "CR33"
+          ],
+          "en": "Most of the algorithms in the literature were developed and evaluated on the Japanese Society of Radiological Technology (JSRT) dataset [60] (c.f. “Publicly available CXR datasets” section) since the dataset and its reference boundaries [11] were the only well-known publicly available set until 2015. However, JSRT dataset is curated for developing lung nodule detection algorithms; the radiographs do not contain abnormalities which cause lung shape and texture deformation. Recently, a new CXR dataset [59] and their lung boundaries [36] were made publicly available by the U.S. National Library of Medicine (NLM). This set contains deformed lung appearance (both shape and tissue) due to the manifestations of tuberculosis (c.f. “DataSets” section). There are only a few studies that have evaluated the lung boundary detection algorithms on deformed lungs. In [36], a model-based algorithm is tested on NLM’s Montgomery dataset. However, the performance of this approach relies on the patient CXR being well-modeled by the training lung masks. Therefore, the algorithm might fail at large deformed lung shapes, if a similar mask is not present in the training set. In [33], researchers proposed an ASM-based method in which the shape prior is incorporated with a selective thresholding algorithm. The algorithm is initialized at salient points (spinal cord and ribcage) which are robust to pulmonary abnormalities. The method’s accuracy is evaluated on portable chest radiographs with deformed lung appearance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "External objects",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR61",
+            "CR62",
+            "CR61",
+            "Fig1",
+            "CR61",
+            "CR63",
+            "CR64"
+          ],
+          "en": "In addition to intra-thoracic pathology, lungs appearance is often distorted by external objects that may be present due to poor quality assurance, e.g., jewelry, buttons [61, 62], body piercings, or external elements due to patient age, e.g., cardiac pacemaker, tubes [61]. Examples of some of these distortions are shown in Fig. 1c–e. Such a distorted appearance can distract the algorithm and lead to inaccurate segmentation. Although there are articles recognize the importance of such distortions [61, 63, 64], to our knowledge, there is not any methodical inclusion of these challenges into a lung segmentation algorithm that is robust to such real-world image artifacts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Subject positioning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "CR25",
+            "CR63",
+            "CR64"
+          ],
+          "en": "A significant problem in developing robust lung segmentation algorithms is patient positioning. Most algorithms found in the literature assume that the patient is upright with appropriately inflated lungs and properly positioned without rotation. However, real-world CXR images, particularly those from hospital settings or of physically disabled subjects, have these problems. Subject positioning lead to deformed lung appearance, thus adversely impact the lung segmentation stage and subsequent decision-support algorithms. Some articles in the literature [25, 63, 64] attempt to correct planar rotation, which is important for image analysis, but we do not find articles that detect patient rotation to aid in improved imaging quality assurance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Pediatric chest radiography",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR7",
+            "CR65",
+            "CR7",
+            "CR66",
+            "CR19",
+            "CR67",
+            "CR27",
+            "Sec5",
+            "CR20",
+            "CR36",
+            "CR68"
+          ],
+          "en": "According to the 2015 RAD-AID Conference on International Radiology for Developing Countries report [7], approximately 3 to 4 billion people in the world do not have easy access to radiology services; among them, approximately 500 million to 1 billion are children. Therefore, RAD-AID and International Day of Radiology [65], an annual event supported by the European Society of Radiology, the American College of Radiology, and the Radiological Society of North America, have started to emphasize the importance of pediatric radiology [7]. Chest radiography is a valuable diagnostic tool in the pediatric population, and it is a key diagnostic tool in TB detection for pediatric patients in low-burden countries, due to the lower sensitivity of TB culture test (current gold standard for active TB detection) in pediatrics [66]. To our knowledge, only a few computerized methods have been developed for pediatric CXRs. In [19, 67], researchers propose a CAD system for pulmonary pathology in pediatric CXRs and use ASM [27] to segment the lung regions. ASM requires proper initialization for a successful convergence (c.f. “Model-based methods” section). Therefore, researchers initialize the algorithm by manually marking the distinct anatomical locations in each lung field. In [20], researchers characterized the shape differences between age groups and enhanced their fully automated model-based approach [36] toward pediatric lung boundary detection by building age-based lung training models. One of the recent efforts utilized a deep learning approach to estimate the statistical shape model parameters and applied the algorithm for lung region detection in pediatric CXRs [68].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR18",
+            "CR19",
+            "Fig4",
+            "CR18",
+            "Fig1",
+            "Fig4",
+            "CR20"
+          ],
+          "en": "Pediatric chest radiography has distinct challenges compared to adult chest radiography. The lung appearance between age groups has visible differences due to pediatric development stages [18, 19] (Fig. 4). In an infant, lungs are smaller, have a triangular shape, and the cardiac silhouette is relatively larger such that the horizontal diameter of the heart may approach 60% of thoracic horizontal diameter [18]. Besides, pediatric CXRs have distinct background noise such that high frequency of mother’s holding hands, patient’s head, and legs (Figs. 1e, 4a). Due to the visible appearance difference between adult and pediatric CXRs along with additional challenges in pediatric chest radiography, lung boundary detection algorithms developed on adult lungs may not perform well on pediatric cases [20].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Radiographic measures: radiological signs for pulmonary abnormalities",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "Some lung pathologies such as consolidation, atelectasis, and pleural effusion are clearly visible on CXRs due to appearance deformation within the lung region. The deviation in lung silhouette could be used as visual signs of abnormality and can be an additional feature for pathology detection/diagnosis. In this section, we survey studies which make a diagnostic decision from the radiographic measures extracted from lung boundaries.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "Fig5",
+            "CR2",
+            "Fig5",
+            "CR57",
+            "CR69",
+            "CR70"
+          ],
+          "en": "One of the structural information extracted from lung boundary is CXR shape profiles which is the intensity value distribution in horizontal and vertical directions, obtained by summing up pixel intensities in each column and row. Fig. 5 illustrates the horizontal lung shape profiles of example CXRs. Despite their simplicity, lung shape profiles provide strong shape features. For example, pleural effusion, which is associated with congestive heart failure and TB, is a whitening area on lung caused by radiological opacity due to accumulated fluid in the pleural cavity [2]. Figure 5b, c shows example CXRs with pleural effusion and their corresponding lung shape profiles. Note the histogram’s dissimilarity between healthy and non-healthy lungs. Besides, lung shape profiles are used as a rough lung region detection scheme as in [57, 69] with peak analysis of profile histograms and additional feature for frontal/lateral CXR classification [70].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "CR5",
+            "CR71"
+          ],
+          "en": "Several other shape features that can be extracted from lung boundaries such as size, orientation, eccentricity, extent, and centroid coordinates. In [5], researchers extract low-level shape features and combine them with texture features to increase the TB detection performance. The area under the curve (ROC) in detecting TB increased by 2.4% with shape features addition. In [71], the method computed lung region symmetry features in addition to low-level shape features; and measured their contribution to the TB detection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "CR45",
+            "CR45",
+            "CR72",
+            "CR73",
+            "CR11",
+            "CR22",
+            "CR31",
+            "CR74",
+            "CR75",
+            "Fig6",
+            "CR76",
+            "CR69",
+            "Fig6",
+            "CR69",
+            "Fig6",
+            "CR11",
+            "CR22",
+            "CR31",
+            "CR74",
+            "CR77"
+          ],
+          "en": "One of the structural abnormalities that can be observed in CXRs is emphysema, which is the hyperinflation of the alveoli, affects the lung silhouette appearance [45]. In [45, 72, 73], researchers utilized geometrical features extracted from lung boundaries to automatically detect emphysema. The other structural abnormality is cardiomegaly which is a medical condition caused by high blood pressure or coronary artery disease. The literature has several studies which extract radiographic indexes from lung boundary and use them for early detection of heart diseases [11, 22, 31, 74]. The clinically used measurement is cardiothoracic ratio (CTR) which is defined as the ratio between the maximum transverse cardiac diameter and the maximum thoracic diameter measured between the inner margins of the ribs [75] (Fig. 6a). The other radiographic indexes suggested as an alternative to CTR are 2D-CTR [76] and CTAR [69]. 2D-CTR is the ratio between the pixel counts of the cardiac outline and whole thorax (Fig. 6b), and CTAR [69] is the ratio of the area of heart region to the area of lung region (Fig. 6c). Accurate lung and heart boundary information are critically important in computing radiographic indexes. In studies [11, 22, 31], CTR computation is proposed as a clinical application of anatomical boundary detection methods. The cardiomegaly detection performance of radiographic indexes in the literature are compared in [74] on a publicly available dataset. In [77], performance of radiographic indexes are compared with data-driven approaches on the same public dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Evaluation of lung region detection algorithms",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "CR78"
+          ],
+          "en": "There are several metrics to evaluate the performance of lung boundary detection algorithms. Roughly, metrics are divided into two classes: (1) overlap-based metrics and (2) distance-based metrics [78].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [],
+          "en": "Overlap metrics quantify the overlapping area between the algorithm’s segmentation and reference boundaries. The most widely used one is Jaccard similarity coefficient,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec14-p3",
+          "reference_ids": [
+            "CR79"
+          ],
+          "en": "where TP (true positives) represents correctly classified pixels, FP (false positives) represents background pixels that are classified as lung, and FN (false negatives) represents lung pixels that are classified as background. The other overlapping measure is Dice similarity coefficient [79] formulated as follows,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec14-p4",
+          "reference_ids": [],
+          "en": "Both measures have a value between 0 and 1; 1 indicates fully overlapped segmentation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "CR78"
+          ],
+          "en": "Overlapping metrics are based on correctly or incorrectly classified pixels. The classification value of each pixel has the same impact to the computation regardless of their distance to the reference border [78]. Therefore, overlapping metrics alone are not sufficient to evaluate the region detection algorithm’s performance. Researchers use distance-based measures such as average contour distance (ACD) which quantifies how far apart the reference lung boundary and algorithm’s estimated boundary are from each other. Let ai and bj are the points on the algorithm’s detected boundary S and reference boundary R, respectively. The minimum distance of point ai on S to the reference boundary R is defined as follows,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec14-p6",
+          "reference_ids": [],
+          "en": "ACD measures the minimum distance of each point on the boundary S to the contour R. The distances are averaged over all points of boundary S. To make the similarity measure symmetric, the computation is repeated from reference contour to the algorithm’s estimated contour. ACD is formulated as follows,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec14-p7",
+          "reference_ids": [],
+          "en": "where |·| is the cardinality of the set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "DataSets",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec16",
+      "title": "Curating datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "One of the main challenges in medical image analysis is access to suitable datasets. It is usually difficult to avail of appropriately sized de-identified data that can be used for algorithm development. Further, curated datasets are generally clean and may not reflect normal variations in image acquisition characteristics (e.g., device, subject positioning, exposure, resolution), appropriate distribution of diseases that reflect their prevalence, adequate distribution among various age groups, or reflect the gender diversity. Further, the images are modified such that they are windowed or leveled for human visual analysis. They are rarely accompanied with full clinical reports or at least pertinent sections of the reports such as the radiologists’ impressions and readings. Finally, image datasets are often not in the original DICOM format as acquired at the clinical sites. It is desirable that datasets be available that address the above and include expert delineation of important organs and zonal markup data indicating the location of disease. All of these characteristics are partially addressed in the datasets identified below, but each lacks some key element that could hamper advances in the field.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Expert delineation of reference boundaries",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par33",
+          "reference_ids": [
+            "CR80",
+            "CR81",
+            "CR82",
+            "CR36",
+            "CR80",
+            "CR81"
+          ],
+          "en": "In order to train and evaluate the system performance of automated lung boundary detection algorithms, reference lung boundaries are needed. However, expert delineation which is a task that is unnatural for domain experts, i.e., radiologists, is cumbersome, slow, and prone-to-error. User-friendly interactive annotation toolboxes such as Firefly [80, 81] or LabelMe [82] may ease the delineation and speed up the process. For instance, in [36], reference lung boundaries are manually delineated by an expert by clicking points along the lung border (by considering the lung anatomy) through Firefly which is web-based interactive labeling tool [80, 81].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "CR78",
+            "CR5"
+          ],
+          "en": "Although reference boundaries are used for training and evaluation, expert delineation introduces high inter- and intra-observer variabilities because of the subjective nature of the delineation process [78]. For instance, in study [5], two radiologists delineate the lung boundaries on the same CXRs. The inter-observer agreement is measured from the delineations. For normal lungs, inter-observer agreement is (μ,σ)=(86%,13.6). However, for deformed lungs, the inter-observer agreement is (μ,σ)=(73%,18.1), slightly lower than lung agreement for normal cases, mainly because of the invisible border occurred due to pathology. With the standardization of annotation guidelines and with the help of the interactive tools, the subjectivity of the delineation process may decrease.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "Publicly available CXR datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "To our knowledge, there are few publicly available CXR datasets along with expert annotated lung boundaries and other characteristics identified above. Following are the list of these datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "CR60",
+            "CR83",
+            "CR11",
+            "CR84"
+          ],
+          "en": "JSRT dataset [60] is compiled by the Japanese Society of Radiological Technology (JSRT) which contains 247 CXRs (154 CXRs with lung nodules and 93 CXRs without lung nodules). All CXRs have a size of 2048×2048 pixels, the spatial resolution of 0.175 mm/pixel and 12-bit grayscale color depth. The CXRs are publicly available at [83]. In addition, patient age, gender, diagnosis, and the location of the anomalies are provided as text files. The reference lung boundaries (along with heart and clavicle boundaries) are available at [11, 84]. This dataset is collected for developing lung nodule detection algorithms. Therefore the only abnormality in this set is lung nodules which do not cause any shape and texture deformations on the lungs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [
+            "CR59",
+            "CR36",
+            "CR85"
+          ],
+          "en": "NLM Sets [59]: The U.S. National Library of Medicine has made two CXR datasets available: the Montgomery and Shenzhen datasets. The Montgomery set contains 138 frontal CXRs from Montgomery County’s Tuberculosis screening program. Eighty of the X-rays are normal, and 58 of X-rays have manifestations of TB. The size of the X-rays is either 4020×4892 or 4892×4020 with 12 bit grayscale color depth. The reference lung regions of CXRs are manually delineated by an expert radiologist [36]. The Shenzhen set is collected in collaboration with Shenzhen No.3 People’s Hospital, Guangdong Medical College, Shenzhen, China. The set contains 662 CXRs. Three hundred twenty-six of X-rays belong to normal cases, and 336 cases have manifestations of TB. CXR sizes vary but approximately 3K×3K. The datasets are publicly available at [85].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "CR86",
+            "CR86"
+          ],
+          "en": "Belarus Set [86] is collected for a drug resistance study initiated by the National Institute of Allergy and Infectious Diseases, the United Institute of Informatics Problems of the National Academy of Sciences of Belarus, and the Republican Research and Practical Center for Pulmonology and Tuberculosis, Ministry of Health, Republic of Belarus. Much of the data collected for this study is publicly available [86]. The set contains both CXRs and CTs of 169 patients. Chest radiographs were taken using the Kodak Point-of-Care 260 system with 2248×2248 pixel resolution. Reference boundaries of the lung regions are available for each CXR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "CR87",
+            "CR88",
+            "CR89"
+          ],
+          "en": "The literature has several other publicly available CXR databases such as NIH-CXR dataset [87], NLM Indiana CXR collection [88], and New Delhi dataset [89]. However, there are no reference lung boundaries for the CXRs in these sets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec19",
+      "title": "Future challenges",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "CR90",
+            "CR1",
+            "CR1",
+            "CR7",
+            "CR91"
+          ],
+          "en": "With improved imaging using CT or MRI, the question is often raised if CXRs remain relevant today for diagnosis? CXR analysis has been known to be a less desirable diagnostic imaging technique whether it is by radiologists or by a machine [90] due to its poor diagnostic sensitivity and specificity. Yet, it remains the most common diagnostic imaging technique for cardiothoracic and pulmonary disorders [1]. That is mainly because of lower infrastructure setup, operational costs, and radiation dose compared to other imaging techniques [1, 7]. The use of CXRs continues unabated particularly in lower resource settings which often face challenges of highly infectious diseases. Low-resource settings face not only shortages in imaging capability but also radiological expertise. For example, the World Health Organization observes that in Malawi in sub-Saharan Africa, a country heavily burdened by HIV and TB, there is limited radiologists in public service [91]. In such settings, machine learning-based screening and diagnostic tools on CXRs have the potential of making a significant public health impact. Further, CXR remains a common modality for pediatric imaging with referrals for CTs only if warranted and if available. In the light of these observations, we can assume that future work will continue to include automated CXR analysis though with increasing interest in high quality 3D CT data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec20",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "Detecting lung lobes is a critical processing stage in the automated analysis of CXRs for pulmonary disorders. Accurate localization of the lung region and processing only the region of interest positively impacts the overall performance of the diagnosis/detection systems, augment its accuracy and efficiency. In this study, we provided an overview of the recent literature on lung boundary detection. We believe that such a broad review of lung region detection algorithms would be useful for researchers working in the field of automated detection/diagnosis algorithms for lung/heart pathologies in CXRs. Following are our conclusions:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "Tab1"
+          ],
+          "en": "We first summarized lung boundary detection algorithms developed for posterior–anterior view CXRs. Due to the rich literature, we classified algorithms as rule-based, pixel classification-based, model-based, hybrid, and deep learning-based algorithms. Advantages and disadvantages of each class are listed in Table 1. We conclude that hybrid methods and deep learning-based methods (1) surpass the algorithms in other categories, (2) have segmentation performance as good as inter-observer segmentation performance, however, and (3) have long training process and high computational complexity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "Based on the reviewed articles, we can assert that most of the algorithms in the literature are evaluated on posterior–anterior view adult CXRs with “normal” lung anatomy appearance, without considering ambiguous lung silhouette, pathological deformities, anatomical alterations, patient’s development stage, and gross background noises such as holding hands, patient’s head, and legs in CXR. However, a reliable CAD system would need to support a greater variety of lung shapes, deformed due to disease or postsurgical alterations. We can suggest researchers should focus on developing algorithms that are robust to pathological deformities, shape irregularities, CXR orientation, CXR projection view, and gross background noise in the thoracic cavity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "The other challenging area that researchers could focus on is pediatric CXRs. The lung appearance in pediatrics, especially in infant cases, deviates from adult lung appearance due to the pediatric development stage. Therefore, a lung boundary detection algorithms developed on adult lungs may not accurately perform on pediatric cases. Moreover, pediatric CXRs are noisier than adult CXRs due to holding hands, patient’s head and legs, and rotation, which increases the importance of localizing the ROI and operating within it. We can conclude that algorithms which are developed/tested on adult lungs should incorporate additional constraints in their algorithms suitable to pediatric CXRs characteristics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "Finally, we identify challenges in dataset curation and expert delineation process, and we listed publicly available CXR datasets. We can state that one of the main challenges in medical image analysis is accessing suitable datasets. We have listed benchmark CXR datasets to develop and compare lung boundary algorithms. However, due to the necessity of expert delineation and its cumbersome process, the number of CXR images with reference (radiologist delineated) boundaries are limited.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "This research is supported in part by the Intramural Research Program of the National Institutes of Health, National Library of Medicine, and Lister Hill National Center for Biomedical Communications.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "FPar1",
+      "title": "Conflict of interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "FPar1-p1",
+          "reference_ids": [],
+          "en": "The authors declare that they have no conflict of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar2",
+      "title": "Human Participants",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "FPar2-p1",
+          "reference_ids": [],
+          "en": "This article does not contain any studies with human participants or animals performed by any of the authors. This article does not contain patient data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "fn-group1-p1",
+          "reference_ids": [],
+          "en": "Sema Candemir: This work was done at the U.S. National Library of Medicine, National Institutes of Health, Bethesda, Maryland, USA. Her current affiliation is the Wexner Medical Center at The Ohio State University, Columbus, Ohio, USA.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p2",
+          "reference_ids": [],
+          "en": "Publisher's Note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p3",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "_ci93_",
+      "title": "Contributor Information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_ci93_-p1",
+          "reference_ids": [],
+          "en": "Sema Candemir, Email: sema.candemir@osumc.edu.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_ci93_-p2",
+          "reference_ids": [],
+          "en": "Sameer Antani, Email: sameer.antani@nih.gov.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Bib1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Bib1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Summary of advantages and disadvantages of the approaches for lung boundary detection algorithms in CXR images",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Algorithm",
+          "Advantages",
+          "Disadvantages"
+        ],
+        [
+          "Rule-Based Methods",
+          "Easy to implement",
+          "Produce rough solutions"
+        ],
+        [
+          "[23–25]",
+          "Sets sequential steps",
+          "Generally used as initialization of robust approaches"
+        ],
+        [
+          "Lower computational complexity",
+          "Poor generalization capability"
+        ],
+        [
+          "Pixel classification",
+          "",
+          "Based on low-level features"
+        ],
+        [
+          "[11]",
+          "",
+          "Lack of shape constraints"
+        ],
+        [
+          "Deformable Models",
+          "Provides shape flexibility",
+          "Do not perform well at widely varying shapes"
+        ],
+        [
+          "[30–33]",
+          "Combines both low-level features and general shape of the lung",
+          "Require proper initialization for a successful converge"
+        ],
+        [
+          "[22, 34, 35]",
+          "",
+          "The possibility of trapping at local minimum due to bone intensity"
+        ],
+        [
+          "Hybrid Methods",
+          "Best part of the schemes are combined",
+          "Might require long training process"
+        ],
+        [
+          "[11, 36, 45]",
+          "Similar accuracy as in inter-observer accuracy",
+          ""
+        ],
+        [
+          "Deep Learning Methods",
+          "Similar accuracy as in inter-observer performance",
+          "Long training process"
+        ],
+        [
+          "[39, 41, 43]",
+          "",
+          "Needs large set of annotated data"
+        ],
+        [
+          "",
+          "Higher computational complexity"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\"><label>Table 1</label><caption><p>Summary of advantages and disadvantages of the approaches for lung boundary detection algorithms in CXR images</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Algorithm</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Advantages</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Disadvantages</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Rule-Based Methods</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Easy to implement</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Produce rough solutions</td></tr><tr><td align=\"left\" rowspan=\"2\" colspan=\"1\">[<xref rid=\"CR23\" ref-type=\"bibr\">23</xref>–<xref rid=\"CR25\" ref-type=\"bibr\">25</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Sets sequential steps</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Generally used as initialization of robust approaches</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lower computational complexity</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Poor generalization capability</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Pixel classification</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /><td align=\"left\" colspan=\"1\" rowspan=\"1\">Based on low-level features</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">[<xref rid=\"CR11\" ref-type=\"bibr\">11</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lack of shape constraints</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable Models</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Provides shape flexibility</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Do not perform well at widely varying shapes</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">[<xref rid=\"CR30\" ref-type=\"bibr\">30</xref>–<xref rid=\"CR33\" ref-type=\"bibr\">33</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Combines both low-level features and general shape of the lung</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Require proper initialization for a successful converge</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">[<xref rid=\"CR22\" ref-type=\"bibr\">22</xref>, <xref rid=\"CR34\" ref-type=\"bibr\">34</xref>, <xref rid=\"CR35\" ref-type=\"bibr\">35</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /><td align=\"left\" colspan=\"1\" rowspan=\"1\">The possibility of trapping at local minimum due to bone intensity</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hybrid Methods</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Best part of the schemes are combined</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Might require long training process</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">[<xref rid=\"CR11\" ref-type=\"bibr\">11</xref>, <xref rid=\"CR36\" ref-type=\"bibr\">36</xref>, <xref rid=\"CR45\" ref-type=\"bibr\">45</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Similar accuracy as in inter-observer accuracy</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deep Learning Methods</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Similar accuracy as in inter-observer performance</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Long training process</td></tr><tr><td align=\"left\" rowspan=\"2\" colspan=\"1\">[<xref rid=\"CR39\" ref-type=\"bibr\">39</xref>, <xref rid=\"CR41\" ref-type=\"bibr\">41</xref>, <xref rid=\"CR43\" ref-type=\"bibr\">43</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /><td align=\"left\" colspan=\"1\" rowspan=\"1\">Needs large set of annotated data</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\" /><td align=\"left\" colspan=\"1\" rowspan=\"1\">Higher computational complexity</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Quantitative comparison of lung boundary detection algorithms",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Authors, citation",
+          "Methology",
+          "Dataset",
+          "Ω",
+          "DSC",
+          "ACD"
+        ],
+        [
+          "Ginneken et al. [11]",
+          "Human observer",
+          "JSRT",
+          "0.946±0.018",
+          "NA",
+          "1.64±0.69"
+        ],
+        [
+          "Saad et al. [24]",
+          "Rule-based",
+          "CXR",
+          "0.809",
+          "NA",
+          "NA"
+        ],
+        [
+          "Annangi et al. [23]",
+          "Deformable",
+          "CXR",
+          "0.880±0.07",
+          "NA",
+          "NA"
+        ],
+        [
+          "Shi et al. [22]",
+          "Deformable",
+          "JSRT",
+          "0.920±0.031",
+          "NA",
+          "1.78±0.78"
+        ],
+        [
+          "Coppini et al. [45]",
+          "Classification",
+          "JRST",
+          "0.927±0.033",
+          "0.95±0.037",
+          "1.730±0.870"
+        ],
+        [
+          "Seghers et al. [46]1",
+          "Deformable",
+          "JRST",
+          "0.939±0.031",
+          "NA",
+          "1.49±0.63"
+        ],
+        [
+          "Candemir et al. [36]",
+          "Hybrid",
+          "JSRT",
+          "0.954±0.015",
+          "0.967±0.008",
+          "1.321±0.316"
+        ],
+        [
+          "Candemir et al. [36]",
+          "Hybrid",
+          "NLM",
+          "0.941±0.034",
+          "0.960±0.018",
+          "1.599±0.742"
+        ],
+        [
+          "Dawoud [30]",
+          "Deformable",
+          "JRST",
+          "0.940±0.053",
+          "NA",
+          "2.460±2.060"
+        ],
+        [
+          "Novikov et al. [39]",
+          "Deep learning",
+          "JRST",
+          "0.950",
+          "0.974",
+          "NA"
+        ],
+        [
+          "Shao et al. [26]",
+          "Hybrid",
+          "JRST",
+          "0.946±0.019",
+          "0.972±0.010",
+          "1.699±0.762"
+        ],
+        [
+          "Kaur et al. [47]",
+          "Deep Learning",
+          "JSRT",
+          "0.934",
+          "NA",
+          "NA"
+        ],
+        [
+          "Kalinovsky et al. [41]",
+          "Deep Learning",
+          "JSRT",
+          "NA",
+          "0.962±0.008",
+          "NA"
+        ],
+        [
+          "Li et al. [48]",
+          "Deformable",
+          "JSRT",
+          "0.931±0.018",
+          "0.964±0.010",
+          "NA"
+        ],
+        [
+          "Lee et al. [49]",
+          "Deformable",
+          "JSRT2",
+          "0.854±0.049",
+          "NA",
+          "NA"
+        ],
+        [
+          "Wu et al. [50]",
+          "Deformable",
+          "JSRT2",
+          "0.952±0.019",
+          "NA",
+          "NA"
+        ],
+        [
+          "Ibragimov et al. [51]",
+          "Classification",
+          "JSRT",
+          "0.953±0.02",
+          "NA",
+          "1.43±0.85"
+        ],
+        [
+          "Yang et al. [52]",
+          "Classification",
+          "JSRT",
+          "0.952±0.018",
+          "0.975±0.01",
+          "1.37±0.67"
+        ],
+        [
+          "Hwang et al. [53]",
+          "Deep learning",
+          "JSRT",
+          "0.961±0.015",
+          "0.980±0.008",
+          "1.237±0.702"
+        ]
+      ],
+      "footnotes": "1Right lung scores, 2Subset of JSRTΩ Jaccard similarity coefficient, DSC dice similarity coefficient, ACD average contour distance, (See “Evaluation of lung region detection algorithms” section for metric descriptions), CXR non-public dataset. NA the respective metric is not reported in the publication",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab2\" position=\"float\"><label>Table 2</label><caption><p>Quantitative comparison of lung boundary detection algorithms</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Authors, citation</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Methology</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Dataset</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq1\"><ns0:math id=\"M2\" overflow=\"scroll\"><ns0:mi>Ω</ns0:mi></ns0:math></inline-formula>\n</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">DSC</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">ACD</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Ginneken et al. [<xref rid=\"CR11\" ref-type=\"bibr\">11</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Human observer</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq2\"><ns0:math id=\"M4\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.946</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.018</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq3\"><ns0:math id=\"M6\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.64</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.69</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Saad et al. [<xref rid=\"CR24\" ref-type=\"bibr\">24</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Rule-based</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">CXR</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.809</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Annangi et al. [<xref rid=\"CR23\" ref-type=\"bibr\">23</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">CXR</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq4\"><ns0:math id=\"M8\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.880</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.07</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Shi et al. [<xref rid=\"CR22\" ref-type=\"bibr\">22</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq5\"><ns0:math id=\"M10\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.920</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.031</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq6\"><ns0:math id=\"M12\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.78</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.78</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Coppini et al. [<xref rid=\"CR45\" ref-type=\"bibr\">45</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Classification</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JRST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq7\"><ns0:math id=\"M14\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.927</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.033</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq8\"><ns0:math id=\"M16\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.95</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.037</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq9\"><ns0:math id=\"M18\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.730</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.870</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Seghers et al. [<xref rid=\"CR46\" ref-type=\"bibr\">46</xref>]<inline-formula id=\"IEq10\"><ns0:math id=\"M20\" overflow=\"scroll\"><ns0:msup><ns0:mrow /><ns0:mn>1</ns0:mn></ns0:msup></ns0:math></inline-formula></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JRST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq11\"><ns0:math id=\"M22\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.939</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.031</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq12\"><ns0:math id=\"M24\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.49</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.63</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Candemir et al. [<xref rid=\"CR36\" ref-type=\"bibr\">36</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hybrid</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq13\"><ns0:math id=\"M26\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.954</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.015</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq14\"><ns0:math id=\"M28\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.967</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.008</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq15\"><ns0:math id=\"M30\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.321</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.316</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Candemir et al. [<xref rid=\"CR36\" ref-type=\"bibr\">36</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hybrid</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NLM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq16\"><ns0:math id=\"M32\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.941</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.034</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq17\"><ns0:math id=\"M34\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.960</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.018</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq18\"><ns0:math id=\"M36\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.599</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.742</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Dawoud [<xref rid=\"CR30\" ref-type=\"bibr\">30</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JRST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq19\"><ns0:math id=\"M38\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.940</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.053</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq20\"><ns0:math id=\"M40\" overflow=\"scroll\"><ns0:mrow><ns0:mn>2.460</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>2.060</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Novikov et al. [<xref rid=\"CR39\" ref-type=\"bibr\">39</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deep learning</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JRST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.950</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.974</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Shao et al. [<xref rid=\"CR26\" ref-type=\"bibr\">26</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hybrid</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JRST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq21\"><ns0:math id=\"M42\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.946</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.019</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq22\"><ns0:math id=\"M44\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.972</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.010</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq23\"><ns0:math id=\"M46\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.699</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.762</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Kaur et al. [<xref rid=\"CR47\" ref-type=\"bibr\">47</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deep Learning</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.934</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Kalinovsky et al. [<xref rid=\"CR41\" ref-type=\"bibr\">41</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deep Learning</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq24\"><ns0:math id=\"M48\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.962</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.008</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Li et al. [<xref rid=\"CR48\" ref-type=\"bibr\">48</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq25\"><ns0:math id=\"M50\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.931</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.018</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq26\"><ns0:math id=\"M52\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.964</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.010</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Lee et al. [<xref rid=\"CR49\" ref-type=\"bibr\">49</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT<inline-formula id=\"IEq27\"><ns0:math id=\"M54\" overflow=\"scroll\"><ns0:msup><ns0:mrow /><ns0:mn>2</ns0:mn></ns0:msup></ns0:math></inline-formula></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq28\"><ns0:math id=\"M56\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.854</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.049</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Wu et al. [<xref rid=\"CR50\" ref-type=\"bibr\">50</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deformable</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT<inline-formula id=\"IEq29\"><ns0:math id=\"M58\" overflow=\"scroll\"><ns0:msup><ns0:mrow /><ns0:mn>2</ns0:mn></ns0:msup></ns0:math></inline-formula></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq30\"><ns0:math id=\"M60\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.952</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.019</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Ibragimov et al. [<xref rid=\"CR51\" ref-type=\"bibr\">51</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Classification</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq31\"><ns0:math id=\"M62\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.953</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.02</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">NA</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq32\"><ns0:math id=\"M64\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.43</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.85</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Yang et al. [<xref rid=\"CR52\" ref-type=\"bibr\">52</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Classification</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq33\"><ns0:math id=\"M66\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.952</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.018</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq34\"><ns0:math id=\"M68\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.975</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.01</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq35\"><ns0:math id=\"M70\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.37</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.67</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Hwang et al. [<xref rid=\"CR53\" ref-type=\"bibr\">53</xref>]</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Deep learning</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">JSRT</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq36\"><ns0:math id=\"M72\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.961</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.015</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq37\"><ns0:math id=\"M74\" overflow=\"scroll\"><ns0:mrow><ns0:mn>0.980</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.008</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq38\"><ns0:math id=\"M76\" overflow=\"scroll\"><ns0:mrow><ns0:mn>1.237</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.702</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p21\"><p><inline-formula id=\"IEq39\"><ns0:math id=\"M78\" overflow=\"scroll\"><ns0:msup><ns0:mrow /><ns0:mn>1</ns0:mn></ns0:msup></ns0:math></inline-formula>Right lung scores, <inline-formula id=\"IEq40\"><ns0:math id=\"M80\" overflow=\"scroll\"><ns0:msup><ns0:mrow /><ns0:mn>2</ns0:mn></ns0:msup></ns0:math></inline-formula>Subset of JSRT</p><p><inline-formula id=\"IEq41\"><ns0:math id=\"M82\" overflow=\"scroll\"><ns0:mi>Ω</ns0:mi></ns0:math></inline-formula> Jaccard similarity coefficient, <italic>DSC</italic> dice similarity coefficient, <italic>ACD</italic> average contour distance, (See “<xref rid=\"Sec14\" ref-type=\"sec\">Evaluation of lung region detection algorithms</xref>” section for metric descriptions), <italic>CXR</italic> non-public dataset. <italic>NA</italic> the respective metric is not reported in the publication</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "a A healthy lung. b–f Challenges for segmenting lung regions: b large variance of pixel values at apex due to pathology (bilateral tuberculosis with multiple cavitations), c a cardiac pacemaker, right pleural thickening, and strong breast tissue on the clavicle region of left lung, d variation of the lung appearance due to varying heart dimension, cardiac pacemaker on the left, and strong breast tissue on the clavicle regions, e image noise in pediatric CXR such as hands and patient’s head; small lung area, f an under-penetrated radiograph",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig1_HTML.jpg",
+        "11548_2019_1917_Fig1_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Example lateral-view CXRs",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig2_HTML.jpg",
+        "11548_2019_1917_Fig2_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "Example deformed lungs from NLM-Montgomery dataset [59]. Green contour is expected lung anatomy delineated by a radiologist [36]. Red contour is the algorithm’s decision as lung boundary. a, b The algorithm could not detect the lung boundary correctly due to opacity caused by fluid in the lung space. c The left diaphragm is elevated, and there is a large air-distended colon loop below the lung which is incorrectly combined with the lobe into a single region by the algorithm. d Detected lung boundary includes the air cavity below left lung",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig3_HTML.jpg",
+        "11548_2019_1917_Fig3_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "Example pediatric CXRs and visible differences between lung appearance due to pediatric development stages",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig4_HTML.jpg",
+        "11548_2019_1917_Fig4_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Illustration of lung shape profiles computed by summing up pixels in each column. a A healthy lung. b Pleural effusion on the right lung due to tuberculosis. c Pleural effusion on the left lung. Note: Circled area in chest X-rays and histogram alteration in pathological regions",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig5_HTML.jpg",
+        "11548_2019_1917_Fig5_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Fig. 6",
+      "caption": "Illustration of radiographic index computation using lung and heart boundaries on CXR",
+      "caption_zh": "",
+      "graphics": [
+        "11548_2019_1917_Fig6_HTML.jpg",
+        "11548_2019_1917_Fig6_HTML.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1Ω=|TP||FP|+|TP|+|FN|",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ1\"><label>1</label><ns0:math id=\"M88\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>Ω</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">TP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">FP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo>+</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">TP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo>+</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">FN</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ2",
+      "text": "2DSC=2|TP|2|TP|+|FN|+|FP|.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ2\"><label>2</label><ns0:math id=\"M90\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi mathvariant=\"normal\">DSC</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">TP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">TP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo>+</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">FN</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo>+</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">FP</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow></ns0:mfrac><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3d(ai,R)=minj||bj-ai||.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ3\"><label>3</label><ns0:math id=\"M98\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>a</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mi>R</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">min</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow><ns0:msub><ns0:mi>b</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>a</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ4",
+      "text": "4ACD=12∑id(ai,R)|{ai}|+∑jd(bj,S)|{bj}|",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ4\"><label>4</label><ns0:math id=\"M100\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi mathvariant=\"normal\">ACD</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mn>2</ns0:mn></ns0:mfrac><ns0:mfenced close=\")\" open=\"(\"><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mi>i</ns0:mi></ns0:msub><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>a</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mi>R</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo stretchy=\"false\">{</ns0:mo><ns0:msub><ns0:mi>a</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">}</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow></ns0:mfrac><ns0:mo>+</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mi>j</ns0:mi></ns0:msub><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>b</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mi>S</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mo stretchy=\"false\">{</ns0:mo><ns0:msub><ns0:mi>b</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">}</ns0:mo><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow></ns0:mfrac></ns0:mfenced></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Raoof S, Feigin D, Sung A, Raoof S, Irugulpati L, Rosenow E. Interpretation of plain chest roentgenogram. Chest. 2012;141(2):545–558. doi: 10.1378/chest.10-1302.",
+      "doi": []
+    },
+    {
+      "id": "CR2",
+      "text": "2.Corne J, Pointon K. Chest X-ray made easy. 3. London: Churchill Livingstone; 2009.",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.The U.S National Library of Medicine, Chest X-ray Screening Project. https://ceb.nlm.nih.gov/projects/computer-aided-tb-screening-on-chest-x-rays//. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR4",
+      "text": "4.Jaeger S, Karargyris A, Candemir S, Folio L, Sielgelman J, Callaghan F, Xue Z, Palaniappan K, Singh R, Antani S, Thoma G, Xiang YX, Lu PX, McDonald C. Automatic tuberculosis screening using chest radiographs. IEEE Trans Med Imaging. 2014;33(2):233–245. doi: 10.1109/TMI.2013.2284099.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.Karargyris A, Siegelman J, Tzortzis D, Jaeger S, Candemir S, Xue Z, Santosh K, Vajda S, Antani S, Folio L, Thoma G. Combination of texture and shape features to detect pulmonary abnormalities in digital chest X-rays. Int J Comput Assist Radiol Surg. 2016;11(1):99–106. doi: 10.1007/s11548-015-1242-x.",
+      "doi": []
+    },
+    {
+      "id": "CR6",
+      "text": "6.Antani S (2015) Automated detection of lung diseases in chest X-rays. In: Technical report to the Lister Hill National Center for biomedical communications board of scientific counselors",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Kesselman A, Soroosh G, Mollura D, Daniel J. 2015 rad-aid conference on international radiology for developing countries: the evolving global radiology landscape. J Am Coll Radiol. 2016;13(9):1139–1144. doi: 10.1016/j.jacr.2016.03.028.",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Dhoot R, Humphrey J, O’Meara P, Gardner A, McDonald C, Ogot K, Antani S, Abuya J, Kohli M. Implementing a mobile diagnostic unit to increase access to imaging and laboratory services in western Kenya. BMJ Glob Health. 2018;3(5):e000947. doi: 10.1136/bmjgh-2018-000947.",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Doi K. Computer-aided diagnosis in medical imaging: historical review, current status and future potential. Comput Med Imaging Graph. 2007;31(4–5):198–211. doi: 10.1016/j.compmedimag.2007.02.002.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Yu P, Xu H, Zhu Y, Yang C, Sun X, Zhao J. An automatic computer-aided detection scheme for pneumoconiosis on digital chest radiographs. J Digit Imaging. 2011;24(3):382–393. doi: 10.1007/s10278-010-9276-7.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Ginneken B, Stegmann M, Loog M. Segmentation of anatomical structures in chest radiographs using supervised methods: a comparative study on a public database. Med Image Anal. 2006;10(1):19–40. doi: 10.1016/j.media.2005.02.002.",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.Hogeweg L, Sánchez C, Maduskar P, Philipsen R, Story A, Dawson R, Theron G, Dheda K, Peters-Bax L, van Ginneken B. Automatic detection of tuberculosis in chest radiographs using a combination of textural, focal, and shape abnormality analysis. IEEE Trans Med Imaging. 2015;34(12):2429–2442. doi: 10.1109/TMI.2015.2405761.",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Greenspan H, van Ginneken B, Summers R. Guest editorial deep learning in medical imaging: overview and future promise of an exciting new technique. IEEE Trans Med Imaging. 2016;35(5):1153–1159.",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.Litjens G, Kooi T, Bejnordi B, Setio A, Ciompi F, Ghafoorian M, van der Laak J, van Ginneken B, Sánchez C. A survey on deep learning in medical image analysis. Med Image Anal. 2017;42:60–88. doi: 10.1016/j.media.2017.07.005.",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Ravì D, Wong C, Deligianni F, Berthelot M, Andreu-Perez J, Lo B, Yang G. Deep learning for health informatics. IEEE J Biomed Health Inform. 2017;21(1):4–21. doi: 10.1109/JBHI.2016.2636665.",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Gordienko Y, Gang P, Hui J, Zeng W, Kochura Y, Alienin O, Rokovyi O, Stirenko S (2018) Deep learning with lung segmentation and bone shadow exclusion techniques for chest X-ray analysis of lung cancer. In: International conference on theory and applications of fuzzy systems and soft computing, Springer, New York, pp 638–647",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Sivaramakrishnan R, Antani S, Candemir S, Xue Z, Abuya J, Kohli M, Alderson P, Thoma G (2018) Comparing deep learning models for population screening using chest radiography. In: SPIE medical imaging: computer-aided diagnosis, International society for optics and photonics. vol 10575, p 105751E",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.Arthur R. Interpretation of the paediatric chest X-ray. Paediatr Respir Rev. 2000;1(1):41–50. doi: 10.1053/prrv.2000.0018.",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Mouton A (2009) Computer-aided diagnosis of tuberculosis in paediatric chest x-rays using local textural analysis. In: Ph.D. thesis, University of Cape Town, Cape Town",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Candemir S, Antani S, Jaeger S, Browning R, Thoma G (2015) Lung boundary detection in pediatric chest X-rays. In: SPIE medical imaging, International society for optics and photonics, pp 94180–94180",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Ginneken B, Haar R, Bart M, Viergever M. Computer-aided diagnosis in chest radiography: a survey. IEEE Trans Med Imaging. 2001;20(12):1228–1241. doi: 10.1109/42.974918.",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Shi Y, Qi F, Xue Z, Chen L, Ito K, Matsuo H, Shen D. Segmenting lung fields in serial chest radiographs using both population-based and patient-specific shape statistics. IEEE Trans Med Imaging. 2008;27(4):481–494. doi: 10.1109/TMI.2007.908130.",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Annangi P, Thiruvenkadam S, Raja A, Xu H, Sun X, Mao L (2010) A region based active contour method for X-ray lung segmentation using prior shape and low level features. In: International symposium biomedical imaging: from nano to macro. pp 892–895",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Saad MN, Muda Z, Ashaari NS, Hamid HA (2014) Image segmentation for lung region in chest X-ray images using edge detection and morphology. In: 2014 IEEE international conference on control system, computing and engineering (ICCSCE), IEEE, pp 46–51",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.Ahmad W, Zaki W, Fauzi M. Lung segmentation on standard and mobile chest radiographs using oriented gaussian derivatives filter. Biomed Eng Online. 2015;14(1):20. doi: 10.1186/s12938-015-0014-8.",
+      "doi": []
+    },
+    {
+      "id": "CR26",
+      "text": "26.Shao Y, Gao Y, Guo Y, Shi Y, Yang X, Shen D. Hierarchical lung field segmentation with joint shape and appearance sparse learning. IEEE Trans Med Imaging. 2014;33(9):1761–1780. doi: 10.1109/TMI.2014.2305691.",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.Cootes TF, Taylor CJ, Cooper DH, Graham J. Active shape models: their training and application. Comput Vis Image Underst. 1995;61(1):38–59.",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Cootes T, Edwards G, Taylor C. Active appearance models. IEEE Trans Pattern Anal Mach Intell. 2001;23(6):681–685.",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Juhász S, Horváth Á, Nikházy L, Horváth G (2010) Segmentation of anatomical structures on chest radiographs. In: XII Mediterranean conference on medical and biological engineering and computing 2010, Springer, New York, pp 359–362",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Dawoud A. Lung segmentation in chest radiographs by fusing shape information in iterative thresholding. IET Comput Vis. 2011;5(3):185–190.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Seghers D, Loeckx D, Maes F, Vandermeulen D, Suetens P. Minimal shape and intensity cost path segmentation. IEEE Trans Med Imaging. 2007;26(8):1115–1129. doi: 10.1109/TMI.2007.896924.",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Yu T, Luo J, Ahuja N. Shape regularized active contour using iterative global search and local optimization. IEEE Comput Soc Conf Comput Vis Pattern Recognit. 2005;2:655–662.",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Iakovidis D, Savelonas M, Papamichalis G. Robust model-based detection of the lung field boundaries in portable chest radiographs supported by selective thresholding. Meas Sci Technol. 2009;20(10):104019.",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Bruijne M, Nielsen M. Shape particle filtering for image segmentation. Med Image Comput Comput Assist Interv. 2004;3216:168–175.",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Xu T, Mandal M, Long R, Cheng I, Basu A. An edge-region force guided active shape approach for automatic lung field detection in chest radiographs. Comput Med Imaging Graph. 2012;36(6):452–463. doi: 10.1016/j.compmedimag.2012.04.005.",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Candemir S, Jaeger S, Palaniappan K, Musco JP, Singh RK, Xue Z, Karargyris A, Antani S, Thoma G, McDonald C. Lung segmentation in chest radiographs using anatomical atlases with non-rigid registration. IEEE Trans Med Imaging. 2014;33(2):577–590. doi: 10.1109/TMI.2013.2290491.",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Liu C, Yuen J, Torralba A. SIFT flow: dense correspondence across different scenes and its applications. IEEE Trans Pattern Anal Mach Intell. 2011;33(5):978–994. doi: 10.1109/TPAMI.2010.147.",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Zhao B, Feng J, Wu X, Yan S. A survey on deep learning-based fine-grained object classification and semantic segmentation. Int J Autom Comput. 2017;14:1–17.",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Novikov A, Major D, Lenis D, Hladuvka J, Wimmer M, Buhler K (2018) Fully convolutional architectures for multi-class segmentation in chest radiographs. In: IEEE transactions on medical imaging",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Long J, Shelhamer E, Darrell T (2015) Fully convolutional networks for semantic segmentation. In: IEEE conference on computer vision and pattern recognition, pp 3431–3440",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Kalinovsky A, Kovalev V (2016) Lung image segmentation using deep learning methods and convolutional neural networks. In: Pattern recognition and information processing. Publishing Center of BSU, Minsk",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Badrinarayanan V, Kendall A, Cipolla R. Segnet: a deep convolutional encoder-decoder architecture for image segmentation. IEEE Trans Pattern Anal Mach Intell. 2017;39(12):2481–2495. doi: 10.1109/TPAMI.2016.2644615.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Dai W, Doyle J, Liang X, Zhang H, Dong N, Li Y, Xing E (2017) Scan: structure correcting adversarial network for chest X-rays organ segmentation. arXiv preprint arXiv:1703.08770",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.Goodfellow I, Pouget-Abadie J, Mirza M, Xu B, Warde-Farley D, Ozair S, Courville A, Bengio Y (2014) Generative adversarial nets. In: Advances in neural information processing systems, pp 2672–2680",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Coppini G, Miniati M, Monti S, Paterni M, Favilla R, Ferdeghini E. A computer-aided diagnosis approach for emphysema recognition in chest radiography. Med Eng Phys. 2013;35(1):63–73. doi: 10.1016/j.medengphy.2012.03.011.",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.Seghers D, Loeckx D, Maes F, Vandermeulen D, Suetens P. Minimal shape and intensity cost path segmentation. IEEE Trans Med Imaging. 2007;26(8):1115–1129. doi: 10.1109/TMI.2007.896924.",
+      "doi": []
+    },
+    {
+      "id": "CR47",
+      "text": "47.Kaur S, Hooda R, Mittal A, Akashdeep Sofat S (2017) Deep CNN-based method for segmenting lung fields in digital chest radiographs, Springer, Singapore, pp 185–194",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.Li X, Luo S, Hu Q, Li J, Wang D, Chiong F. Automatic lung field segmentation in X-ray radiographs using statistical shape and appearance models. J Med Imaging Health Inform. 2016;6(2):338–348.",
+      "doi": []
+    },
+    {
+      "id": "CR49",
+      "text": "49.Lee WL, Chang K, Hsieh KS. Unsupervised segmentation of lung fields in chest radiographs using multiresolution fractal feature vector and deformable models. Med Biol Eng Comput. 2016;54(9):1409–1422. doi: 10.1007/s11517-015-1412-6.",
+      "doi": []
+    },
+    {
+      "id": "CR50",
+      "text": "50.Wu G, Zhang X, Luo S, Hu Q. Lung segmentation based on customized active shape model from digital radiography chest images. J Med Imaging Health Inform. 2015;5(2):184–191.",
+      "doi": []
+    },
+    {
+      "id": "CR51",
+      "text": "51.Ibragimov B, Likar B, Pernuš F, Vrtovec T (2016) Accurate landmark-based segmentation by incorporating landmark misdetections. In: 2016 IEEE 13th international symposium on biomedical imaging (ISBI), IEEE, pp 1072–1075",
+      "doi": []
+    },
+    {
+      "id": "CR52",
+      "text": "52.Yang W, Liu Y, Lin L, Yun Z, Lu Z, Feng Q, Chen W. Lung field segmentation in chest radiographs from boundary maps by a structured edge detector. IEEE J Biomed Health Inform. 2018;22(3):842–851. doi: 10.1109/JBHI.2017.2687939.",
+      "doi": []
+    },
+    {
+      "id": "CR53",
+      "text": "53.Hwang S, Park S (2017) Accurate lung segmentation via network-wise training of convolutional networks. In: Deep learning in medical image analysis and multimodal learning for clinical decision support, Springer, New York, pp 92–99",
+      "doi": []
+    },
+    {
+      "id": "CR54",
+      "text": "54.Squire L, Novelline R. Fundamentals of radiology. 3. Cambridge: Havard University Press; 1982.",
+      "doi": []
+    },
+    {
+      "id": "CR55",
+      "text": "55.Armato S., III Automated lung segmentation in digital posteroanterior and lateral chest radiographs: applications in diagnostic radiology and nuclear medicine. Med Phys. 1997;24(12):2056–2056.",
+      "doi": []
+    },
+    {
+      "id": "CR56",
+      "text": "56.Armato S, III, Giger M, Ashizawa K, MacMahon H. Automated lung segmentation in digital lateral chest radiographs. Med Phys. 1998;25(8):1507–1520. doi: 10.1118/1.598331.",
+      "doi": []
+    },
+    {
+      "id": "CR57",
+      "text": "57.Carrascal F, Carreira J, Souto M, Tahoces P, Gómez L, Vidal J. Automatic calculation of total lung capacity from automatically traced lung boundaries in postero-anterior and lateral digital chest radiographs. Med Phys. 1998;25(7):1118–1131. doi: 10.1118/1.598303.",
+      "doi": []
+    },
+    {
+      "id": "CR58",
+      "text": "58.Kohonen T. The self-organizing map. Proc IEEE. 1990;78(9):1464–1480.",
+      "doi": []
+    },
+    {
+      "id": "CR59",
+      "text": "59.Jeager S, Candemir S, Antani S, Wang Y, Lu P, Thoma G. Two public chest X-ray datasets for computer-aided screening of pulmonary diseases. Quant Imaging Med Surg. 2014;4(6):475–477. doi: 10.3978/j.issn.2223-4292.2014.11.20.",
+      "doi": []
+    },
+    {
+      "id": "CR60",
+      "text": "60.Shiraishi J, Katsuragawa S, Ikezoe J, Matsumoto T, Kobayashi T, Komatsu K, Matsui M, Fujita H, Kodera Y, Doi K. Development of a digital image database for chest radiographs with and without a lung nodule: receiver operating characteristic analysis of radiologists’ detection of pulmonary nodules. Am J Roentgenol. 2000;174(1):71–74. doi: 10.2214/ajr.174.1.1740071.",
+      "doi": []
+    },
+    {
+      "id": "CR61",
+      "text": "61.Xue Z, Candemir S, Antani S, Long R, Jaeger S, Demner-Fushman D, Thoma G (2015) Foreign object detection in chest X-rays. In: 2015 IEEE international conference on bioinformatics and biomedicine (BIBM). pp 956–961",
+      "doi": []
+    },
+    {
+      "id": "CR62",
+      "text": "62.Zohora F, Antani S, Santosh K (2018) Circle-like foreign element detection in chest x-rays using normalized cross-correlation and unsupervised clustering. p 105741V. 10.1117/12.2293739",
+      "doi": []
+    },
+    {
+      "id": "CR63",
+      "text": "63.Santosh KC, Candemir S, Jaeger S, Karargyris A, Antani S, Thoma G, Folio L. Automatically detecting rotation in chest radiographs using principal rib-orientation measure for quality control. Int J Pattern Recognit Artif Intell. 2015;29(02):1557001.",
+      "doi": []
+    },
+    {
+      "id": "CR64",
+      "text": "64.Santosh K, Candemir S, Jaeger S, Folio L, Karargyris A, Antani S, Thoma G (2014) Rotation detection in chest radiographs based on generalized line histogram of rib-orientations. In: 2014 IEEE 27th international symposium on computer-based medical systems, pp 138–142. 10.1109/CBMS.2014.56",
+      "doi": []
+    },
+    {
+      "id": "CR65",
+      "text": "65.International day of radiology. https://www.internationaldayofradiology.com. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR66",
+      "text": "66.Marais B, Pai M. New approaches and emerging technologies in the diagnosis of childhood tuberculosis. Paediatr Respir Rev. 2007;8(2):124–133. doi: 10.1016/j.prrv.2007.04.002.",
+      "doi": []
+    },
+    {
+      "id": "CR67",
+      "text": "67.Mouton A, Pitcher R, Douglas T (2010) Computer-aided detection of pulmonary pathology in pediatric chest radiographs. In: International conference on medical image computing and computer-assisted intervention. Springer, New York, pp 619–625",
+      "doi": []
+    },
+    {
+      "id": "CR68",
+      "text": "68.Mansoor A, Cerrolaza J, Perez G, Biggs E, Nino G, Linguraru G (2017) Marginal shape deep learning: applications to pediatric lung field segmentation. In: SPIE medical imaging, International society for optics and photonics, vol 10133, p 1013304",
+      "doi": []
+    },
+    {
+      "id": "CR69",
+      "text": "69.Hasan M, Lee S, Kim D, Lim M. Automatic evaluation of cardiac hypertrophy using cardiothoracic area ratio in chest radiograph images. Comput Methods Progr Biomed. 2012;105(2):95–108. doi: 10.1016/j.cmpb.2011.07.009.",
+      "doi": []
+    },
+    {
+      "id": "CR70",
+      "text": "70.Xue Z, You D, Candemir S, Jaeger S, Antani S, Long R, Thoma G (2015) Chest X-ray image view classification. In: 28th international symposium on computer-based medical systems. IEEE, pp 66–71",
+      "doi": []
+    },
+    {
+      "id": "CR71",
+      "text": "71.Santosh K, Antani S. Automated chest X-ray screening: Can lung region symmetry help detect pulmonary abnormalities? IEEE Trans Med Imaging. 2018;37(5):1168–1177. doi: 10.1109/TMI.2017.2775636.",
+      "doi": []
+    },
+    {
+      "id": "CR72",
+      "text": "72.Miniati M, Coppini G, Monti S, Bottai M, Paterni M, Ferdeghini E. Computer-aided recognition of emphysema on digital chest radiography. Eur J Radiol. 2011;80(2):169–175. doi: 10.1016/j.ejrad.2010.08.021.",
+      "doi": []
+    },
+    {
+      "id": "CR73",
+      "text": "73.Coppini G, Miniati M, Paterni M, Monti S, Ferdeghini E. Computer-aided diagnosis of emphysema in copd patients: neural-network-based analysis of lung shape in digital chest radiographs. Med Eng Phys. 2007;29(1):76–86. doi: 10.1016/j.medengphy.2006.02.001.",
+      "doi": []
+    },
+    {
+      "id": "CR74",
+      "text": "74.Candemir S, Jaeger S, Lin W, Xue Z, Antani S, Thoma G (2016) Automatic heart localization and radiographic index computation in chest X-rays. In: SPIE medical imaging, vol 9785",
+      "doi": []
+    },
+    {
+      "id": "CR75",
+      "text": "75.Danzer CS. The cardiothoracic ratio: an index of cardiac enlargement. Am J Med Sci. 1919;157(4):513–554.",
+      "doi": []
+    },
+    {
+      "id": "CR76",
+      "text": "76.Browne R, OReilly G, McInerney D. Extraction of the two-dimensional cardiothoracic ratio from digital pa chest radiographs: correlation with cardiac function and the traditional cardiothoracic ratio. J Digit Imaging. 2004;17(2):120–123. doi: 10.1007/s10278-003-1900-3.",
+      "doi": []
+    },
+    {
+      "id": "CR77",
+      "text": "77.Candemir S, Rajaraman S, Thoma G, Antani S (2018) Deep learning for grading cardiomegaly severity in chest X-rays: an investigation. In: Life sciences conference. IEEE, pp 109–113",
+      "doi": []
+    },
+    {
+      "id": "CR78",
+      "text": "78.Udupa JK, Leblanc VR, Zhuge Y, Imielinska C, Schmidt H, Currie LM, Hirsch BE, Woodburn J. A framework for evaluating image segmentation algorithms. Comput Med Imaging Graph. 2006;30(2):75–87. doi: 10.1016/j.compmedimag.2005.12.001.",
+      "doi": []
+    },
+    {
+      "id": "CR79",
+      "text": "79.Dice L. Measures of the amount of ecologic association between species. Ecology. 1945;26(3):297–302.",
+      "doi": []
+    },
+    {
+      "id": "CR80",
+      "text": "80.Sampathkmar U, Prasath S, Meenay S, Palaniappan K (2016) Assisted ground truth generation using interactive segmentation on a visualization and annotation tool. In: IEEE applied imagery pattern recognition workshop, pp 1–7",
+      "doi": []
+    },
+    {
+      "id": "CR81",
+      "text": "81.Beard D (2009) Firefly: web-based interactive tool for the visualization and validation of image processing algorithms. In: Ph.D. thesis, University of Missouri, Columbia",
+      "doi": []
+    },
+    {
+      "id": "CR82",
+      "text": "82.Russell B, Torralba A, Murphy K, Freeman W. LabelMe: a database and web-based tool for image annotation. Int J Comput Vis. 2008;77(1–3):157–173.",
+      "doi": []
+    },
+    {
+      "id": "CR83",
+      "text": "83.JSRT digital image database. http://db.jsrt.or.jp/eng.php. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR84",
+      "text": "84.SCR reference lung boundaries. https://www.isi.uu.nl/Research/Databases/SCR/. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR85",
+      "text": "85.The U.S. National Library of Medicine, Chest X-ray Datasets. https://ceb.nlm.nih.gov/repositories/tuberculosis-chest-x-ray-image-data-sets/. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR86",
+      "text": "86.Belarus Tuberculosis Portal. http://tuberculosis.by//. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR87",
+      "text": "87.NIH Chest X-ray Dataset. https://nihcc.app.box.com/v/ChestXray-NIHCC. Accessed 8 July 2018",
+      "doi": []
+    },
+    {
+      "id": "CR88",
+      "text": "88.Demner-Fushman D, Kohli M, Rosenman M, Shooshan S, Rodriguez L, Antani S, Thoma G, McDonald C. Preparing a collection of radiology examinations for distribution and retrieval. J Am Med Inform Assoc. 2015;23:304–310. doi: 10.1093/jamia/ocv080.",
+      "doi": []
+    },
+    {
+      "id": "CR89",
+      "text": "89.Chauhan A, Chauhan D, Rout C. Role of gist and phog features in computer-aided diagnosis of tuberculosis without segmentation. PloS One. 2014;9(11):e112980. doi: 10.1371/journal.pone.0112980.",
+      "doi": []
+    },
+    {
+      "id": "CR90",
+      "text": "90.O’Grady K, Torzillo P, Frawley K, Chang A. The radiological diagnosis of pneumonia in children. Pneumonia. 2014;5(1):38–51. doi: 10.15172/pneu.2014.5/482.",
+      "doi": []
+    },
+    {
+      "id": "CR91",
+      "text": "91.Organization WH (2010) Malawi health workforce observatory. In: Human resources for health country profile for Malawi",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Candemir S, Antani S.",
+  "journal": "Int J Comput Assist Radiol Surg",
+  "year": "2019",
+  "pmid": "30730032",
+  "pmcid": "PMC6420899",
+  "doi": "10.1007/s11548-019-01917-1",
+  "source": {
+    "retrieved_at": "2026-11-14T17:24:09.356321+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6420899/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6420899.xml"
+}

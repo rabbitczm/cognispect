@@ -1,0 +1,21 @@
+const fs=require('node:fs/promises'),assert=require('node:assert/strict');
+const {chromium}=require('D:/workspace/codex_list/tools/helix-browser/node_modules/playwright-core');
+const out='D:/workspace/codex_list/output/zhijing-v23/imaging',base=process.env.ZHIJING_V23_URL||'http://127.0.0.1:8133';
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',args:['--disk-cache-dir=D:/workspace/codex_list/scratch/imaging-integrated-chrome']});
+ try{
+  const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[],requests=[],workers=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().includes('.bin.gz'))requests.push(r.url());});page.on('worker',worker=>workers.push(worker.url()));
+  await page.goto(base);await page.waitForFunction(()=>typeof SimulationUI!=='undefined'&&typeof goto==='function');
+  const started=Date.now();await page.evaluate(()=>goto('lab'));await page.waitForFunction(()=>RealImaging.state.pixels?.length===512*507&&document.querySelector('#realImageStatus')?.textContent.includes('原始第'));const initialMs=Date.now()-started;
+  const canvas=page.locator('#realImageCanvas'),bounds=await canvas.boundingBox();for(const[x,y]of [[.4,.4],[.6,.4],[.6,.6],[.4,.6]])await page.mouse.click(bounds.x+bounds.width*x,bounds.y+bounds.height*y);await page.locator('#realClose').click();await page.locator('#realImageMetrics .metric').first().waitFor();assert.match(await page.locator('#realImageMetrics').innerText(),/面积 mm²/);
+  const roi=await page.locator('#realImageMetrics').innerText();await page.locator('#realWindow').fill('200');await page.locator('#realWindow').dispatchEvent('change');assert.equal(await page.locator('#realImageMetrics').innerText(),roi);
+  for(const id of ['liver','vessel']){await page.locator('#realDataset').selectOption(id);await page.waitForFunction(id=>RealImaging.state.id===id&&RealImaging.state.pixels?.length===512*512&&document.querySelector('#realImageStatus')?.textContent.includes('原始第'),id);}
+  await page.evaluate(()=>{const slider=document.querySelector('#realSlice');for(const index of [12,13,14,15]){slider.value=index;slider.dispatchEvent(new Event('input'));}});await page.waitForFunction(()=>RealImaging.state.slice===15&&RealImaging.state.status.startsWith('原始第 16 层'));
+  const syntheticStarted=Date.now();await page.locator('[data-image-source=synthetic]').click();await page.waitForFunction(()=>document.querySelector('#labResults')?.textContent.includes('Dice'));const syntheticReadyMs=Date.now()-syntheticStarted;assert.equal(await page.locator('#labCanvas').getAttribute('width'),'512');assert.ok(workers.some(url=>url.includes('imaging-worker.js')));
+  await page.evaluate(()=>goto('search'));assert.equal(await page.locator('#labCanvas').count(),0);await page.evaluate(()=>goto('lab'));await page.waitForFunction(()=>document.querySelector('#labResults')?.textContent.includes('Dice'));
+  await page.locator('[data-image-source=real]').click();await page.waitForFunction(()=>document.querySelector('#realImageStatus')?.textContent.includes('原始第'));
+  const before=requests.length,reentryStarted=Date.now();await page.evaluate(()=>{goto('search');goto('lab');});await page.waitForFunction(()=>document.querySelector('#realImageStatus')?.textContent.includes('原始第'));const reentryMs=Date.now()-reentryStarted;assert.equal(requests.length,before);
+  await page.setViewportSize({width:390,height:844});await page.waitForTimeout(100);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:out+'/integrated-mobile.png',fullPage:true});
+  assert.deepEqual(errors,[]);const result={base,checks:['integrated-lab-route','brain-liver-vessel-original-pixels','roi-physical-area','window-preserves-roi-statistics','slider-keeps-latest-slice','synthetic512-dice-worker','leave-and-reenter-synthetic','leave-and-reenter-real-without-download','mobile-no-overflow'],initialMs,syntheticReadyMs,reentryMs,chunkRequests:requests.length,errors};await fs.mkdir(out,{recursive:true});await fs.writeFile(out+'/integrated-browser.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+ }finally{await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

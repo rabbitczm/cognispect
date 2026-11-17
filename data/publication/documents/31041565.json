@@ -1,0 +1,1491 @@
+{
+  "key": "31041565",
+  "body_available": true,
+  "title": "Precise diagnosis of intracranial hemorrhage and subtypes using a three-dimensional joint convolutional and recurrent neural network",
+  "source_url": "https://europepmc.org/articles/PMC6795911",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is distributed under the terms of the Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/), which permits unrestricted use, distribution, and reproduction in any medium, provided you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Hai Ye",
+    "Feng Gao",
+    "Youbing Yin",
+    "Danfeng Guo",
+    "Pengfei Zhao",
+    "Yi Lu",
+    "Xin Wang",
+    "Junjie Bai",
+    "Kunlin Cao",
+    "Qi Song",
+    "Heye Zhang",
+    "Wei Chen",
+    "Xuejun Guo",
+    "Jun Xia"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2019",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2019",
+        "month": "4",
+        "day": "30"
+      },
+      {
+        "type": "ppub",
+        "year": "2019",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR4"
+          ],
+          "en": "Intracranial hemorrhage (ICH) is a critical disease that may lead to severe disability or death. It could be caused by various reasons ranging from trauma, vascular disease to congenital development [1]. According to the bleeding location, ICH can be further classified as epidural hemorrhage (EDH), subdural hemorrhage (SDH), subarachnoid hemorrhage (SAH), cerebral parenchymal hemorrhage (CPH), and intraventricular hemorrhage (IVH) [2, 3]. The degrees of severity and interventions vary with bleeding types [4].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR1",
+            "CR5",
+            "CR6",
+            "CR7",
+            "CR10",
+            "CR10",
+            "CR10"
+          ],
+          "en": "Computed tomography (CT) is a well-known non-invasive and effective imaging approach to detect ICH [1]. Hemorrhage can be recognized on non-contrast CT since blood has slightly higher density (Hounsfield unit, HU) than other brain tissues but lower than that of bones [5]. The accurate diagnosis of bleeding becomes critical for clinicians to take clinical interventions [6]. In addition, evaluation of head CT is often needed for patients at emergency departments after working hours. In most clinical centers, initial interpretations of head CT is usually provided by junior radiologists, radiology trainees, or emergency physicians in order to give necessary care to clinically significant patients. The initial interpretations will be reviewed later by senior or more-experienced radiologists. Several studies have confirmed that discrepancies exist between the initial and final interpretations and some misinterpretations might even cause clinical consequences [7–10]. Among these studies, Strub et al focused mainly on the misinterpretation of ICH between overnight residents and staff neuroradiologists [10]. It was reported that ICH accounted for 13.6% (141/1037) of the discrepancies and the most common subtypes of misidentified ICH were SDH and SAH, occurring in 39% and 33% of the cases, respectively [10]. Therefore, an automated triage system for accurate ICH detection is desirable to reduce the rate of misdiagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR11",
+            "CR16",
+            "CR17",
+            "CR22",
+            "CR23",
+            "CR18",
+            "CR22",
+            "CR20",
+            "CR24",
+            "CR24"
+          ],
+          "en": "Recently, artificial intelligence (AI) has shown great promise in the medical imaging domain [11–16]. Among these, some studies have made attempts to detect abnormalities in head CT including ICH using deep learning/machine learning methods [17–22]. Prevedello et al demonstrated the application of a simple deep learning algorithm to detect critical test findings for head CT using a small dataset with 76 acute ICH cases [23]. Li et al reported high diagnostic value (100% sensitivity and 92% specificity) for SAH detection by applying a supervised machine learning algorithm to 129 subjects with suspected SAH [18]. A more recent study by Chang et al applied a hybrid convolutional neural network (CNN) using slice slabs on a dataset containing 10,159 training CT scans and 862 testing CT scans from a single institution for ICH detection and quantification [22]. However, this large dataset contains a low amount of ICH-positive cases (901 and 82 for training and testing, respectively) and not all ICH subtypes were analyzed in this study. Another recent study by Chilamkurthy et al used deep learning for automatic detection of critical findings in head CT scans, including ICH with 4304 scans [20]. A two-stage approach was employed, in which a 2D CNN was used to obtain slice-level confidence and random forest was then adopted to predict subject-level probability. It should be noted that the methods above were based on 2D or slice slabs, and the subject-level prediction was then obtained by iterating through all slices and combining slice-level results with post-processing. Slice-level labels were required for training. Attempts have been made by Arbabshirani et al to apply a 3D CNN-based approach to detect ICH [24], in which a simple CNN network with five convolutional layers and two fully connected layers was adopted and only subject-level labels were used as ground truths for training. The performance of this plain 3D CNN seemed improvable (AUC = 0.846, sensitivity = 0.73, and specificity = 0.80 at the chosen operating point [24]). It remains unknown whether such straightforward approaches (2D, hybrid, or simple 3D) are able to generate reliable predictions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "This study aimed at developing a novel framework for automated and accurate ICH detection. The framework was built based upon a relatively large size of datasets collected from multiple centers with varieties of CT scanners. It seamlessly integrated CNN and recurrent neural network (RNN) in which CNN was used to extract useful features from image slices while RNN was employed to consider inter-slice dependency context. Our framework is an end-to-end trainable network with the flexibility for training under two different levels of annotation details: (1) only ground truths of subjects (i.e., labels for the whole scans) are available and (2) ground truths for each of the slices in the scans are available. The first scenario requires fewer annotation efforts, which may be preferred if the time for annotation is limited or slice-level annotation is thought to be less reliable. The second scenario demands more annotation efforts, yet provides detailed hemorrhage localization information that may benefit algorithm training. We evaluated and compared the performance of our proposed algorithm under both settings. A visualization mechanism was also proposed to provide visual evidence of detection, which does not require any manual delineation of bleeding areas for training. We further demonstrated the potential usefulness of our framework by comparing the performance of our algorithm with that of two groups of head CT interpreters with different levels of experience.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Materials and methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Study cohort",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "MOESM1",
+            "Tab1",
+            "Tab1",
+            "CR25",
+            "CR29",
+            "Tab2",
+            "Fig1"
+          ],
+          "en": "This retrospective study was approved by the ethics committees of three participating hospitals (hospital A, hospital B, and hospital C). Head CT scans from 3129 subjects were initially collected, with 2102 from hospital A, 511 from hospital B, and 516 from hospital C. All subjects were from the Asian population. The detailed study cohort design is described in Supplementary Material. After careful slice-wise review and annotation by three independent experienced radiologists (with 10, 12, and 16 years’ experience in interpreting head CT scans, respectively), 293 cases were excluded from further analysis due to incomplete information or serious imaging artifacts. The remaining 2836 cases were finally used in our study, including 1836 subjects with ICH and 1000 normal subjects. We intentionally kept such a high ICH prevalence (65%) in this dataset to ensure that there were sufficient positive samples to benefit the learning process of the algorithms as well as to effectively evaluate our algorithms with sufficient positive and negative samples. Table 1 shows the demographic characteristics of these subjects. The differences of patient age and sex distribution between the non-ICH group and ICH group were tested using ANOVA and χ2 test, respectively, with p values reported in Table 1. Statistical significance for both age and sex distributions between these two groups is consistent with previous findings that the incidence ratio of ICH tends to be higher in males and in more aged subjects [25–29]. Subjects in the ICH group were further categorized into five subtypes according to the location of ICH on both the slice-level and the subject-level: CPH, IVH, SDH, EDH, and SAH. It is possible for some subjects with ICH presence to have more than one subtypes (i.e., mixed subtypes). Table 2 shows the inter-rater annotation agreement among the three radiologists. The majority vote of these three senior radiologists’ annotations (slice-level and subject-level bleeding as well as subtypes) was used as the gold standard. Examples of scan slices used in this study are shown in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Non-contrast CT imaging protocol",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "Head CT images used in this study were acquired by scanners from different manufacturers. The scanning parameters were different among these three institutions, with details listed in Supplementary Table 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Data pre-processing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "To feed the data for training, we first performed pre-processing of the original CT images with the following steps. All image slices were resampled to 512 × 512 pixels if necessary and then downsampled to 256 × 256 pixels to reduce GPU memory usage. The original slice number of each scan was kept. To better account for the high dynamic intensity range while preserving the details for different objects of interest, we chose three different intensity windows to normalize images, with details described in Supplementary Material.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Prediction models and workflow",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1"
+          ],
+          "en": "To reduce redundancy, hereinafter, we refer to the scenario that only subject-level ground truths were used in training as Sub-Lab, and the scenario that subject-level labels together with slice-level labels were used in training as Sli-Lab. Furthermore, we refer to the task of predicting whether a subject and its slices contain bleeding or not as a two-type classification, while the task of predicting the bleeding subtype(s) of an ICH-positive subject and the associated slices as a five-type classification. Our framework can be used for both two-type and five-type classification under both Sub-Lab and Sli-Lab settings. Specifically, this algorithm is composed of a CNN component followed by a RNN component to mimic how radiologists interpret scans. The CNN component focuses on extracting useful features from image slices. The RNN component makes use of these features and generates the probability of ICH or a subtype. The RNN component is particularly useful for capturing sequential information of features from consecutive slices, adding inter-slice dependency context to boost classification performance (please refer to Supplementary Figure 1 for an illustration of our algorithm; more detailed description can be found in Supplementary Material).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "In our prediction workflow, we first carried out two-type classification to determine if ICH was present in a subject. If a subject was predicted to be ICH-positive, five-type classification was performed to decide if this subject belonged to any of the five subtypes. This workflow is demonstrated in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Training procedures",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "MOESM1",
+            "Fig2",
+            "MOESM1"
+          ],
+          "en": "We split the entire subjects randomly into training (80%), validation (10%), and testing set (10%). Data distribution for two-type and five-type classification tasks is shown in Supplementary Table 2. The training set was used to optimize model parameters while the validation set was used to avoid overfitting to the training set. The testing set was reserved for final evaluation of our models. Training and testing schemata are illustrated in Fig. 2. Training for ICH detection (two-type task) and its subtypes (five-type task) was performed under two settings: Sub-Lab and Sli-Lab (more details about the training process are elaborated in Supplemental Material).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Model visualization",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "CR30",
+            "CR31",
+            "CR31",
+            "MOESM1"
+          ],
+          "en": "A disadvantage of deep learning models is their lack of transparency and explanability [30, 31]. To improve the explainability of our models, we generated a coarse localization map that highlighted important regions in the image leading to the decision of the algorithm using the Grad-CAM method [31]. The localization map on each slice was generated with our fully trained algorithm, which neither affected the algorithm training process nor required manual annotation of bleeding areas for supervised training. This visualization technique might also be adopted by radiologists as a guidance for interpretation (more details are provided in Supplementary Material).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "All statistical analyses were performed using the python package scikit-learn, while statistical plots were generated with matplotlib. We evaluated the performance of algorithms using statistical metrics including accuracy, sensitivity, specificity, F1 score, and area under the curve (AUC). We used 0.5 as the threshold to convert probabilities into binarized class labels, i.e., a probability no smaller than 0.5 was considered ICH-positive and a probability smaller than 0.5 to be ICH-negative.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Diagnosis from additional radiologists and trainees",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "We additionally invited three junior radiology trainees and an additional senior radiologist to provide subject-level diagnosis on the 299 CT scans in the testing set for performance comparison with the automated algorithm (more details about these head CT interpreters can be found in Supplementary Material).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec12",
+      "title": "Two-type classification task",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par35",
+          "reference_ids": [
+            "Tab3",
+            "Fig3",
+            "MOESM1"
+          ],
+          "en": "We evaluated the performance of our two-type classification in the testing set, which contained 299 subjects with 8007 slices in total. Sixty-five percent of the subjects and 23% of the slices were ICH-positive, respectively. The subject-level performance of our algorithm is reported in Table 3 and Fig. 3. Algorithms trained under both Sub-Lab and Sli-Lab settings achieved excellent values (≥ 0.98), with minimal differences across all evaluation metrics between these two settings. The results of additional experiments, including the performance comparison of our models with baseline models, are provided in Supplementary Material.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Five-type classification task",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "MOESM1",
+            "CR10",
+            "MOESM1"
+          ],
+          "en": "We evaluated the performance of our five-type classification of 194 subjects with ICH. CPH showed the highest proportion of positive cases among the five subtypes, while EDH the lowest (CPH > SAH > IVH > SDH > EDH; see Supplementary Table 2 for detailed numbers). Our algorithm achieved > 0.8 AUC and > 0.8 specificity across all subtypes under both Sub-Lab and Sli-Lab settings. Three important observations can be made based on the sensitivity metric. Firstly, CPH was the best-performed subtype, with sensitivity values higher than 0.9 for both Sub-Lab and Sli-Lab settings. Secondly, the sensitivity of the model trained under Sub-Lab was consistently lower than that trained under Sli-Lab for all five subtypes. This may indicate that slice-level information can be more important for subtype classification than for two-type classification task. Thirdly, even for the model trained with slice-level labels, the sensitivity for SAH and EDH was only 0.69, notably lower than that for the other three subtypes. The low sensitivity score of SAH may be due to the difficulty for detection as it has been considered as the most challenging subtype to diagnose [10], while the low sensitivity score for EDH may be mainly caused by the extremely low amount of positive cases: only 6.4% (94/1461) of the subjects and 1.9% (758/39,278) of the slices are EDH-positive. Additional experiments and results are described in Supplementary Material.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Visualization of results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par37",
+          "reference_ids": [
+            "CR31",
+            "Fig4"
+          ],
+          "en": "In addition to statistical evaluations of our models, we used the Grad-CAM method [31] on the model trained under Sli-Lab to generate heatmaps to visually check if our models made decisions based upon reasonable regions. Six examples from the testing set are shown in Fig. 4, where red regions indicated highly important areas for decision making and gray indicated low importance. These heatmaps elucidated that our algorithm paid most attention to the bleeding areas and ignored regions without hemorrhage as expected.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Performance comparison with radiologists and trainees",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "Tab3",
+            "CR10",
+            "Fig5",
+            "MOESM1"
+          ],
+          "en": "We additionally compared the results of our models with the interpretations from three junior radiology trainees and an additional senior radiologist using the testing set. Table 3 shows the subject-level performance comparison. For simplicity, in the following, we only focus on the algorithm trained under Sli-Lab due to its better performance. In the two-type classification task, the senior radiologist classified all subjects correctly, while the junior radiology trainees misdiagnosed 12 (4%) cases (11 false negatives and 1 false positive) on average. In comparison, our algorithm under Sli-Lab only incorrectly predicted 2 (< 1%) CT scans (1 false positive and 1 false negative) when training with slice-level labels. More importantly, our algorithm correctly classified on average 10.7 (17, 10, and 5 for the three junior radiology trainees, respectively) ICH-positive cases that the junior radiology trainees misdiagnosed. For the five-type classification task, the senior radiologist performed generally the best across all five subtypes, especially for the sensitivity metric. The sensitivity of our algorithm was higher than the average performance of the junior radiology trainees for CPH, SAH, SDH, and IVH. Even for EDH with an extremely low amount of positive cases (6.4%), the sensitivity of our algorithm was merely 0.03 lower than the average performance of the junior radiology trainees. SAH has been considered as the most difficult subtype to diagnose [10]. Indeed, it showed the most notable discrepancy for the sensitivity metric: 0.95 for the senior radiologist, 0.69 for our algorithm, while only 0.35 for the average performance of the junior radiology trainees. Further, our algorithm correctly predicted 11 (13%) SAH cases that none of the three junior radiology trainees were able to interpret correctly. All of these SAH cases have mixed hemorrhage subtypes, making the SAH subtype liable to being overlooked (please see Fig. 5 for three examples). By contrast, there was only one SAH-positive case that all three junior radiology trainees captured but our algorithm failed. We presented this case in Supplementary Material.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "MOESM1",
+            "CR31"
+          ],
+          "en": "In this study, we proposed a joint CNN-RNN deep learning algorithm and a prediction workflow for ICH and its subtypes. The contribution can be summarized at least in the following three aspects. Firstly, to the best of our knowledge, our proposed algorithm was the first end-to-end trainable 3D ICH detection deep learning network that seamlessly integrates CNN and RNN and meanwhile provides the flexibility of training when only subject-level labels are available or slice-level labels are available. Performance comparison with baseline CNN models (Supplementary Material) confirmed that combining the advantages of CNN and RNN indeed improved ICH detection. Secondly, a comprehensive framework for subject-level bleeding and its subtype prediction was proposed using a relatively large size of datasets from multiple centers. Thirdly, in order to provide visual evidence of the detection in our deep learning model, a visualization mechanism was proposed based on our framework and the Grad-Cam approach [31]. It is capable of generating a coarse hemorrhage region in head CT slices using our classification model without manual delineation (segmentation) of bleeding areas for supervised training. Despite that further quantitative performance evaluation is needed, this feature has the potential to be employed by radiologists as a coarse bleeding localization map. In summary, our proposed algorithm could assist detection of ICH and subtypes with high accuracy and may potentially serve as a useful tool to assist diagnosis of ICH.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "To improve the reliability of reference standards, this study applied majority voting on the subject-level and slice-level diagnosis from three senior radiologists with over 10 years’ experience in interpreting head CT scans. Slice-level concordance among the three radiologists was generally lower than that on the subject-level: only one kappa value for the subject-level agreement was below 0.7 (0.68), while four on the slice level (0.65, 0.62, 0.67, and 0.64; please refer to Table 2 for details). This observation reflects the difficulty and variation in interpreting slices in head CT, especially for challenging subtypes such as SAH. Less reliability of slice-level diagnosis may be one reason for the preference of only using subject-level labels in the training process without including slice-level information. However, our results showed that adding (less reliable) slice-level labels in the training process was still able to improve the algorithm’s performance, especially by quite a noticeable margin for five-type classification task, indicating the importance of local information for subtype detection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [
+            "CR10",
+            "CR32"
+          ],
+          "en": "To further elucidate the potential usefulness of our algorithm, its performance was compared to that of three junior radiology trainees and a senior radiologist. The results showed that its performance was superior to the average performance of the three junior radiology trainees for both the two-type and five-type tasks. SAH has been reported as the most difficult subtype to interpret [10]. In our study, the junior radiology trainees were only able to identify 35% of the subjects with SAH on average. This low sensitivity may be due to the high proportion of SAH cases with blended ICH subtypes in the testing set: 35% (30 out of 86) of the SAH cases had one other subtype present at the same time, while 52% (45 out of 86) had two or more additional subtypes. Mixed subtypes may raise difficulties for diagnosis and may lead to search satisfaction. By contrast, our algorithm not only detected on average 90% (14 out of 16, 21 out of 23, and 45 out of 50 for the three trainees respectively) of the true positives identified by the junior radiology trainees, but also captured another 11 (13%) SAH-positive cases that none of the junior radiology trainees diagnosed correctly, with minimal loss of specificity (0.94 vs 0.97). It is also worth pointing out that it took our algorithm less than 30 s on average to fully process a 3D head CT scan from end to end (namely from scan loading to prediction generation), which is substantially shorter than the reported head CT interpretation time of radiologists (usually more than 5 min [32]).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "Our study has several limitations. Firstly, in order to enhance pattern recognition in algorithm training and to carry out performance evaluation with sufficient positive and negative samples, the prevalence of ICH used in our study (65%) was designed to be much higher than that in a real clinical setting (for example, CPH has been reported to have an incidence rate of 25 per 100,000 persons per year [25]). Despite that four reported performance metrics (sensitivity, specificity, F1 score, and AUC) would not be affected by the prevalence in the testing dataset, the accuracy may change with different prevalence levels, which needs further evaluation in a real clinical population. Secondly, all subjects in our study were from the Asian population, which could limit the generalizability of our algorithms. As a next step, it is desirable to expand the current dataset to include populations other than Asian. Thirdly, although the total number of subjects with ICH presence in our dataset was relatively large, the number of subjects with certain subtypes was quite limited, in particular EDH with only 94 cases in the training set, compared with 1367 controls. Since deep learning requires a sufficient amount of data for pattern recognition, lack of training data might have adversely affected the algorithm performance. Finally, the low SAH identification rate of junior radiology trainees may need further investigation and may limit the generalizability of the performance comparison with the automated algorithm. Performance from junior radiology trainees with different training levels may be needed to increase the reliability of the results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "In conclusion, this is one of the early studies that utilized end-to-end trainable 3D deep learning techniques for ICH and subtype detection with a relatively large study cohort. The proposed algorithm was fast and accurate, indicating its potential for assisting less-experienced head CT interpreters such as junior radiology trainees to reduce initial misinterpretations. It would be worthwhile to implement this automated framework in a triage system in a real clinical setting to evaluate its capability of reducing radiologists’ workload and improving efficiency.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-18",
+      "title": "Electronic supplementary material",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec17",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-20",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [],
+          "en": "Three-dimensional",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "Artificial intelligence",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [],
+          "en": "Area under the curve",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "Convolutional neural network",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "Cerebral parenchymal hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [],
+          "en": "Computed tomography",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "Epidural hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "Fully connected",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "Intracranial hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "Intraventricular hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "Recurrent neural network",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [],
+          "en": "Receiver operating characteristic",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [],
+          "en": "Subarachnoid hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [],
+          "en": "Subdural hemorrhage",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-20-p15",
+          "reference_ids": [],
+          "en": "Publisher’s note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-20-p16",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-20-p17",
+          "reference_ids": [],
+          "en": "Hai Ye and Feng Gao contributed equally to this work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-20-p18",
+          "reference_ids": [],
+          "en": "The authors would like to thank Drs. Xixiong Qiu, Dingfu Li and Jianping Yang for reviewing and annotating the cases, thank Xiaoyang Xu and Bin Ouyang for organizing the datasets and thank Qianqian Lv for preparing supporting materials.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-20-p19",
+          "reference_ids": [],
+          "en": "This study has received funding by Science and Technology Planning Project of Guangdong Province (2017A020215160) and Shenzhen Municipal Government (KQTD2016112809330877).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "The scientific guarantor of this publication is Dr. Jun Xia.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "The authors of this manuscript declare no relationships with any companies whose products or services may be related to the subject matter of the article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "No complex statistical methods were necessary for this paper.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "Written informed consent was not required for this study because this was a retrospective study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "Institutional Review Board approval was obtained.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [],
+          "en": "• retrospective",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [],
+          "en": "• diagnostic or prognostic study",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par51",
+          "reference_ids": [],
+          "en": "• multicenter study",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Demographic information of subjects used in this study",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Non-ICH",
+          "ICH",
+          "p value"
+        ],
+        [
+          "n",
+          "1000",
+          "1836",
+          "–"
+        ],
+        [
+          "Age (years)*",
+          "41.58 ± 15.26 (2–82)",
+          "53.91 ± 16.51 (1–98)",
+          "< 0.001"
+        ],
+        [
+          "Sex (male:female)",
+          "448:552",
+          "1195:641",
+          "< 0.001"
+        ]
+      ],
+      "footnotes": "*Age reported as mean ± standard deviation (minimum–maximum)",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Demographic information of subjects used in this study</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Non-ICH</th><th colspan=\"1\" rowspan=\"1\">ICH</th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">p</italic> value</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">\n<italic toggle=\"yes\">n</italic>\n</td><td colspan=\"1\" rowspan=\"1\">1000</td><td colspan=\"1\" rowspan=\"1\">1836</td><td colspan=\"1\" rowspan=\"1\">–</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Age (years)*</td><td colspan=\"1\" rowspan=\"1\">41.58 ± 15.26 (2–82)</td><td colspan=\"1\" rowspan=\"1\">53.91 ± 16.51 (1–98)</td><td colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Sex (male:female)</td><td colspan=\"1\" rowspan=\"1\">448:552</td><td colspan=\"1\" rowspan=\"1\">1195:641</td><td colspan=\"1\" rowspan=\"1\">&lt; 0.001</td></tr></tbody></table><table-wrap-foot><p>*Age reported as mean ± standard deviation (minimum–maximum)</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Subject-level and slice-level scoring variability assessment of three radiologists on the diagnosis of ICH and five subtypes",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "",
+          "R1 and R2",
+          "R2 and R3",
+          "R1 and R3",
+          "K"
+        ],
+        [
+          "p (%)",
+          "κ",
+          "p (%)",
+          "κ",
+          "p (%)",
+          "κ"
+        ],
+        [
+          "ICH",
+          "Subject",
+          "100",
+          "1.00",
+          "99",
+          "0.99",
+          "99",
+          "0.99",
+          "0.99"
+        ],
+        [
+          "Slice",
+          "93",
+          "0.83",
+          "96",
+          "0.91",
+          "92",
+          "0.80",
+          "0.85"
+        ],
+        [
+          "CPH",
+          "Subject",
+          "91",
+          "0.77",
+          "95",
+          "0.87",
+          "91",
+          "0.77",
+          "0.80"
+        ],
+        [
+          "Slice",
+          "95",
+          "0.85",
+          "97",
+          "0.92",
+          "95",
+          "0.84",
+          "0.87"
+        ],
+        [
+          "SAH",
+          "Subject",
+          "86",
+          "0.70",
+          "87",
+          "0.73",
+          "85",
+          "0.68",
+          "0.71"
+        ],
+        [
+          "Slice",
+          "89",
+          "0.65",
+          "91",
+          "0.74",
+          "89",
+          "0.62",
+          "0.67"
+        ],
+        [
+          "EDH",
+          "Subject",
+          "98",
+          "0.85",
+          "98",
+          "0.83",
+          "97",
+          "0.80",
+          "0.82"
+        ],
+        [
+          "Slice",
+          "99",
+          "0.79",
+          "99",
+          "0.82",
+          "99",
+          "0.73",
+          "0.78"
+        ],
+        [
+          "SDH",
+          "Subject",
+          "94",
+          "0.78",
+          "94",
+          "0.78",
+          "93",
+          "0.72",
+          "0.76"
+        ],
+        [
+          "Slice",
+          "97",
+          "0.74",
+          "97",
+          "0.78",
+          "95",
+          "0.64",
+          "0.72"
+        ],
+        [
+          "IVH",
+          "Subject",
+          "87",
+          "0.72",
+          "94",
+          "0.87",
+          "88",
+          "0.74",
+          "0.78"
+        ],
+        [
+          "Slice",
+          "93",
+          "0.71",
+          "97",
+          "0.88",
+          "94",
+          "0.73",
+          "0.78"
+        ]
+      ],
+      "footnotes": "R, radiologist; p, percentage agreement rateκ, Cohen’s kappa coefficient, a statistic that measures inter-rater agreement and is more robust than percent agreement rate. A number greater than 0.6 indicates substantial agreement, while greater than 0.8 indicates almost perfect agreementΚ, Fleiss’ kappa coefficient, a statistic that measures the reliability of agreement between multiple raters. A number greater than 0.6 indicates substantial agreement, while greater than 0.8 indicates almost perfect agreement",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Subject-level and slice-level scoring variability assessment of three radiologists on the diagnosis of ICH and five subtypes</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\" /><th rowspan=\"2\" colspan=\"1\" /><th colspan=\"2\" rowspan=\"1\">R1 and R2</th><th colspan=\"2\" rowspan=\"1\">R2 and R3</th><th colspan=\"2\" rowspan=\"1\">R1 and R3</th><th rowspan=\"2\" colspan=\"1\">\n<italic toggle=\"yes\">K</italic>\n</th></tr><tr><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">p</italic> (%)</th><th colspan=\"1\" rowspan=\"1\">\n<italic toggle=\"yes\">κ</italic>\n</th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">p</italic> (%)</th><th colspan=\"1\" rowspan=\"1\">\n<italic toggle=\"yes\">κ</italic>\n</th><th colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">p</italic> (%)</th><th colspan=\"1\" rowspan=\"1\">\n<italic toggle=\"yes\">κ</italic>\n</th></tr></thead><tbody><tr><td rowspan=\"2\" colspan=\"1\">ICH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">100</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.99</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">93</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">96</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">92</td><td colspan=\"1\" rowspan=\"1\">0.80</td><td colspan=\"1\" rowspan=\"1\">0.85</td></tr><tr><td rowspan=\"2\" colspan=\"1\">CPH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">91</td><td colspan=\"1\" rowspan=\"1\">0.77</td><td colspan=\"1\" rowspan=\"1\">95</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">91</td><td colspan=\"1\" rowspan=\"1\">0.77</td><td colspan=\"1\" rowspan=\"1\">0.80</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">95</td><td colspan=\"1\" rowspan=\"1\">0.85</td><td colspan=\"1\" rowspan=\"1\">97</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">95</td><td colspan=\"1\" rowspan=\"1\">0.84</td><td colspan=\"1\" rowspan=\"1\">0.87</td></tr><tr><td rowspan=\"2\" colspan=\"1\">SAH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">86</td><td colspan=\"1\" rowspan=\"1\">0.70</td><td colspan=\"1\" rowspan=\"1\">87</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">85</td><td colspan=\"1\" rowspan=\"1\">0.68</td><td colspan=\"1\" rowspan=\"1\">0.71</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">89</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">91</td><td colspan=\"1\" rowspan=\"1\">0.74</td><td colspan=\"1\" rowspan=\"1\">89</td><td colspan=\"1\" rowspan=\"1\">0.62</td><td colspan=\"1\" rowspan=\"1\">0.67</td></tr><tr><td rowspan=\"2\" colspan=\"1\">EDH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">98</td><td colspan=\"1\" rowspan=\"1\">0.85</td><td colspan=\"1\" rowspan=\"1\">98</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">97</td><td colspan=\"1\" rowspan=\"1\">0.80</td><td colspan=\"1\" rowspan=\"1\">0.82</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">99</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\">99</td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">99</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.78</td></tr><tr><td rowspan=\"2\" colspan=\"1\">SDH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">94</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">94</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">93</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.76</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">97</td><td colspan=\"1\" rowspan=\"1\">0.74</td><td colspan=\"1\" rowspan=\"1\">97</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">95</td><td colspan=\"1\" rowspan=\"1\">0.64</td><td colspan=\"1\" rowspan=\"1\">0.72</td></tr><tr><td rowspan=\"2\" colspan=\"1\">IVH</td><td colspan=\"1\" rowspan=\"1\">Subject</td><td colspan=\"1\" rowspan=\"1\">87</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">94</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">88</td><td colspan=\"1\" rowspan=\"1\">0.74</td><td colspan=\"1\" rowspan=\"1\">0.78</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Slice</td><td colspan=\"1\" rowspan=\"1\">93</td><td colspan=\"1\" rowspan=\"1\">0.71</td><td colspan=\"1\" rowspan=\"1\">97</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">94</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.78</td></tr></tbody></table><table-wrap-foot><p><italic toggle=\"yes\">R</italic>, radiologist; <italic toggle=\"yes\">p</italic>, percentage agreement rate</p><p><italic toggle=\"yes\">κ</italic>, Cohen’s kappa coefficient, a statistic that measures inter-rater agreement and is more robust than percent agreement rate. A number greater than 0.6 indicates substantial agreement, while greater than 0.8 indicates almost perfect agreement</p><p><italic toggle=\"yes\">Κ</italic>, Fleiss’ kappa coefficient, a statistic that measures the reliability of agreement between multiple raters. A number greater than 0.6 indicates substantial agreement, while greater than 0.8 indicates almost perfect agreement</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Subject-level performance of the automated algorithm, three junior radiology trainees, and a senior radiologist on two-type and five-type classification tasks",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Accuracy",
+          "Sensitivity",
+          "Specificity",
+          "F1 score",
+          "AUC"
+        ],
+        [
+          "ICH",
+          "Model (Sub-Lab)",
+          "0.99",
+          "0.98",
+          "0.99",
+          "0.99",
+          "1.00"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.99",
+          "0.99",
+          "0.99",
+          "0.99",
+          "1.00"
+        ],
+        [
+          "JRT 1",
+          "0.94",
+          "0.91",
+          "1.00",
+          "0.95",
+          "0.96"
+        ],
+        [
+          "JRT 2",
+          "0.97",
+          "0.97",
+          "0.97",
+          "0.98",
+          "0.97"
+        ],
+        [
+          "JRT 3",
+          "0.97",
+          "0.95",
+          "1.00",
+          "0.97",
+          "0.97"
+        ],
+        [
+          "JRT (x̅ ± s)",
+          "0.96 ± 0.02",
+          "0.94 ± 0.03",
+          "0.99 ± 0.02",
+          "0.96 ± 0.02",
+          "0.97 ± 0.01"
+        ],
+        [
+          "SR",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00"
+        ],
+        [
+          "CPH",
+          "Model (Sub-Lab)",
+          "0.88",
+          "0.90",
+          "0.82",
+          "0.92",
+          "0.94"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.90",
+          "0.92",
+          "0.83",
+          "0.93",
+          "0.94"
+        ],
+        [
+          "JRT 1",
+          "0.84",
+          "0.79",
+          "1.00",
+          "0.88",
+          "0.89"
+        ],
+        [
+          "JRT 2",
+          "0.92",
+          "0.92",
+          "0.90",
+          "0.94",
+          "0.91"
+        ],
+        [
+          "JRT 3",
+          "0.87",
+          "0.86",
+          "0.90",
+          "0.91",
+          "0.88"
+        ],
+        [
+          "JRT (x̅ ± s)",
+          "0.88 ± 0.04",
+          "0.86 ± 0.07",
+          "0.93 ± 0.06",
+          "0.91 ± 0.03",
+          "0.89 ± 0.02"
+        ],
+        [
+          "SR",
+          "0.95",
+          "0.98",
+          "0.86",
+          "0.97",
+          "0.92"
+        ],
+        [
+          "SAH",
+          "Model (Sub-Lab)",
+          "0.75",
+          "0.65",
+          "0.82",
+          "0.7",
+          "0.82"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.83",
+          "0.69",
+          "0.94",
+          "0.78",
+          "0.89"
+        ],
+        [
+          "JRT 1",
+          "0.62",
+          "0.19",
+          "0.96",
+          "0.30",
+          "0.57"
+        ],
+        [
+          "JRT 2",
+          "0.81",
+          "0.58",
+          "1.00",
+          "0.74",
+          "0.79"
+        ],
+        [
+          "JRT 3",
+          "0.65",
+          "0.27",
+          "0.95",
+          "0.40",
+          "0.61"
+        ],
+        [
+          "JRT (x̅ ± s)",
+          "0.69 ± 0.10",
+          "0.35 ± 0.21",
+          "0.97 ± 0.03",
+          "0.48 ± 0.23",
+          "0.66 ± 0.12"
+        ],
+        [
+          "SR",
+          "0.96",
+          "0.95",
+          "0.96",
+          "0.95",
+          "0.96"
+        ],
+        [
+          "EDH",
+          "Model (Sub-Lab)",
+          "0.92",
+          "0.69",
+          "0.94",
+          "0.55",
+          "0.90"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.96",
+          "0.69",
+          "0.98",
+          "0.72",
+          "0.94"
+        ],
+        [
+          "JRT 1",
+          "0.97",
+          "0.54",
+          "1.00",
+          "0.73",
+          "0.77"
+        ],
+        [
+          "JRT 2",
+          "0.98",
+          "0.77",
+          "1.00",
+          "0.87",
+          "0.88"
+        ],
+        [
+          "JRT 3",
+          "0.96",
+          "0.85",
+          "0.97",
+          "0.73",
+          "0.91"
+        ],
+        [
+          "JRT (x̅ ± s)",
+          "0.97 ± 0.01",
+          "0.72 ± 0.16",
+          "0.99 ± 0.02",
+          "0.78 ± 0.08",
+          "0.85 ± 0.07"
+        ],
+        [
+          "SR",
+          "0.99",
+          "0.92",
+          "1.00",
+          "0.96",
+          "0.96"
+        ],
+        [
+          "SDH",
+          "Model (Sub-Lab)",
+          "0.87",
+          "0.61",
+          "0.93",
+          "0.64",
+          "0.91"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.94",
+          "0.86",
+          "0.96",
+          "0.84",
+          "0.96"
+        ],
+        [
+          "JRT 1",
+          "0.88",
+          "0.53",
+          "0.96",
+          "0.62",
+          "0.75"
+        ],
+        [
+          "JRT 2",
+          "0.94",
+          "0.75",
+          "0.99",
+          "0.83",
+          "0.87"
+        ],
+        [
+          "JRT 3",
+          "0.91",
+          "0.50",
+          "1.00",
+          "0.67",
+          "0.75"
+        ],
+        [
+          "JRT (x̅ ± s)",
+          "0.91 ± 0.03",
+          "0.59 ± 0.14",
+          "0.98 ± 0.02",
+          "0.71 ± 0.11",
+          "0.79 ± 0.07"
+        ],
+        [
+          "SR",
+          "0.98",
+          "0.94",
+          "0.99",
+          "0.96",
+          "0.97"
+        ],
+        [
+          "IVH",
+          "Model (Sub-Lab)",
+          "0.84",
+          "0.66",
+          "0.94",
+          "0.74",
+          "0.84"
+        ],
+        [
+          "Model (Sli-Lab)",
+          "0.91",
+          "0.84",
+          "0.95",
+          "0.87",
+          "0.93"
+        ],
+        [
+          "JRT 1",
+          "0.83",
+          "0.57",
+          "0.97",
+          "0.70",
+          "0.77"
+        ],
+        [
+          "JRT 2",
+          "0.92",
+          "0.82",
+          "0.98",
+          "0.88",
+          "0.90"
+        ],
+        [
+          "JRT 3",
+          "0.88",
+          "0.72",
+          "0.97",
+          "0.81",
+          "0.84"
+        ],
+        [
+          "JRT(x̅ ± s)",
+          "0.88 ± 0.05",
+          "0.70 ± 0.13",
+          "0.97 ± 0.01",
+          "0.80 ± 0.09",
+          "0.84 ± 0.07"
+        ],
+        [
+          "SR",
+          "0.96",
+          "1.00",
+          "0.94",
+          "0.94",
+          "0.97"
+        ]
+      ],
+      "footnotes": "Sub-Lab, only subject-level labels were available and used in the training process. Sli-Lab, slice-level labels were available; thus, both slice-level and subject-level labels were used in the training processJRT, junior radiology trainee; SR, senior radiologistx̅ ± s, mean ± standard deviation",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Subject-level performance of the automated algorithm, three junior radiology trainees, and a senior radiologist on two-type and five-type classification tasks</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"2\" rowspan=\"1\" /><th colspan=\"1\" rowspan=\"1\">Accuracy</th><th colspan=\"1\" rowspan=\"1\">Sensitivity</th><th colspan=\"1\" rowspan=\"1\">Specificity</th><th colspan=\"1\" rowspan=\"1\">F1 score</th><th colspan=\"1\" rowspan=\"1\">AUC</th></tr></thead><tbody><tr><td rowspan=\"7\" colspan=\"1\">ICH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">1.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">1.00</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.96</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.97</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.97</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT (<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.96 ± 0.02</td><td colspan=\"1\" rowspan=\"1\">0.94 ± 0.03</td><td colspan=\"1\" rowspan=\"1\">0.99 ± 0.02</td><td colspan=\"1\" rowspan=\"1\">0.96 ± 0.02</td><td colspan=\"1\" rowspan=\"1\">0.97 ± 0.01</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">1.00</td></tr><tr><td rowspan=\"7\" colspan=\"1\">CPH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.94</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.94</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.84</td><td colspan=\"1\" rowspan=\"1\">0.79</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.89</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.91</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.90</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.88</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT (<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.88 ± 0.04</td><td colspan=\"1\" rowspan=\"1\">0.86 ± 0.07</td><td colspan=\"1\" rowspan=\"1\">0.93 ± 0.06</td><td colspan=\"1\" rowspan=\"1\">0.91 ± 0.03</td><td colspan=\"1\" rowspan=\"1\">0.89 ± 0.02</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.92</td></tr><tr><td rowspan=\"7\" colspan=\"1\">SAH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.75</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">0.7</td><td colspan=\"1\" rowspan=\"1\">0.82</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.78</td><td colspan=\"1\" rowspan=\"1\">0.89</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.62</td><td colspan=\"1\" rowspan=\"1\">0.19</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.30</td><td colspan=\"1\" rowspan=\"1\">0.57</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.81</td><td colspan=\"1\" rowspan=\"1\">0.58</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.74</td><td colspan=\"1\" rowspan=\"1\">0.79</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.65</td><td colspan=\"1\" rowspan=\"1\">0.27</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.40</td><td colspan=\"1\" rowspan=\"1\">0.61</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT (<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.69 ± 0.10</td><td colspan=\"1\" rowspan=\"1\">0.35 ± 0.21</td><td colspan=\"1\" rowspan=\"1\">0.97 ± 0.03</td><td colspan=\"1\" rowspan=\"1\">0.48 ± 0.23</td><td colspan=\"1\" rowspan=\"1\">0.66 ± 0.12</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.96</td></tr><tr><td rowspan=\"7\" colspan=\"1\">EDH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.55</td><td colspan=\"1\" rowspan=\"1\">0.90</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.69</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.94</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.54</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.77</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.77</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.88</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.85</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.73</td><td colspan=\"1\" rowspan=\"1\">0.91</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT (<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.97 ± 0.01</td><td colspan=\"1\" rowspan=\"1\">0.72 ± 0.16</td><td colspan=\"1\" rowspan=\"1\">0.99 ± 0.02</td><td colspan=\"1\" rowspan=\"1\">0.78 ± 0.08</td><td colspan=\"1\" rowspan=\"1\">0.85 ± 0.07</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.96</td></tr><tr><td rowspan=\"7\" colspan=\"1\">SDH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.61</td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">0.64</td><td colspan=\"1\" rowspan=\"1\">0.91</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.86</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.84</td><td colspan=\"1\" rowspan=\"1\">0.96</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.53</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.62</td><td colspan=\"1\" rowspan=\"1\">0.75</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.75</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.87</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.50</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.67</td><td colspan=\"1\" rowspan=\"1\">0.75</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT (<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.91 ± 0.03</td><td colspan=\"1\" rowspan=\"1\">0.59 ± 0.14</td><td colspan=\"1\" rowspan=\"1\">0.98 ± 0.02</td><td colspan=\"1\" rowspan=\"1\">0.71 ± 0.11</td><td colspan=\"1\" rowspan=\"1\">0.79 ± 0.07</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.99</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">0.97</td></tr><tr><td rowspan=\"7\" colspan=\"1\">IVH</td><td colspan=\"1\" rowspan=\"1\">Model (Sub-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.84</td><td colspan=\"1\" rowspan=\"1\">0.66</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.74</td><td colspan=\"1\" rowspan=\"1\">0.84</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Model (Sli-Lab)</td><td colspan=\"1\" rowspan=\"1\">0.91</td><td colspan=\"1\" rowspan=\"1\">0.84</td><td colspan=\"1\" rowspan=\"1\">0.95</td><td colspan=\"1\" rowspan=\"1\">0.87</td><td colspan=\"1\" rowspan=\"1\">0.93</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 1</td><td colspan=\"1\" rowspan=\"1\">0.83</td><td colspan=\"1\" rowspan=\"1\">0.57</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.70</td><td colspan=\"1\" rowspan=\"1\">0.77</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 2</td><td colspan=\"1\" rowspan=\"1\">0.92</td><td colspan=\"1\" rowspan=\"1\">0.82</td><td colspan=\"1\" rowspan=\"1\">0.98</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.90</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT 3</td><td colspan=\"1\" rowspan=\"1\">0.88</td><td colspan=\"1\" rowspan=\"1\">0.72</td><td colspan=\"1\" rowspan=\"1\">0.97</td><td colspan=\"1\" rowspan=\"1\">0.81</td><td colspan=\"1\" rowspan=\"1\">0.84</td></tr><tr><td colspan=\"1\" rowspan=\"1\">JRT(<italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>)</td><td colspan=\"1\" rowspan=\"1\">0.88 ± 0.05</td><td colspan=\"1\" rowspan=\"1\">0.70 ± 0.13</td><td colspan=\"1\" rowspan=\"1\">0.97 ± 0.01</td><td colspan=\"1\" rowspan=\"1\">0.80 ± 0.09</td><td colspan=\"1\" rowspan=\"1\">0.84 ± 0.07</td></tr><tr><td colspan=\"1\" rowspan=\"1\">SR</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">1.00</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.94</td><td colspan=\"1\" rowspan=\"1\">0.97</td></tr></tbody></table><table-wrap-foot><p>Sub-Lab, only subject-level labels were available and used in the training process. Sli-Lab, slice-level labels were available; thus, both slice-level and subject-level labels were used in the training process</p><p><italic toggle=\"yes\">JRT</italic>, junior radiology trainee; <italic toggle=\"yes\">SR</italic>, senior radiologist</p><p><italic toggle=\"yes\">x̅</italic> ± <italic toggle=\"yes\">s</italic>, mean ± standard deviation</p></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "Demonstration of ICH and its subtype prediction workflow. Given processed CT images, two-type classification was first applied to predict if a subject showed ICH. If a subject was predicted to be ICH-positive by our algorithm, we further applied five-type classification to determine which (one or more) of the five subtypes of ICH this subject had",
+      "caption_zh": "",
+      "graphics": [
+        "330_2019_6163_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Illustration of training and testing schema of the two-type and five-type classification tasks. Collected data was first pre-processed and then utilized as training, validation, and testing set for two-type and five-type classification tasks",
+      "caption_zh": "",
+      "graphics": [
+        "330_2019_6163_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "Subject-level ROC curves and AUC results for two-type and five-type classification tasks. a, b two-type and five-type results for algorithm trained with only subject-level labels. c, d two-type and five-type results for algorithm trained with both subject-level and slice-level labels. The dashed black line shows the diagonal between coordinates (0, 0) and (1, 1). AUC is shown in the legend of each plot",
+      "caption_zh": "",
+      "graphics": [
+        "330_2019_6163_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "Examples of regions that our algorithm paid most attention to when making decisions using the Grad-CAM approach. a–f Results for slices with different bleeding locations and different sizes of bleeding areas. Red means high importance while gray means low importance",
+      "caption_zh": "",
+      "graphics": [
+        "330_2019_6163_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Representative examples of SAH-positive cases that were misdiagnosed by all three junior radiology trainees but correctly predicted by our algorithm. a–c Three consecutive slices around the SAH hemorrhage loci for each example. The white arrows point to the SAH hemorrhage loci confirmed by the senior radiologist",
+      "caption_zh": "",
+      "graphics": [
+        "330_2019_6163_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.HeitJJIvMWintermarkMImaging of intracranial hemorrhageJ Stroke201719112710.5853/jos.2016.0056328030895PMC5307932",
+      "doi": [
+        "10.5853/jos.2016.00563"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.BonattiMLombardoFZamboniGAPernterPMucelliRPBonattiGDual-energy CT of the brain: comparison between DECT angiography-derived virtual unenhanced images and true unenhanced images in the detection of intracranial haemorrhageEur Radiol2017272690269710.1007/s00330-016-4658-y27882426",
+      "doi": [
+        "10.1007/s00330-016-4658-y"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.QureshiAITuhrimSBroderickJPBatjerHHHondoHHanleyDFSpontaneous intracerebral hemorrhageN Engl J Med2001344191450146010.1056/NEJM20010510344190711346811",
+      "doi": [
+        "10.1056/NEJM200105103441907"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.CarneyNTottenAMO’ReillyCGuidelines for the management of severe traumatic brain injury, Fourth EditionNeurosurgery20178016152765400010.1227/NEU.0000000000001432",
+      "doi": [
+        "10.1227/NEU.0000000000001432"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.NguyenHSLiLPatelMMuellerWDensity measurements with computed tomography in patients with extra-axial hematoma can quantitatively estimate a degree of brain compressionNeuroradiol J20162937237610.1177/197140091665879527385774PMC5032917",
+      "doi": [
+        "10.1177/1971400916658795"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.ElliottJSmithMThe acute management of intracerebral hemorrhage: a clinical reviewAnesth Analg201011051419142710.1213/ANE.0b013e3181d568c820332192",
+      "doi": [
+        "10.1213/ANE.0b013e3181d568c8"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.AlfaroDLevittMAEnglishDKWilliamsVEisenbergRAccuracy of interpretation of cranial computed tomography scans in an emergency medicine residency programAnn Emerg Med19952516917410.1016/S0196-0644(95)70319-57832342",
+      "doi": [
+        "10.1016/S0196-0644(95)70319-5"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.LalNRMurrayUMEldevikOPDesmondJSClinical consequences of misinterpretations of neuroradiologic CT scans by on-call radiology residentsAJNR Am J Neuroradiol20002112412910669236PMC7976358",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.ErlyWKBergerWGElizabethKSeegerJFGuistoJARadiology resident evaluation of head CT scan orders in the emergency departmentAJNR Am J Neuroradiol20022310310711827881PMC7975501",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.StrubWMLeachJLTomsickTVagalAOvernight preliminary head CT interpretations provided by residents: locations of misidentified intracranial hemorrhageAJNR Am J Neuroradiol2007281679168210.3174/ajnr.A065317885236PMC8134182",
+      "doi": [
+        "10.3174/ajnr.A0653"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.LitjensGKooiTBejnordiBEA survey on deep learning in medical image analysisMed Image Anal201742608810.1016/j.media.2017.07.00528778026",
+      "doi": [
+        "10.1016/j.media.2017.07.005"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.Chen X, Lu Y, Bai J et al (2018) Train a 3D U-Net to segment cranial vasculature in CTA volume without manual annotation. 2018 IEEE 15th International Symposium on Biomedical Imaging (ISBI 2018):559–563",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.HavaeiMDavyAWarde-FarleyDBrain tumor segmentation with deep neural networksMed Image Anal201735183110.1016/j.media.2016.05.00427310171",
+      "doi": [
+        "10.1016/j.media.2016.05.004"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.KamnitsasKLedigCNewcombeVFJEfficient multi-scale 3D CNN with fully connected CRF for accurate brain lesion segmentationMed Image Anal201636617810.1016/j.media.2016.10.00427865153",
+      "doi": [
+        "10.1016/j.media.2016.10.004"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.AvendiMRKheradvarAJafarkhaniHA combined deep-learning and deformable-model approach to fully automatic segmentation of the left ventricle in cardiac MRIMed Image Anal20163010811910.1016/j.media.2016.01.00526917105",
+      "doi": [
+        "10.1016/j.media.2016.01.005"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.ShinH-CRothHGaoMDeep convolutional neural networks for computer-aided detection: CNN architectures, dataset characteristics and transfer learningIEEE Trans Med Imaging2016351285129810.1109/TMI.2016.252816226886976PMC4890616",
+      "doi": [
+        "10.1109/TMI.2016.2528162"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.XiaoFLiaoCCHuangKCChiangIJWongJMAutomated assessment of midline shift in head injury patientsClin Neurol Neurosurg201011278579010.1016/j.clineuro.2010.06.02020663606",
+      "doi": [
+        "10.1016/j.clineuro.2010.06.020"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.LiY-HZhangLHuQ-MLiHJiaF-CWuJ-HAutomatic subarachnoid space segmentation and hemorrhage detection in clinical head CT scansInt J Comput Assist Radiol Surg2011750751610.1007/s11548-011-0664-322081264",
+      "doi": [
+        "10.1007/s11548-011-0664-3"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.Merkow J, Lufkin RB, Nguyen K, Soatto S, Tu Z, Vedaldi A (2017) DeepRadiologyNet: radiologist level pathology detection in ct head images. arXiv preprint arXiv:1711.09313",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Chilamkurthy S, Ghosh R, Tanamala S et al (2018) Development and validation of deep learning algorithms for detection of critical findings in head CT scans. arXiv preprint arXiv:1803.0585410.1016/S0140-6736(18)31645-330318264",
+      "doi": [
+        "10.1016/S0140-6736(18)31645-3"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.TitanoJJBadgeleyMScheffleinJAutomated deep-neural-network surveillance of cranial images for acute neurologic eventsNat Med2018241337134110.1038/s41591-018-0147-y30104767",
+      "doi": [
+        "10.1038/s41591-018-0147-y"
+      ]
+    },
+    {
+      "id": "CR22",
+      "text": "22.ChangPKuoyEGrinbandJHybrid 3D/2D convolutional neural network for hemorrhage evaluation on head CTAJNR Am J Neuroradiol20183991609161610.3174/ajnr.A574230049723PMC6128745",
+      "doi": [
+        "10.3174/ajnr.A5742"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.PrevedelloLMErdalBSRyuJLAutomated critical test findings identification and online notification system using artificial intelligence in imagingRadiology201728592393110.1148/radiol.201716266428678669",
+      "doi": [
+        "10.1148/radiol.2017162664"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.ArbabshiraniMRFornwaltBKMongelluzzoGJAdvanced machine learning in action: identification of intracranial hemorrhage on computed tomography scans of the head with clinical workflow integrationnpj Digit Med20181910.1038/s41746-017-0015-z31304294PMC6550144",
+      "doi": [
+        "10.1038/s41746-017-0015-z"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.van AschCJLuitseMJRinkelGJvan der TweelIKlijnCJIncidence, case fatality, and functional outcome of intracerebral haemorrhage over time, according to age, sex, and ethnic origin: a systematic review and meta-analysisLancet Neurol2010916717610.1016/S1474-4422(09)70340-020056489",
+      "doi": [
+        "10.1016/S1474-4422(09)70340-0"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.AraújoJLVAguiarUPTodeschiniABSaadeNVeigaJCEEpidemiological analysis of 210 cases of surgically treated traumatic extradural hematomaRev Col Bras Cir201239426827110.1590/S0100-6991201200040000522936224",
+      "doi": [
+        "10.1590/S0100-69912012000400005"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.AbdelmalikPAZiaiWCSpontaneous intraventricular hemorrhage: when should intraventricular tPA be considered?Semin Respir Crit Care Med201738674575910.1055/s-0037-160799129262432",
+      "doi": [
+        "10.1055/s-0037-1607991"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.RooijNKDLinnFHHPlasJAVDAlgraARinkelGJEIncidence of subarachnoid haemorrhage: a systematic review with emphasis on region, age, gender and time trendsJ Neurol Neurosurg Psychiatry2007781365137210.1136/jnnp.2007.11765517470467PMC2095631",
+      "doi": [
+        "10.1136/jnnp.2007.117655"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.IvamotoHSJrHPLAtallahANSurgical treatments for chronic subdural hematomas: a comprehensive systematic reviewWorld Neurosurg20168639941810.1016/j.wneu.2015.10.02526485412",
+      "doi": [
+        "10.1016/j.wneu.2015.10.025"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.Zhou B, Khosla A, Lapedriza A, Oliva A, Torralba A (2016) Learning deep features for discriminative localization. 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR):2921–2929",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Selvaraju RR, Cogswell M, Das A, Vedantam R, Parikh D, Batra D (2017) Grad-CAM: visual explanations from deep networks via gradient-based localization. In: 2017 IEEE International Conference on Computer Vision, pp 618–626",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.KimESYoonDYLeeH-YComparison of emergency cranial CT interpretation between radiology residents and neuroradiologists: transverse versus three-dimensional imagesDiagn Interv Radiol201420327728410.5152/dir.2014.1340124509179PMC4463349",
+      "doi": [
+        "10.5152/dir.2014.13401"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Ye H, Gao F, Yin Y, Guo D, Zhao P, Lu Y, Wang X, Bai J, Cao K, Song Q, Zhang H, Chen W, Guo X, Xia J.",
+  "journal": "Eur Radiol",
+  "year": "2019",
+  "pmid": "31041565",
+  "pmcid": "PMC6795911",
+  "doi": "10.1007/s00330-019-06163-2",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:23.379549+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6795911/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6795911.xml"
+}

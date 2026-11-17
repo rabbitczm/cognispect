@@ -1,0 +1,1109 @@
+{
+  "key": "32409715",
+  "body_available": true,
+  "title": "3D-MCN: A 3D Multi-scale Capsule Network for Lung Nodule Malignancy Prediction",
+  "source_url": "https://europepmc.org/articles/PMC7224210",
+  "license": {
+    "text": "Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Parnian Afshar",
+    "Anastasia Oikonomou",
+    "Farnoosh Naderkhani",
+    "Pascal N Tyrrell",
+    "Konstantinos N Plataniotis",
+    "Keyvan Farahani",
+    "Arash Mohammadi"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2020",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2020",
+        "month": "5",
+        "day": "14"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5"
+          ],
+          "en": "According to recent statistics on cancer types published by the International Agency for Research on Cancer of the World Health Organization (WHO)1, lung cancer is ranked first worldwide for mortality and is among the top three cancer types for incidence. Lung cancer together with breast cancer lead worldwide for the number of new cases with approximately 2.1 million diagnoses estimated in 2018. Lung cancer is also responsible for the largest number of deaths (1.8 million deaths, 18.4% of the total), with a low 5-year survival rate (18%)2. This high mortality rate is mainly due to the fact that lung cancer is diagnosed in more than half of the cases at advanced stages2. In recent years, significant technological advancements in medical imaging, especially Computed Tomography (CT), have improved the detection rate of lung tumors3. Analyzing and interpreting these images, however, is time consuming4, and subject to inter-observer variability. Furthermore, intrinsic tumor heterogeneity can significantly contribute to the cancer diagnosis and may not be always visible to the human eye5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR6",
+            "CR8",
+            "CR9",
+            "CR10",
+            "CR11",
+            "CR14",
+            "CR15",
+            "CR16"
+          ],
+          "en": "The aforementioned shortcomings of human-centered cancer diagnosis have encouraged the development of a relatively new field in medical imaging, referred to as “radiomics”6–8, which has shown promising results in cancer diagnosis9. Radiomics is the machine extraction of hundreds of quantitative and semi-quantitative features from radiographic images10 based on the hypothesis that these features can provide more information to the unaided eye. The goal of radiomics analysis, in cancer, is to improve detection, diagnosis, or prediction of the treatment outcome in each case. Radiomics analysis has been recently categorized in two main groups: namely hand-crafted and deep learning-based radiomics. In the former category11–14, a set of pre-defined engineered features are extracted from medical images. These features are, consequently, passed to an analysis tool to calculate the desired output such as the probability of cancer, its stage, and/or the estimated survival time. Although hand-crafted features have shown considerable correlation with clinical outcomes, they have several weaknesses15 limiting their applicability and reliability. First, while hand-crafted features can be stable and robust in some tasks, this group of features is, usually, extracted from the annotated region of interest, which can only be provided by the experts. Therefore, not only does their calculation require extensive time and effort but also their stability and reproducibility highly depend on the pre-processing steps and segmentation16. Second, hand-crafted radiomics are pre-defined and need prior knowledge on the types of features to be extracted, which is often unavailable. Furthermore, there is no guarantee that the extracted features are useful for the task at hand (cancer prediction, diagnosis, and/or classification), as defining the features is independent from the analysis process.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR17",
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR23"
+          ],
+          "en": "The shortcomings of the hand-crafted radiomics have led to the emergence of the deep learning-based radiomics17–20 where features are not pre-defined. In fact, deep learning-based radiomic features are learned in an end-to-end fashion while taking specifics of the desired output into account. In other words, the model learns to extract features that can best distinguish the classes. Convolutional Neural Networks (CNNs) are one of the most popular deep networks in the field of radiomics21. These networks benefit from several useful properties22; for example, sharing trainable weights over the input that significantly reduces the training time and enables the model to extract local features from the whole input image. The CNNs, however, require large datasets, and cannot generalize well in the absence of a large number of images, which is usually the of case a clinical cohort of patients23 and included in the problem of lung cancer classification. Another limitation is the “black box” model, which does not allow the researcher to identify which features are actively playing a role in the classification or if there are any differences between the impact of the features in subgroups of the population. Determining positive or negative samples may be sufficient but often the radiologist will contribute to treatment decisions that depend on more than identifying cancer. For instance, depending on texture, tumor size, and growth rate, various treatment options will be considered for the patient.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR24",
+            "CR25",
+            "CR25",
+            "CR26"
+          ],
+          "en": "Capsule networks 24 (also referred to as CapsNets) are relatively new and revolutionary deep learning architectures that are capable of identifying spatial relations between different objects in an image. They eliminate the need for a large number of samples by including all the possible rotations and transformations of the underlying objects. Therefore, CapsNets are potentially applicable in medical domains25, where very large datasets are unavailable. In our recent works25,26, which can be considered the first attempts at applying CapsNets in a biomedical domain, Capsule networks were designed for the purpose of brain tumor type classification via magnetic resonance imaging (MRI) data. Capitalizing on the success of CapsNets for brain tumor-type classification and the importance of lung cancer malignancy prediction, we propose in this paper a novel and advanced CapsNet architecture designed specifically for lung malignancy prediction based on computed tomography (CT). The proposed 3D multi-scale CapsNet (3D—MCN) model takes 3D patches of the nodules at three different scales as inputs and predicts the nodule’s malignancy. The rationale is that the morphological characteristics of the nodule are not the only ones predicting its malignancy, and incorporation of information obtained from the surrounding tissues and vessels play a critical role in determining the type of the nodule. In brief, the 3D—MCN benefits from: (i) CapsNets-based design, utilizing unique characteristics of this revolutionary deep learning model in handling small datasets and object transformations; (ii) 3D inputs, which give the model access to 3D features of the nodule; (iii) multi-scale inputs, helping the CapsNet to assess the local and global features, and; (iv) not requiring the nodule detailed annotation and pre-defined features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [],
+          "en": "The aim of this work is to investigate whether the proposed 3D-MCN can solve several fundamental challenges of lung nodule malignancy prediction: the first is that most of the traditional nodule prediction models required an exact annotation, leading to inter-observer variability, along with features that are not consistent and reproducible; the second is the insufficiency of the features extracted from the nodule region alone. The surrounding tissues, containing valuable information for the nodule prediction, are carefully taken into account in the 3D-MCN; the third is to assess whether the capsule network framework, embedded in the 3D-MCN, can operate efficiently without requiring a large dataset while yielding acceptable diagnostic accuracy. Finally, the last challenge to address is the model’s interpretability, for which the 3D-MCN features and their correlations with features used in clinical practice are investigated as building trust between the model and its clinical users is of paramount importance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Proposed 3D-MCN Model for lung nodule classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "3D-MCN consists of three independent CapsNets, each of which takes nodule patches at a different spatial scale as input. Therefore, we refer to it as a multi-scale learning architecture. Here, scale refers to the visible area of the tissue surrounding the nodule. Each input is a 3D nodule crop centered at the nodule annotation. The output vectors of the three CapsNets are concatenated, and the result goes through a fusion module consisting of a set of fully connected layers. The final output is the probability of the nodule being benign or malignant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR27",
+            "CR29",
+            "Fig1"
+          ],
+          "en": "We performed several experiments on two independent training and test sets from the Lung Image Database Consortium (LIDC) and Image Database Resource Initiative (IDRI) dataset27–29. This dataset consisted of the CT scans of 1018 subjects. The images were annotated and labeled by one to four radiologists. Each marked region was either nodule or non-nodule. Nodule cases were further divided into two categories. The first category contained the nodules that were less than 3 mm in size. The second category included those that were equal to or larger than 3 mm. For the latter category, radiologists identified the degree of malignancy on a scale of 1 to 5, where the larger the number, the higher the possibility of malignancy. In this work, we categorized nodules 3 mm or larger as either benign (low degree of malignancy) or malignant (high degree of malignancy). Figure 1 shows illustrative examples of available marked regions in the dataset used for evaluation purposes of the proposed 3D—MCN framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Performance of the proposed 3D multi-scale CapsNet (3D—MCN)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "CR5",
+            "CR30",
+            "CR33"
+          ],
+          "en": "Among the five available malignancy labels in the dataset, we followed recent studies5,30–33 and decided to discard the nodules for which the average malignancy ratings given by the radiologists (rounded to the nearest integer) was 3 (indeterminate malignancy). The remaining four labels were divided into two groups, where labels 1 and 2 were re-labeled as 0 (unlikely to be malignant), and labels 4 and 5 were re-labeled as 1 (likely to be malignant). Therefore, a binary classification problem was constructed for a total of 2283 nodules. Nodules were, consequently, grouped into two independent sets for testing (30%) and training (70%). We confirmed that there were no shared patients between the two underlying sets. We trained the single-scale models and the proposed multi-scale architecture based on the training set, and evaluated its performance over the test set. In addition, we trained a fully-connected neural network (having the same architecture as the one in the multi-scale model), as the base-line model, on four hand-crafted features; namely volume, diameter, center-of-mass x coordinate, and center-of-mass y coordinate. These four features accompany the IDC-IDRI dataset to ensure all research groups use the same size-selected nodules. To have a more insightful comparison, we also designed and implemented a 3D-CNN architecture that had inputs at the three scales (similar in nature to the 3D-MCN but without the Capsule design). We tried to keep the complexity of the 3D-CNN as similar as possible to the proposed 3D-MCN. We utilized three independent CNNs, each of which was trained on a specific scale. The final layer of all the three CNNs was a softmax layer to predict the lung tumor malignancy. However, to be able to combine the CNNs before making the final decision, for all the three networks, we took the layer before the softmax, consisting of 32 nodes (similar to the dimension of the final capsule in the proposed 3D-MCN), and concatenated them to go through the fully connected network. The details of the implemented 3D-CNN architecture was as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [],
+          "en": "The input to each CNN was a 3D lung nodule patch at a specific scale, similar to the setting utilized in the 3D-MCN.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "The first layer was a convolutional one, with filters of size 9 and stride of 1, outputting 256 feature maps.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "The second layer was a convolutional one, with filters of size 9 and stride of 2, outputting 256 feature maps.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [],
+          "en": "The third layer was a fully-connected one, with 32 nodes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "The final layer consisted of two nodes to decide on the malignancy of the lung nodule.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "CNNs at different scales were trained independently.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "For all three CNNs, the layers before the final one were concatenated.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "The resulting vector went through a set of fully-connected layers, as utilized in the 3D-MCN.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "The final fully-connected layer made the final decision.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [],
+          "en": "The designed 3D-CNN was trained and tested on exactly the same training and test sets as used for the evaluation of the 3D-MCN.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "Tab1",
+            "CR34",
+            "Fig2"
+          ],
+          "en": "Four measurements based on the performance of the test set were calculated: area under the curve (AUC), accuracy, specificity, and sensitivity. The results are provided in Table 1, which shows that the 3D—MCN framework outperforms not only the single-scale models, but also the 3D-CNN, which takes the exact multi-scale patches as inputs. Moreover, even the single-scale Capsule models outperformed the 3D-CNN, which further illustrates on the superiority of the Capsule design. Specificity was higher for the second scale model. However, we believe that sensitivity is of greater importance, as the consequences of misclassification are worse for malignant cases. Furthermore, typically in clinical practice, suspected malignant cases will go over complementary examinations34, which can identify whether the underlying case was a false positive. Figure 2 illustrates the Receiver Operating Characteristic (ROC) curve for the single-scale models, as well as the multi-scale one, and the base-line.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR35",
+            "CR36"
+          ],
+          "en": "In clinical applications, where false positives and false negatives are not treated equally, a threshold can be selected based on the ROC curve to set a desired sensitivity and specificity. Another strategy to tune these measures is to assign different weights in the objective function. In this work, the proposed 3D multi-scale CapsNet was trained with the objective of minimizing the binary cross entropy loss35,36. As such, we modified the loss as follows to put different weights on the loss function terms (specificity and sensitivity)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec4-p14",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "where y is the target, and p is the predicted probability of Class 1. Terms α and β denote the weights given to the false positives and false negatives, respectively. We trained the multi-scale model with three settings: equal weights, more weight assigned to the false positive, and more weight given to the false negative. Table 2 shows the obtained results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "We inspected the cases in the test set for which our proposed approach failed to predict the correct label. We observed that 28% of such failure cases were nodules that were marked by only one radiologist. There was no agreement on these cases being nodules between different radiologists. Although all other failure cases were nodules identified by at least two radiologists, there was a common pattern between most of them, i.e., the malignancy labels were not consistent, and moreover, there was at least one label 3 among the provided labels. In other words, although the average malignancy was not 3 to be discarded, there was a high probability that the malignancy status of the nodule cannot be determined (malignancy is indeterminate).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR37",
+            "Fig3"
+          ],
+          "en": "As stated previously, the motivation behind our multi-scale approach was that the morphological characteristics of the nodule were not the only indicators of its malignancy. In fact, the surrounding tissues and vessels played an important role in determining the benign or malignant status of the nodule37. To further illustrate the importance of having multi-scale inputs, we extracted the cases where the output was different for different scales. Figure 3 presents four nodules from three different scales. The figure also indicates the scale which has been successful in classifying the nodule. Having a correct prediction was not possible without including all the scales.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "Fig4"
+          ],
+          "en": "In another experiment, we calculated the correlation between the CapsNet-extracted features from all three scales with the four hand-crafted features of volume, diameter, x center-of-mass, and y center-of-mass, as shown in Fig. 4. Volume and diameter are important factors of the nodule malignancy. Therefore, most of the learned features were highly (positively or negatively) correlated with these two features. The centers of mass are, however, calculated from the whole images, and as the model was being fed with only the cropped nodule slices via different scales, the learned features could not represent these two characteristics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [
+            "CR38",
+            "Fig5"
+          ],
+          "en": "When extracting deep learning-based radiomics features, it is crucially important to consider their capability in distinguishing the classes. We projected the high dimensional feature space of the CapsNet into a lower dimensional space, using a t-Distributed Stochastic Neighbor Embedding (t-SNE)38. The resulting feature space for both the training and test sets are shown in Fig. 5, according to which, features are distinctive even in the simplified 2D space.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Patient-level classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par26",
+          "reference_ids": [],
+          "en": "In clinical practice, radiologists label a patient as having a malignancy when even one malignant tumor is detected. Therefore, we tested the performance of the 3D—MCN model, in classifying patients. We labeled patients in the test set as having malignancy or not, where not having malignancy refers to a patient whose detected nodules are all benign. The accuracy of the 3D—MCN model in classifying patients was 83%, and sensitivity and specificity were 84% and 81% respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "In this paper, we presented our work on lung nodule malignancy prediction based on a 3D multi-scale capsule network. Our results showed that the proposed 3D—MCN approach can reach higher accuracy compared to previous studies. The model has several properties that improved the performance of the nodule malignancy prediction task including: (i) incorporation of 3D inputs to ensure that all the available information about the nodule was being used; (ii) three independent networks were trained on three different spatial scales to ensure that the network had access to not only the local features of the nodule and its shape, but also the extended features extracted from the surrounding tissues (having multi-scale input becomes more important when the radiologist has reviewed the tumor with a knowledge of the other nodules and surrounding tissues); (iii) The main architecture was the CapsNet, which, in contrast to CNNs, is able to handle smaller datasets and it is less prone to over-fitting; and (iv) the 3D—MCN framework did not rely on the hand-crafted features and detailed annotations, resulting in time-efficiency, and was not subject to inter-observer variability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "We explored different scenarios of using the LIDC-IDRI dataset for lung nodule malignancy prediction before arriving at the final model. First,we considered each 2D slice of the nodule as a separate sample, where the assigned label was the malignancy label of the corresponding nodule. This technique, although having the advantage of increasing the size of the dataset, was not successful, as whole nodules were not well represented in single 2D slices. Second, we considered only the central slice (slice taken from the middle of the nodule) as the input to the network. This strategy also failed to generate satisfactory predictions since one single slice cannot provide enough information about the nodule. However, it is faster because 2D inputs require far less trainable parameters compared to the 3D ones. Third, We tried single-scale instead of the multi-scale models, resulting in relatively poorer performance. Finally, for each identified nodule by any of the radiologists, we used the label provided by that radiologist instead of averaging over all the ratings of the corresponding nodules. This approach was also not as successful as the proposed 3D—MCN, since the network cannot handle the existing inconsistencies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "Fig6"
+          ],
+          "en": "As stated previously, we discarded the tumors labeled as indeterminate (label 3). In practice, however, the model may still encounter these indeterminate cases. We investigated the output of the model when fed with these nodules. As shown in Fig. 6, while the model was relatively confident about benign and malignant nodules, it was mostly unconfident about the indeterminate ones, where confidence was defined as the probability the model assigns to the output class. This lack of confidence can be used as a sign that these cases should be referred to an expert for further examination.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "CR21",
+            "CR39"
+          ],
+          "en": "There are two general paths to use the LIDC-IDRI dataset. The first one is to rely on the labels from the diagnosis data, which were obtained from different examinations including image review, biopsy, and surgical resection at a nodule level. This approach was explored by Kumar et al.21 for lung nodule malignancy prediction by training a CNN on the pathologically-proven diagnostic data and resulting in an accuracy of 77.52%, sensitivity of 79.06%, and specificity of 76.11%. A multi-view CNN for lung nodule classification, described by Liu et al.39, is another example of using the diagnostic data, that has achieved an AUC of 0.981 and error rate of 5.41%.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "CR5",
+            "Tab3"
+          ],
+          "en": "The second approach (also followed in our work) is to adopt the ratings provided by experienced radiologists at the time of reviewing the CT scans. Causey et al.5 applied a CNN based architecture to distinguish between benign and malignant nodules, and reported an AUC of 0.938, accuracy of 87.9%, sensitivity of 87.9%, and specificity of 87.9%. The authors have further improved the performance to an accuracy of 93.2% by incorporating the hand-crafted features. A Random Forest (RF) classifier was trained on the combination of hand-crafted and deep learning-based features to predict the nodule malignancy. Although the obtained accuracy was on a par with that of our proposed framework, it requires the nodules’ fine annotations, from which our model was completely independent. Table 3 presents a list of studies that have used the same setting of the LIDC-IDRI as we did, along with their proposed method and obtained results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "A significant challenge in comparing different studies on the LIDC-IDRI dataset is that different researchers have used different cohorts of training and testing. One solution to this challenge is to cross-validate the results, instead of using the fixed sets. This strategy, however, should be used with care, not to include nodules from the same patient in both sets. Furthermore, in the case of using deep learning models, such as the one we proposed in this study, cross validation can be computationally expensive. Another challenge of comparing the studies is the difference between reported performance measurements. Accuracy, which is the only metric provided in several studies, is not informative enough, as it gives no details on the portions of positive and negative samples, and a highly biased model can lead to a high accuracy. Our proposed 3D Multi-scale CapsNet model achieves high accuracy, as well as high sensitivity and specificity, showing that it is not biased towards positive or negative samples. Another limitation of most of the previous models is that they require a larger number of samples and they rely on heavy data augmentation. However, the model proposed here was based on the CapsNet, which was capable of interpreting small datasets. This study shows that good performance may be achievable even without large datasets, which is often the case in medical imaging.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "In conclusion, the proposed 3D-MCN model, which was a multi-scale version of the capsule network, was shown to be advantageous over single-scale models, 3D-CNN, and previous studies on the LIDC-IDRI dataset. Although there is still a long way to go until deep learning-based radiomics can be reliably used in clinical applications, we believe the proposed model in this study was a big step forward to this end, by offering complementary information to guide lung nodule malignancy prediction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec8",
+      "title": "Dataset description",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "The LIDC-IDRI is a collection of 1018 CT scans from 1010 patients. The nodules in this collection are identified and annotated through a two-phase process. In the first phase, 12 radiologists independently reviewed the scans and marked the lesions as nodule ≥3 mm, nodule ≥3 mm, and non-nodule. Radiologists annotated the ones identified as nodule ≥3 mm. In the second step, radiologists had access to the results of other radiologists to refine their own marks or leave them unchanged. After this phase, radiologists independently assessed several characteristics of the nodules ≥3 mm, including the likelihood of malignancy, shape, margin, and internal structure. Malignancy was rated from 1 to 5, where 1 indicates the lowest malignancy likelihood and 5 denotes the highest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Nodule patch selection and processing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "In this work, we chose nodules ≥3 mm to classify them as benign (rating of 1 and 2) or malignant (rating of 4 and 5) based on ratings provided by radiologists in the LIDC-IDRI study. We included all the marked nodules, in either the training or the test set, even if the nodule was identified by only one radiologist, to have a model that is more robust to noisy inputs. Keeping these noisy samples was useful in the sense that it represented the overlap between the two distributions of nodule and non-nodule, which contributes to random error. The labels of the nodules that were identified by more than one radiologist were the average over all the available ratings, rounded to the nearest integer. Consequently, nodules with an average malignancy of 3 (indeterminate malignancy) were discarded.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "CR40",
+            "CR41",
+            "CR42"
+          ],
+          "en": "For each nodule, we extracted three different 3D patches around the nodule center, where 3D patch refers to extracting one patch from the central slice, and two from the two immediate neighbors. Each 3D patch was extracted at three different scales. The first scale completely fits the nodule boundary, based on the provided annotation. As nodules are associated with different sizes, all extracted patches were zero padded up to the fixed size of 80 × 80 (the largest possible width and height based on the training data). The second scale was extracted by allowing a margin of 10 pixels at each side. The patches were zero padded to the fixed size of 100 × 100, and down-sampled, using the bi-linear method, to 80 × 80, to be consistent with the first scale and reduce the complexity. For down-sampling, we used the “bi-linear” approach, which is an extension of linear interpolation, where linear down-sampling (weighted average of the two immediate neighbors) was first performed in one direction, followed by the down-sampling in the other direction. Similarly, the third scale was extracted by allowing a margin of 20 pixels at each side. The patches were zero padded to the fixed size of 120 × 120 and down-sampled to 80 × 80. At the end, data was normalized between 0 and 1. The training set was shuffled and augmented by including random flipping. Finally, we ended up with three sets of training (at three scales), three sets of test, one set of training label, and one set of test label. Each training set was fed to an independent CapsNet along with its corresponding test set. It is worth mentioning that although increasing the number of scales would possibly improve the performance by capturing more detailed inter and intra-tumoral heterogeneity, it comes with extra computational overhead requiring advanced memory resources. Taking patches at three scales, therefore, is the commonly used approach40. While small patches offer more consistency, they cannot capture the object-whole relations. Large patches, on the other hand, lose the object details41. The three scales used in our study represent information from fine, medium, and coarse nodule boundaries42.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Capsule network",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "CNNs have been the state-of-the-art in object recognition for many years. These networks, generally, benefit from the shared weights across the input, enabling them to detect local features with far less trainable parameters. However, the embedded pooling layers are shown to lose the exact information on spatial relations. Therefore, CNNs are not robust to transformation and rotation, and they need to be fed with all the possible inputs in order to learn the translations. CapsNets, on the other hand, are more capable of handling transformations and rotations through the capsule layers and “routing by agreement” process.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "A CapsNet is a neural network consisting of several capsules. A capsule is a group of neurons that, together, predict the probability of presence and instantiation parameters of a specific object at a specific location. In contrast to CNNs, CapsNets preserve the spatial information throughout the network. The core process of a CapsNet is similar to that of conventional neural networks, where each neuron contributes to the output of the neurons in the layer above. Each capsule in a CapsNet predicts the output of all the capsules in the next layer. These predictions, however, are not treated equally, as in a conventional network. The contribution of each lower level capsule depends on its success in predicting the output of the next layer’s capsules. The process, through which the weights for the predictions are determined, is called “routing by agreement” and forms the main idea behind the CapsNets. This process enables the network to consider the spatial relations between the low level and high level instances, without looking at all possible translations and being fed a huge dataset. Since, large datasets are not typically accessible in medical fields, CapsNet is an appropriate choice for the problem of lung nodule classification. In general, a Capsule i predicts the output of the next layer’s Capsule j, denoted by uˆj|i, where predictions are learned through a back-propagation process, the same as the learning approach in a conventional neural network, as follows",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec10-p3",
+          "reference_ids": [],
+          "en": "where ui denotes the instantiation parameters of the capsule i, and Wij is the weight matrix used for the prediction, learned through the back-propagation. This prediction process is similar to what happens in a CNN. The output of Capsule j, denoted by sj, is a weighted summation over all the incoming predictions (uˆj|i), with different weighting coefficients, which are learned thorough the routing by agreement procedure. Routing is what distinguishes the CapsNet from a CNN, and helps with identifying the spatial relations. This procedure can be summarized as follows",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec10-p4",
+          "reference_ids": [],
+          "en": "where aij measures the degree of similarity between sj and its prediction uˆj|i, by calculating their inner product, and cij denotes the coupling coefficient associated with the prediction. The final output sj typically goes through a non-linear squashing function to prevent it from exceeding one. Finally, it should be noted that the loss function specifically proposed for the CapsNet is slightly different from the common loss functions such as the cross-entropy. The CapsNet loss function, lk, associated with capsule k, is calculated as follows",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec10-p5",
+          "reference_ids": [
+            "Fig7",
+            "Fig7"
+          ],
+          "en": "where Tk is one whenever the class k is present and zero otherwise. Terms m+, m−, and λ are the hyper parameters of the model. Term sk for each last layer Capsule k is associated with a particular class (benign or malignant), determining both the probability of the class and the instantiation parameters. The CapsNet-based model (3D-MCN) that we developed for malignancy prediction of lung nodules is shown in Fig. 7. In this framework, we have trained three independent CapsNets on three different scales, and obtained the sk s for all three CapsNets and both output classes, on both the training and test set, to be fed to our multi-scale network. The CapsNet architecture that we used for a single scale is shown in Fig. 7 with an asterisk. This architecture consists of a convolutional layer, a primary capsule layer that predicts the output of the next layer, and a classification capsule layer that outputs the probability of each class along with the instantiation parameters (sk s).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Multi-scale model",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "Fig7"
+          ],
+          "en": "Our multi-scale model was a fully connected neural network with 3 three hidden layers of sizes 1028, 512, and 256. The input to this network was the combination of all the output instantiation vectors from the three CapsNets. For each CapsNet, the output vector of the lower probability class was masked (set to zero). The CapsNet architecture is shown in Fig. 7 with an asterisk. Each output class is of dimension 16. Having two output classes (benign and malignant) results in a vector of dimension 32 for each CapsNet, and having three CapsNets results in an input of size 96 to the multi-scale network. The output of this network was the probability of the nodule being benign or malignant, based on the information from all the three scales.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "CR43"
+          ],
+          "en": "We have implemented our model using the Keras43 software package. The multi-scale network objective was a cross entropy loss function optimized using the Adam optimizer.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "This work was partially supported by the Natural Sciences and Engineering Research Council (NSERC) of Canada through the NSERC Discovery Grant RGPIN 2019 06966.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Author contributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "P.A. implemented the model and drafted the manuscript jointly with A.M., A.O. supervised the clinical parts, P.T. guided the experiments and analysis, F.N., K.F., K.N.P. and A.M. directed and supervised the study. All authors reviewed the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Competing interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "fn-group1-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Bib1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Bib1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Performance of the proposed 3D Multi-scale CapsNet along with performance of the three underlying single scale-models and the described 3D-CNN on the independent test set. The 3D—MCN approach outperformed others in terms of the AUC, accuracy, and sensitivity.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Model",
+          "Area Under the Curve (AUC)",
+          "Accuracy",
+          "Specificity",
+          "Sensitivity"
+        ],
+        [
+          "Proposed 3D—MCN",
+          "0.964",
+          "93.12%",
+          "90%",
+          "94.94%"
+        ],
+        [
+          "First Scale of the 3D—MCN",
+          "0.9633",
+          "91.65%",
+          "90%",
+          "92.21%"
+        ],
+        [
+          "Second Scale of the 3D—MCN",
+          "0.96",
+          "91.65%",
+          "91.33%",
+          "91.82%"
+        ],
+        [
+          "Third Scale of the 3D—MCN",
+          "0.96",
+          "91.40%",
+          "89.33%",
+          "92.60%"
+        ],
+        [
+          "3D-CNN",
+          "0.9562",
+          "89.43%",
+          "90%",
+          "89.10%"
+        ],
+        [
+          "Base-line Model (Hand-Crafted)",
+          "0.9524",
+          "87.47%",
+          "86.66%",
+          "87.93%"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\"><label>Table 1</label><caption><p>Performance of the proposed 3D Multi-scale CapsNet along with performance of the three underlying single scale-models and the described 3D-CNN on the independent test set. The 3D—MCN approach outperformed others in terms of the AUC, accuracy, and sensitivity.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Model</th><th colspan=\"1\" rowspan=\"1\">Area Under the Curve (AUC)</th><th colspan=\"1\" rowspan=\"1\">Accuracy</th><th colspan=\"1\" rowspan=\"1\">Specificity</th><th colspan=\"1\" rowspan=\"1\">Sensitivity</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Proposed 3D—MCN</td><td colspan=\"1\" rowspan=\"1\"><bold>0.964</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>93.12%</bold></td><td colspan=\"1\" rowspan=\"1\">90%</td><td colspan=\"1\" rowspan=\"1\"><bold>94.94%</bold></td></tr><tr><td colspan=\"1\" rowspan=\"1\">First Scale of the 3D—MCN</td><td colspan=\"1\" rowspan=\"1\">0.9633</td><td colspan=\"1\" rowspan=\"1\">91.65%</td><td colspan=\"1\" rowspan=\"1\">90%</td><td colspan=\"1\" rowspan=\"1\">92.21%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Second Scale of the 3D—MCN</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">91.65%</td><td colspan=\"1\" rowspan=\"1\"><bold>91.33%</bold></td><td colspan=\"1\" rowspan=\"1\">91.82%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Third Scale of the 3D—MCN</td><td colspan=\"1\" rowspan=\"1\">0.96</td><td colspan=\"1\" rowspan=\"1\">91.40%</td><td colspan=\"1\" rowspan=\"1\">89.33%</td><td colspan=\"1\" rowspan=\"1\">92.60%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">3D-CNN</td><td colspan=\"1\" rowspan=\"1\">0.9562</td><td colspan=\"1\" rowspan=\"1\">89.43%</td><td colspan=\"1\" rowspan=\"1\">90%</td><td colspan=\"1\" rowspan=\"1\">89.10%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Base-line Model (Hand-Crafted)</td><td colspan=\"1\" rowspan=\"1\">0.9524</td><td colspan=\"1\" rowspan=\"1\">87.47%</td><td colspan=\"1\" rowspan=\"1\">86.66%</td><td colspan=\"1\" rowspan=\"1\">87.93%</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Effects of changing the weights associated with the terms in the modified loss function controlling the false positives and false negatives. Assigning more weight to the false positive loss increased the sensitivity, while putting higher weight to the false negative loss increased the specificity.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Weight Setting",
+          "Area Under the Curve (AUC)",
+          "Accuracy",
+          "Specificity",
+          "Sensitivity"
+        ],
+        [
+          "Equal Weights",
+          "0.964",
+          "93.12%",
+          "90%",
+          "94.94%"
+        ],
+        [
+          "α=2 and β=1",
+          "0.9641",
+          "93.12%",
+          "87.33%",
+          "96.49%"
+        ],
+        [
+          "α=1 and β=2",
+          "0.9638",
+          "92.87%",
+          "92%",
+          "93.38%"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\"><label>Table 2</label><caption><p>Effects of changing the weights associated with the terms in the modified loss function controlling the false positives and false negatives. Assigning more weight to the false positive loss increased the sensitivity, while putting higher weight to the false negative loss increased the specificity.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Weight Setting</th><th colspan=\"1\" rowspan=\"1\">Area Under the Curve (AUC)</th><th colspan=\"1\" rowspan=\"1\">Accuracy</th><th colspan=\"1\" rowspan=\"1\">Specificity</th><th colspan=\"1\" rowspan=\"1\">Sensitivity</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Equal Weights</td><td colspan=\"1\" rowspan=\"1\"><sub>0.964</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>93.12%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>90%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>94.94%</sub></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><sub><italic>α</italic>=2</sub> and <italic>β</italic>=1</td><td colspan=\"1\" rowspan=\"1\"><sub>0.9641</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>93.12%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>87.33%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>96.49%</sub></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><sub><italic>α</italic>=1</sub> and <italic>β</italic>=2</td><td colspan=\"1\" rowspan=\"1\"><sub>0.9638</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>92.87%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>92%</sub></td><td colspan=\"1\" rowspan=\"1\"><sub>93.38%</sub></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "A list of studies that have used LIDC-IDRI to predict lung nodule malignancy based on the ratings provided by radiologists. Note that some of the studies (refs.5,32) included hand-crafted features, requiring expert annotations.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Method",
+          "Area Under the Curve (AUC)",
+          "Accuracy",
+          "Specificity",
+          "Sensitivity"
+        ],
+        [
+          "Proposed model",
+          "0.964",
+          "93.12%",
+          "90%",
+          "94.94%"
+        ],
+        [
+          "CNN5",
+          "0.938",
+          "87.9%",
+          "87.9%",
+          "87.9%"
+        ],
+        [
+          "CNN in combination with hand-crafted features5",
+          "0.971",
+          "93.2%",
+          "98.5%",
+          "87.9%"
+        ],
+        [
+          "Deep residual network30",
+          "0.9459",
+          "89.90%",
+          "88.64%",
+          "91.07%"
+        ],
+        [
+          "Deep belief network31",
+          "—",
+          "81.19%",
+          "—",
+          "—"
+        ],
+        [
+          "CNN in combination with hand-crafted features32",
+          "—",
+          "86.79%",
+          "95.42%",
+          "60.26%"
+        ],
+        [
+          "Multi-crop CNN33",
+          "0.93",
+          "87.14%",
+          "93%",
+          "77%"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\"><label>Table 3</label><caption><p>A list of studies that have used LIDC-IDRI to predict lung nodule malignancy based on the ratings provided by radiologists. Note that some of the studies (refs.<sup><xref rid=\"CR5\" ref-type=\"bibr\">5</xref>,<xref rid=\"CR32\" ref-type=\"bibr\">32</xref></sup>) included hand-crafted features, requiring expert annotations.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Method</th><th colspan=\"1\" rowspan=\"1\">Area Under the Curve (AUC)</th><th colspan=\"1\" rowspan=\"1\">Accuracy</th><th colspan=\"1\" rowspan=\"1\">Specificity</th><th colspan=\"1\" rowspan=\"1\">Sensitivity</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Proposed model</td><td colspan=\"1\" rowspan=\"1\">0.964</td><td colspan=\"1\" rowspan=\"1\">93.12%</td><td colspan=\"1\" rowspan=\"1\">90%</td><td colspan=\"1\" rowspan=\"1\"><bold>94.94%</bold></td></tr><tr><td colspan=\"1\" rowspan=\"1\">CNN<sup><xref rid=\"CR5\" ref-type=\"bibr\">5</xref></sup></td><td colspan=\"1\" rowspan=\"1\">0.938</td><td colspan=\"1\" rowspan=\"1\">87.9%</td><td colspan=\"1\" rowspan=\"1\">87.9%</td><td colspan=\"1\" rowspan=\"1\">87.9%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">CNN in combination with hand-crafted features<sup><xref rid=\"CR5\" ref-type=\"bibr\">5</xref></sup></td><td colspan=\"1\" rowspan=\"1\"><bold>0.971</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>93.2%</bold></td><td colspan=\"1\" rowspan=\"1\"><bold>98.5%</bold></td><td colspan=\"1\" rowspan=\"1\">87.9%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Deep residual network<sup><xref rid=\"CR30\" ref-type=\"bibr\">30</xref></sup></td><td colspan=\"1\" rowspan=\"1\">0.9459</td><td colspan=\"1\" rowspan=\"1\">89.90%</td><td colspan=\"1\" rowspan=\"1\">88.64%</td><td colspan=\"1\" rowspan=\"1\">91.07%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Deep belief network<sup><xref rid=\"CR31\" ref-type=\"bibr\">31</xref></sup></td><td colspan=\"1\" rowspan=\"1\">—</td><td colspan=\"1\" rowspan=\"1\">81.19%</td><td colspan=\"1\" rowspan=\"1\">—</td><td colspan=\"1\" rowspan=\"1\">—</td></tr><tr><td colspan=\"1\" rowspan=\"1\">CNN in combination with hand-crafted features<sup><xref rid=\"CR32\" ref-type=\"bibr\">32</xref></sup></td><td colspan=\"1\" rowspan=\"1\">—</td><td colspan=\"1\" rowspan=\"1\">86.79%</td><td colspan=\"1\" rowspan=\"1\">95.42%</td><td colspan=\"1\" rowspan=\"1\">60.26%</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Multi-crop CNN<sup><xref rid=\"CR33\" ref-type=\"bibr\">33</xref></sup></td><td colspan=\"1\" rowspan=\"1\">0.93</td><td colspan=\"1\" rowspan=\"1\">87.14%</td><td colspan=\"1\" rowspan=\"1\">93%</td><td colspan=\"1\" rowspan=\"1\">77%</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Examples of available marked regions in the LIDC-IDRI dataset27. Each region was classified as nodule or non-nodule. Nodules were categorized based on their size. Nodules larger than 3 mm were further sub-categorized based on their malignancy ratings.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig1_HTML.jpg",
+        "41598_2020_64824_Fig1_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "The ROC curve for the single-scale, multi-scale, and the base-line model (i.e., fully connected layers trained on hand-crafted features only), showing that the proposed 3D−MCN approach was capable of achieving the highest AUC.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig2_HTML.jpg",
+        "41598_2020_64824_Fig2_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "Cases, where not all the single-scale models provided correct predictions. The check sign indicates the successful scale. This figure illustrates the necessity of including all the three scales in the final model.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig3_HTML.jpg",
+        "41598_2020_64824_Fig3_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Correlation between the CapsNet features and the hand-crafted features. Most of the features were positively or negatively correlated with volume and diameter. However, the correlation with x and y centers was low, as the model was fed with cropped nodule slices in different scales, and the location with respect to the whole image was not accessible to the model.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig4_HTML.jpg",
+        "41598_2020_64824_Fig4_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "T-SNE plot of the CapsNet learned features in 2D,showing that the features were capable of distinguishing between the two classes.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig5_HTML.jpg",
+        "41598_2020_64824_Fig5_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Figure 6",
+      "caption": "Histogram of the model’s confidence in classifying the tumors. 1 indicates a complete confidence, whereas 0.5 is a random assignment.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig6_HTML.jpg",
+        "41598_2020_64824_Fig6_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig7",
+      "label": "Figure 7",
+      "caption": "The proposed 3D multi-scale CapsNet framework. Three independent capsule networks take 3D nodule crops as inputs. Each CapsNet takes inputs at a different scale. The output vectors are masked and concatenated into a single vector. The resulted vector goes through a fusion module consisting of a set of fully connected layers to form probability associated with each class (benign or malignant). The CapsNet detailed architecture is marked with an asterisk at the bottom.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2020_64824_Fig7_HTML.jpg",
+        "41598_2020_64824_Fig7_HTML.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1loss=−(αylog(p)⏟Controlling false positive+β(1−y)log(1−p)⏟Controlling false negative),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ1\"><label>1</label><ns0:math id=\"M2\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">l</ns0:mi><ns0:mi mathvariant=\"normal\">o</ns0:mi><ns0:mi mathvariant=\"normal\">s</ns0:mi><ns0:mi mathvariant=\"normal\">s</ns0:mi></ns0:mrow></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mo>−</ns0:mo><ns0:mspace width=\"-.25em\" /><ns0:mspace width=\"-.25em\" /><ns0:mspace width=\"-.25em\" /><ns0:mspace width=\"-.25em\" /><ns0:mspace width=\"-.25em\" /><ns0:mspace width=\"-.25em\" /><ns0:munder><ns0:mrow class=\"MJX-TeXAtom-OP MJX-fixedlimits\"><ns0:mrow class=\"MJX-TeXAtom-OP MJX-fixedlimits\"><ns0:munder><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi>α</ns0:mi><ns0:mspace width=\"thinmathspace\" /><ns0:mi>y</ns0:mi><ns0:mspace width=\"thinmathspace\" /><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mo>(</ns0:mo><ns0:mi>p</ns0:mi><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo>⏟</ns0:mo></ns0:munder></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mrow><ns0:mrow><ns0:mtext>Controlling false positive</ns0:mtext></ns0:mrow></ns0:mrow></ns0:mrow></ns0:munder><ns0:mo>+</ns0:mo><ns0:mspace width=\"-.25em\" /><ns0:munder><ns0:mrow class=\"MJX-TeXAtom-OP MJX-fixedlimits\"><ns0:mrow class=\"MJX-TeXAtom-OP MJX-fixedlimits\"><ns0:munder><ns0:mrow><ns0:mi>β</ns0:mi><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mo>−</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo>)</ns0:mo><ns0:mspace width=\"thinmathspace\" /><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mo>−</ns0:mo><ns0:mi>p</ns0:mi><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo>⏟</ns0:mo></ns0:munder></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mrow><ns0:mrow><ns0:mtext>Controlling false negative</ns0:mtext></ns0:mrow></ns0:mrow></ns0:mrow></ns0:munder><ns0:mo>)</ns0:mo><ns0:mo>,</ns0:mo></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ2",
+      "text": "2uˆj|i=Wijui,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ2\"><label>2</label><ns0:math id=\"M6\" display=\"block\"><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">u</ns0:mi><ns0:mo mathvariant=\"bold\">ˆ</ns0:mo></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>|</ns0:mo><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">W</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">u</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3aij=sj.u^j|i,bij=bij+aij,cij=exp(bij)∑kexp(bik),andsj=∑iciju^j|i,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ3\"><label>3</label><ns0:math id=\"M10\" display=\"block\"><ns0:msub><ns0:mrow><ns0:mi>a</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mrow><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"bold\">s</ns0:mi></ns0:mrow></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow /><ns0:mo>.</ns0:mo><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"bold\">u</ns0:mi></ns0:mrow></ns0:mrow><ns0:mo>^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo>|</ns0:mo></ns0:mrow><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"thinmathspace\" /><ns0:mspace width=\"1em\" /><ns0:msub><ns0:mrow><ns0:mi>b</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>b</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>a</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:mspace width=\"thinmathspace\" /><ns0:mspace width=\"1em\" /><ns0:msub><ns0:mrow><ns0:mi>c</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mi>e</ns0:mi><ns0:mi>x</ns0:mi><ns0:mi>p</ns0:mi><ns0:mo>(</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>b</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mrow><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:munder><ns0:mi>e</ns0:mi><ns0:mi>x</ns0:mi><ns0:mi>p</ns0:mi><ns0:mo>(</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>b</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mfrac><ns0:mo>,</ns0:mo><ns0:mspace width=\"thinmathspace\" /><ns0:mspace width=\"1em\" /><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"normal\">a</ns0:mi><ns0:mi mathvariant=\"normal\">n</ns0:mi><ns0:mi mathvariant=\"normal\">d</ns0:mi></ns0:mrow></ns0:mrow><ns0:mspace width=\"thinmathspace\" /><ns0:msub><ns0:mrow><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"bold\">s</ns0:mi></ns0:mrow></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi></ns0:mrow></ns0:munder><ns0:msub><ns0:mrow><ns0:mi>c</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mrow><ns0:mrow><ns0:mover><ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"bold\">u</ns0:mi></ns0:mrow></ns0:mrow><ns0:mo>^</ns0:mo></ns0:mover></ns0:mrow></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo>|</ns0:mo></ns0:mrow><ns0:mi>i</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ4",
+      "text": "4lk=Tkmax(0,m+−||sk||)2+λ(1−Tk)max(0,||sk||−m−)2,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ4\"><label>4</label><ns0:math id=\"M14\" display=\"block\"><ns0:msub><ns0:mrow><ns0:mi>l</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>T</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mn>0,</ns0:mn><ns0:msup><ns0:mrow><ns0:mi>m</ns0:mi></ns0:mrow><ns0:mo>+</ns0:mo></ns0:msup><ns0:mo>−</ns0:mo><ns0:mo>||</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">s</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>||</ns0:mo><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup><ns0:mo>+</ns0:mo><ns0:mi>λ</ns0:mi><ns0:mo>(</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo>−</ns0:mo><ns0:msub><ns0:mrow><ns0:mi>T</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mn>0,</ns0:mn><ns0:mo>||</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">s</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>||</ns0:mo><ns0:mo>−</ns0:mo><ns0:msup><ns0:mrow><ns0:mi>m</ns0:mi></ns0:mrow><ns0:mo>−</ns0:mo></ns0:msup><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup><ns0:mo>,</ns0:mo></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Bray, F., et al. CA: A Cancer Journal for Clinicians, Global Cancer Statistics 2018: GLOBOCAN Estimates of Incidence and Mortality Worldwide for 36 Cancers in 185 Countries. 66, 7–30, 10.3322/caac.21492 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR2",
+      "text": "2.Siegel RL, Miller KD, Jemal A. Cancer statistics, 2016. CA: A Cancer J. Clinicians. 2016;68:394–424. doi: 10.3322/caac.21332.",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.Aberle DR, et al. Reduced Lung-Cancer Mortality with Low-Dose Computed Tomographic Screening. N. Engl. J. Med. 2011;365:395–409. doi: 10.1056/NEJMoa1102873.",
+      "doi": []
+    },
+    {
+      "id": "CR4",
+      "text": "4.Zhang Y, Oikonomou A, Wong A, Haider MA, Khalvati F. Radiomics-based prognosis analysis for non-small cell lung cancer. Sci. Rep. 2017;7:481–487. doi: 10.1038/srep46349.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.Causey, J. L. et al. Highly accurate model for prediction of lung nodule malignancy with ct scans. Scientific Reports 8, 10.1038/s41598-018-27569-w (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR6",
+      "text": "6.Aerts, H. J. W. L. et al. Decoding tumour phenotype by noninvasive imaging using a quantitative radiomics approach. Nature Communications 5, 10.1038/ncomms5006 (2014).",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Oikonomou, A. et al. Radiomics analysis at pet/ct contributes to prognosis of recurrence and survival in lung cancer treated with stereotactic body radiotherapy. Scientific Reports 8, 10.1038/s41598-018-22357-y (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Afshar A, Mohammadi A, Konstantinos NP, Oikonomou A, Benali H. From hand-crafted to deep learning-based cancer radiomics: Challenges and opportunities. IEEE Signal. Process. Mag. 2019;36:132–160. doi: 10.1109/MSP.2019.2900993.",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Gillies RJ, Kinahan PE, Hricak H. Radiomics: Images are more than pictures, they are data. Radiology. 2015;278:563–577. doi: 10.1148/radiol.2015151169.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Lambin P, et al. Radiomics: extracting more information from medical images using advanced feature analysis. Eur. J. Cancer. 2012;48:441–446. doi: 10.1016/j.ejca.2011.11.036.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Chen, C. et al. Radiomic features analysis in computed tomography images of lung nodule classification. PLoS One 13, 10.1371/journal.pone.0192002 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.Parmar, C. et al. Radiomic feature clusters and prognostic signatures specific for lung and head and neck cancer. Scientific Reports 5, 10.1038/srep11044 (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Coroller TP, et al. Multiview convolutional neural networks for lung nodule classification. Radiotherapy Oncol. 2016;119:480–486. doi: 10.1016/j.radonc.2016.04.004.",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.Huynh E, et al. Ct-based radiomic analysis of stereotactic body radiation therapy patients with lung cancer. Radiotherapy Oncol. 2016;120:258–266. doi: 10.1016/j.radonc.2016.05.024.",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Yip, S. S. F. & Aerts, H. J. W. L. Applications and limitations of radiomics. Physics in Medicine and Biology 61, 10.1088/0031-9155/61/13/R150 (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Park JE, et al. Reproducibility and Generalizability in Radiomics Modeling: Possible Strategies in Radiologic and Statistical Perspectives. Korean J. Radiology. 2019;20:1124–1137. doi: 10.3348/kjr.2018.0070.",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Lao, J. et al. A deep learning-based radiomics model for prediction of survival in glioblastoma multiforme. Scientific Reports 7, 10.1038/s41598-017-10649-8 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.Li, Z., Wang, Y., Yu, J., Guo, Y. & Cao, W. Deep learning based radiomics (dlr) and its usage in noninvasive idh1 prediction for low grade glioma. Scientific Reports 7, 10.1038/s41598-017-05848-2 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Oakden-Rayner, L. et al. Precision radiology: Predicting longevity using feature engineering and deep learning methods in a radiomics framework. Scientific Reports 7, 10.1038/s41598-017-01931-w (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Cha, K. H. et al. Bladder cancer treatment response assessment in ct using radiomics with deep-learning. Scientific Reports 7, 10.1038/s41598-017-09315-w (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Kuma, D. et al. Discovery radiomics for pathologically-proven computed tomography lung cancer prediction. Karray F., Campilho A., Cheriet F. (eds) Image Analysis and Recognition. ICIAR 2017. Lecture Notes in Computer Science, Springer, Cham 10317 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Krizhevsky, A., Sutskever, I. & Hinton, G. E. Imagenet classification with deep convolutional neural networks. Neural Information Processing Systems (NIPS) (2012).",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Yamashita R, Nishio M, Do RKG, Togashi K. Convolutional neural networks: An overview and application in radiology. Insights into Imaging. 2018;9:611–629. doi: 10.1007/s13244-018-0639-9.",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Sabour, S., Frosst, N. & Hinton, G. E. Dynamic routing between capsules. Neural Information Processing Systems (NIPS) (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.Afshar, P., Mohammadi, A., & Plataniotis, K. N. Brain tumor type classification via capsule networks. 25th IEEE International Conference on Image Processing (ICIP) 3129–3133 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR26",
+      "text": "26.Afshar, P., Plataniotis, K. N. & Mohammadi, A. Capsule networks for brain tumor classification based on MRI images and coarse tumor boundaries. 44th IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) 1368–1372 (2019).",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.Armato, S. G. III et al. Data from lidc-idri. The Cancer Imaging Archive. 10.7937/K9/TCIA.2015.LO9QL9SX (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Armato SG, III, et al. The lung image database consortium (lidc) and image database resource initiative (idri): A completed reference database of lung nodules on ct scans. Med. Phys. 2011;38:915–931. doi: 10.1118/1.3528204.",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Clark K, et al. The cancer imaging archive (tcia): Maintaining and operating a public information repository. J. Digital Imaging. 2013;26:1045–1057. doi: 10.1007/s10278-013-9622-7.",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Nibali A, Zhen H, Wollersheim D. Pulmonary nodule classification with deep residual networks. Int. J. Computer Assist. Radiology Surg. 2017;12:1799–1808. doi: 10.1007/s11548-017-1605-6.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Sun, W., Zheng, B. & Qian, W. Computer aided lung cancer diagnosis with deep learning algorithms. Proceedings of SPIE 9785, 10.1117/12.2216307 (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Xie, Y., Zhang, J., Liu, S., Cai, W. & Xia, Y. Lung nodule classification by jointly using visual descriptors and deep features. Medical Computer Vision and Bayesian and Graphical Models for Biomedical Imaging. BAMBI 2016, MCV 2016. Lecture Notes in Computer Science, Springer, Cham 10081 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Shen W, et al. Multi-crop convolutional neural networks for lung nodule malignancy suspiciousness classification. Pattern Recognit. 2017;61:663–673. doi: 10.1016/j.patcog.2016.05.029.",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Lalkhen AG, McCluskey A. Clinical tests: sensitivity and specificity. Continuing Educ. Anaesth. Crit. Care Pain. 2008;8:221–223. doi: 10.1093/bjaceaccp/mkn041.",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Brosch, T. et al. Deep convolutional encoder networks for multiple sclerosis lesion segmentation. Medical Image Computing and Computer-Assisted Intervention, MICCAI 2015. MICCAI 2015. Lecture Notes in Computer Science, Springer, Cham 9351 (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Sudre, C. H., Li, W., Vercauteren, T., Ourselin, S. & Jorge Cardoso, M. Generalised dice overlap as a deep learning loss function for highly unbalanced segmentations. Deep Learning in Medical Image Analysis and Multimodal Learning for Clinical Decision Support. DLMIA 2017, ML-CDS 2017. Lecture Notes in Computer Science, Springer, Cham 10553 (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Jacobs C, et al. Automatic detection of subsolid pulmonary nodules in thoracic computed tomography images. Med. Image Anal. 2014;18:374–384. doi: 10.1016/j.media.2013.12.001.",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Maaten LVD, Hinton G. Visualizing Data using t-SNE. J. Mach. Learn. Res. 2008;9:2579–2605.",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Liu K, Kang G. Multiview convolutional neural networks for lung nodule classification. Int. J. Imaging Syst. Technol. 2017;27:12–22. doi: 10.1002/ima.22206.",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Tafti, A. P., Bashiri, F. S., LaRose, E., & Peissig, P. Diagnostic Classification of Lung CT Images Using Deep 3D Multi-Scale Convolutional Neural Network. 2018 IEEE International Conference on Healthcare Informatics (ICHI), 10.1109/ICHI.2018.00078 (2018).",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Hao, Z. et al. Multiscale superpixel classification for tumor segmentation in breast ultrasound images. 2012 19th IEEE International Conference on Image Processing, 10.1109/ICIP.2012.6467485 (2012).",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Chaddad A, Sabri S, Niazi T, Abdulkarim B. Prediction of survival with multi-scale radiomic analysis in glioblastoma patients. Med. Biol. Eng. Comput. 2018;56:2287–2300. doi: 10.1007/s11517-018-1858-4.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Chollet, F. keras. GitHub repository, https://github.com/fchollet/keras (2015).",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Afshar P, Oikonomou A, Naderkhani F, Tyrrell PN, Plataniotis KN, Farahani K, Mohammadi A.",
+  "journal": "Sci Rep",
+  "year": "2020",
+  "pmid": "32409715",
+  "pmcid": "PMC7224210",
+  "doi": "10.1038/s41598-020-64824-5",
+  "source": {
+    "retrieved_at": "2026-11-14T17:04:57.648855+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7224210/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC7224210.xml"
+}

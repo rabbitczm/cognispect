@@ -1,0 +1,1797 @@
+{
+  "key": "38845006",
+  "body_available": true,
+  "title": "TMO-Net: an explainable pretrained multi-omics model for multi-task learning in oncology",
+  "source_url": "https://europepmc.org/articles/PMC11157742",
+  "license": {
+    "text": "Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/. The Creative Commons Public Domain Dedication waiver (http://creativecommons.org/publicdomain/zero/1.0/) applies to the data made available in this article, unless otherwise stated in a credit line to the data.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/",
+      "https://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Feng-ao Wang",
+    "Zhenfeng Zhuang",
+    "Feng Gao",
+    "Ruikun He",
+    "Shaoting Zhang",
+    "Liansheng Wang",
+    "Junwei Liu",
+    "Yixue Li"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2024",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2024",
+        "month": "6",
+        "day": "6"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Background",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5",
+            "CR6"
+          ],
+          "en": "Cancer is predominantly initiated with the aberrant regulation of tumor suppressor genes or proto-oncogenes, leading to systemic cellular alterations and eventual tumor cell proliferation and metastasis [1]. Recent advancements in diagnostic and examination methods enable the profiling of local tumor tissues using multiple modalities, including genomics, epigenomics, transcriptomics, proteomics, and more [2]. All these datasets provided abundant information for comprehending the pathogenesis and progression of cancers, posing a challenge in their integrated analysis for precision oncology studies [2, 3]. Furthermore, the progress in high-throughput sequencing technologies and the establishment of large-scale cancer research platforms, including The Cancer Genome Atlas (TCGA) [4] and the International Cancer Genome Consortium (ICGC) [5] projections, have amassed a wealth of paired multi-omics cancer datasets spanning various cancer types. Integrating the clinical phenotypes of individual patient cohorts allows us to delve deeper into the underlying genomic regulations, identifying crucial molecular features that are closely associated with tumorigenesis and disease progression [6].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR7",
+            "CR8",
+            "CR11",
+            "CR12",
+            "CR13",
+            "CR17"
+          ],
+          "en": "Multi-omics data learning is another major challenge for effectively utilizing these multi-omics datasets available for specific cancer cohorts [7]. Various methods have been developed to integrate these high-dimensional datasets for predicting specific clinical outcomes [8–11]. However, a significant limitation of most existing methods is their reliance on study-related patient cohort datasets, which often have smaller cohort sizes compared to the feature counts of these high-dimensional data modalities, leading to the potential issue of the “curse of dimensionality” [12]. Besides, the obtained data modalities can be varied across different cancer studies, adding extra complexity to data integration and analysis, and hindering data integration across multi-omics datasets. Cross-omics data inference presents a valuable strategy for integrating and understanding multi-omics datasets [13–17]. Through the imputation of missing omics data within individual samples, we can achieve more comprehensive sample representations, thereby advancing various downstream prediction tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR18",
+            "CR19",
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR18",
+            "CR18"
+          ],
+          "en": "While pre-training frameworks have demonstrated success in enhancing the performance of deep learning models in specific tasks, including prognosis prediction [18], cancer dependency gene prediction [19], and others, the transferability of these models to diverse downstream tasks remains impractical. In addition, the development of foundation models in the biomedical field has significantly expanded the applications of deep learning methods in various domains, including single-cell omics [20], pathology image analysis [21], retinal image analysis [22], medical reports [18], and so on. The capability of foundation models to pre-train with large-scale datasets and fine-tune with task-specific labeled datasets allows for the learning of fundamental information within specific data modalities while maintaining a high model general applicability [18]. Therefore, there is a pressing need for a universal deep learning framework capable of seamlessly integrating diverse and complex multi-omics pan-cancer datasets. Such a framework should be designed to learn the underlying gene regulatory mechanisms across different modalities through model pretraining, ensuring broad applicability across a range of tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [],
+          "en": "Here, we introduce TMO-Net, an explainable, pre-trained deep learning model specifically designed for the integration of multi-omics cancer datasets and further adapting into multiple oncology downstream tasks. Pretrained initially with multi-omics pan-cancer datasets, the TMO-Net model can learn the underly genomic regulations between molecular features across gene mutation, mRNA expression, copy number variation (CNV), and DNA methylation. Notably, this model incorporated a cross-omics fusion network, which adeptly learns the connections between latent variables from different data modalities, enables missing modality data inference, and expands its broad applications in oncology research. With different labeled multi-omics cancer datasets, we further adapted and fine-tuned the TMO-Net model into different oncology downstream tasks, including cancer subtype classification, metastasis prediction, drug response prediction, and prognosis prediction. Our experiments reveal that the pre-trained TMO-Net model outperforms most state-of-the-art models and also the TMO-Net model trained from scratch. Moreover, the pre-trained TMO-Net model demonstrates better learning of tumor representations across pan-cancer datasets, showcasing its ability to extract joint representations from diverse multi-omics datasets. Leveraging explainable deep learning methods, we characterized the impacts of different molecular features on various clinical outcomes for cancer patients. The TMO-Net model highlighted large-scale data pretraining as a crucial method for the future of multi-omics cancer research and contributed to the development of generalist multi-omics cancer foundation models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Model framework",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "Fig1",
+            "Sec12",
+            "CR23",
+            "Sec17",
+            "CR24",
+            "Fig1",
+            "Sec14",
+            "Sec12"
+          ],
+          "en": "To establish a comprehensive analytical framework for extracting clinical information from multi-omics cancer datasets, we developed the Tumor Multi-Omics pre-trained Network (TMO-Net) model. This model was specifically designed to be pre-trained with large-scale pan-cancer multi-omics datasets and learn the relationships among individual omics features. Meanwhile, the model was engineered to accommodate the learning of incomplete omics data, making it suitable for a broad spectrum of cancer-related deep learning tasks (Fig. 1a, b, and see the “Methods” section). This model utilized multiple variational autoencoders (VAEs) for capturing associations within self-modal and cross-modal features [23]. Additionally, a “Cross Fusion Module” was integrated to efficiently align latent spaces from different modalities and facilitate the inference of missing modalities [24] (Fig. 1c). These encoders collaboratively produced joint embeddings for each omics type, which were then fused to generate comprehensive joint multi-omics sample embeddings. The detailed description of the TMO-Net model framework was introduced in the “TMO-Net framework” section in the “Methods” section.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR19",
+            "Sec21",
+            "Sec22",
+            "Sec12",
+            "Fig1",
+            "Fig1"
+          ],
+          "en": "The TMO-Net model was pre-trained using processed large-scale pan-cancer multi-omics datasets [19], which encompass paired data from 32 cancer types, involving 8174 samples, including gene mutation, mRNA expression, copy number variation (CNV), and DNA methylation modalities. The model underwent pre-training using a multi-objective, self-supervised learning framework. The comprehensive loss function comprises several components: (1) Self-ELBO loss: this loss aims to learn the latent variance distribution while enabling accurate reconstruction of the input data. (2) Cross-modal ELBO Loss: this component focuses on capturing the associations between different omics layers and enables the model to reconstruct specific modalities from others. (3) Discriminator Loss: this loss compels the model to discriminate between original and reconstructed data and align latent representations across modalities. (4) Contrastive Loss: this loss aligns embeddings of the samples with the same tumor subtype while differentiating them from others. Throughout the pre-training phase, we refined the hyperparameters of these distinct model losses to enhance the capture of patient-level representations in cancer datasets. Detailed descriptions of the model losses, hyper-parameters, and pretraining strategies can be found in the “Model pre-training loss” and “TMO-Net pre-training process” sections of the “Methods” section. Furthermore, the joint embeddings learned by TMO-Net, incorporating diverse multi-omics datasets, along with the multimodal encoders, were subsequently employed to adapt to various downstream cancer tasks and models, especially for independent and limited-size cancer patient cohorts (Fig. 1d). Additionally, we integrated model interpretation methods to uncover the significance of specific omics molecular features with the predicted outcomes, aiding in the identification of cancer-related multi-omics mechanisms (Fig. 1e).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "TMO-Net model enables improved cancer representation learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "Fig2",
+            "CR25",
+            "CR26",
+            "Fig2"
+          ],
+          "en": "We first assessed the performance of the TMO-Net model in learning representations of multi-omics or incomplete-omics cancer datasets. The heterogeneous pathogenesis and phenotypes of different cancers can result in the distinct molecular profiles of tumor samples; we then utilized the learned joint embedding of pan-cancer multi-omics datasets of various methods to compare their capabilities in segregating samples with distinct cancer subtypes via unsupervised learning (Fig. 2a). The silhouette score was utilized to evaluate the effectiveness of each method in segregating samples with distinct cancer subtypes [25]. Our results demonstrate that the latent embeddings inferred by the TMO-Net model can better represent samples from distinct cancers with the highest silhouette score in both gene expression and multi-omics datasets, in contrast to that with PCA and OmiVAE [26] (Fig. 2a).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "CR27",
+            "MOESM2",
+            "MOESM1",
+            "MOESM2",
+            "CR28",
+            "MOESM2"
+          ],
+          "en": "To further characterize the representation learning capabilities of various methods, we undertook a downstream classification task to predict cancer subtypes using different pre-training datasets. After model pre-training, the encoders of the OmiVAE and TMO-Net models were frozen, along with the pre-calculated principal components, we then compared the classification performance of the learned embeddings via an XGBoost [27]. Notably, the TMO-Net model outperformed the OmiVAE model across multi-omics and gene expression datasets, achieving the highest average F1 score of 0.751 (Additional file 2: Table S1). Moreover, to investigate the impact of pre-training data scales on modal representation learning, we utilized a classification network to assess the performance of learned sample embeddings by TMO-Net models pre-trained with subset training multi-omics datasets, ranging from 10 to 100%. Our findings indicated a strong correlation between the data scale and the representation learning capability of the TMO-Net model in classifying cancer subtypes within validating datasets for different pre-training datasets (Additional file 1: Fig. S1, Additional file 2: Table S2). Besides, we applied the Integrated Gradients [28] algorithm to evaluate the contribution of various omics in predicting cancer subtypes. By aggregating the IG values of all features across different omics to cancer-specific prediction neurons, we revealed that gene expression and gene methylation omics contributed significantly more to cancer classification compared to gene mutation and CNV omics (Additional file 2: Tables S3).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "TMO-Net model enables cross-modal inference",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR29",
+            "Fig3",
+            "Fig3",
+            "Fig3"
+          ],
+          "en": "The cross-modal learning module of the TMO-Net model facilitates interaction learning among different modalities through cross-modal data regeneration. We then assessed the TMO-Net model’s ability to reconstruct gene expressions and mutations from alternative modalities. In comparison to a baseline dual-autoencoder model [29], our results demonstrated that TMO-Net achieves higher coefficients of determination (R2) (Fig. 3a) and Pearson’s correlation coefficients (Fig. 3b) based on the reconstructed gene expression values. Furthermore, representative raw and reconstructed gene expression heatmaps of selected genes across various cancer subtypes further illustrate the gene expression inference capabilities of TMO-Net (Fig. 3c).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "Fig3",
+            "Fig3"
+          ],
+          "en": "We then assessed the performance of the TMO-Net model in predicting gene mutations from other modalities. We subset the top 50 most mutated genes as prediction targets and utilized binary prediction outcomes to denote the gene mutation status of tested samples. The area under the curve (AUC) score was employed to quantify the model’s performance in mutation prediction. Compared to the baseline model, the TMO-Net model achieves superior prediction accuracy (Fig. 3d), particularly in typical cancer-specific gene mutations (Fig. 3e).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "TMO-Net enables breast cancer subtype prediction with model pretraining",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "CR30",
+            "CR31",
+            "Fig4",
+            "CR31",
+            "CR32",
+            "Fig4",
+            "Tab1",
+            "MOESM2"
+          ],
+          "en": "To assess the effectiveness and robustness of the TMO-Net model across diverse tumor multi-omics downstream tasks, we employed it to predict the molecular subtypes of breast cancers, which is crucial in devising personalized treatment plans and predicting patient outcomes. We then obtained training and validating datasets from labeled TCGA-BRCA dataset for model fine-tuning and tested with an independent METABRIC dataset [30]. These datasets included cancer samples with identified Basal-like, HER2-enriched, Luminal A, and Luminal B subtype labels, and all samples encompassing gene expression, CNV, and gene mutation modalities. For a comprehensive evaluation of the classification performance of various models, we conducted multiple classification tasks, including ER status, HER2 status, PAM50 subtypes, and Basal status prediction [31] (Fig. 4a). We first evaluated the representation learning capabilities of different models in both the test and validation datasets after fine-tunning with PAM50 subtype prediction task. In comparison to PCA, Moanna [31], and the TMO-Net model without data pre-training, the TMO-Net (pre-trained) model demonstrates the highest silhouette scores in both cancer sample projection analyses with t-SNE [32], highlighting its superiority in latent embedding learning (Fig. 4b). The benchmark results of the classification tasks also revealed that the TMO-Net (pre-trained) model outperforms other baseline methods in most downstream prediction tasks, achieving an average F1-score of 0.921 (Table 1), which supports the notion that pretraining the model with a cancer multi-omics dataset enhances its performance and robustness in cancer-related downstream tasks. Additionally, we assessed the classification performance differences between the TMO-Net model pre-trained with or without BRCA multi-omics cancer datasets, and the results indicated model pre-trained with BRCA datasets had better performance in the breast cancer subtype classification task of METRBRIC dataset, suggesting the critical roles of similar pre-training datasets in TMO-Net model (Additional file 2: Table S4).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "CR28",
+            "CR33",
+            "Sec26",
+            "Sec12",
+            "Fig4",
+            "CR34",
+            "CR35",
+            "CR36",
+            "CR37",
+            "Fig4",
+            "MOESM1"
+          ],
+          "en": "We also characterized the interpretability of our model in discerning the regulatory roles of various omics features in the development of distinct breast cancer subtypes. We utilized the Integrated Gradients [28] algorithm to calculate attribute scores of each omics feature based on individual sample data and evaluate the global feature scores with their averaged magnitudes [33]. A detailed introduction to model interpretation analysis is available in the “Model interpretation analysis” section of the “Methods” section. By identifying the top 20 most important gene expression features in classifying different PAM50 subtypes of breast cancers (Fig. 4c), we have identified several genes with highly important scores across all breast cancer subtypes. Notably, the TM4SF5 gene emerged as the most important gene in three or four PAM50 cancer subtypes, which is overexpressed in breast tumors [34] and associated with tumor progression [35]. Additionally, we highlighted the RERG gene in the HER2 subtypes, functioning as a tumor suppressor gene in breast cancers [36]. We also identified the NKX2-1 gene in most cancer subtypes, as it plays a significant role in cancer metabolism and affects tumor aggressiveness [37]. Additionally, we found the ESR1 gene was annotated highly important in ER-negative breast subtypes (Basal and HER2 subtypes) (Fig. 4c). To characterize the regulatory roles of specific genes in our model, we compared the signed IG values of the canonical genes associated with ER-positive and HER2 subtypes (ESR1, ERBB2) across breast cancer subtypes. The results validated the signs of IG values correlated with gene expression patterns in diverse breast cancer subtypes (Additional file 1: Fig. S2), with their magnitudes serving as indicators of importance across molecular features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "TMO-Net enhances predicting cancer samples from primary or metastasis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "CR38",
+            "Fig5",
+            "CR39"
+          ],
+          "en": "We then aim to assess the performance of the TMO-Net model in additional cancer downstream tasks and apply it to predict cancer samples from primary tumor sites or distant metastatic organs, a crucial aspect of the treatment and surgery design [38] (Fig. 5a). We obtained balanced samples with annotated distant metastasis or not from the TCGA project, both the gene expression and gene methylation modalities were selected for model training and testing [39].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR39",
+            "Fig5",
+            "MOESM2"
+          ],
+          "en": "Various methods, including SVM, CVAE [39], TMO-Net model trained from scratch, and TMO-Net (pre-trained), were employed to segregate metastatic samples from primary ones. Multiple classification performance metrics were utilized to compare the capabilities of these models in predicting metastatic tumor samples (Fig. 5b). Notably, the TMO-Net (pre-trained) model outperforms other models across different metrics, achieving an F1-score of 0.8980, which outperformed SVM, CVAE, and TMO-Net trained from scratch by 0.0831, 0.0191, and 0.0180, respectively (Additional file 2: Table S5). These results underscore the adaptability of the TMO-Net framework to efficiently handle various downstream tasks in multi-omics cancer datasets, showcasing the advantages of model pretraining.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "Fig5",
+            "CR40",
+            "CR41"
+          ],
+          "en": "In our analysis of tumor metastasis, we assessed the significance of both gene expression and DNA methylation features (Fig. 5c). We identified the TMC6 gene as a pivotal factor in tumor metastasis, a role also noted in other metastatic cancers [40]. Moreover, we revealed the feature importance of specific CpG probes: cg26879282, cg20751395, and cg16778148, which were highly associated with tumor metastasis, are located within the genomic regions of the KCNQ1 gene; the methylation status of KCNQ1 has been linked to the progression of various cancers [41].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "TMO-Net accurately predicts drug responses",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "CR42",
+            "Fig6",
+            "CR43",
+            "CR44",
+            "Fig6"
+          ],
+          "en": "We then employed the TMO-Net model to predict drug responses in cancer patients using multi-omics datasets in the Genomics of Drug Sensitivity in Cancer (GDSC) [42] project, to assess the generalization capability of the pre-trained TMO-Net model with only cancer cell line data (Fig. 6a). Binary drug response profiles of gemcitabine, paclitaxel, erlotinib, and cetuximab for the target cell lines in the GDSC dataset were utilized for model training, and an external patient-derived xenograft (PDX) encyclopedia dataset [43] with corresponding drug response labels served as the validation set. We conducted a benchmark analysis of the TMO-Net (pre-trained) model against various baseline methods, including NMF, DNN, MOLI [44], and the TMO-Net model trained from scratch. The ROC-AUC scores of different methods across all drug response tasks revealed that the TMO-Net (pre-trained) model outperforms all other methods, achieving the highest score of 0.697 (Fig. 6b). These results support that the TMO-Net model with data pre-training not only demonstrates robustness and generalization across different cancer downstream tasks but also proves effective across diverse forms of cancer multi-omics datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR45",
+            "Fig6",
+            "MOESM1",
+            "Fig6",
+            "MOESM1"
+          ],
+          "en": "Our study characterized key gene expression features associated with various drug treatments to elucidate the connections between drug responses and cancer molecular profiles. We ranked these gene features based on the importance score and utilized them to identify the Reactome pathway [45] enrichments linked to different drug responses. Notably, most enriched gene pathways, predominantly related to cell cycle pathways, were consistent across all examined drugs (Fig. 6c, Additional file 1: Fig. S3). Subsequently, we explored drug-specific gene pathways. Our findings revealed distinct associations: the response to gemcitabine was linked to the activation of Fc gamma receptor signaling; paclitaxel correlated with tumor metabolism pathways; erlotinib’s effectiveness was connected to cell–cell interaction mechanisms; and cetuximab was associated with lipid metabolism pathways (Fig. 6c). In EGFR inhibitor-treated datasets, we revealed the significant correlation between the EGFR gene expression and IG values of EGFR gene values in the cetuximab but not the erlotinib-treated samples (Additional file 1: Fig. S4). These findings highlight the variability in drug responses across diverse tumor molecular profiles, limited by the size of testing datasets and potential drug resistance; the clinical implications of these results warrant further in-depth discussion.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "TMO-Net enhances prognosis prediction with tumor multi-omics datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR2",
+            "Fig7",
+            "CR46",
+            "CR46",
+            "CR47",
+            "Fig7",
+            "CR48",
+            "MOESM2"
+          ],
+          "en": "Another major challenge in cancer multi-omics analysis is to accurately characterize the prognosis of cancer patients with distinct molecular features and further benefit the development of personalized treatment design and precision oncology [2]. In this study, we employed the TMO-Net model for predicting the overall survival (OS) status of cancer patients across 12 different subtypes (Fig. 7a). The prognosis prediction model was established with the Cox survival regression network [46] to predict the risk score of individual patients, and the model was trained with weak supervision method. We evaluated the performance of the TMO-Net model using the Concordance index (C-index) score with other baseline models, including SNN, DeepSurv [46], VAECox [47], and the TMO-Net model trained from scratch. The TMO-Net (pre-trained) model achieved the highest average C-index of 0.6344 across all cancers and outperforms all other baseline methods in 11 of 12 cancer subtypes (Fig. 7b). Notably, the TMO-Net (pre-trained) model performs better than TMO-Net model fine-tuned with only single cancer-specific multi-omics dataset, highlighting the advantages of pan-cancer data pre-training on cancer downstream tasks. Furthermore, we conducted an additional experiment aimed at validating the significance of model pre-training in tumor multi-omics datasets. We integrated independent tumor multi-omics datasets from the Clinical Proteomic Tumor Analysis Consortium (CPTAC) project [48], encompassing proteomics, gene expression, gene mutation, and CNV modalities. Compared to the performance of TMO-Net models trained from scratch and pre-trained, we demonstrated that model pre-training substantially improves prognosis prediction in CPTAC multi-omics datasets using the TMO-Net model (Additional file 2: Table S6).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "Fig7",
+            "Fig7",
+            "MOESM1",
+            "CR49",
+            "CR53",
+            "CR54",
+            "CR55",
+            "CR56",
+            "CR57",
+            "CR57",
+            "CR58",
+            "Fig7"
+          ],
+          "en": "We further evaluated our model’s capabilities to classify cancer patients into high- and low-risk cohorts. Patients were grouped based on the median survival risk scores predicted for individual cancer cohorts. We then visualized patient stratification using Kaplan–Meier survival curves (Fig. 7c) and assessed the differences between high and low-risk groups through Log-rank tests. Our results demonstrate that the TMO-Net (pre-trained) model effectively distinguishes between high- and low-risk cancer patients in 8 out of 12 cancer cohorts (p < 0.05). In addition, we employed data interpretation algorithms to validate TMO-Net’s proficiency in identifying crucial genomic features for patient survival prediction. We calculated gene expression importance scores for various cancer subtypes (Fig. 7d, Additional file 1: Fig. S5). Commonly shared features across most cancer subtypes included mitochondrial genes, HLA-related genes, and keratin family genes, known for their roles in tumor metabolism, progression, and immune responses [49–53]. Furthermore, we revealed other cancer subtype-specific prognostic gene expression features, including MFAP5 [54], SPARC [55], BSCL2 [56], SERPINA1 [57], S100A11 [57], and MUC1 [58], among others (Fig. 7d). These results affirm TMO-Net’s efficacy in extracting biologically informed genomic features from multi-omics tumor datasets for various applications, thereby enhancing our understanding of cancer pathogenesis and potentially expanding its use in clinical settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR59",
+            "CR2",
+            "CR18"
+          ],
+          "en": "The complex and heterogeneous nature of tumor pathogenesis necessitates a deeper understanding of its molecular mechanisms and the resulting clinical phenotype changes [59]. Although multi-omics profiling of tumor samples offers a multifaceted view of cancer development, challenges in modality fusion and model interpretation often limit our complete understanding of these datasets [2]. The emergence of foundation models in the biomedical field [18] opens new opportunities for creating algorithms that address various clinical challenges in oncology. In this study, we introduced a multi-omics tumor data fusion framework named TMO-Net, designed for pre-training on extensive tumor multi-omics datasets and enabled for different downstream tasks with incomplete data modalities. Using self-supervised learning, the TMO-Net model effectively generates biologically significant joint embeddings from multi-omics datasets, providing enhanced representation of diverse tumor samples. Furthermore, the pre-trained TMO-Net model can be adapted to different downstream tasks, such as drug response and patient prognosis prediction, especially in scenarios with limited data. Our results demonstrated that the pre-trained TMO-Net model surpasses its counterparts trained from scratch, proposing the potential of large-scale data pre-training and foundation model approach in future tumor multi-omics analyses.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "Sec17"
+          ],
+          "en": "Compared with other tumor multi-omics data fusion algorithms, the TMO-Net model integrates a “Cross Fusion Module” network. This network leverages the Product-of-Expert algorithm to efficiently learn joint latent embeddings from multi-omics inputs, enabling the processing of incomplete data modalities. The model’s self-supervised training approach facilitates learning of feature interactions across various modalities, thereby enhancing its ability to generalize and adapt to new datasets and tasks. Additionally, TMO-Net’s proficiency in identifying important omics features across different clinical outcomes aids in understanding key genomic regulations during various tumor development stages and their clinical relevance. These capabilities position TMO-Net as a versatile and adaptable framework, well-suited for exploring tumor multi-omics datasets and addressing a broad range of downstream tasks in tumor research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR29",
+            "CR60",
+            "CR61"
+          ],
+          "en": "Although the TMO-Net model performed well in various tumor downstream applications, our study has various limitations. The primary challenge is the scarcity of large-scale paired multi-omics datasets in oncology, which are crucial for effective model pre-training. Additionally, the diverse data preprocessing methods used in biomedical datasets complicate comprehensive learning across individual modalities. The restriction of paired multi-omics datasets also complicates the usage of mass-published biomedical datasets and further applications of our models. Furthermore, the different modalities of tumor research follow its underlying biological roles as the “Central Dogma,” future fusion frameworks should incorporate the causality and connections between different omics features or integrate the advanced biological regulation databases to better characterize the development and progression of tumors. Furthermore, in addition to understanding the significance of distinct molecular features for model outcomes, recognizing regulatory roles across diverse omics features through self-supervised learning is equally crucial [29, 60, 61]. By discerning the regulatory associations within molecular features across varying scales, we can uncover more intricate mechanisms of tumorigenesis and development. The fusion of biological insights with interpretable model frameworks presents a promising pathway for enhancing the construction of multi-omics cancer deep models in further research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [],
+          "en": "The TMO-Net model paves the way for harnessing the power of established multi-omics data in cancer research. By demonstrating its effectiveness on diverse tumor datasets and downstream tasks, TMO-Net proves that pre-training on multi-omics datasets can significantly enhance representation learning, both for multi-omics and incomplete omics data. Furthermore, its ease of transferability to other omics-based tumor research applications adds its value in oncology. This study lays the groundwork for developing future multi-omics foundation models that will accelerate cancer research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec13",
+      "title": "Data preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par25",
+          "reference_ids": [
+            "CR19"
+          ],
+          "en": "We sourced multi-omics data for 32 pan-cancers from the TCGA database, which consisted of 8174 samples, including normal tissue samples. Each cancer subtype dataset incorporated four types of omics data: RNA-Seq gene expression profiles, DNA methylation profiles, gene mutation data, and copy number variation (CNV) data. Additionally, corresponding clinical information was included. The multi-omics data preprocessing procedures and criteria for feature selection were followed as in Chiu et al. [19]. In brief, the gene expression data, represented as log2(TPM + 1), underwent filtering to exclude genes with standard deviation (SD) greater than 1, resulting in a final set of 6016 genes. In gene mutation profiles, genes were filtered to include only those mutated in at least 1% of TCGA samples, resulting in 4539 genes for further analysis. In DNA methylation analysis, probes that exhibited low methylation (beta-value < 0.3) in over 90% of TCGA samples were removed, leaving 6617 features for subsequent analysis. Copy number variation (CNV) analysis was conducted by filtering 7460 informative segments based on criteria including fewer than 5% of samples with zeros, a mean of absolute values exceeding 0.20, and a coefficient of variation greater than 0.20 across all samples. The multi-omics profiling and clinical information in other downstream fine-tuning tasks are also available from public sources, and the pre-processed multi-omics datasets used in other studies were obtained. In model fine-tuning, intersected omics features with the pre-training multi-omics TCGA datasets were used. The independent CPTAC multi-omics datasets were obtained, including proteomics data in 7970 features, gene expression data in 39,451 dimensions, gene mutation data in 1553 genes, and copy number variation (CNV) data in 60,604 segments from four tumor subtypes (COAD, GBM, LUAD, and GBM).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "TMO-Net framework",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "Fig1",
+            "Sec17"
+          ],
+          "en": "The TMO-Net model contains a hybrid architecture of self- and cross-modal variational autoencoders (Fig. 1b, c). The self-modal variational autoencoders are designed to capture omics-specific representations and reconstruct themselves, while the cross-modal variational autoencoders focus on learning the cross-omics associations and predicting the target omics from others. Notably, a “Cross Fusion Module” was designed to ensure that with the absence of certain omics data, it can generate approximate patient-level latent embeddings from other available omics and can be further utilized in different downstream tasks. The discriminator and contrastive losses were designed to enhance the performance of cross-modal imputation and representation learning of pan-cancer multi-omics datasets. In the model pre-training phase, paired multi-omics datasets were required to learn all the self- and cross-modal associations. In the model fine-tuning phase, the self-autoencoders of available data modalities were updated and the cross-autoencoders of missing modalities were locked for cross-modal inference; the generated joint embeddings were used for training task-specific neural networks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Self-modal variational autoencoder",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "Equ1"
+          ],
+          "en": "Following the basic framework of the variational autoencoder, the self-modal variational autoencoder (self-VAE) was designed to capture omics-specific representations and reconstruct the target omics. For multi-omics data, each omics data is first passed into a self-VAE encoder to reduce the dimensionality from high dimensionality to 64 in the embedding space. For the input x of omics k, the self-VAE encoder network outputs two vectors, the mean vector μ and the standard deviation vector δ, which determined the Gaussian distribution N(μ,δ) of the latent variable z in the embedding space. The latent variable z is randomly sampled from the distribution. To achieve backpropagation in the deep neural network, the reparameterization trick was applied using Eq. (1) to approximate the latent variable z:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "Equ2"
+          ],
+          "en": "Then, the latent variable z was passed to reconstruct the omics data x¯ of the input x through the VAE decoder network. The self-VAE network was optimized by maximizing the variational evidence lower bound (ELBO) defined in Eq. (2):",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "Equ2",
+            "Equ3"
+          ],
+          "en": "Equation (2) can further transform into Eq. (3):",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "Equ3",
+            "Equ4"
+          ],
+          "en": "The network was optimized to maximize Eq. (3), and for the deep learning model, the generative distributions can be implemented by the deep decoder neural network, and the variational posteriors by deep encoder neural networks. The self-VAE loss can be defined as follows in Eq. (4):",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Cross-modal variational autoencoder",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "Equ5"
+          ],
+          "en": "The cross-modal variational autoencoder (cross-VAE) is devised to learn the cross-omics associations and predict target omics from others. For the target omics k, the input x of other omics was passed into encoders of cross-VAE to reduce the high dimensionality to 64. The encoder of cross-VAE generates two vectors, the mean vector μ and the standard deviation vector δ, which determined the variational posteriors Gaussian distribution N(μ,δ) of the latent variable z in the embedding space, and represented as the inferred latent embedding of omics k from others, which was defined in Eq. (5):",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Cross Fusion Module",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "Sec17"
+          ],
+          "en": "To get a better and full multi-omics representation with missing modalities data, we designed a “Cross Fusion Module” to fuse embeddings of all other encoders of cross-VAE into a common space. We employed a product-of-experts (PoE) module to obtain the product of the marginal variational posteriors from all existing modalities into a joint variational posterior as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "The joint cross-modal ELBO can then be defined as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "In this way, we can employ the observed modalities xνk to infer the latent embedding of xk, further reconstructing missing modal xk. We also utilized the KL-Divergence to align distributions between self-variational posteriors and cross joint-variational posteriors as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "The parameter θ of the omics-specific decoder in cross-VAE was consistent with the decoders of the self-VAE, and the cross-modal loss can be computed as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [],
+          "en": "The λcross-elbo and λcross-kl are the hyperparameters to balance the weight of different loss functions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "Latent embedding fusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "For omics k, we get two latent representations, the zkself generated by self-VAE and zkcross generated by joint cross-VAEs from other modalities. To get embedding from full modalities, we fuse these two embeddings as the joint latent representation for the omics k, as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "While omics k is missing, we can also get the representation from the observed modalities as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [],
+          "en": "Finally, embeddings of all modalities were concatenated to represent the sample-level multi-modal representations for downstream model prediction and fine-tuning.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec19",
+      "title": "Discriminator",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "CR62"
+          ],
+          "en": "Discriminators assist in improving the generative capacity of TMO-Net during the pre-training stage [62]. The discriminator of modality k,Disk-s takes either original data xk or reconstructed data x~k-s as input and outputs a label represents data sources. The discriminator Disk-c takes x~k-c to predict the source modal used in cross-encoders. Consequently, the self- and cross-encoders of TMO-Net were trained adversarial to deceive the modality discriminators. The discriminator loss was defined as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "CE·,· represents the cross-entropy loss.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec20",
+      "title": "Contrastive learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR63",
+            "CR64"
+          ],
+          "en": "To further enhance representation learning of pan-cancer multi-omics datasets, we applied the contrastive learning [63] strategy to obtain a latent feature space with enhanced pan-cancer supervision. In the training batch, for target sample xt∈Xt in a specific cancer subtype t, the positive samples set is Xt, as well as their latent embeddings Zt. In contrast, the latent embeddings Zn from other cancer subtypes were defined as negative samples [64]. The contrastive loss was then designed to increase the latent distance similarity across positive samples Lpos and reduce that in negative samples Lneg, which were defined as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec20-p2",
+          "reference_ids": [
+            "Equ14"
+          ],
+          "en": "sim·,· represents the similarity calculation function, 1·,· represents a counting function that returns 1 if both inputs are not empty. τ is the temperature parameter used to control the strength of the distance constraints. Finally, the contrastive learning loss is obtained by the linear combination of the positive sample pair loss and the negative sample pair loss as defined in Eq. (14).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec21",
+      "title": "Model pre-training loss",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "The TMO-Net model is jointly optimized by four losses during the pre-training stage: (1) self-modal ELBO Lself of self-VAE; (2) cross-modal ELBO Lcross of cross-VAE and KL divergence of original and inferred variational posteriors; (3) adversarial loss of discriminators Ldis; (4) contrastive loss Lcon. The overall pre-training loss optimization was defined as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "λ∗ are the weight coefficients for corresponding losses. We utilized various hyperparameter configurations to achieve a balance in weighting different loss functions during the optimization in model pre-training. The specific hyperparameters employed in the pre-training phase are detailed in Table S7, and we conducted loss ablation experiments to assess the significance of individual losses, as summarized in Table S8.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec22",
+      "title": "TMO-Net pre-training process",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par45",
+          "reference_ids": [
+            "CR65"
+          ],
+          "en": "In the model pre-training process, the TCGA multi-omics data were split into fivefold by cancer types for cross-validation. We applied the Adam optimizer with learning rate 1e − 4 and weight decay 5e − 4 for the discriminator part and used the Adam optimizer with learning rate 1e − 5 and weight decay 1e − 4 descent by epoch. TMO-Net was pre-trained for a maximum of 100 epochs with early stopping to avoid overfitting. We fixed all random seeds during model initialization and training to ensure the reproducibility of the training process. To improve the ability of cross-modal reconstruction, the strategy for modality masking is randomly generating the integer number from 0 to 3, corresponding to the mask or non-mask status of the four modalities of TCGA data. During the pre-training state, the LogME [65] method is used to estimate the cancer-type clustering score for the best model selection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec23",
+      "title": "Downstream task model fine-tuning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "During the fine-tuning phase for downstream tasks, we formulated oncological and clinical objectives, which encompassed pan-cancer subtype classification, breast cancer subtype classification, cancer metastasis prediction, drug response prediction, and pan-cancer survival prediction. Leveraging the multi-omics cancer representations generated by TMO-Net, a feedforward neural network served as the classifier to produce outcome predictions. For pan-cancer subtype classification, we kept the parameters of TMO-Net frozen, updating only the downstream classifier during the fine-tuning process to assess the sample representation performance of pre-trained TMO-Net. In contrast, for other downstream tasks, both the parameters of TMO-Net and the downstream classifier were updated to acquire informative representations supervised by the task loss function. For instance, for missing modalities in the fine-tuning datasets, the cross-inference variational encoders of missing modalities in the TMO-Net model remained frozen to maintain the quality of cross-modal reconstruction. In model fine-tuning, we partitioned the training multi-omics dataset into fivefolds for cross-validation and utilized an external validation dataset for performance evaluation. We utilized the Adam optimizer with a learning rate of 1e − 5 and weight decay of 1e − 4, descending by epoch with early stopping to prevent overfitting. Additionally, apart from the loss associated with the classification task, other losses from the pre-training stage were disregarded.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "For the multi-label classification task, we applied a C-dimensional one-hot vector to represent the probability of the sample in the C class and proposed the output prediction result is y^=y1^,⋯,yC^, the cross-entropy loss was defined as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [
+            "CR66"
+          ],
+          "en": "For the survival prediction task, the clinical information of TCGA datasets was utilized and the model was fine-tuned with full or incomplete omics. Additionally, we filtered pan-cancer subtypes with more than 50 uncensored samples and finally included 12 cancer subtypes for performance evaluation. The Adam optimizer is used to optimize the loss function Cox loss and reconstruction loss. The learning rate is set to 1e − 5, and the model freezing layer setting is consistent with the classification task. For model validation in the survival prediction task, we involved an independent tumor multi-omics dataset from the CPTAC project and included 4 tumor subtypes for performance evaluation. The Cox proportional hazards [66] and maximum likelihood (ML) model were used for evaluating the hazard ratio of the patient’s prognosis, assuming the output of the cross-modal fusion as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec23-p4",
+          "reference_ids": [
+            "CR67",
+            "CR69"
+          ],
+          "en": "where l was the MLP for the low-rank multimodal fusion output, hθ was hazards of multi-omics samples. The Cox likelihood was constructed by the observed order of events named “partial” likelihood as described in [67–69]:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec23-p5",
+          "reference_ids": [
+            "CR70"
+          ],
+          "en": "where i,j are the sample numbers, and E=1 represents the termination event (right censored) that occurs. RTi means that Tj>Ti is satisfied, and the corresponding Cox loss (defined as neg log partial likelihood loss) is calculated by the maximum likelihood of Lpart [70]:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec24",
+      "title": "Implementation of baseline methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par49",
+          "reference_ids": [
+            "CR11",
+            "CR31",
+            "CR39",
+            "CR44",
+            "CR47",
+            "CR46"
+          ],
+          "en": "We introduced a set of baseline methods for evaluating the performance of our TMO-Net model, encompassing OmiVAE [11] for pan-cancer multi-omics learning, Moanna for breast cancer subtype classification [31], CVAE for cancer metastasis prediction [39], MOLI for drug response prediction [44], and VAECox [47], SNN, and DeepSurv [46] for survival prediction. All baseline models were implemented following methodologies outlined in published literature and utilizing corresponding code repositories available in public domains. All training procedures maintained consistent hyperparameter settings and employed consistent dataset separation of multi-omics datasets to ensure fair comparisons across different methods and tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec25",
+      "title": "Evaluation metric",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par50",
+          "reference_ids": [],
+          "en": "In the model pre-training phase, the LogME method was used for checkpoint selection. In the cross-modal inference task, Pearson’s correlation coefficients and coefficient of determination (R2) were applied to quantify the performance in gene expression imputation from other modalities. The area under the curve (AUC) method was used to compare the performance of gene mutation prediction from other modalities. In classification tasks, we utilized accuracy, precision, recall, and F1-score for performance evaluation. The C-index, Kaplan–Meier survival curves, and Log-rank tests were utilized to characterize the performance of survival analysis tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec26",
+      "title": "Model interpretation analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par51",
+          "reference_ids": [],
+          "en": "The integrated gradients (IG) method was utilized for model interpretation analysis, which assesses feature importance by integrating gradients along a path from actual input to the baseline value across individual features. Let fθ^x represents the output of the pre-trained TMO-Net model for the omics input x, and θ^ be model parameters, and ∇fθ^x represents the gradient of the model’s output to the input . The integrated gradient value IGix for the ith feature was computed as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec26-p2",
+          "reference_ids": [],
+          "en": "where and xi′ is the ith actual input and the baseline input. α is the parameter varying from 0 to 1. For each molecular feature g, we computed its averaged absolute IG value within a specific sample group S, as the contribution value of g in specific downstream tasks, which was defined as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par52",
+          "reference_ids": [],
+          "en": "For the classification task, the class-specific neurons in the SoftMax layer were selected as model output, as well as the hazard ratio of patient samples in the survival prediction task. To evaluate the contributions of individual modalities in model outcomes, the sum of the IG values for all molecular features within individual modalities was used. We iterated this process within different downstream tasks and ranked molecular features related to different model outcomes for subsequent biology interpretation and pathway analyses.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec27",
+      "title": "Implementation details",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par53",
+          "reference_ids": [],
+          "en": "All experimental procedures were conducted on a workstation equipped with two Intel Xeon Silver 4210R CPUs and four NVIDIA GeForce RTX 3090 GPUs. The TMO-Net model was constructed based on the Python platform and Pytorch library. The model interpretation analysis was implemented using the Captum package. Throughout all benchmarks and experimental scenarios, we adhered to the utilization of default hyperparameters, unless otherwise specified explicitly.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec29",
+      "title": "Supplementary Information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "We thank professors F.Y., J.Y., and T.T. from Guangzhou National Laboratory and D.W. from Shanghai Jiao Tong University for their constructive suggestions for this study. We thank the technical support from the Data Science Platform of Guangzhou National Laboratory and the Bio-medical Big Data Operating System (Bio-OS).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Peer review information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par54",
+          "reference_ids": [],
+          "en": "Leng Han and Wenjing She were the primary editors of this article and managed its editorial process and peer review in collaboration with the rest of the editorial team.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar2",
+      "title": "Review history",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par55",
+          "reference_ids": [
+            "MOESM3"
+          ],
+          "en": "The review history is available as Additional file 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Authors’ contributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "Y.L., J.L., and L.W. supervised the project. F.W., J.L., and F.G. designed the models. F.W. and Z.Z. developed the code of the model and performed benchmark analysis for model evaluation. F.W., J.L., and Z.Z. wrote the manuscripts. All other authors contributed to the design and implementation of this model and read and approved the final manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes2",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes2-p1",
+          "reference_ids": [],
+          "en": "This study was supported by the National Key R&D Program (No. 2022YFF1202101), the CAS Research Fund (No. XDB38050200), and the Self-supporting Program of Guangzhou Laboratory (SRPG22001 and SRPG22007).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes3",
+      "title": "Availability of data and materials",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes3-p1",
+          "reference_ids": [
+            "CR71",
+            "CR72",
+            "CR73",
+            "CR74",
+            "CR75",
+            "CR76",
+            "CR77",
+            "CR78"
+          ],
+          "en": "The pre-training and fine-tuning datasets of this study are all available online from public studies. The pre-processed TCGA pan-cancer datasets for pre-training were obtained from: https://codeocean.com/capsule/7914207/tree/v1 [71]. The multi-omics dataset of breast cancers is available at 10.5281/zenodo.4326602 [72]. The pre-processed data used for metastasis prediction is available at https://github.com/SomayahAlbaradei/MetaCancer [73]. The multi-omics profiles and drug response datasets from GDSC for cell line drug response prediction are retrieved from https://www.cancerrxgene.org/downloads/anova [74]. The publicly available multi-omics dataset for PDX Encyclopedia dataset for external validation is available in the Supplementary Table 1 of Gao et al. [75]. The processed multi-omics profiles and clinical information of the CPTAC cancer datasets can be downloaded at the “Data Source” section of https://www.linkedomics.org/ [76], including the data of RNAseq (Gene level, Tumor), CNV (log2 ratio), Mutation (Gene level), Proteomics (Tumor), and Survival from individual cancers. The source code of the TMO-Net model is available online: https://github.com/FengAoWang/TMO-Net [77] and is published under the MIT license. All processed datasets used for TMO-Net model pre-training and fine-tuning are deposited in Zenodo with the accession code of https://zenodo.org/records/11258239 [78].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes4",
+      "title": "Declarations",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "FPar3",
+      "title": "Ethics approval and consent to participate",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par56",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar4",
+      "title": "Competing interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par57",
+          "reference_ids": [],
+          "en": "The authors declare that they have no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "fn-group1-p1",
+          "reference_ids": [],
+          "en": "Publisher’s Note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p3",
+          "reference_ids": [],
+          "en": "Feng-ao Wang, Zhenfeng Zhuang, and Feng Gao contributed equally to this work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "_ci93_",
+      "title": "Contributor Information",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_ci93_-p1",
+          "reference_ids": [],
+          "en": "Liansheng Wang, Email: lswang@xmu.edu.cn.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_ci93_-p2",
+          "reference_ids": [],
+          "en": "Junwei Liu, Email: liu_junwei@gzlab.ac.cn.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_ci93_-p3",
+          "reference_ids": [],
+          "en": "Yixue Li, Email: li_yixue@gzlab.ac.cn.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Bib1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Bib1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [
+            "CR71",
+            "CR72",
+            "CR73",
+            "CR74",
+            "CR75",
+            "CR76",
+            "CR77",
+            "CR78"
+          ],
+          "en": "The pre-training and fine-tuning datasets of this study are all available online from public studies. The pre-processed TCGA pan-cancer datasets for pre-training were obtained from: https://codeocean.com/capsule/7914207/tree/v1 [71]. The multi-omics dataset of breast cancers is available at 10.5281/zenodo.4326602 [72]. The pre-processed data used for metastasis prediction is available at https://github.com/SomayahAlbaradei/MetaCancer [73]. The multi-omics profiles and drug response datasets from GDSC for cell line drug response prediction are retrieved from https://www.cancerrxgene.org/downloads/anova [74]. The publicly available multi-omics dataset for PDX Encyclopedia dataset for external validation is available in the Supplementary Table 1 of Gao et al. [75]. The processed multi-omics profiles and clinical information of the CPTAC cancer datasets can be downloaded at the “Data Source” section of https://www.linkedomics.org/ [76], including the data of RNAseq (Gene level, Tumor), CNV (log2 ratio), Mutation (Gene level), Proteomics (Tumor), and Survival from individual cancers. The source code of the TMO-Net model is available online: https://github.com/FengAoWang/TMO-Net [77] and is published under the MIT license. All processed datasets used for TMO-Net model pre-training and fine-tuning are deposited in Zenodo with the accession code of https://zenodo.org/records/11258239 [78].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "F1 scores of different methods in predicting breast cancer subtypes in validation and test datasets",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Methods",
+          "ER status",
+          "HER2 status",
+          "PAM50 subtype",
+          "Basal status",
+          "Average"
+        ],
+        [
+          "Val",
+          "Test",
+          "Val",
+          "Test",
+          "Val",
+          "Test",
+          "Val",
+          "Test",
+          "Val",
+          "Test"
+        ],
+        [
+          "SVM",
+          "0.972",
+          "0.942",
+          "0.929",
+          "0.747",
+          "0.863",
+          "0.874",
+          "0.975",
+          "0.974",
+          "0.934",
+          "0.884"
+        ],
+        [
+          "Moanna",
+          "0.965",
+          "0.947",
+          "0.959",
+          "0.844",
+          "0.852",
+          "0.852",
+          "0.984",
+          "0.989",
+          "0.940",
+          "0.908"
+        ],
+        [
+          "TMO-Net (from scratch)",
+          "0.975",
+          "0.950",
+          "0.943",
+          "0.840",
+          "0.884",
+          "0.876",
+          "0.984",
+          "0.983",
+          "0.946",
+          "0.912"
+        ],
+        [
+          "TMO-Net (pre-trained)",
+          "0.985",
+          "0.955",
+          "0.953",
+          "0.857",
+          "0.897",
+          "0.880",
+          "0.986",
+          "0.991",
+          "0.955",
+          "0.921"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\"><label>Table 1</label><caption><p>F1 scores of different methods in predicting breast cancer subtypes in validation and test datasets</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"2\" colspan=\"1\">Methods</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">ER status</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">HER2 status</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">PAM50 subtype</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">Basal status</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">Average</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Val</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Val</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Val</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Val</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Val</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Test</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">SVM</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.972</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.942</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.929</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.747</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.863</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.874</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.975</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.974</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.934</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.884</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Moanna</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.965</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.947</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.959</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.844</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.852</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.852</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.984</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.989</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.940</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.908</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">TMO-Net (from scratch)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.975</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.950</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.943</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.840</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.884</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.876</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.984</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.983</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.946</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.912</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">TMO-Net (pre-trained)</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.985</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.955</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\">0.953</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.857</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.897</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.880</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.986</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.991</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.955</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>0.921</bold></td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "Overview of the TMO-Net model. a Pan-cancer multi-omics dataset utilized in the pre-training stage, comprising gene mutation, mRNA expression, copy number variation (CNV), and DNA methylation modalities. b The architecture of the TMO-Net model, encompasses self-modal variational autoencoders, cross-modal variational autoencoders, and the “Cross Fusion Module”. c Schematic of the Cross Fusion Module for cross-modal learning and fusion, devised for aligning latent embedding from different modalities, cross-modal learning to infer the missing modalities, and fusing the complete multi-omics embedding. d Diagram of utilizing pre-trained TMO-Net model for fine-tuning in multiple downstream tasks through transfer learning, accommodating missing modalities. e The biological interpretations analysis for the multi-omics features via analyzing the global gene attributions in integrated gradients across datasets and utilizing the importance scores of individual genes to characterize pathway enrichments",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig1_HTML.jpg",
+        "13059_2024_3293_Fig1_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Comparison of pan-cancer sample representation learning. t-SNE plots of pan-cancer omics representation learning with TMO-Net (pre-trained) and baseline methods, colored by cancer type. The upper plots illustrate representations based solely on mRNA expression input and the lower plots with multi-omics inputs. Silhouette scores were applied to compare the model performance in representation learning",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig2_HTML.jpg",
+        "13059_2024_3293_Fig2_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "The ability of the TMO-Net model in cross-omics generation. a, b Comparison of the averaged coefficient of determination (R2) (a) and Pearson’s correlation coefficients (b) of raw and reconstructed gene expression values from other modalities. c Heatmap plot of the raw and reconstructed gene expressions in selected genes across cancer subtypes. d Comparison of the averaged AUC score of predicted gene mutations in the top 50 most mutated genes. e Receiver operating characteristic (ROC) plots of the prediction result of typical cancer mutations. Fivefold cross-validation results were presented in a, b, and d, with mean ± SD",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig3_HTML.jpg",
+        "13059_2024_3293_Fig3_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "TMO-Net model can enhance breast cancer subtype prediction. a Diagram of TMO-Net model adapted for predicting breast cancer subtypes with mRNA and mutation inputs in METABRIC dataset. A Multi-Layer Perceptron (MLP) network was employed to predict the subtype labels, including Basal-NonBasal, ER-Status, HER2-Status, and PAM50Subtype. b t-SNE plots of multi-omics representations generated by TMO-Net (pre-trained) and baseline methods, colored by PAM50 subtypes. Silhouette scores were applied to compare the model performance in representation learning. c Top-20 most important gene expression features in classifying different PAM50 subtypes of breast cancers. The symbol “star” highlights the crucial genes linked to PAM50 subtypes with literature evidence",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig4_HTML.jpg",
+        "13059_2024_3293_Fig4_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "TMO-Net model can separate primary and metastatic cancer samples. a Diagram of TMO-Net model adapted for predicting primary or metastatic cancer samples with mRNA and methylation inputs. b Performance comparison of different methods in predicting primary or metastatic cancer samples, evaluated by metrics of accuracy, F1-score, precision, and recall. c Important molecular features of gene expression and DNA methylation that are associated with tumor metastasis; the symbol “star” denotes the specific gene features and CpG probes linked to the progression and metastasis of various cancers",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig5_HTML.jpg",
+        "13059_2024_3293_Fig5_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Fig. 6",
+      "caption": "The applications of the TMO-Net model in drug response prediction. a Diagram of TMO-Net model adapted for predicting drug responses based on cell-line response datasets with mRNA and mutation inputs. b Comparison of the prediction performance of different models in drug response predictions. c Bar plots of Reactome pathway enrichments calculated with the importance scores of gene expression features with individual drug responses",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig6_HTML.jpg",
+        "13059_2024_3293_Fig6_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig7",
+      "label": "Fig. 7",
+      "caption": "TMO-Net model can predict the prognosis of pan-cancers. a Diagram of TMO-Net model adapted for predicting primary or metastatic cancer samples with multi-omics inputs. The predicted risk scores of cancer patients were used to classify high- and low-risk patient groups for downstream survival analysis. b Comparison of the performance of different models in predicting patient prognosis of different cancers, the C-index was applied for performance evaluation, and the horizontal line represents the total average C-index across pan-cancers. c Kaplan–Meier analysis of the overall survival prediction of low- and high-risk patients stratification by the TMO-Net (pre-trained) model across 12 cancer types. Low- and high-risk patient groups were defined by the predicted median risk scores. The log-rank test was used to test for statistical significance between the predicted prognosis of low- and high-risk cancer patients. d Bar plots of important gene expression features most related to the prognosis of identified cancer subtypes",
+      "caption_zh": "",
+      "graphics": [
+        "13059_2024_3293_Fig7_HTML.jpg",
+        "13059_2024_3293_Fig7_HTML.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1z=μ+δε",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ1\"><label>1</label><ns0:math id=\"M8\" display=\"block\"><ns0:mrow><ns0:mi>z</ns0:mi><ns0:mo>=</ns0:mo><ns0:mi>μ</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>δ</ns0:mi><ns0:mi>ε</ns0:mi></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ2",
+      "text": "2ELBOself=E(qϕ(z|x))[-logqϕ(z|x)+logpθ(x,z)]",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ2\"><label>2</label><ns0:math id=\"M14\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mtext>ELBO</ns0:mtext><ns0:mtext>self</ns0:mtext></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mo>-</ns0:mo><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3ELBOself=E(z∼qϕ(z|x))logpθ(x∣z)-DKL(qϕ(z|x)‖pθ(z))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ3\"><label>3</label><ns0:math id=\"M16\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mtext>ELBO</ns0:mtext><ns0:mtext>self</ns0:mtext></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo>∼</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>∣</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>D</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">KL</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ4",
+      "text": "4Lself=MSE(xj,xj¯)+DKL(qϕ(z∣x)‖pθ(z))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ4\"><label>4</label><ns0:math id=\"M18\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mtext>self</ns0:mtext></ns0:msub><ns0:mo>=</ns0:mo><ns0:mi>M</ns0:mi><ns0:mi>S</ns0:mi><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mover><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo>¯</ns0:mo></ns0:mover><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:msub><ns0:mi>D</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">KL</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo>∣</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ5",
+      "text": "5q(zk∣xk′)(k′≠k)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ5\"><label>5</label><ns0:math id=\"M26\" display=\"block\"><ns0:mrow><ns0:mi>q</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo>∣</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>′</ns0:mo></ns0:mrow></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>′</ns0:mo><ns0:mo>≠</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ6",
+      "text": "6qϕ(zk∣xνk)=∏qϕ(zk∣xk′)(k′∈νk,k∉νk)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ6\"><label>6</label><ns0:math id=\"M28\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo>∣</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mo>∏</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo>∣</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>′</ns0:mo></ns0:mrow></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>′</ns0:mo><ns0:mo>∈</ns0:mo><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>∉</ns0:mo><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ7",
+      "text": "7Lcross-elbo=Eqϕ(zk∣xνk)logpθ(xk|zk)-DKL(qϕ(zk|xνk)‖p(zk))(k′∈νk,k∉νk)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ7\"><label>7</label><ns0:math id=\"M30\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mtext>elbo</ns0:mtext></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>E</ns0:mi><ns0:mrow><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo>∣</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>D</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">KL</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo><ns0:mi>p</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>′</ns0:mo><ns0:mo>∈</ns0:mo><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>∉</ns0:mo><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ8",
+      "text": "8Lcross-kl=DKL(qϕ(zk|xνk)‖qϕ(z∣x))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ8\"><label>8</label><ns0:math id=\"M38\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mtext>kl</ns0:mtext></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mi>D</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">KL</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:msup><ns0:mrow><ns0:mi>ν</ns0:mi></ns0:mrow><ns0:mi>k</ns0:mi></ns0:msup></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo><ns0:msub><ns0:mi>q</ns0:mi><ns0:mi>ϕ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>z</ns0:mi><ns0:mo>∣</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ9",
+      "text": "9Lcross=λcross-elboLcross-elbo+λcross-klLcross-kl",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ9\"><label>9</label><ns0:math id=\"M42\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mtext>cross</ns0:mtext></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mtext>elbo</ns0:mtext></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mtext>elbo</ns0:mtext></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mi>k</ns0:mi><ns0:mi>l</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mtext>cross</ns0:mtext><ns0:mo>-</ns0:mo><ns0:mi>k</ns0:mi><ns0:mi>l</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ10",
+      "text": "10zkfusion=zkself⊕zkcross",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ10\"><label>10</label><ns0:math id=\"M52\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:msub><ns0:mi>k</ns0:mi><ns0:mtext>fusion</ns0:mtext></ns0:msub></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:msub><ns0:mi>k</ns0:mi><ns0:mtext>self</ns0:mtext></ns0:msub></ns0:msub><ns0:mo>⊕</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:msub><ns0:mi>k</ns0:mi><ns0:mtext>cross</ns0:mtext></ns0:msub></ns0:msub></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ11",
+      "text": "11zkfusion=zkcross",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ11\"><label>11</label><ns0:math id=\"M54\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:msub><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">fusion</ns0:mi></ns0:mrow></ns0:msub></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:msub><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">cross</ns0:mi></ns0:mrow></ns0:msub></ns0:msub></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ12",
+      "text": "12Ldis=CE(Disk-sx~k-s,0)+CE(Disk-sxk,1)+CE(Disk-cx~k-c,k)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ12\"><label>12</label><ns0:math id=\"M66\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">dis</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>D</ns0:mi><ns0:mi>i</ns0:mi><ns0:msub><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>s</ns0:mi></ns0:mrow></ns0:msub><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>s</ns0:mi></ns0:mrow></ns0:msub></ns0:mfenced><ns0:mo>,</ns0:mo><ns0:mn>0</ns0:mn><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>D</ns0:mi><ns0:mi>i</ns0:mi><ns0:msub><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>s</ns0:mi></ns0:mrow></ns0:msub><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub></ns0:mfenced><ns0:mo>,</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mi>C</ns0:mi><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>D</ns0:mi><ns0:mi>i</ns0:mi><ns0:msub><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>c</ns0:mi></ns0:mrow></ns0:msub><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>c</ns0:mi></ns0:mrow></ns0:msub></ns0:mfenced><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ13",
+      "text": "13Lpos=∑zt,zt′ϵZtsim(zt,zt′)/τ∑zt,zt′ϵZt1(zt,zt′)/τ,Lneg=∑ztϵZt,znϵzn[1-sim(zt,zn)]/τ∑ztϵzt,znϵzn1(zt,zn)/τ",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ13\"><label>13</label><ns0:math id=\"M82\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">pos</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msubsup><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi><ns0:mo>′</ns0:mo></ns0:msubsup><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>Z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub></ns0:mrow></ns0:msub><ns0:mtext>sim</ns0:mtext><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msubsup><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi><ns0:mo>′</ns0:mo></ns0:msubsup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">/</ns0:mo><ns0:mi>τ</ns0:mi></ns0:mrow><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msubsup><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi><ns0:mo>′</ns0:mo></ns0:msubsup><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>Z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub></ns0:mrow></ns0:msub><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msubsup><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi><ns0:mo>′</ns0:mo></ns0:msubsup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">/</ns0:mo><ns0:mi>τ</ns0:mi></ns0:mrow></ns0:mfrac><ns0:mo>,</ns0:mo><ns0:mspace width=\"1em\" /><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">neg</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>Z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">[</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo>-</ns0:mo><ns0:mtext>sim</ns0:mtext><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">]</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">/</ns0:mo><ns0:mi>τ</ns0:mi></ns0:mrow><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub><ns0:mi>ϵ</ns0:mi><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub></ns0:mrow></ns0:msub><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">/</ns0:mo><ns0:mi>τ</ns0:mi></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ14",
+      "text": "14Lcon=λposLpos+λnegLneg",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ14\"><label>14</label><ns0:math id=\"M90\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">con</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">pos</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">pos</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mrow><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">neg</ns0:mi></ns0:mrow></ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">neg</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ15",
+      "text": "15Min(λselfLself+λcrossLcross+λconLcon)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ15\"><label>15</label><ns0:math id=\"M100\" display=\"block\"><ns0:mrow><ns0:mtext>Min</ns0:mtext><ns0:mspace width=\"0.333333em\" /><ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>λ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">self</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">self</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">cross</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">cross</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">con</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">con</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ16",
+      "text": "16Max(λdisLdis)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ16\"><label>16</label><ns0:math id=\"M102\" display=\"block\"><ns0:mrow><ns0:mtext>Max</ns0:mtext><ns0:mspace width=\"0.333333em\" /><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>λ</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">dis</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">dis</ns0:mi></ns0:mrow></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ17",
+      "text": "17LCE=-∑i=1cyilogSoftmaxy^i",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ17\"><label>17</label><ns0:math id=\"M110\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"script\">C</ns0:mi><ns0:mi mathvariant=\"script\">E</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mo>-</ns0:mo><ns0:msubsup><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>c</ns0:mi></ns0:msubsup><ns0:msub><ns0:mi>y</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>S</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>f</ns0:mi><ns0:mi>t</ns0:mi><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>x</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>y</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>i</ns0:mi></ns0:msub></ns0:mfenced></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ18",
+      "text": "18hθ=lconcatenatezmm=1M",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ18\"><label>18</label><ns0:math id=\"M112\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>h</ns0:mi><ns0:mi mathvariant=\"normal\">θ</ns0:mi></ns0:msub><ns0:mo>=</ns0:mo><ns0:mtext>l</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:mtext>concatenate</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:msubsup><ns0:mrow><ns0:msub><ns0:mi>z</ns0:mi><ns0:mi>m</ns0:mi></ns0:msub></ns0:mrow><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>M</ns0:mi></ns0:msubsup></ns0:mfenced></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ19",
+      "text": "19Lpart=∏i:Ei=1ehθ^(xi)∑j∈R(Ti)ehθ^(xj)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ19\"><label>19</label><ns0:math id=\"M118\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">part</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo>∏</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>:</ns0:mo><ns0:msub><ns0:mi>E</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow></ns0:munder><ns0:mfrac><ns0:msup><ns0:mrow><ns0:mi>e</ns0:mi></ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:msub><ns0:mi>h</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:msup><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi>R</ns0:mi><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>T</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msub><ns0:msup><ns0:mrow><ns0:mi>e</ns0:mi></ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:msub><ns0:mi>h</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:msup></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ20",
+      "text": "20Lcox=-logLpart=-∑i:Ei=1hθ^xi-log∑j∈RTiehθ^xj",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ20\"><label>20</label><ns0:math id=\"M130\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">cox</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mo>-</ns0:mo><ns0:mtext>log</ns0:mtext><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">part</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mo>-</ns0:mo><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>:</ns0:mo><ns0:msub><ns0:mi>E</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow></ns0:munder><ns0:mfenced close=\")\" open=\"(\"><ns0:mover accent=\"true\"><ns0:msub><ns0:mi>h</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub></ns0:mfenced><ns0:mo>-</ns0:mo><ns0:mtext>log</ns0:mtext><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi>R</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>T</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub></ns0:mfenced></ns0:mrow></ns0:msub><ns0:msup><ns0:mrow><ns0:mi>e</ns0:mi></ns0:mrow><ns0:mrow><ns0:mover accent=\"true\"><ns0:msub><ns0:mi>h</ns0:mi><ns0:mi>θ</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:mfenced></ns0:mrow></ns0:msup></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ21",
+      "text": "21IGix=xi-xi′×∫α=01∇fθ^(x′+α×x-x′)dα",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ21\"><label>21</label><ns0:math id=\"M144\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"italic\">IG</ns0:mi></ns0:mrow><ns0:mi>i</ns0:mi></ns0:msub><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>x</ns0:mi></ns0:mfenced><ns0:mo>=</ns0:mo><ns0:mfenced close=\")\" open=\"(\"><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>′</ns0:mo></ns0:mfenced><ns0:mo>×</ns0:mo><ns0:msubsup><ns0:mo>∫</ns0:mo><ns0:mrow><ns0:mi>α</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0</ns0:mn></ns0:mrow><ns0:mn>1</ns0:mn></ns0:msubsup><ns0:mi mathvariant=\"normal\">∇</ns0:mi><ns0:msub><ns0:mi>f</ns0:mi><ns0:mover accent=\"true\"><ns0:mi>θ</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>′</ns0:mo><ns0:mo>+</ns0:mo><ns0:mi>α</ns0:mi><ns0:mo>×</ns0:mo><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>x</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo>′</ns0:mo></ns0:mfenced><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mi>d</ns0:mi><ns0:mi>α</ns0:mi></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ22",
+      "text": "22Ig=∑x∈SIGgx|S|",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ22\"><label>22</label><ns0:math id=\"M158\" display=\"block\"><ns0:mrow><ns0:mtext>I</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>g</ns0:mi></ns0:mfenced><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi>S</ns0:mi></ns0:mrow></ns0:msub><ns0:mfenced close=\"|\" open=\"|\"><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"italic\">IG</ns0:mi></ns0:mrow><ns0:mi>g</ns0:mi></ns0:msub><ns0:mfenced close=\")\" open=\"(\"><ns0:mi>x</ns0:mi></ns0:mfenced></ns0:mfenced></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi>S</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Martinez-Jimenez F, Muinos F, Sentis I, Deu-Pons J, Reyes-Salazar I, Arnedo-Pac C, Mularoni L, Pich O, Bonet J, Kranas H, et al. A compendium of mutational cancer driver genes. Nat Rev Cancer. 2020;20:555–572. doi: 10.1038/s41568-020-0290-x.",
+      "doi": []
+    },
+    {
+      "id": "CR2",
+      "text": "2.Boehm KM, Khosravi P, Vanguri R, Gao J, Shah SP. Harnessing multimodal data integration to advance precision oncology. Nat Rev Cancer. 2022;22:114–126. doi: 10.1038/s41568-021-00408-3.",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.Nguyen ND, Huang J, Wang D. A deep manifold-regularized learning model for improving phenotype prediction from multi-modal data. Nat Comput Sci. 2022;2:38–46. doi: 10.1038/s43588-021-00185-x.",
+      "doi": []
+    },
+    {
+      "id": "CR4",
+      "text": "4.Liu J, Lichtenberg T, Hoadley KA, Poisson LM, Lazar AJ, Cherniack AD, Kovatich AJ, Benz CC, Levine DA, Lee AV, et al. An integrated TCGA pan-cancer clinical data resource to drive high-quality survival outcome analytics. Cell. 2018;173:400–416 e411. doi: 10.1016/j.cell.2018.02.052.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.Zhang J, Bajari R, Andric D, Gerthoffert F, Lepsa A, Nahal-Bose H, Stein LD, Ferretti V. The international cancer genome consortium data portal. Nat Biotechnol. 2019;37:367–369. doi: 10.1038/s41587-019-0055-9.",
+      "doi": []
+    },
+    {
+      "id": "CR6",
+      "text": "6.Tran KA, Kondrashova O, Bradley A, Williams ED, Pearson JV, Waddell N. Deep learning in cancer diagnosis, prognosis and treatment selection. Genome Med. 2021;13:152. doi: 10.1186/s13073-021-00968-x.",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Lipkova J, Chen RJ, Chen B, Lu MY, Barbieri M, Shao D, Vaidya AJ, Chen C, Zhuang L, Williamson DFK, et al. Artificial intelligence for multimodal data integration in oncology. Cancer Cell. 2022;40:1095–1110. doi: 10.1016/j.ccell.2022.09.012.",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Withnell E, Zhang X, Sun K, Guo Y. XOmiVAE: an interpretable deep learning model for cancer classification using high-dimensional omics data. Brief Bioinform. 2021;22:bbab315. doi: 10.1093/bib/bbab315.",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Argelaguet R, Arnol D, Bredikhin D, Deloro Y, Velten B, Marioni JC, Stegle O. MOFA+: a statistical framework for comprehensive integration of multi-modal single-cell data. Genome Biol. 2020;21:111. doi: 10.1186/s13059-020-02015-1.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Wang T, Shao W, Huang Z, Tang H, Zhang J, Ding Z, Huang K. MOGONET integrates multi-omics data using graph convolutional networks allowing patient classification and biomarker identification. Nat Commun. 2021;12:3445. doi: 10.1038/s41467-021-23774-w.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Zhang X, Xing Y, Sun K, Guo Y. OmiEmbed: a unified multi-task deep learning framework for multi-omics data. Cancers (Basel). 2021;13:3047. doi: 10.3390/cancers13123047.",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.Feldner-Busztin D, Firbas Nisantzis P, Edmunds SJ, Boza G, Racimo F, Gopalakrishnan S, Limborg MT, Lahti L, de Polavieja GG. Dealing with dimensionality: the application of machine learning to multi-omics data. Bioinformatics. 2023;39:btad021. doi: 10.1093/bioinformatics/btad021.",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Alatkar SA, Wang D. CMOT: Cross-Modality Optimal Transport for multimodal inference. Genome Biol. 2023;24:163. doi: 10.1186/s13059-023-02989-8.",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.Wu KE, Yost KE, Chang HY, Zou J. BABEL enables cross-modality translation between multiomic profiles at single-cell resolution. Proc Natl Acad Sci U S A. 2021;118:e2023070118. doi: 10.1073/pnas.2023070118.",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.He Z, Hu S, Chen Y, An S, Zhou J, Liu R, Shi J, Wang J, Dong G, Shi J: Mosaic integration and knowledge transfer of single-cell multimodal data with MIDAS. Nat Biotechnol. 2024:1–12.",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Chandrashekar PB, Alatkar S, Wang J, Hoffman GE, He C, Jin T, Khullar S, Bendl J, Fullard JF, Roussos P, Wang D. DeepGAMI: deep biologically guided auxiliary learning for multimodal integration and imputation to improve genotype-phenotype prediction. Genome Med. 2023;15:88. doi: 10.1186/s13073-023-01248-6.",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Cohen Kalafut N, Huang X, Wang D. Joint variational autoencoders for multimodal imputation and embedding. Nat Mach Intell. 2023;5:631–42. doi: 10.1038/s42256-023-00663-z.",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.Moor M, Banerjee O, Abad ZSH, Krumholz HM, Leskovec J, Topol EJ, Rajpurkar P. Foundation models for generalist medical artificial intelligence. Nature. 2023;616:259–265. doi: 10.1038/s41586-023-05881-4.",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Chiu YC, Zheng S, Wang LJ, Iskra BS, Rao MK, Houghton PJ, Huang Y, Chen Y. Predicting and characterizing a cancer dependency map of tumors with deep learning. Sci Adv. 2021;7:eabh1275. doi: 10.1126/sciadv.abh1275.",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Cui H, Wang C, Maan H, Pang K, Luo F, Duan N, Wang B: scGPT: toward building a foundation model for single-cell multi-omics using generative AI. Nat Methods 2024:1–11.",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Huang Z, Bianchi F, Yuksekgonul M, Montine TJ, Zou J. A visual-language foundation model for pathology image analysis using medical Twitter. Nat Med. 2023;29:2307–2316. doi: 10.1038/s41591-023-02504-3.",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Zhou Y, Chia MA, Wagner SK, Ayhan MS, Williamson DJ, Struyven RR, Liu T, Xu M, Lozano MG, Woodward-Court P, et al. A foundation model for generalizable disease detection from retinal images. Nature. 2023;622:156–163. doi: 10.1038/s41586-023-06555-x.",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Tu X, Cao Z-J, Mostafavi S, Gao G. Cross-linked unified embedding for cross-modality representation learning. Adv Neural Inf Process Syst. 2022;35:15942–15955.",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Kutuzova S, Krause O, McCloskey D, Nielsen M, Igel C: Multimodal variational autoencoders for semi-supervised learning: In defense of product-of-experts. arXiv preprint arXiv:210107240 2021.",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.Rousseeuw PJ. Silhouettes: A graphical aid to the interpretation and validation of cluster analysis. J Comput Appl Math. 1999;20:53–65. doi: 10.1016/0377-0427(87)90125-7.",
+      "doi": []
+    },
+    {
+      "id": "CR26",
+      "text": "26.Zhang X, Zhang J, Sun K, Yang X, Dai C, Guo Y. Integrated multi-omics analysis using variational autoencoders: application to pan-cancer classification. In 2019 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). San Diego: IEEE; 2019. p. 765–769.",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.Chen T, Guestrin C. Proceedings of the 22nd acm sigkdd international conference on knowledge discovery and data mining. 2016. Xgboost: A scalable tree boosting system; pp. 785–794.",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Sundararajan M, Taly A, Yan Q. Axiomatic attribution for deep networks. In International conference on machine learning. Sydney: PMLR; 2017. p. 3319–3328.",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Tang X, Zhang J, He Y, Zhang X, Lin Z, Partarrieu S, Hanna EB, Ren Z, Shen H, Yang Y, et al. Explainable multi-task learning for multi-modality biological data analysis. Nat Commun. 2023;14:2546. doi: 10.1038/s41467-023-37477-x.",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Curtis C, Shah SP, Chin SF, Turashvili G, Rueda OM, Dunning MJ, Speed D, Lynch AG, Samarajiwa S, Yuan Y, et al. The genomic and transcriptomic architecture of 2,000 breast tumours reveals novel subgroups. Nature. 2012;486:346–352. doi: 10.1038/nature10983.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Lupat R, Perera R, Loi S, Li J. Moanna: multi-omics autoencoder-based neural network algorithm for predicting breast cancer subtypes. IEEE Access. 2023;11:10912–10924. doi: 10.1109/ACCESS.2023.3240515.",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.van der Maaten L, Hinton G. Visualizing data using t-SNE. J Mach Learn Res. 2008;9:2579–2605.",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Li Q, Yu Y, Kossinna P, Lun T, Liao W, Zhang Q. XA4C: eXplainable representation learning via Autoencoders revealing Critical genes. PLoS Comput Biol. 2023;19:e1011476. doi: 10.1371/journal.pcbi.1011476.",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Karlsson E, Delle U, Danielsson A, Olsson B, Abel F, Karlsson P, Helou K. Gene expression variation to predict 10-year survival in lymph-node-negative breast cancer. BMC Cancer. 2008;8:254. doi: 10.1186/1471-2407-8-254.",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Ahn H-M, Ryu J, Song JM, Lee Y, Kim H-J, Ko D, Choi I, Kim SJ, Lee JW, Kim S. Anti-cancer activity of novel TM4SF5-targeting antibodies through TM4SF5 neutralization and immune cell-mediated cytotoxicity. Theranostics. 2017;7:594. doi: 10.7150/thno.15629.",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Finlin BS, Gau C-L, Murphy GA, Shao H, Kimel T, Seitz RS, Chiu Y-F, Botstein D, Brown PO, Der CJ. RERG is a novel ras-related, estrogen-regulated and growth-inhibitory gene in breast cancer. J Biol Chem. 2001;276:42259–42267. doi: 10.1074/jbc.M105888200.",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Heylen E, Verstraete P, Van Aerschot L, Geeraerts SL, Venken T, Timcheva K, Nittner D, Verbeeck J, Royaert J, Gijbels M, et al. Transcription factor NKX2-1 drives serine and glycine synthesis addiction in cancer. Br J Cancer. 2023;128:1862–1878. doi: 10.1038/s41416-023-02216-y.",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Albaradei S, Thafar M, Alsaedi A, Van Neste C, Gojobori T, Essack M, Gao X. Machine learning and deep learning methods that use omics data for metastasis prediction. Comput Struct Biotechnol J. 2021;19:5008–5018. doi: 10.1016/j.csbj.2021.09.001.",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Albaradei S, Napolitano F, Thafar MA, Gojobori T, Essack M, Gao X. MetaCancer: a deep learning-based pan-cancer metastasis prediction model developed using multi-omics data. Comput Struct Biotechnol J. 2021;19:4404–4411. doi: 10.1016/j.csbj.2021.08.006.",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Ye B, Fan D, Xiong W, Li M, Yuan J, Jiang Q, Zhao Y, Lin J, Liu J, Lv Y, et al. Oncogenic enhancers drive esophageal squamous cell carcinogenesis and metastasis. Nat Commun. 2021;12:4457. doi: 10.1038/s41467-021-24813-2.",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Fan H, Zhang M, Liu W. Hypermethylated KCNQ1 acts as a tumor suppressor in hepatocellular carcinoma. Biochem Biophys Res Commun. 2018;503:3100–3107. doi: 10.1016/j.bbrc.2018.08.099.",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Yang W, Soares J, Greninger P, Edelman EJ, Lightfoot H, Forbes S, Bindal N, Beare D, Smith JA, Thompson IR. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2012;41:D955–D961. doi: 10.1093/nar/gks1111.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Gao H, Korn JM, Ferretti S, Monahan JE, Wang Y, Singh M, Zhang C, Schnell C, Yang G, Zhang Y, et al. High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response. Nat Med. 2015;21:1318–1325. doi: 10.1038/nm.3954.",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.Sharifi-Noghabi H, Zolotareva O, Collins CC, Ester M. MOLI: multi-omics late integration with deep neural networks for drug response prediction. Bioinformatics. 2019;35:i501–i509. doi: 10.1093/bioinformatics/btz318.",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Gillespie M, Jassal B, Stephan R, Milacic M, Rothfels K, Senff-Ribeiro A, Griss J, Sevilla C, Matthews L, Gong C, et al. The reactome pathway knowledgebase 2022. Nucleic Acids Res. 2022;50:D687–D692. doi: 10.1093/nar/gkab1028.",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.Katzman JL, Shaham U, Cloninger A, Bates J, Jiang T, Kluger Y. DeepSurv: personalized treatment recommender system using a Cox proportional hazards deep neural network. BMC Med Res Methodol. 2018;18:24. doi: 10.1186/s12874-018-0482-1.",
+      "doi": []
+    },
+    {
+      "id": "CR47",
+      "text": "47.Kim S, Kim K, Choe J, Lee I, Kang J. Improved survival analysis by learning shared genomic information from pan-cancer data. Bioinformatics. 2020;36:i389–i398. doi: 10.1093/bioinformatics/btaa462.",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.Li Y, Dou Y, Da Veiga LF, Geffen Y, Calinawan AP, Aguet F, Akiyama Y, Anand S, Birger C, Cao S, et al. Proteogenomic data and resources for pan-cancer analysis. Cancer Cell. 2023;41:1397–1406. doi: 10.1016/j.ccell.2023.06.009.",
+      "doi": []
+    },
+    {
+      "id": "CR49",
+      "text": "49.Schaafsma E, Fugle CM, Wang X, Cheng C. Pan-cancer association of HLA gene expression with cancer prognosis and immunotherapy efficacy. Br J Cancer. 2021;125:422–432. doi: 10.1038/s41416-021-01400-2.",
+      "doi": []
+    },
+    {
+      "id": "CR50",
+      "text": "50.Elazezy M, Schwentesius S, Stegat L, Wikman H, Werner S, Mansour WY, Failla AV, Peine S, Müller V, Thiery JP. Emerging insights into keratin 16 expression during metastatic progression of breast cancer. Cancers. 2021;13:3869. doi: 10.3390/cancers13153869.",
+      "doi": []
+    },
+    {
+      "id": "CR51",
+      "text": "51.Lin YH, Lim SN, Chen CY, Chi HC, Yeh CT, Lin WR. Functional role of mitochondrial DNA in cancer progression. Int J Mol Sci. 2022;23:1659. doi: 10.3390/ijms23031659.",
+      "doi": []
+    },
+    {
+      "id": "CR52",
+      "text": "52.Yuan X, Yi M, Dong B, Chu Q, Wu K. Prognostic significance of KRT19 in lung squamous cancer. J Cancer. 2021;12:1240. doi: 10.7150/jca.51179.",
+      "doi": []
+    },
+    {
+      "id": "CR53",
+      "text": "53.Yang B, Zhang W, Zhang M, Wang X, Peng S, Zhang R. KRT6A promotes EMT and cancer stem cell transformation in lung adenocarcinoma. Technol Cancer Res Treat. 2020;19:1533033820921248. doi: 10.1177/1533033820921248.",
+      "doi": []
+    },
+    {
+      "id": "CR54",
+      "text": "54.Duan Y, Zhang X, Ying H, Xu J, Yang H, Sun K, He L, Li M, Ji Y, Liang T, Bai X. Targeting MFAP5 in cancer-associated fibroblasts sensitizes pancreatic cancer to PD-L1-based immunochemotherapy via remodeling the matrix. Oncogene. 2023;42:2061–2073. doi: 10.1038/s41388-023-02711-9.",
+      "doi": []
+    },
+    {
+      "id": "CR55",
+      "text": "55.Pan K, Huang X, Jia X. SPARC promotes pancreatic cancer cell proliferation and migration through autocrine secretion into the extracellular milieu. Oncol Lett. 2021;21:485. doi: 10.3892/ol.2021.12746.",
+      "doi": []
+    },
+    {
+      "id": "CR56",
+      "text": "56.Fan F, Zhang H, Dai Z, Zhang Y, Xia Z, Cao H, Yang K, Hu S, Guo Y, Ding F, et al. A comprehensive prognostic signature for glioblastoma patients based on transcriptomics and single cell sequencing. Cell Oncol (Dordr) 2021;44:917–935. doi: 10.1007/s13402-021-00612-1.",
+      "doi": []
+    },
+    {
+      "id": "CR57",
+      "text": "57.Kuai X, Lv J, Zhang J, Xu M, Ji J. Serpin family A member 1 is prognostic and involved in immunological regulation in human cancers. Int J Mol Sci. 2023;24:11566. doi: 10.3390/ijms241411566.",
+      "doi": []
+    },
+    {
+      "id": "CR58",
+      "text": "58.Jing X, Liang H, Hao C, Yang X, Cui X. Overexpression of MUC1 predicts poor prognosis in patients with breast cancer. Oncol Rep. 2019;41:801–810. doi: 10.3892/or.2018.6887.",
+      "doi": []
+    },
+    {
+      "id": "CR59",
+      "text": "59.McGranahan N, Swanton C. Clonal heterogeneity and tumor evolution: past, present, and the future. Cell. 2017;168:613–628. doi: 10.1016/j.cell.2017.01.018.",
+      "doi": []
+    },
+    {
+      "id": "CR60",
+      "text": "60.Nguyen ND, Jin T, Wang D. Varmole: a biologically drop-connect deep neural network model for prioritizing disease risk variants and genes. Bioinformatics. 2021;37:1772–1775. doi: 10.1093/bioinformatics/btaa866.",
+      "doi": []
+    },
+    {
+      "id": "CR61",
+      "text": "61.Janizek JD, Spiro A, Celik S, Blue BW, Russell JC, Lee TI, Kaeberlin M, Lee SI. PAUSE: principled feature attribution for unsupervised gene expression analysis. Genome Biol. 2023;24:81. doi: 10.1186/s13059-023-02901-4.",
+      "doi": []
+    },
+    {
+      "id": "CR62",
+      "text": "62.Radhakrishnan A, Friedman SF, Khurshid S, Ng K, Batra P, Lubitz SA, Philippakis AA, Uhler C. Cross-modal autoencoder framework learns holistic representations of cardiovascular state. Nat Commun. 2023;14:2436. doi: 10.1038/s41467-023-38125-0.",
+      "doi": []
+    },
+    {
+      "id": "CR63",
+      "text": "63.Chen T, Kornblith S, Norouzi M, Hinton G. A simple framework for contrastive learning of visual representations. In International conference on machine learning. PMLR, Virtual Event; 2020; p. 1597–1607.",
+      "doi": []
+    },
+    {
+      "id": "CR64",
+      "text": "64.Chun S, Oh SJ, De Rezende RS, Kalantidis Y, Larlus D. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021. Probabilistic embeddings for cross-modal retrieval; pp. 8415–8424.",
+      "doi": []
+    },
+    {
+      "id": "CR65",
+      "text": "65.You K, Liu Y, Wang J, Long M. Logme: Practical assessment of pre-trained models for transfer learning. In international conference on machine learning. PMLR, Virtual Event; 2021. p. 12133–12143.",
+      "doi": []
+    },
+    {
+      "id": "CR66",
+      "text": "66.Fisher LD, Lin DY. Time-dependent covariates in the Cox proportional-hazards regression model. Annu Rev Public Health. 1999;20:145–157. doi: 10.1146/annurev.publhealth.20.1.145.",
+      "doi": []
+    },
+    {
+      "id": "CR67",
+      "text": "67.Zhu X, Yao J, Zhu F, Huang J. Proceedings of the IEEE conference on computer vision and pattern recognition. 2017. Making survival prediction from whole slide histopathological images; pp. 7234–7242.",
+      "doi": []
+    },
+    {
+      "id": "CR68",
+      "text": "68.Zadeh SG, Schmid M. Bias in cross-entropy-based training of deep survival networks. IEEE Trans Pattern Anal Mach Intell. 2020;43:3126–3137. doi: 10.1109/TPAMI.2020.2979450.",
+      "doi": []
+    },
+    {
+      "id": "CR69",
+      "text": "69.Chen RJ, Lu MY, Shaban M, Chen C, Chen TY, Williamson DF, Mahmood F. Whole slide images are 2d point clouds: context-aware survival prediction using patch-based graph convolutional networks. In Medical Image Computing and Computer Assisted Intervention–MICCAI 2021: 24th International Conference, Strasbourg, France, September 27–October 1, 2021, Proceedings, Part VIII 24. Springer; 2021: 339-349",
+      "doi": []
+    },
+    {
+      "id": "CR70",
+      "text": "70.Sasieni P. Maximum weighted partial likelihood estimators for the Cox model. J Am Stat Assoc. 1993;88:144–152. doi: 10.1080/01621459.1993.10594304.",
+      "doi": []
+    },
+    {
+      "id": "CR71",
+      "text": "71.Chiu, C. Huang, Y. Chen, Y. DeepDEP: Deep Learning of a Cancer Dependency Map Using Cancer Genomics. TCGA multi-omics Data. Codeocean; 2021. https://codeocean.com/capsule/7914207/tree/v1.",
+      "doi": []
+    },
+    {
+      "id": "CR72",
+      "text": "72.Lupat, R. Loi, S. Li, J. Processed TCGA BRCA and METABRIC datasets used in the Moanna manuscript. Processed multi-omics data. Zenodo; 2020. 10.5281/zenodo.4326602.",
+      "doi": []
+    },
+    {
+      "id": "CR73",
+      "text": "73.Somayah, A. Francesco, N. Maha, A T. Takashi, G. Magbubah, E. Xin, G. Meta Cancer: A deep learning-based pan-cancer metastasis prediction model developed using multi-omics data. RNA-Seq, microRNA-Seq, DNA methylation. Github; 2021. https://github.com/SomayahAlbaradei/MetaCancer.",
+      "doi": []
+    },
+    {
+      "id": "CR74",
+      "text": "74.Yang, W. Soares, J. Greninger, P. Edelman, E. Lightfoot, H. Forbes, S. Bindal, N. Beare, D. Smith, J. Thompson IR: Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Drug sensitivity data and the genomic datasets. Cancer Genome Project at the Wellcome Sanger Institute (UK) and the Center for Molecular Therapeutics, Massachusetts General Hospital Cancer Center; 2012. https://www.cancerrxgene.org/downloads/anova.",
+      "doi": []
+    },
+    {
+      "id": "CR75",
+      "text": "75.Gao, H. Korn, JM. Ferretti, S. Monahan, JE. Wang, Y. Singh, M. Zhang, C. Schnell, C. Yang, G. Zhang, Y. High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response. Genomic profiling of PDXs and raw response and curve metrics of PCTs. Springer. 2015. https://static-content.springer.com/esm/art%3A10.1038%2Fnm.3954/MediaObjects/41591_2015_BFnm3954_MOESM10_ESM.xlsx.",
+      "doi": []
+    },
+    {
+      "id": "CR76",
+      "text": "76.Suhas, V. Yuxing, L. Bing, Z. A proteogenomics data-driven knowledge base of human cancer. Linkedomics. Breast invasive carcinoma prospective cohort(BRCA): 2023. https://www.linkedomics.org/data_download/CPTAC-pancan-BRCA/; Colon Adenocarcinoma cohort(COAD): https://www.linkedomics.org/data_download/CPTAC-pancan-COAD/; Glioblastoma(GBM): https://www.linkedomics.org/data_download/CPTAC-pancan-GBM/; Lung adenocarcinoma(LUAD): https://www.linkedomics.org/data_download/CPTAC-pancan-LUAD/; Ovarian Cancer(OV): https://www.linkedomics.org/data_download/CPTAC-pancan-OV/; Uterine Corpus Endometrial Carcinoma(UCEC): https://www.linkedomics.org/data_download/CPTAC-pancan-UCEC/.",
+      "doi": []
+    },
+    {
+      "id": "CR77",
+      "text": "77.Wang, F. Zhuang, Z. Liu, J. TMO-Net: an explainable pretrained multi-omics model for multi-task learning in oncology. Github; 2024. https://github.com/FengAoWang/TMO-Net.",
+      "doi": []
+    },
+    {
+      "id": "CR78",
+      "text": "78.Wang, F. Zhuang, Z. Liu, J. TMO-Net: an explainable pretrained multi-omics model for multi-task learning in oncology. Zenodo; 2024. 10.5281/zenodo.11258239.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Wang FA, Zhuang Z, Gao F, He R, Zhang S, Wang L, Liu J, Li Y.",
+  "journal": "Genome Biol",
+  "year": "2024",
+  "pmid": "38845006",
+  "pmcid": "PMC11157742",
+  "doi": "10.1186/s13059-024-03293-9",
+  "source": {
+    "retrieved_at": "2026-11-14T17:04:01.405963+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11157742/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC11157742.xml"
+}

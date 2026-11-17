@@ -1,0 +1,1602 @@
+{
+  "key": "40138420",
+  "body_available": true,
+  "title": "Demographic bias of expert-level vision-language foundation models in medical imaging",
+  "source_url": "https://europepmc.org/articles/PMC11939055",
+  "license": {
+    "text": "This is an open-access article distributed under the terms of the Creative Commons Attribution license, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Yuzhe Yang",
+    "Yujia Liu",
+    "Xin Liu",
+    "Avanti Gulhane",
+    "Domenico Mastrodicasa",
+    "Wei Wu",
+    "Edward J Wang",
+    "Dushyant Sahani",
+    "Shwetak Patel"
+  ],
+  "copyright": {
+    "statement": "Copyright © 2025 The Authors, some rights reserved; exclusive licensee American Association for the Advancement of Science. No claim to original U.S. Government Works. Distributed under a Creative Commons Attribution License 4.0 (CC BY).",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2025",
+        "month": "3",
+        "day": "26"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "sec1",
+      "title": "INTRODUCTION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec1-p1",
+          "reference_ids": [
+            "R1",
+            "R4",
+            "R5",
+            "R6",
+            "R5",
+            "R7",
+            "R9",
+            "R10",
+            "R11"
+          ],
+          "en": "Artificial intelligence (AI) has increasingly been deployed in real-world clinical settings, especially for medical imaging (1–4). The latest developments include vision-language foundation models that operate on a self-supervised learning paradigm (5, 6), eliminating the need for explicit pathology annotations while maintaining human-level diagnostic accuracy across various modalities and disease conditions (5, 7–9). Notably, in radiology, by simultaneously using image and text inputs and leveraging the information naturally present in clinical reports associated with radiology images, foundation models identify pathologies without dependence on specific annotations, achieving performance that matches the expertise of radiologists and, in some cases, surpasses the expected diagnostic benchmarks (10, 11).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec1-p2",
+          "reference_ids": [
+            "R10",
+            "R12",
+            "R14",
+            "R12",
+            "R14",
+            "R14",
+            "R16",
+            "R17",
+            "R18"
+          ],
+          "en": "Despite the plausible performance in diagnosing unseen pathologies (10), the foundation model could amplify existing biases in the data, causing diagnosis disparities across protected subpopulations and leading to unequal predictive outcomes for specific demographics (12–14) (e.g., discrepancies in diagnosis rates between Black and white patients). Existing literature has revealed that chest x-ray classifiers trained to predict the presence of disease systematically underdiagnosed Black patients (12, 14), potentially leading to incorrect triage decisions and delayed medical treatment. Although algorithmic biases have been studied in the supervised setting (14–16) (e.g., models trained for specific diseases like “no finding”) or image-only foundation model (17) (e.g., pretrained solely on chest x-rays and fine-tuned on labeled data), little attention has been paid to vision-language foundation models. These models, notably, free from explicit supervision through multimodal training and zero-shot inference, theoretically have reduced potential to inherit human labeling biases. However, to ensure the responsible and fair deployment, it is essential to investigate potential biases these models may have, understand the sources and measure their outcomes, and where possible, initiate corrective actions (18).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec1-p3",
+          "reference_ids": [
+            "R10",
+            "R11",
+            "R19",
+            "R20",
+            "R21",
+            "R22",
+            "R23",
+            "R12",
+            "R14",
+            "F1"
+          ],
+          "en": "We present a systematic study to measure and understand biases in vision-language foundation models. Using chest x-rays as a driving example, we mainly use CheXzero (10), a state-of-the-art self-supervised foundation model in medical imaging, to assess bias and fairness across a broad spectrum of pathologies with demographic subpopulations present in the testing data. We also test another vision-language foundation model (11) and show similar findings (fig. S1). Our analysis incorporates five diverse, globally sourced radiology datasets: Medical Information Mart for Intensive Care (MIMIC) (19), CheXpert (20), National Institutes of Health (NIH) (21), PadChest (22), and VinDr (23). We evaluate fairness within both individual and intersectional subpopulations spanning demographic attributes including race, sex, and age (12, 14). We further compare fairness outcomes of the model with board-certified radiologists, uncovering that the foundation model demonstrates more substantial fairness discrepancies compared to human experts (Fig. 1). Further investigation in direct assessment of demographic attributes from chest x-rays shows that the model exhibits enhanced capacity to predict sensitive demographic information (e.g., age and race) compared to radiologists. Our international evaluation highlights pronounced biases within foundation models contrasted with evaluations by board-certified radiologists, shedding light on the origins of these biases and potential methodologies for bias auditing and correction before real deployments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2",
+      "title": "RESULTS",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec3",
+      "title": "Datasets, model, and evaluation protocols",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec3-p1",
+          "reference_ids": [
+            "T1",
+            "R19",
+            "R20",
+            "R21",
+            "R22",
+            "R23"
+          ],
+          "en": "We collect five public chest x-ray datasets from diverse global sources. These datasets, as detailed in Table 1, encompass MIMIC (19) (357,167 images from 61,927 patients), CheXpert (20) (223,458 images from 64,925 patients), and NIH (21) (112,120 images from 30,805 patients) from the United States, PadChest (22) (160,736 images from 67,590 patients) from Spain, and VinDr (23) (5323 images from 5323 patients) from Vietnam. The datasets provide chest x-ray images along with pathology labels and demographic data derived from the respective patients. Both MIMIC and CheXpert present demographic information including sex, age, and race. The remaining datasets (i.e., NIH, PadChest, and VinDr) present demographic details regarding sex and age, with no information available on the race of the patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3-p2",
+          "reference_ids": [
+            "R10",
+            "R11"
+          ],
+          "en": "We use a state-of-the-art self-supervised foundation model in medical imaging, CheXzero (10), as a driving example to study fairness of foundation models. The details about model architecture, prompt design, and evaluation protocols are in Materials and Methods. Note that the model was trained in a self-supervised way without using any pathology labels or annotations. We also tested on another vision-language foundation model (11) and observed similar findings (fig. S1). We evaluated the model on internationally sourced chest x-rays datasets. In particular, CheXpert, PadChest, and VinDr contain gold-standard ground-truth radiologist labels. Among these datasets, CheXpert test set (666 samples) and VinDr (5323 samples) provide external annotations from three board-certified radiologists, which were used to benchmark the performance and fairness of radiologists’ assessments compared to the model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3-p3",
+          "reference_ids": [
+            "R12",
+            "R14",
+            "R14",
+            "R24"
+          ],
+          "en": "To assess the model prediction fairness, we focus on three demographic attributes: sex, age, and race, and dissect the performance of the model within different subpopulations, such as female or Black patients, and the intersectional groups like Black female patients. We follow the literature to examine the class-conditioned error rate that is likely to lead to worse patient outcomes for a screening model (12, 14). For all potential pathology labels, a false negative indicates falsely predicting someone to be healthy when they are ill, which could lead to delays in treatment (14) (i.e., an underdiagnosis). Therefore, we evaluate the differences in false-negative rate (FNR) between demographic subpopulations. For “no finding,” we evaluate the false-positive rate (FPR) for the same reason. Equality in these metrics can be viewed as instances of equal opportunity between subgroups (24). We then denote the differences in FNR/FPR for two selected subgroups (e.g., Black and white patients) as the underdiagnosis disparity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4",
+      "title": "Substantial fairness disparities in foundation model compared to radiologists",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4-p1",
+          "reference_ids": [
+            "F2",
+            "F2"
+          ],
+          "en": "We assess the model’s underdiagnosis disparity across datasets and demographic populations. Since external radiologist annotations are available in certain datasets (i.e., CheXpert and VinDr), we directly compared the overall performance and the performance for subpopulations between the model and radiologists. Figure 2 presents the diagnostic performance and fairness of the vision-language foundation model in contrast to that of board-certified radiologists on the CheXpert dataset (n = 666). First, Fig. 2 (A, C, and E) shows the comparison of the receiver operating characteristic (ROC) curves of the model to the operating points of radiologists for three different pathologies. Notably, the model exhibits comparable or better diagnostic performance compared to radiologists [“enlarged cardiomediastinum:” the area under the ROC curve (AUC) = 0.917 and 95% confidence interval (CI) (0.905 to 0.928); “pleural effusion:” AUC = 0.938 and 95% CI (0.922 to 0.950); and “lung opacity:” AUC = 0.919 and 95% CI (0.904 to 0.933)].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4-p2",
+          "reference_ids": [
+            "R25",
+            "F2"
+          ],
+          "en": "In the meantime, we further assess the underdiagnosis disparity between subgroups, which measures the disparity of FNR between two selected subgroups in each category (“female” versus “male” in sex, “80 to 100” versus “18 to 40” in age, “white” versus “Black” in race, and “white male” versus “Black female” in the intersectional group of sex and race). We average the assessments from different radiologists as the evaluation of human biases. When computing FNR for the model, we use the optimal threshold computed on the validation set that maximizes the Youden’s J statistic (25). Figure 2 (B, D, and F) shows that the model exhibits much larger fairness gaps compared to radiologists, especially for intersectional subgroups. For instance, the model exhibits significantly higher underdiagnosis rate for “enlarged cardiomediastinum” in sex (P = 1.28 × 10−131, one-tailed Wilcoxon rank-sum test; same test for following attributes), age (P = 2.51 × 10−103), race (P = 8.79 × 10−93), and the intersectional of sex and race (P = 1.58 × 10−206). More results can be found in the fig. S2, including the analysis of other pathologies in CheXpert, and on another dataset from a different site (VinDr). Overall, the model exhibits expert-level pathology detection accuracy, but shows consistently higher underdiagnosis bias compared to radiologists.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec5",
+      "title": "Diagnosis bias in marginalized populations and intersectional groups",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec5-p1",
+          "reference_ids": [
+            "F3",
+            "F3",
+            "F3",
+            "F3",
+            "F3",
+            "F3",
+            "F3"
+          ],
+          "en": "We further evaluate the diagnosis bias of the model on MIMIC, the largest and the most diverse chest x-ray dataset in our study. We focus on the no finding label and show both underdiagnosis and overdiagnosis bias of the model on individual and intersectional subpopulations (Fig. 3). FPR is used for assessing underdiagnosis, whereas FNR is used for overdiagnosis. Figure 3A shows substantial fairness gaps between patient subpopulations in each category, especially between the age subgroups “>80” (n = 53,935) and “18 to 40” (n = 49,353). Moreover, larger gaps of the underdiagnosis rate between the intersectional subgroups can be observed in Fig. 3B. For instance, around 20% FPR discrepancies exist between female patients aged above 80 (n = 29,209) and those in their 18 to 40 (n = 25,350). Similar observations hold for overdiagnosis (Fig. 3, C and D), the gaps become more notable between intersectional subgroups. The FPR (Fig. 3A) and FNR (Fig. 3C) for no finding shows an inverse relationship across different marginalized subgroups in the CXR dataset. Such an inverse relationship also exists for intersectional subgroups (Fig. 3, B and D) and is consistent across other datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec5-p2",
+          "reference_ids": [],
+          "en": "We observe that female patients, patients aged between 18 and 40 years, and Black patients have higher rates of algorithmic underdiagnosis, indicating that these subgroups are most likely being falsely diagnosed as healthy by the model and failing to receive appropriate clinical treatments. Further investigations on intersectional subpopulations reveal that the underdiagnosis rates increased substantially for specific groups of patients, such as Black Female patients. We show in fig. S3 that the observations hold across different pathologies such as “lung opacity” or “pneumonia.” We further confirm in fig. S4 that the disparities remain consistent when tested on external datasets such as CheXpert, NIH, and VinDr.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec6",
+      "title": "Demographic bias in unseen radiographic findings",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec6-p1",
+          "reference_ids": [
+            "R22",
+            "R10",
+            "F4",
+            "F4",
+            "F4"
+          ],
+          "en": "We extended our analysis to investigate the demographic biases using a much larger and diverse set of pathology labels. We tested the foundation model on the PadChest dataset collected from a different country with 174 radiographic findings and 19 differential diagnoses (22). We filtered out 48 radiographic findings where n > 100 and the model achieved an AUC of at least 0.7 in the PadChest test set (n = 39,053) to further assess the demographic fairness of the model on unseen radiographic findings (10). Figure 4 reveals distinct disparities in both sex (female versus male subgroup) and age (>80 versus 18 to 40 subgroup) among those radiographic findings. The maximum underdiagnosis disparity (i.e., “multiple nodules,” n = 102) between female and male patients is 24.1% [95% CI (22.5 to 26.0%)], whereas 31 of 48 findings exhibit a fairness gap larger than 5% (Fig. 4A). The discrepancies become even more significant for age, with a 100% fairness gap for “tracheostomy tube” (n = 163) between 18 to 40 and >80 subgroups, and 45 of 48 findings exhibit a fairness gap larger than 20% (Fig. 4B).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec7",
+      "title": "Demographic information encoding in foundation model beyond human levels",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec7-p1",
+          "reference_ids": [
+            "R26",
+            "R28"
+          ],
+          "en": "With consistent demographic bias across international evaluation, we aim to further dissect and explain the performance of the model. Inspired by recent works on algorithmic encoding of demographic information by deep learning models (26–28), we investigated whether the model encodes demographic information by examining the predictability of sensitive attributes by both the self-supervised foundation model and board-certified radiologists. We selected 480 chest x-ray samples from the MIMIC dataset, ensuring an equal number of samples across all subgroups in three key attributes: sex, age, and race (details in Materials and Methods). Instead of focusing on pathology prediction, we assessed how much the model encodes demographic information by training a linear attribute prediction head using logistic regression on top of the penultimate layer of the model, with the model weights frozen. In the meantime, we involved three board-certified radiologists with over 10 years of experience in chest imaging to label the demographic attributes (sex, age, and race) for the same set of patients based solely on their chest x-rays (details in Materials and Methods). Each radiologist was blinded to the demographic attributes and participated independently without any prior training or exposure to the task to avoid any training effect.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec7-p2",
+          "reference_ids": [
+            "F5",
+            "F5",
+            "F5",
+            "F5",
+            "F5"
+          ],
+          "en": "The foundation model, although trained in a self-supervised manner without explicit information regarding the demographic attributes, demonstrated substantial and consistent encoding of demographic information across all tested attributes and subgroups (Fig. 5). Specifically, the predictive AUCs for sex [female AUC = 0.92 and 95% CI (0.91 to 0.93) Fig. 5A], age [18 to 40 AUC = 0.94 and 95% CI (0.93 to 0.94); Fig. 5B], race [Black AUC = 0.78 and 95% CI (0.77 to 0.78); Fig. 5C], and the intersectional subgroups [Black female AUC = 0.83 and 95% CI (0.82 to 0.83); Fig. 5D] are significantly higher than random chance (i.e., 0.5). This strong algorithmic encoding of demographic attributes could be explainable for the observed underdiagnosis bias across patient subpopulations (details in Discussion).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec7-p3",
+          "reference_ids": [
+            "F5",
+            "F5",
+            "F5",
+            "F5"
+          ],
+          "en": "However, the performance of three radiologists to predict these attributes falls behind. They achieve relatively high AUC scores in sex prediction (Fig. 5A) but much lower in age prediction (Fig. 5B). When it comes to race, the prediction is marginally better than random guess (Fig. 5C). Similar performance pattern is observed in the intersectional group of sex and race prediction (Fig. 5D), suggesting that radiologists cannot directly read attributes like age or race from radiographs. Figure S5 further suggests that inherent encoding of the sensitive data (e.g., demographics and support devices) might drive the underdiagnosis biases (details in Discussion and Materials and Methods). We provide analysis and initial methods to intervene the model fairness in figs. S6 and S7.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec8",
+      "title": "DISCUSSION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec8-p1",
+          "reference_ids": [
+            "F2",
+            "F3",
+            "F4",
+            "F5"
+          ],
+          "en": "We have dissected the performance of the state-of-the-art foundation model and shown consistent underdiagnosis in five internationally sourced public datasets in the chest x-ray domain. We were able to compare the results with board-certified radiologists to ground the findings. The results reveal consistently larger fairness disparities of the model compared to radiologists (Fig. 2), and that the model exhibits systematic underdiagnosis biases in marginalized subpopulations, such as female, younger, Black patients, as well as intersectional subgroups like Black female patients (Fig. 3). The demographic biases of the foundation model also persist across a wide range of unseen pathologies (Fig. 4). Further analyses show that the model encodes substantial demographic information (e.g., race), and that is significantly higher than human radiologists (Fig. 5).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec8-p2",
+          "reference_ids": [
+            "R29",
+            "R30",
+            "F2",
+            "R31",
+            "R32",
+            "R33",
+            "R34"
+          ],
+          "en": "Our results have multiple implications. First, the fairness-accuracy trade-off in AI models can raise complex ethical considerations (29, 30). The latest advancements in medical vision-language foundation models hold the promise of a single model diagnosing countless pathologies with expert-level accuracy. Yet, our analysis shows that they exhibit substantial fairness gaps over marginalized groups. This disparity is significantly larger than that by radiologists across various diagnostic tasks and patient subpopulations (Fig. 2). Incorrectly underdiagnosing specific subgroups (e.g., Black female patients) more frequently than others not only places these individuals at a disadvantage but also raises serious ethical concerns when deploying the model in a clinical pipeline (31, 32). The results have implications on the regulation of these new medical technologies (33), especially under the recent White House Executive Order on the safe, secure, and trustworthy development and use of AI (34).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec8-p3",
+          "reference_ids": [
+            "F5",
+            "F4",
+            "R35",
+            "R36",
+            "R32",
+            "R37",
+            "R18",
+            "R31",
+            "R38"
+          ],
+          "en": "Second, our study shows that the model encodes demographic information far more profoundly than human capacity (Fig. 5 and fig. S5). This suggests that inherent encoding of the sensitive data (e.g., demographics and support devices) might drive the underdiagnosis biases (e.g., Fig. 4). Notably, even though the model is trained in a self-supervised manner without explicit attribute information, it still manages to embed this information. Recent studies explore if deep models use demographics as “shortcuts,” disadvantaging specific groups (35, 36). These call for a deeper understanding of how these powerful models process and utilize sensitive information, and whether that is aligned with clinical validations by radiologists. While demographics can refine differential diagnoses and are associated with patient outcomes in certain cases, they may not be a direct causal factor in most diseases (32, 37) (e.g., pneumothorax, pneumonia, fracture, etc.). Whether demographic variables should be encoded as proxies for causal factors is a decision that should align with its actual clinical use (18, 31, 38).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec8-p4",
+          "reference_ids": [
+            "R39",
+            "R40",
+            "R42",
+            "R29",
+            "R43"
+          ],
+          "en": "Third, our results reveal that the AI model effectively encodes demographic information from radiographs more accurately than radiologists. A recent study demonstrates that AI can measure and interpret biological age, predict age-related outcomes, and convert these predictions into an estimated biological age (39). This capability extends beyond the typical scope of radiologist assessments, which generally do not include evaluating age, sex, or gender, as these details are usually obtained from electronic medical records. However, the ability of the AI model to discern these demographics more precisely suggests a potential for uncovering potentially clinically relevant features that might not be immediately apparent to human readers, suggesting an opportunity for an improved human-AI collaboration (40–42). Exploring the semantic and agnostic features harnessed by AI could improve human performance and potentially deliver a higher quality care. On the other hand, in scenarios where clinical decisions are influenced by AI model suggestions, any undetected bias within the model could lead to unintended and potentially harmful consequences (29, 43). This underscores the need for careful and continuous evaluation of AI biases to progressively diminish their influence in healthcare, and ensure more accurate and equitable diagnoses.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec8-p5",
+          "reference_ids": [
+            "R44",
+            "R46",
+            "R7",
+            "R10"
+          ],
+          "en": "Our study also has some limitations. First, demographics associated with the datasets are mainly self-reported or physician recorded, where inconsistencies during examinations can introduce label noise. Demographic labels can be influenced by numerous characteristics such as age, socioeconomic status, and levels of cultural assimilation (44–46). Mitigating such label noise remains challenging as traditional bias mitigation strategies may not provide effective corrections, leading to inherent biases embedded in data and models. Second, the datasets used in this study included a range of chest x-rays and projections, many of which did not adhere to a uniform standard of image quality. The extent to which this variability might have affected our results remains unclear and highlights the need for future research to explore the influence of image quality on AI model performance. Third, we focused primarily on one specific vision-language foundation model implementation. While the model is considered state-of-the-art and serves as a robust starting point, the methodologies used in the study are generic and adaptable to other foundation models (7–10). Last, while we involve human studies to assess the diagnostic performance and fairness of radiologists, they face constraints due to the limited number of participating radiologists. Expanding the scale of participants in future studies could improve the validity of the results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec8-p6",
+          "reference_ids": [],
+          "en": "In summary, we have uncovered pronounced and systematic demographic biases of the state-of-the-art visual-language foundation model, and performed human evaluations to compare them to radiologists. The results, validated across five large-scale, globally sourced datasets, showed that even when AI achieves human-level performance, deploying these algorithms in real-world scenarios demands careful consideration of the ethical implications, especially concerning underrepresented subpopulations. Furthermore, our findings prompt questions about how to understand, audit, and reduce biases in medical AI models. Developing more effective foundation models is of the utmost importance to improve diagnostic accuracy while mitigating bias and promoting equity in health care.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec9",
+      "title": "MATERIALS AND METHODS",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec10",
+      "title": "Datasets and preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec10-p1",
+          "reference_ids": [
+            "T1"
+          ],
+          "en": "We provide additional information about the datasets used in this study. The datasets are summarized in Table 1. All five public datasets offer demographic attributes of sex and age for the associated patients. MIMIC and CheXpert additionally provide demographic information on race. To ensure the integrity of the datasets, we exclude the samples with incomplete demographic data from the dataset. Specifically, if any of the essential attributes: sex, age, or race (for MIMIC and CheXpert) is missing, the corresponding image is excluded from consideration in our study. Notably, the reported numbers in the paper regarding the datasets are post application of this exclusion criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec10-p2",
+          "reference_ids": [],
+          "en": "In total, we have 357,167 images from MIMIC (MIMIC-CXR), 223,458 images from CheXpert, 112,120 images from NIH (ChestX-ray14), 160,736 images from PadChest, and 5323 images from VinDr (VinDr-CXR).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec11",
+      "title": "MIMIC",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec11-p1",
+          "reference_ids": [
+            "R19"
+          ],
+          "en": "The MIMIC (MIMIC-CXR) dataset (19) contains 357,167 chest x-rays along with free-text radiology reports, obtained from Beth Israel Deaconess Medical Center (BIDMC) in Boston, MA. The chest radiographs are retained in Digital Imaging and Communications in Medicine (DICOM) format, and the radiology reports are extracted from BIDMC electronic health record, which include textual descriptions and interpretations of the findings in the x-ray images written by radiologists during routine care.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec12",
+      "title": "CheXpert",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec12-p1",
+          "reference_ids": [
+            "R20",
+            "R20"
+          ],
+          "en": "The CheXpert dataset (20) consists of 223,458 chest x-rays from 64,925 patients. It offers a diverse and comprehensive collection of chest radiographs that span a wide array of subpopulations. An automated rule-based labeler was developed to extract the 14 observations (radiographic findings) from the radiology reports. Annotations from board-certified radiologists are available for both the validation set (200 studies sampled randomly from the full dataset) and test set (500 studies randomly sampled from the 1000 studies in the report evaluation set for the labeler). Three of the eight board-certified radiologists were chosen to benchmark the performance of radiologists (20).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec13",
+      "title": "NIH",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec13-p1",
+          "reference_ids": [
+            "R21"
+          ],
+          "en": "The NIH dataset (ChestX-ray14) (21) is a medical imaging dataset that contains 112,120 frontal-view chest x-ray images. These images are sourced from 30,805 patients, with data collected over a large period ranging from 1992 and 2015. It provides 15 pathology labels extracted from the radiological reports through text mining techniques. As an expansion of ChestX-ray8, this dataset introduces six additional thoracic diseases: edema, emphysema, fibrosis, pleural thickening, and hernia. The chest x-ray images are resized to a resolution of 1024 × 1024 pixels from the original DICOM format.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec14",
+      "title": "PadChest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec14-p1",
+          "reference_ids": [
+            "R22"
+          ],
+          "en": "The PadChest dataset (22) comprises a substantial collection of 160,736 chest x-ray images obtained from 67,590 patients at San Juan Hospital (Spain) from 2009 to 2017. It offers six different radiographic projections, 174 findings, and 19 differential diagnoses. A total of 39,053 chest x-ray images were manually annotated by trained physicians, and a recurrent neural network with attention mechanism trained on the manually labeled subset was used to label the remaining samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec15",
+      "title": "VinDr",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec15-p1",
+          "reference_ids": [
+            "R23"
+          ],
+          "en": "The VinDr (VinDr-CXR) dataset (23) is a public dataset comprising 5323 frontal chest x-ray images collected from 5323 patients across two major hospitals in Vietnam: Hospital 108 and Hanoi Medical University Hospital. The dataset provides labels for 27 findings (the label “other diseases” is removed from the original dataset to avoid ambiguity). Notably, it is considered a high-quality dataset of annotated images in the research community as it provides radiologists-generated annotations for all images (in both training and test sets).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec16",
+      "title": "Model training and evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec16-p1",
+          "reference_ids": [
+            "R10",
+            "R47",
+            "R48",
+            "R10",
+            "R11"
+          ],
+          "en": "We mainly use the CheXzero model (10) as a driving example to study fairness of foundation models. The vision-language model was initialized from a Vision Transformer backbone ViT-B/32 (47) and pretrained weights from OpenAI’s CLIP model, which excels in tasks related to vision and language understanding (48). The model was trained in a self-supervised manner on the MIMIC dataset with no pathology labels or annotations used, just by leveraging the radiographs with accompanying clinical texts (10). In addition, we also tested another vision-language foundation model, Knowledge-enhanced Auto Diagnosis (KAD) (11), which introduces knowledge graphs into visual-language pretraining.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec16-p2",
+          "reference_ids": [
+            "R4",
+            "R49"
+          ],
+          "en": "We evaluated the model on our internationally sourced chest x-ray datasets. In particular, approximately 45,000 chest x-ray images used in our evaluation come with gold-standard annotations from radiologists across three datasets: CheXpert test set (666 chest x-rays with eight board-certified radiologist annotations for the presence of 14 different conditions), VinDr (5323 images with annotations from a total of 17 experienced radiologists for 27 findings and diagnoses), and a subset of PadChest (39,053 images from the original dataset annotated by trained physicians). We also tested the model performance and fairness on MIMIC (357,167 images) and NIH (112,120 images) where the labels are generated from natural language processing techniques. Following the standard preprocessing practice (4, 49), we resized the radiographs to 224 × 224 and normalized them using a sample mean and SD of the dataset for model evaluation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec17",
+      "title": "Reader study details",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec17-p1",
+          "reference_ids": [],
+          "en": "Three board-certified radiologists from the Department of Radiology at the University of Washington, School of Medicine were tasked with evaluating demographic attributes from chest x-rays only. Each radiologist had over 10 years of experience in chest imaging, participated independently, was blinded to the demographic attributes, and received no prior training or exposure to the task to mitigate any training effect.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec17-p2",
+          "reference_ids": [
+            "R50"
+          ],
+          "en": "We used an online labeling tool (50) for the radiologists to create attribute labels based on the 480 preselected chest x-ray images from MIMIC. All three attribute labels are required for each image, meaning that radiologists are required to choose one label for each of the attributes: sex (female and male), age (0 to 18, 18 to 40, 40 to 60, 60 to 80, and >80), and race (Asian, Black, white, and others). Each radiologist completed this study independently and was provided with no additional information beyond the chest x-ray images themselves. The distribution of the three attributes was not disclosed to the radiologists until after they had completed the task, ensuring an unbiased evaluation process.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec18",
+      "title": "Evaluation methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec18-p1",
+          "reference_ids": [
+            "R51"
+          ],
+          "en": "To evaluate the performance of the foundation model on pathology classification, we use the following metrics: true-positive rates (TPR), true-negative rates (TNR), ROC curves, and AUC. To evaluate the underdiagnosis disparity given one demographic attribute, we use the difference in TNR (or TPR) between two specific subpopulations (e.g., Black and white patients). To evaluate and assess the learned features in the penultimate layer of the model, we use principal components analysis (51) to project the embeddings into a two-dimensional space for visualization.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec18-p2",
+          "reference_ids": [],
+          "en": "TPR and TNR are calculated as (TP, true positive; FN, false negative; TN, true negative; and FP: false positive)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec18-p3",
+          "reference_ids": [
+            "R25",
+            "R52"
+          ],
+          "en": "We plotted ROC curves that demonstrate the trade-off between TPR and TNR as the classification thresholds are varied. When reporting the TPR and TNR, we used the optimal threshold computed on the validation set that maximizes the Youden’s J statistic (25). We followed standard nonparametric bootstrap sampling (n = 1000) to calculate the 95% CI (52). We also reported AUC, which is the area under the corresponding ROC curves showing an aggregate measure of detection performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec19",
+      "title": "Assessing the demographic fairness of the model",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec19-p1",
+          "reference_ids": [
+            "R24",
+            "R53",
+            "R54",
+            "R14",
+            "R24"
+          ],
+          "en": "To measure the fairness of the foundation model, we evaluate the metrics described above for each demographic subpopulation (defined over demographic attributes including sex, age, and race), and the differences in metric outcomes across these groups. The principle of equal TPR and TNR across different demographic subgroups is known as equal odds (24), a concept well-established in algorithmic fairness (53, 54). Given that the models we investigate in this work will likely be used as screening or triage tools, it is crucial to recognize that the cost of an FP may vary considerably from that of an FN. Specifically, for a specific pathology, FNs [corresponding to underdiagnosis (14)] would be more costly than FPs, and so we focus on the FNR (or TPR) for this task. For the task of no finding prediction, we focus on the FPR (or TNR) for the same reason. Equality in one of the class conditioned error rates is an instance of equal opportunity (24). Consequently, we calculate underdiagnosis disparity as the difference in TNR (or TPR) between two selected subgroups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec19-p2",
+          "reference_ids": [
+            "F3",
+            "F3"
+          ],
+          "en": "In addition, we provide results for overdiagnosis (Fig. 3). For the no finding label, FNR is used for overdiagnosis. Similar observations hold for overdiagnosis (Fig. 3, C and D), the gaps become more substantial between intersectional subgroups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec20",
+      "title": "Prompt design",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec20-p1",
+          "reference_ids": [
+            "R7",
+            "R8",
+            "R10"
+          ],
+          "en": "In the main paper, we primarily use prompts for vision-language foundation models for zero-shot inference, which involves calculating the similarity between x-ray representations and text representations for zero-shot classification. In particular, we follow established literature (7, 8, 10) to design the standard prompts for the vision-language foundation model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p2",
+          "reference_ids": [
+            "F1"
+          ],
+          "en": "Zero-shot classification, radiological findings (Fig. 1, and other main figures)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p3",
+          "reference_ids": [],
+          "en": "The patient has {pathology / no pathology}",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p4",
+          "reference_ids": [],
+          "en": "Example: “The patient has pneumonia” & “The patient has no pneumonia”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p5",
+          "reference_ids": [],
+          "en": "Zero-shot classification, radiological findings, with attribute info (fig. S7)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p6",
+          "reference_ids": [],
+          "en": "The {attribute} patient has {pathology / no pathology}",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p7",
+          "reference_ids": [],
+          "en": "Example: “The female patient has pneumonia”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p8",
+          "reference_ids": [],
+          "en": "Example: “The Black patient has no lung opacity”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p9",
+          "reference_ids": [],
+          "en": "Example: “The age over 80 patient has cardiomegaly”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p10",
+          "reference_ids": [],
+          "en": "Zero-shot classification, demographic attributes (fig. S6)",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p11",
+          "reference_ids": [],
+          "en": "The patient’s gender is {attribute}",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p12",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s gender is female”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p13",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s gender is male”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p14",
+          "reference_ids": [],
+          "en": "The patient’s age is {attribute}",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p15",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s age is under 18”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p16",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s age is between 18 and 40”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p17",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s age is between 40 and 60”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p18",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s age is between 60 and 80”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p19",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s age is over 80”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p20",
+          "reference_ids": [],
+          "en": "The patient’s race is {attribute}",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p21",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s race is Asian”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p22",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s race is Black”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p23",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s race is white”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec20-p24",
+          "reference_ids": [],
+          "en": "Example: “The patient patient’s race is neither white, Black, nor Asian”",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec21",
+      "title": "Additional evaluation results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec22",
+      "title": "Assessing the encoding of attributes by text prompts",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec22-p1",
+          "reference_ids": [
+            "F5"
+          ],
+          "en": "We assessed the algorithmic encoding of demographic attributes in the foundation model through a logistic regression layer on the top of the model embedding (Fig. 5). Since the foundation model also supports textual prompts as input, we assess the encoding again by directly using textual prompts (fig. S6). Specifically, we used prompts containing demographic information (e.g., “The patient’s gender is male.”) to assess the attribute prediction accuracy. Across different datasets, the resulting prediction AUC is lower than using logistic regression, but still significantly higher than random chance over most of the subgroups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec23",
+      "title": "Model fairness intervention",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec23-p1",
+          "reference_ids": [],
+          "en": "We conducted experiments to explore fairness intervention of the foundation model by incorporating demographic details into the input prompt (fig. S7). We proposed to intervene the model prediction over subgroups by including demographic information in the input texts (e.g., “Does this female patient have pneumonia?”). Figure S7 shows complex outcomes: After such intervention, the model displays reduced demographic biases for certain conditions like lung opacity and no finding (fig. S7, A and C), but not for others like “pneumonia” (fig. S7B). The results indicate that it is possible to improve the demographic fairness of the model while maintaining the overall performance, but deeper analyses are needed for more principled methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec24",
+      "title": "Quantifying the distribution differences between subgroups",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec24-p1",
+          "reference_ids": [
+            "R36",
+            "R54",
+            "R54",
+            "R54"
+          ],
+          "en": "We follow (36, 54) to perform a series of hypothesis tests on the MIMIC-CXR dataset to determine whether there are statistical differences in distributions between demographic groups. These tests were inspired by prior research (54), and all P values were adjusted for multiple testing using Bonferroni correction (54). Specifically, we consider prevalence shifts as defined by the total variational distance between the probability distributions of Y conditioned on different groups, and representation shifts as defined by the mean maximum discrepancy distance in their distribution of representations across demographic groups. As tables S1 and S2 indicate, both significant prevalence and representation shifts are observed between subgroups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec25",
+      "title": "Comparisons between self-supervised and supervised learning models",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec25-p1",
+          "reference_ids": [
+            "R12",
+            "R14",
+            "R54",
+            "R54"
+          ],
+          "en": "We conducted a comparative analysis of the self-supervised foundation model with a fully supervised model regarding demographic fairness. Specifically, we selected a state-of-the-art supervised baseline model with a DenseNet backbone, as described in the literature (12, 14, 54). This supervised model achieves comparable overall area under the receiver operating characteristic curve (AUROC) to the self-supervised foundation model (AUROC of no finding on MIMIC test set: supervised, 0.84; and self-supervised, 0.85). Table S3 summarizes the fairness disparities, where on the MIMIC test set (unseen during training), the self-supervised model exhibited lower fairness gaps consistently across attributes and tasks. When tested on external datasets (CheXpert, NIH, PadChest, and VinDr), the supervised model generally achieved lower gaps compared to the self-supervised model. These results highlight the complex nature of fairness in real-world setups and under distribution shifts (54).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec26",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec27",
+      "title": "Underdiagnosis disparity",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec27-p1",
+          "reference_ids": [],
+          "en": "One-tailed Wilcoxon rank-sum test (α = 0.05) was used to assess the underdiagnosis disparity between the foundation model and radiologists.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec28",
+      "title": "AUROC",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec28-p1",
+          "reference_ids": [],
+          "en": "We collect AUROC results for pathology prediction across five datasets using the foundation model’s predictions. We also present the AUROC results for pathology prediction from external board-certified radiologists on the CheXpert test set (n = 666) and VinDr test set (n = 5323). We collect AUROC results for attribute prediction (e.g., race) across five datasets using the foundation model’s predictions with textual input changed to attribute predictions. We also present the AUROC results for attribute prediction from three board-certified radiologists on the subset of MIMIC (n = 480). The 95% CI for the true AUCs were estimated using nonparametric bootstrap sampling (n = 1000).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec29",
+      "title": "TPR and TNR",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec29-p1",
+          "reference_ids": [],
+          "en": "The mean metric is reported along with 95% Cis, which are estimated using nonparametric bootstrap sampling (n = 1000).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec30",
+      "title": "Confidence intervals",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec30-p1",
+          "reference_ids": [],
+          "en": "We use the nonparametric bootstrap sampling to generate CIs: random samples of size n (equal to the size of the original dataset) are repeatedly sampled 1000 times from the original dataset with replacement. We then estimate the AUC, subgroup TNR (or TPR), and underdiagnosis disparity (fairness gaps) metrics using each bootstrap sample (α = 0.05). All statistical analysis was performed with Python version 3.9 (Python Software Foundation).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "We thank H. Zhang from MIT for the discussions on our manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec31",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec31-p1",
+          "reference_ids": [],
+          "en": "Funding: The authors acknowledge that they received no funding in support of this research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec32",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec32-p1",
+          "reference_ids": [],
+          "en": "Author contributions: Y.Y. conceived the study. Y.Y., Y.L., X.L., and S.P. designed the study. Y.Y. performed data collection and cleaning. Y.Y. and Y.L. performed experimental analysis. D.M., W.W., and A.G. performed labeling for demographic attributes from radiographs. Y.Y., Y.L., X.L., D.M., W.W., A.G., E.J.W., D.W.S., and S.P. interpreted experimental results and provided feedback on the study. Y.Y. and Y.L. wrote the original manuscript. S.P. supervised the research. All authors reviewed and approved the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec33",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec33-p1",
+          "reference_ids": [],
+          "en": "Competing interests: D.M. is a consultant and stakeholder of Segmed Inc. The other authors declare that they have no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec34",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec34-p1",
+          "reference_ids": [],
+          "en": "Data and materials availability: All data needed to evaluate the conclusions in the paper are present in the paper and/or the Supplementary Materials. All datasets used in this study are publicly available. The MIMIC and VinDr datasets are available from PhysioNet after the completion of a data use agreement and a credentialing procedure. The CheXpert dataset, along with associated race labels, is available from the Stanford AIMI website. The ChestX-ray14 (NIH) dataset is available to download from the National Institute of Health Clinical Center. The PadChest dataset can be downloaded from the Medical Imaging Databank of the Valencia Region. Code that supports the findings of this study is publicly available with an open-source license at https://github.com/YyzHarry/vlm-fairness and https://zenodo.org/records/13315769.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec35",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec36",
+      "title": "This PDF file includes:",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ref-list1",
+      "title": "REFERENCES AND NOTES",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "ref-list1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "T1",
+      "label": "Table 1.",
+      "caption": "Characteristics of the datasets used in this study.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "",
+          "MIMIC",
+          "CheXpert",
+          "NIH",
+          "PadChest",
+          "VinDr"
+        ],
+        [
+          "",
+          "Location",
+          "Boston, MA",
+          "Stanford, CA",
+          "Bethesda, MD",
+          "Alicante, Spain",
+          "Hanoi, Vietnam"
+        ],
+        [
+          "",
+          "# Images",
+          "357,167",
+          "223,458",
+          "112,120",
+          "160,736",
+          "5323"
+        ],
+        [
+          "",
+          "# Patients",
+          "61,927",
+          "64,925",
+          "30,805",
+          "67,590",
+          "5323"
+        ],
+        [
+          "",
+          "# Frontal",
+          "230,406",
+          "191,014",
+          "112,120",
+          "111,187",
+          "5323"
+        ],
+        [
+          "",
+          "# Lateral",
+          "126,761",
+          "32,444",
+          "0",
+          "49,549",
+          "0"
+        ],
+        [
+          "",
+          "# Pathologies",
+          "14",
+          "14",
+          "15",
+          "174",
+          "27"
+        ],
+        [
+          "Sex",
+          "Female",
+          "170,698",
+          "90,833",
+          "48,780",
+          "79,880",
+          "2227"
+        ],
+        [
+          "Male",
+          "186,469",
+          "132,625",
+          "63,340",
+          "80,856",
+          "3096"
+        ],
+        [
+          "Race",
+          "Asian",
+          "11,121",
+          "23,384",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "Black",
+          "55,611",
+          "11,999",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "White",
+          "218,037",
+          "125,990",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "Other",
+          "72,398",
+          "62,085",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "Age",
+          "0–18",
+          "0",
+          "103",
+          "5402",
+          "5529",
+          "1298"
+        ],
+        [
+          "18–40",
+          "49,353",
+          "30,808",
+          "31,037",
+          "14,033",
+          "874"
+        ],
+        [
+          "40–60",
+          "111,055",
+          "69,245",
+          "49,243",
+          "41,406",
+          "1390"
+        ],
+        [
+          "60–80",
+          "142,824",
+          "87,378",
+          "25,419",
+          "62,206",
+          "1501"
+        ],
+        [
+          "80–100",
+          "53,935",
+          "35,924",
+          "1019",
+          "37,562",
+          "260"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"T1\" position=\"float\"><label>Table 1.</label><caption><title>Characteristics of the datasets used in this study.</title></caption><table frame=\"hsides\" rules=\"groups\"><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><col width=\"%\" span=\"1\" /><thead><tr><th scope=\"col\" rowspan=\"1\" colspan=\"1\" /><th scope=\"col\" rowspan=\"1\" colspan=\"1\" /><th valign=\"top\" align=\"center\" scope=\"col\" rowspan=\"1\" colspan=\"1\">MIMIC</th><th valign=\"top\" align=\"center\" scope=\"col\" rowspan=\"1\" colspan=\"1\">CheXpert</th><th valign=\"top\" align=\"center\" scope=\"col\" rowspan=\"1\" colspan=\"1\">NIH</th><th valign=\"top\" align=\"center\" scope=\"col\" rowspan=\"1\" colspan=\"1\">PadChest</th><th valign=\"top\" align=\"center\" scope=\"col\" rowspan=\"1\" colspan=\"1\">VinDr</th></tr></thead><tbody><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Location</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Boston, MA</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Stanford, CA</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Bethesda, MD</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Alicante, Spain</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Hanoi, Vietnam</td></tr><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\"># Images</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">357,167</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">223,458</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">112,120</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">160,736</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">5323</td></tr><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\"># Patients</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">61,927</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">64,925</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">30,805</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">67,590</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">5323</td></tr><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\"># Frontal</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">230,406</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">191,014</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">112,120</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">111,187</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">5323</td></tr><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\"># Lateral</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">126,761</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">32,444</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">0</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">49,549</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">0</td></tr><tr><td rowspan=\"1\" colspan=\"1\" /><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\"># Pathologies</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">14</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">14</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">15</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">174</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">27</td></tr><tr><th rowspan=\"2\" valign=\"top\" align=\"left\" colspan=\"1\">Sex</th><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Female</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">170,698</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">90,833</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">48,780</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">79,880</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">2227</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Male</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">186,469</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">132,625</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">63,340</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">80,856</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">3096</td></tr><tr><th rowspan=\"4\" valign=\"top\" align=\"left\" colspan=\"1\">Race</th><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Asian</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">11,121</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">23,384</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Black</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">55,611</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">11,999</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">White</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">218,037</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">125,990</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">Other</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">72,398</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">62,085</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">-</td></tr><tr><th rowspan=\"5\" valign=\"top\" align=\"left\" colspan=\"1\">Age</th><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">0–18</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">0</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">103</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">5402</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">5529</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">1298</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">18–40</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">49,353</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">30,808</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">31,037</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">14,033</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">874</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">40–60</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">111,055</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">69,245</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">49,243</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">41,406</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">1390</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">60–80</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">142,824</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">87,378</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">25,419</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">62,206</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">1501</td></tr><tr><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">80–100</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">53,935</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">35,924</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">1019</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">37,562</td><td valign=\"top\" align=\"center\" rowspan=\"1\" colspan=\"1\">260</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "F1",
+      "label": "Fig. 1.",
+      "caption": "The model evaluation pipeline.(A) We use internationally sourced chest x-rays datasets for model evaluation, including MIMIC (Boston, MA), CheXpert (Stanford, CA), NIH (Bethesda, MD), PadChest (Spain), and VinDr (Vietnam). (B) Distribution of demographics attributes (i.e., sex, age, and race) of each dataset. For each attribute, we select common subgroups based on literature definition (sex: male and female; age: 0 to 18, 18 to 40, 40 to 60, 60 to 80, and >80; race: Asian, Black, white, and others). Each dataset encompasses different proportions of subgroups, reflecting the diverse distributions in real-world clinical settings. (C) For fairness evaluation, we processed radiographs through foundation models, accompanied by specific text prompts (e.g., “Does the patient have {pathology}?”; details in Materials and Methods). The evaluations are conducted across a wide range of different pathologies. Concurrently, board-certified radiologists independently reviewed identical subsets of the data, providing diagnoses that served as human fairness evaluations and comparisons (Fig. 2). In addition, we performed evaluations to assess the prediction of demographic attributes (e.g., sex, age, and race) by both the model and three board-certified radiologists, following the same pipeline with modified prompts (Fig. 5). Created in BioRender. Yang (2025) https://BioRender.com/l87p976.",
+      "caption_zh": "",
+      "graphics": [
+        "sciadv.adq0305-f1.jpg",
+        "sciadv.adq0305-f1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F2",
+      "label": "Fig. 2.",
+      "caption": "Comparisons of diagnosis AUROC and underdiagnosis disparity for the vision-language foundation model and board-certified radiologists.(A, C, and E) Comparison of the ROC curve of the vision-language foundation model to benchmark radiologists against the test-set ground truth on the CheXpert dataset (n = 666). The model outperforms the radiologists when the ROC curve lies above the radiologists’ operating points. The model has an AUC of 0.917 [95% CI (0.905 to 0.928)] for enlarged cardiomediastinum, an AUC of 0.938 [95% CI (0.922 to 0.950)] for pleural effusion, and an AUC of 0.919 [95% CI (0.904 to 0.933)] for lung opacity. (B, D, and F) Comparison of the underdiagnosis disparity of the vision-language foundation model against three board-certified radiologists on the CheXpert test set (n = 666). We average the assessments from different radiologists as the evaluation of human biases. The model exhibits significantly higher underdiagnosis bias than that of radiologists on all three pathologies. Error bars indicate 95% CIs estimated using nonparametric bootstrap sampling (n = 1000). More results can be found in the fig. S2.",
+      "caption_zh": "",
+      "graphics": [
+        "sciadv.adq0305-f2.jpg",
+        "sciadv.adq0305-f2.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F3",
+      "label": "Fig. 3.",
+      "caption": "Analysis of underdiagnosis and overdiagnosis across subgroups of sex, age, race, and intersectional groups in the MIMIC dataset.(A) The underdiagnosis rate, as measured by the no finding FPR, in the indicated patient subpopulations. (B) Intersectional underdiagnosis rates for female patients, patients aged 18 to 40 years, and Black patients. (C and D) The overdiagnosis rate, as measured by the no finding FNR in the same patient subpopulations as in [(A) and (B)]. Error bars indicate 95% CIs estimated using nonparametric bootstrap sampling (n = 1000). More results can be found in the figs. S3 and S4.",
+      "caption_zh": "",
+      "graphics": [
+        "sciadv.adq0305-f3.jpg",
+        "sciadv.adq0305-f3.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F4",
+      "label": "Fig. 4.",
+      "caption": "Demographic fairness on unseen radiographic findings in the PadChest dataset.Average underdiagnosis disparity and 95% CI are shown for each radiographic finding (n > 100) labeled as high importance by an expert radiologist. (A) Underdiagnosis disparity for sex (between group female and male). (B) Underdiagnosis disparity for age (between group 18 to 40 and >80. We externally validated the model’s fairness when testing on different data distributions by evaluating model performance on the human-annotated subset of the PadChest dataset (n = 39,053). No labeled samples were seen during training for any of the radiographic findings in this dataset.",
+      "caption_zh": "",
+      "graphics": [
+        "sciadv.adq0305-f4.jpg",
+        "sciadv.adq0305-f4.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F5",
+      "label": "Fig. 5.",
+      "caption": "Comparisons of prediction AUROC for sensitive demographic attributes between the foundation model and three board-certified radiologists.(A to D) Prediction AUROC of subgroups within different sensitive attributes including sex (A), age (B), race (C), and the intersectional groups of sex and race (D), on a subset of MIMIC (n = 480). We selected out a balanced subset of MIMIC w.r.t. all attributes (i.e., balanced across age, sex, and race), and asked three board-certified radiologists to infer the attributes from just the chest x-rays. To assess the model prediction of sensitive attributes, we train a linear attribute prediction head using logistic regression on top of the penultimate layer of the model, with the model weights frozen. Error bars indicate 95% CIs estimated using nonparametric bootstrap sampling (n = 1000). Complete results of model predictions for other datasets are in fig. S5.",
+      "caption_zh": "",
+      "graphics": [
+        "sciadv.adq0305-f5.jpg",
+        "sciadv.adq0305-f5.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "disp-formula1",
+      "text": "TPR=TPTP+FN",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"disp-formula1\"><ns0:math id=\"m1\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtext>TPR</ns0:mtext><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mtext>TP</ns0:mtext><ns0:mrow><ns0:mtext>TP</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FN</ns0:mtext></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "disp-formula2",
+      "text": "TNR=TNTN+FP",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"disp-formula2\"><ns0:math id=\"m2\" display=\"block\" overflow=\"scroll\"><ns0:mrow><ns0:mtext>TNR</ns0:mtext><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mtext>TN</ns0:mtext><ns0:mrow><ns0:mtext>TN</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FP</ns0:mtext></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "R1",
+      "text": "1.Kim R. Y., Oke J. L., Pickup L. C., Munden R. F., Dotson T. L., Bellinger C. R., Cohen A., Simoff M. J., Massion P. P., Filippini C., Gleeson F. V., Vachani A., Artificial intelligence tool for assessment of indeterminate pulmonary nodules detected with CT. Radiology 304, 683–691 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R2",
+      "text": "2.Mikhael P. G., Wohlwend J., Yala A., Karstens L., Xiang J., Takigami A. K., Bourgouin P. P., Chan P., Mrah S., Amayri W., Juan Y. H., Yang C. T., Wan Y. L., Lin G., Sequist L. V., Fintelmann F. J., Barzilay R., Sybil: A validated deep learning model to predict future lung cancer risk from a single low-dose chest computed tomography. J. Clin. Oncol. 41, 2191–2200 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R3",
+      "text": "3.McKinney S. M., Sieniek M., Godbole V., Godwin J., Antropova N., Ashrafian H., Back T., Chesus M., Corrado G. S., Darzi A., Etemadi M., Garcia-Vicente F., Gilbert F. J., Halling-Brown M., Hassabis D., Jansen S., Karthikesalingam A., Kelly C. J., King D., Ledsam J. R., Melnick D., Mostofi H., Peng L., Reicher J. J., Romera-Paredes B., Sidebottom R., Suleyman M., Tse D., Young K. C., De Fauw J., Shetty S., International evaluation of an AI system for breast cancer screening. Nature 577, 89–94 (2020).",
+      "doi": []
+    },
+    {
+      "id": "R4",
+      "text": "4.P. Rajpurkar, J. Irvin, K. Zhu, B. Yang, H. Mehta, T. Duan, D. Ding, A. Bagul, C. Langlotz, K. Shpanskaya, M. P. Lungren, CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning. arXiv:1711.05225 [cs.CV] (2017).",
+      "doi": []
+    },
+    {
+      "id": "R5",
+      "text": "5.Moor M., Banerjee O., Abad Z. S. H., Krumholz H. M., Leskovec J., Topol E. J., Rajpurkar P., Foundation models for generalist medical artificial intelligence. Nature 616, 259–265 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R6",
+      "text": "6.Wang B., Xie Q., Pei J., Chen Z., Tiwari P., Li Z., Fu J., Pre-trained language models in biomedical domain: A systematic survey. ACM Comput Surv 56, 1–52 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R7",
+      "text": "7.Huang Z., Bianchi F., Yuksekgonul M., Montine T. J., Zou J., A visual–language foundation model for pathology image analysis using medical Twitter. Nat. Med. 29, 2307–2316 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R8",
+      "text": "8.Lu M. Y., Chen B., Williamson D. F. K., Chen R. J., Liang I., Ding T., Jaume G., Odintsov I., Le L. P., Gerber G., Parwani A. V., Zhang A., Mahmood F., A visual-language foundation model for computational pathology. Nat. Med. 30, 863–874 (2024).",
+      "doi": []
+    },
+    {
+      "id": "R9",
+      "text": "9.Zhou Y., Chia M. A., Wagner S. K., Ayhan M. S., Williamson D. J., Struyven R. R., Liu T., Xu M., Lozano M. G., Woodward-Court P., Kihara Y., UK Biobank Eye & Vision Consortium, Altmann A., Lee A. Y., Topol E. J., Denniston A. K., Alexander D. C., Keane P. A., A foundation model for generalizable disease detection from retinal images. Nature 622, 156–163 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R10",
+      "text": "10.Tiu E., Talius E., Patel P., Langlotz C. P., Ng A. Y., Rajpurkar P., Expert-level detection of pathologies from unannotated chest X-ray images via self-supervised learning. Nat. Biomed. Eng. 6, 1399–1406 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R11",
+      "text": "11.Zhang X., Wu C., Zhang Y., Xie W., Wang Y., Knowledge-enhanced visual-language pre-training on chest radiology images. Nat. Commun. 14, 4542 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R12",
+      "text": "12.L. Seyyed-Kalantari, G. Liu, M. B. A. McDermott, I. Y. Chen, M. Ghassemi, CheXclusion: Fairness gaps in deep chest X-ray classifiers, in Proceedings of the Pacific symposium (BIOCOMPUTING) (World Scientific, 2020), pp. 232–243.",
+      "doi": []
+    },
+    {
+      "id": "R13",
+      "text": "13.Vaidya A., Chen R., Williamson D., Song A., Jaume G., Yang Y., Hartvigsen T., Dyer E., Lu M. Y., Lipkova J., Shaban M., Chen T. Y., Mahmood F., Demographic bias in misdiagnosis by computational pathology models. Nat. Med. 30, 1174–1190 (2024).",
+      "doi": []
+    },
+    {
+      "id": "R14",
+      "text": "14.Seyyed-Kalantari L., Zhang H., McDermott M. B. A., Chen I. Y., Ghassemi M., Underdiagnosis bias of artificial intelligence algorithms applied to chest radiographs in under-served patient populations. Nat. Med. 27, 2176–2182 (2021).",
+      "doi": []
+    },
+    {
+      "id": "R15",
+      "text": "15.Yang Y., Yuan Y., Zhang G., Wang H., Chen Y.-C., Liu Y., Tarolli C., Crepeau D., Bukartyk J., Junna M., Videnovic A., Ellis T., Lipford M., Dorsey R., Katabi D., Artificial intelligence-enabled detection and assessment of Parkinson’s disease using nocturnal breathing signals. Nat. Med. 28, 2207–2215 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R16",
+      "text": "16.Lin M., Li T., Yang Y., Holste G., Ding Y., van Tassel S. H., Kovacs K., Shih G., Wang Z., Lu Z., Wang F., Peng Y., Improving model fairness in image-based computer-aided diagnosis. Nat. Commun. 14, 6261 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R17",
+      "text": "17.Glocker B., Jones C., Roschewitz M., Winzeck S., Risk of bias in chest radiography deep learning foundation models. Radiol. Artif. Intell. 5, e230060 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R18",
+      "text": "18.McCradden M. D., Joshi S., Mazwi M., Anderson J. A., Ethical limitations of algorithmic fairness solutions in health care machine learning. Lancet Digit. Health. 2, e221–e223 (2020).",
+      "doi": []
+    },
+    {
+      "id": "R19",
+      "text": "19.A. E. W. Johnson, T. J. Pollard, N. R. Greenbaum, M. P. Lungren, C.-y. Deng, Y. Peng, Z. Lu, R. G. Mark, S. J. Berkowitz, S. Horng, MIMIC-CXR-JPG, a large publicly available database of labeled chest radiographs. arXiv:190107042 [cs.CV] (2019).",
+      "doi": []
+    },
+    {
+      "id": "R20",
+      "text": "20.Irvin J., Rajpurkar P., Ko M., Yu Y., Ciurea-Ilcus S., Chute C., Marklund H., Haghgoo B., Ball R., Shpanskaya K., Seekins J., Mong D. A., Halabi S. S., Sandberg J. K., Jones R., Larson D. B., Langlotz C. P., Patel B. N., Lungren M. P., Ng A. Y., CheXpert: A large chest radiograph dataset with uncertainty labels and expert comparison. Proc. AAAI Conf. Artif. Intell. 33, 590–597 (2019).",
+      "doi": []
+    },
+    {
+      "id": "R21",
+      "text": "21.X. Wang, Y. Peng, L. Lu, Z. Lu, M. Bagheri, R. M. Summers, Chestx-ray8: Hospital-scale chest x-ray database and benchmarks on weakly-supervised classification and localization of common thorax diseases, in Proceedings of the IEEE Conference on Computer Vision And Pattern Recognition (CVPR) (IEEE, 2017), pp. 2097–2106.",
+      "doi": []
+    },
+    {
+      "id": "R22",
+      "text": "22.Bustos A., Pertusa A., Salinas J.-M., Iglesia-Vaya M., PadChest: A large chest x-ray image dataset with multi-label annotated reports. Med. Image Anal. 66, 101797 (2020).",
+      "doi": []
+    },
+    {
+      "id": "R23",
+      "text": "23.Nguyen H. Q., Lam K., Le L. T., Pham H. H., Tran D. Q., Nguyen D. B., Le D. D., Pham C. M., Tong H. T. T., Dinh D. H., Do C. D., Doan L. T., Nguyen C. N., Nguyen B. T., Nguyen Q. V., Hoang A. D., Phan H. N., Nguyen A. T., Ho P. H., Ngo D. T., Nguyen N. T., Nguyen N. T., Dao M., Vu V., VinDr-CXR: An open dataset of chest X-rays with radiologist’s annotations. Sci. Data 9, 429 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R24",
+      "text": "24.M. Hardt, E. Price, N. Srebro, Equality of opportunity in supervised learning. arXiv:1610.02413 [cs.LG] (2016).",
+      "doi": []
+    },
+    {
+      "id": "R25",
+      "text": "25.Fluss R., Faraggi D., Reiser B., Estimation of the Youden index and its associated cutoff point. Biom. J. 47, 458–472 (2005).",
+      "doi": []
+    },
+    {
+      "id": "R26",
+      "text": "26.Adleberg J., Wardeh A., Doo F. X., Marinelli B., Cook T. S., Mendelson D. S., Kagen A., Predicting patient demographics from chest radiographs with deep learning. J. Am. Coll. Radiol. 19, 1151–1161 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R27",
+      "text": "27.Banerjee I., Bhattacharjee K., Burns J. L., Trivedi H., Purkayastha S., Seyyed-Kalantari L., Patel B. N., Shiradkar R., Gichoya J., “Shortcuts” causing bias in radiology artificial intelligence: Causes, evaluation, and mitigation. J. Am. Coll. Radiol. 20, 842–851 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R28",
+      "text": "28.Gichoya J. W., Banerjee I., Bhimireddy A. R., Burns J. L., Celi L. A., Chen L.-C., Correa R., Dullerud N., Ghassemi M., Huang S.-C., Kuo P.-C., Lungren M. P., Palmer L. J., Price B. J., Purkayastha S., Pyrros A. T., Oakden-Rayner L., Okechukwu C., Seyyed-Kalantari L., Trivedi H., Wang R., Zaiman Z., Zhang H., AI recognition of patient race in medical imaging: A modelling study. Lancet Digit. Health. 4, e406–e414 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R29",
+      "text": "29.Ricci Lara M. A., Echeveste R., Ferrante E., Addressing fairness in artificial intelligence for medical imaging. Nat. Commun. 13, 4581 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R30",
+      "text": "30.Magdy M., Hosny K. M., Ghali N. I., Ghoniemy S., Security of medical images for telemedicine: A systematic review. Multimed. Tools Appl. 81, 25101–25145 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R31",
+      "text": "31.Manski C. F., Mullahy J., Venkataramani A. S., Using measures of race to make clinical predictions: Decision making, patient health, and fairness. Proc. Natl. Acad. Sci. U.S.A. 120, e2303370120 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R32",
+      "text": "32.Manski C. F., Patient-centered appraisal of race-free clinical risk assessment. Health Econ. 31, 2109–2114 (2022).",
+      "doi": []
+    },
+    {
+      "id": "R33",
+      "text": "33.Food and Drug Administration, Artificial intelligence and machine learning (AI/ML)-enabled medical devices, https://www.fda.gov/medical-devices/software-medical-device-samd/artificial-intelligence-and-machine-learning-aiml-enabled-medical-devices (2022).",
+      "doi": []
+    },
+    {
+      "id": "R34",
+      "text": "34.The White House. Executive Order on the Safe, Secure, and Trustworthy Development and Use of Artificial Intelligence. The White House https://www.whitehouse.gov/briefing-room/presidential-actions/2023/10/30/executive-order-on-the-safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence/; https://www.federalregister.gov/documents/2023/11/01/2023-24283/safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence (2023).",
+      "doi": []
+    },
+    {
+      "id": "R35",
+      "text": "35.E. Petersen, E. Ferrante, M. Ganz, A. Feragen, Are demographically invariant models and representations in medical imaging fair? arXiv:2305.01397 [cs.LG] (2023).",
+      "doi": []
+    },
+    {
+      "id": "R36",
+      "text": "36.Glocker B., Jones C., Bernhardt M., Winzeck S., Algorithmic encoding of protected characteristics in chest X-ray disease detection models. EBioMedicine 89, 104467 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R37",
+      "text": "37.Basu A., Use of race in clinical algorithms. Sci. Adv. 9, eadd2704 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R38",
+      "text": "38.L. Oakden-Rayner, J. Dunnmon, G. Carneiro, C. Ré. Hidden stratification causes clinically meaningful failures in machine learning for medical imaging, in Proceedings of the ACM Conference on Health, Inference, and Learning (ACM, 2020), pp. 151–159.",
+      "doi": []
+    },
+    {
+      "id": "R39",
+      "text": "39.Qiu W., Chen H., Kaeberlein M., Lee S.-I., ExplaiNAble BioLogical Age (ENABL Age): An artificial intelligence framework for interpretable biological age. Lancet Healthy Longev. 4, e711–e723 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R40",
+      "text": "40.Patel B. N., Rosenberg L., Willcox G., Baltaxe D., Lyons M., Irvin J., Rajpurkar P., Amrhein T., Gupta R., Halabi S., Langlotz C., Lo E., Mammarappallil J., Mariano A. J., Riley G., Seekins J., Shen L., Zucker E., Lungren M. P., Human–machine partnership with artificial intelligence for chest radiograph diagnosis. NPJ Digit. Med. 2, 111 (2019).",
+      "doi": []
+    },
+    {
+      "id": "R41",
+      "text": "41.Yu K. H., Healey E., Leong T. Y., Kohane I. S., Manrai A. K., Medical artificial intelligence and human values. N. Engl. J. Med. 390, 1895–1904 (2024).",
+      "doi": []
+    },
+    {
+      "id": "R42",
+      "text": "42.Abramoff M. D., Whitestone N., Patnaik J. L., Rich E., Ahmed M., Husain L., Hassan M. Y., Tanjil M. S. H., Weitzman D., Dai T., Wagner B. D., Cherwek D. H., Congdon N., Islam K., Autonomous artificial intelligence increases real-world specialist clinic productivity in a cluster-randomized trial. NPJ Digit. Med. 6, 184 (2023).",
+      "doi": []
+    },
+    {
+      "id": "R43",
+      "text": "43.M. A. Ahmad, A. Patel, C. Eckert, V. Kumar, A. Teredesai, Fairness in machine learning for healthcare, in Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (ACM, 2020), pp. 3529–3530.",
+      "doi": []
+    },
+    {
+      "id": "R44",
+      "text": "44.Centola D., Guilbeault D., Sarkar U., Khoong E., Zhang J., The reduction of race and gender bias in clinical treatment recommendations using clinician peer networks in an experimental setting. Nat. Commun. 12, 6585 (2021).",
+      "doi": []
+    },
+    {
+      "id": "R45",
+      "text": "45.Schut R. A., Mortani Barbosa E. J., Racial/ethnic disparities in follow-up adherence for incidental pulmonary nodules: An application of a cascade-of-care framework. J. Am. Coll. Radiol. 17, 1410–1419 (2020).",
+      "doi": []
+    },
+    {
+      "id": "R46",
+      "text": "46.Ross A. B., Kalia V., Chan B. Y., Li G., The influence of patient race on the use of diagnostic imaging in United States emergency departments: Data from the National Hospital Ambulatory Medical Care survey. BMC Health Serv. Res. 20, 840 (2020).",
+      "doi": []
+    },
+    {
+      "id": "R47",
+      "text": "47.A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, N. Houlsby, An image is worth 16x16 words: Transformers for image recognition at scale. arXiv:2010.11929 [cs.CV] (2021).",
+      "doi": []
+    },
+    {
+      "id": "R48",
+      "text": "48.A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger, I. Sutskever, Learning Transferable Visual Models From Natural Language Supervision. arXiv:2103.00020 [cs.CV] (2021).",
+      "doi": []
+    },
+    {
+      "id": "R49",
+      "text": "49.Y. Yang, H. Zhang, D. Katabi, M. Ghassemi. Change is hard: A closer look at subpopulation shift, in Proceedings of the 40th International Conference on Machine Learning (ICML) (PMLR, 2023), pp. 39584–39622.",
+      "doi": []
+    },
+    {
+      "id": "R50",
+      "text": "50.Encord: Data Engine for AI Model Development. https://encord.com/.",
+      "doi": []
+    },
+    {
+      "id": "R51",
+      "text": "51.Wold S., Esbensen K., Geladi P., Principal component analysis. Chemometr. Intell. Lab. Syst. 2, 37–52 (1987).",
+      "doi": []
+    },
+    {
+      "id": "R52",
+      "text": "52.G. James, D. Witten, T. Hastie, R. Tibshirani, An Introduction to Statistical Learning: with Applications in R (Springer US, 2021).",
+      "doi": []
+    },
+    {
+      "id": "R53",
+      "text": "53.Y. Yang, H. Zhang, D. Katabi, M. Ghassemi, On Mitigating Shortcut Learning for Fair Chest X-ray Classification under Distribution Shift. NeurIPS 2023 Workshop on Distribution Shifts: New Frontiers with Foundation Models; https://openreview.net/pdf?id=ar9IclPk8O.",
+      "doi": []
+    },
+    {
+      "id": "R54",
+      "text": "54.Yang Y., Zhang H., Gichoya J. W., Katabi D., Ghassemi M., The limits of fair medical imaging AI in real-world generalization. Nat. Med. 30, 2838–2848 (2024).",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Yang Y, Liu Y, Liu X, Gulhane A, Mastrodicasa D, Wu W, Wang EJ, Sahani D, Patel S.",
+  "journal": "Science advances",
+  "year": "2025",
+  "pmid": "40138420",
+  "pmcid": "PMC11939055",
+  "doi": "10.1126/sciadv.adq0305",
+  "source": {
+    "retrieved_at": "2026-11-14T17:04:30.650011+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11939055/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC11939055.xml"
+}

@@ -1,0 +1,1249 @@
+{
+  "key": "42157597",
+  "body_available": true,
+  "title": "Machine learning-based risk prediction model for postoperative acute kidney injury in surgical patients with chronic kidney disease (CKD): development, validation, and SHAP-based explainability",
+  "source_url": "https://europepmc.org/articles/PMC13195704",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by-nc/4.0/This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (http://creativecommons.org/licenses/by-nc/4.0/), which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. The terms on which this article has been published allow the posting of the Accepted Manuscript in a repository by the author(s) or with their consent.",
+    "urls": [
+      "https://creativecommons.org/licenses/by-nc/4.0/"
+    ],
+    "eligibility": "eligible_noncommercial",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Min Wu",
+    "Rong Liu",
+    "Ming Jiang",
+    "Xinxing Gui",
+    "Jian Yuan",
+    "Yuanyuan He"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Author(s). Published by Informa UK Limited, trading as Taylor & Francis Group.",
+    "year": "2026",
+    "holder": "The Author(s)"
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "pub",
+        "year": "2026",
+        "month": "5",
+        "day": "19"
+      },
+      {
+        "type": "collection",
+        "year": "2026",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "S0001",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0001-p1",
+          "reference_ids": [
+            "CIT0001",
+            "CIT0005",
+            "CIT0006",
+            "CIT0007",
+            "CIT0008"
+          ],
+          "en": "Postoperative acute kidney injury (AKI) in patients with chronic kidney disease (CKD) is no longer regarded as a random postoperative complication; rather, it represents a predictable perioperative emergency that unfolds within a fragile physiological environment characterized by reduced nephron reserves, impaired autoregulation, and heightened vulnerability to hemodynamic and inflammatory stressors [1–4]. In CKD patients, even subtle perioperative perturbations may trigger rapid deterioration in renal function, suggesting that AKI follows discernible and potentially modifiable trajectories rather than unpredictably [5,6]. Consequently, modern perioperative nephrology increasingly demands forward-looking, real-time intelligence systems capable of anticipating evolving renal stress and initiating preemptive protective strategies before irreversible injury occurs [7,8]. Against this backdrop, machine learning-based prediction represents a critical first step toward transforming AKI prevention from reactive risk estimation to proactive, anticipatory renal protection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0001-p2",
+          "reference_ids": [
+            "CIT0009",
+            "CIT0012",
+            "CIT0013",
+            "CIT0014"
+          ],
+          "en": "Patients with CKD are particularly vulnerable to postoperative AKI because of reduced nephron reserves, impaired autoregulation, and increased susceptibility to hemodynamic fluctuations and nephrotoxic exposure [9–11]. Evidence suggests that even minor renal insults can lead to persistent kidney dysfunction, potentially accelerating progression to end-stage kidney disease (ESKD) [12,13]. The occurrence of postoperative AKI in CKD patients has been strongly associated with increased in-hospital mortality, prolonged intensive care unit (ICU) stay, and greater long-term dialysis dependence [14–16].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0001-p3",
+          "reference_ids": [
+            "CIT0017",
+            "CIT0018",
+            "CIT0019"
+          ],
+          "en": "Beyond its short-term clinical burden, AKI may serve as a “second hit” in CKD patients, exacerbating tubular injury and maladaptive repair, thereby hastening progression to chronic renal failure [17,18]. Recent mechanistic studies have identified key contributors, including mitochondrial dysfunction, microvascular rarefaction, and persistent inflammation [19–21]. These findings highlight the need for early identification of AKI risk in patients with CKD, particularly during the perioperative period when physiological perturbations are most pronounced.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0001-p4",
+          "reference_ids": [
+            "CIT0022"
+          ],
+          "en": "Despite the clinical importance of this issue, there remains a lack of validated predictive tools tailored to surgical patients with preexisting CKD. Most existing AKI prediction approaches are static, single-time-point models that estimate the risk rather than anticipate the dynamic physiological deterioration that unfolds during surgery. They rely primarily on tabular variables and do not leverage multimodal perioperative data, such as arterial waveform features, ultrasound-derived renal hemodynamics, or metabolomic stress markers. This limits their ability to provide forward-looking, real-time kidney-protective intelligence, an essential requirement for high-risk CKD patients whose renal reserve and autoregulatory capacity are profoundly impaired. These models often neglect CKD-specific variables or fail to account for the nonlinear associations between perioperative parameters and renal outcomes. Additionally, few models incorporate postoperative AKD or long-term CKD progression endpoints, further limiting their clinical utility [22–24].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0001-p5",
+          "reference_ids": [
+            "CIT0025",
+            "CIT0028",
+            "CIT0029"
+          ],
+          "en": "Advances in electronic health record mining and machine learning (ML) have facilitated the construction of flexible high-dimensional prediction models [25–27]. Prior studies applying the Least Absolute Shrinkage and Selection Operator (LASSO) regression, decision trees, and ensemble ML methods have shown promising results in predicting AKI and AKD in surgical settings [28,29]. However, external validation remains limited, and prediction models specifically targeting postoperative AKI in CKD patients are virtually absent.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0001-p6",
+          "reference_ids": [],
+          "en": "The Medical Information Mart for Intensive Care IV (MIMIC-IV) database provides a rich and granular dataset encompassing pre-, intra-, and postoperative variables for ICU patients. Using this database, we aimed to develop and validate a machine learning model for predicting postoperative AKI in surgical patients with CKD. While the present model focuses on tabular clinical data, it serves as a foundational step toward next-generation dynamic, multimodal, and clinically integrated perioperative kidney protection systems. Our approach integrates logistic regression, ensemble learning, and restricted cubic spline (RCS) functions to assess nonlinear associations with the ultimate goal of providing clinically interpretable and actionable predictions to support perioperative decision-making and improve renal outcomes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0002-S2001",
+      "title": "Data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2001-p1",
+          "reference_ids": [],
+          "en": "This retrospective cohort study was conducted using data from the MIMIC-IV database (version 2.2), a publicly available and de-identified critical care database developed by the Massachusetts Institute of Technology (MIT) Laboratory for Computational Physiology. The database contains comprehensive clinical information from patients admitted to the intensive care units (ICUs) of Beth Israel Deaconess Medical Center (BIDMC) between 2008 and 2019.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-S2001-p2",
+          "reference_ids": [],
+          "en": "MIMIC-IV includes detailed data, such as patient demographics, diagnoses, medications, vital signs, laboratory test results, procedural records, fluid input/output, and in-hospital outcomes. Version 2.2 also incorporates surgical information and structured chart events and enables the study of perioperative risk factors in patients undergoing surgery. All data in the database were fully de-identified according to the Health Insurance Portability and Accountability Act (HIPAA) regulations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-S2001-p3",
+          "reference_ids": [],
+          "en": "Access to the database was granted after completion of the required Collaborative Institutional Training Initiative (CITI) course. The author of this study obtained access to credentials (certification ID: 69,379,488) and adhered to all data usage policies. Given the public and anonymized nature of the database, this study was exempt from institutional review board (IRB) approval.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2002",
+      "title": "Study population",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2002-p1",
+          "reference_ids": [],
+          "en": "Adult patients (aged ≥18 years) with preexisting CKD were included in this study. CKD was defined as an estimated glomerular filtration rate (eGFR) less than 60 mL/min/1.73 m2 for more than 3 months prior to surgery, or a documented diagnosis of CKD based on the International Classification of Diseases (ICD-9/ICD-10) codes. Patients who underwent at least one surgical procedure during hospitalization and had complete perioperative data were eligible. Only the first surgical episode was considered for patients who underwent multiple surgeries during the same hospital stay. Exclusion criteria included patients with AKI prior to surgery and those with a hospital stay shorter than 48 h. Patients undergoing maintenance dialysis prior to surgery were excluded, as the KDIGO criteria for AKI are not applicable to end-stage kidney disease (ESKD), and serum creatinine levels may fluctuate substantially between dialysis sessions independent of acute renal injury. The final study cohort was selected on the basis of these criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2003",
+      "title": "Variables and outcome",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2003-p1",
+          "reference_ids": [],
+          "en": "The primary outcome of this study was the incidence of postoperative AKI, defined according to the Kidney Disease: Improving Global Outcomes (KDIGO) criteria. AKI was diagnosed if any of the following were met: an increase in serum creatinine by ≥0.3 mg/dL within 48 h, an increase to ≥1.5 times baseline within the prior 7 days, or urine output <0.5 mL/kg/h for at least 6 consecutive hours.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-S2003-p2",
+          "reference_ids": [
+            "CIT0026"
+          ],
+          "en": "Based on clinical experience and previously published literature [26–30], we extracted a comprehensive set of candidate predictor variables from the MIMIC-IV database to construct a risk-prediction model. These variables were categorized into five domains. First, demographic information, including age, sex, weight, and body mass index (BMI), was collected to account for the baseline characteristics. Second, comorbid conditions were extracted, including hypertension, diabetes mellitus, congestive heart failure, CKD stage, myocardial infarction, cerebrovascular disease, and chronic liver disease, given their known association with increased AKI risk. Third, a panel of preoperative laboratory values was included to capture patients’ baseline physiological status. These variables included serum creatinine, blood urea nitrogen (BUN), electrolytes (e.g., sodium, potassium, phosphorus), serum albumin, hemoglobin, white blood cell count, and eGFR calculated using the CKD-EPI formula. Fourth, vital signs and clinical severity scores were incorporated, including systolic and diastolic blood pressure, mean arterial pressure (MAP), Sequential Organ Failure Assessment (SOFA) score, and Simplified Acute Physiology Score II (SAPS II). Finally, surgical and perioperative variables were collected, including the type of surgery (e.g., cardiac and abdominal), urgency of the procedure (elective or emergency), operative time, intraoperative fluid administration, blood transfusion, use of vasopressors, and mechanical ventilation status. These intraoperative and perioperative predictors were incorporated to reflect the multifactorial pathophysiology leading to postoperative AKI in surgical patients with preexisting CKD. In accordance with the data availability in the MIMIC-IV database, urine output criteria were not applied because perioperative urine output records were not consistently or reliably documented. Therefore, the AKI diagnosis in this study was based solely on the KDIGO serum creatinine criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0002-S2003-p3",
+          "reference_ids": [],
+          "en": "To ensure data completeness and minimize information bias, a variable-level missing data strategy was applied. Candidate predictors with more than 30% missingness were excluded a priori, as severe incompleteness or inconsistent documentation would compromise the data quality and model interpretability. Therefore, several clinically important variables within these categories were not included in the final analysis, including intraoperative blood loss, anesthesia technique, complete perioperative fluid balance, intraoperative urine output, detailed anesthetic drug types or doses, vasopressor infusion rates, temperature management parameters, and intraoperative hemodynamic variability (e.g., duration of hypotension). Variables with less than 30% missingness were imputed using the MissForest algorithm.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2004",
+      "title": "Feature selection",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2004-p1",
+          "reference_ids": [],
+          "en": "To reduce model complexity and enhance predictive generalizability, two complementary feature selection methods were applied: LASSO and the Boruta algorithm. LASSO regression was conducted using the “glmnet” package in R with 10-fold cross-validation. The optimal penalty parameter (λ) was selected based on the minimum mean cross-validated error, and features with nonzero coefficients at λ were retained. The Boruta algorithm was used to perform the wrapper-based feature selection. Implemented via the “Boruta” package in R, it evaluates all variables against randomly permuted shadow features and iteratively eliminates those that are statistically unimportant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2005",
+      "title": "Model development",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2005-p1",
+          "reference_ids": [],
+          "en": "A suite of predictive models to estimate the risk of postoperative AKI in surgical CKD patients was developed. The following models were constructed and compared: logistic regression (baseline model), random forest (RF), extreme gradient boosting (XGBoost), and light-gradient boosting machine (LightGBM). In total, nine machine-learning algorithms were evaluated. Logistic regression analysis was performed using the “stats” package in R. Machine learning models were implemented using the “randomForest,” “xgboost,” and “lightgbm” package in R. Hyperparameter tuning was performed via a grid search combined with 5-fold cross-validation on the training set. The dataset was randomly split into 70% training and 30% testing sets with stratification based on AKI status to ensure a balanced outcome distribution. All continuous variables were standardized or normalized as appropriate. In addition, five commonly used machine learning classifiers—support vector machine (SVM), k-nearest neighbors (KNN), multilayer perceptron (MLP), AdaBoost, and Naive Bayes—were included as benchmark models to comprehensively compare the performance of different modeling approaches.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2006",
+      "title": "Model evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2006-p1",
+          "reference_ids": [],
+          "en": "Model performance was assessed by calculating the area under the receiver operating characteristic curve (AUC), accuracy, sensitivity, specificity, and F1-score. Calibration was evaluated using the Hosmer–Lemeshow goodness-of-fit test and visualized with calibration plots. Decision curve analysis (DCA) was conducted to evaluate the net clinical benefit of each model across a range of threshold probabilities. To enhance the model interpretability, SHapley Additive exPlanations (SHAP) were applied to the final XGBoost model. The SHAP values quantify the contribution of each feature to individual predictions, allowing both global feature importance rankings and local risk explanations for individual patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2007",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2007-p1",
+          "reference_ids": [],
+          "en": "Continuous variables are summarized as mean ± standard deviation (SD) for normally distributed data or median with interquartile range (IQR) for non-normal data. Categorical variables are presented as frequencies and percentages. Comparisons between the AKI and non-AKI groups were performed using the Student’s t-test or Mann–Whitney U test for continuous variables and the chi-square test or Fisher’s exact test for categorical variables, as appropriate. Multicollinearity among the predictors was assessed using the variance inflation factor (VIF), with a threshold of VIF >5 indicating potential collinearity. All statistical analyses were conducted using R software (version 4.2.2) and Python (version 3.9) with the relevant packages, including glmnet, Boruta, randomForest, XGBoost, lightgbm, SHAP, pROC, caret, and rmda. A two-sided p < 0.05 was considered statistically significant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0002-S2008",
+      "title": "Ethical considerations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0002-S2008-p1",
+          "reference_ids": [],
+          "en": "This study was conducted in accordance with the ethical principles outlined in the Declaration of Helsinki. The data used were derived from the publicly available and de-identified MIMIC-IV database, which received approval from the Institutional Review Boards (IRBs) of MIT and BIDMC. The author completed the required Collaborative Institutional Training Initiative (CITI) program and obtained access to the database (Certification ID: 69,379,488). Owing to the anonymized and publicly accessible nature of the data, this study was exempt from additional IRB approval.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0003",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0003-S2001",
+      "title": "Baseline characteristics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0003-S2001-p1",
+          "reference_ids": [],
+          "en": "A total of 3,851 surgical patients with preexisting chronic kidney disease (CKD) were included in the analysis. Among them, 932 patients (24.2%) developed postoperative AKI, as defined by the KDIGO criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0003-S2001-p2",
+          "reference_ids": [],
+          "en": "The median age of the cohort was 67.0 years (IQR: 58.0–76.0), with 58.7% being male. Patients in the AKI group were older than those in the non-AKI group (median 69.0 vs. 65.0 years, p < 0.001) and had a higher prevalence of comorbidities, including congestive heart failure (26.9 vs. 18.6%, p < 0.001), diabetes mellitus (37.6 vs. 29.8%, p = 0.002), and hypertension (71.2 vs. 63.9%, p = 0.008).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0003-S2001-p3",
+          "reference_ids": [
+            "t0001"
+          ],
+          "en": "The laboratory and physiological parameters also showed significant differences. The AKI group had higher preoperative serum creatinine (median 2.1 vs. 1.5 mg/dL, p < 0.001), lower eGFR (43.1 vs. 56.7 mL/min/1.73 m2, p < 0.001), lower serum albumin (3.1 vs. 3.8 g/dL, p < 0.001), and higher SOFA and SAPS II scores (mean SOFA 6.3 vs. 4.2, p < 0.001). Additionally, intraoperative exposures, such as vasopressor use, mechanical ventilation, and emergency surgery, were significantly more common among patients who developed AKI (Table 1).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004",
+      "title": "Prediction performance of machine learning models on the validation set",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-p1",
+          "reference_ids": [
+            "F0001"
+          ],
+          "en": "The receiver operating characteristic (ROC) curves of the nine machine learning models are presented in Figure 1, illustrating their ability to discriminate between patients with and without postoperative AKI. Among all the models, XGBoost achieved the highest AUC of 0.844, indicating excellent discriminatory performance. This was followed by Random Forest (AUC = 0.822) and LightGBM (AUC = 0.804), both of which showed strong prediction capabilities. Traditional logistic regression and SVM also demonstrated comparable performances, with AUCs of 0.793 and 0.791, respectively. KNN and MLP showed moderate performance (AUC = 0.795 and 0.782, respectively), whereas AdaBoost and Naive Bayes yielded lower AUC values of 0.656 and 0.636, respectively, suggesting limited discriminative power. Overall, the ROC analysis highlighted that ensemble-based models, particularly XGBoost and Random Forest, outperformed conventional classifiers in predicting postoperative AKI in patients with CKD.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-p2",
+          "reference_ids": [
+            "F0002"
+          ],
+          "en": "The predictive performance of the nine machine learning models was evaluated using five key metrics: accuracy, AUC, sensitivity, specificity, and F1-score. The results are shown in Figure 2. Among all the models, XGBoost consistently outperformed the others, achieving the highest values across nearly all metrics, including AUC (0.844), accuracy (0.791), sensitivity (0.79), specificity (0.80), and F1-score (0.73). Random Forest and LightGBM also demonstrated strong predictive abilities, with AUCs of 0.822 and 0.804, respectively, and F1-scores of 0.68 and 0.70, respectively. The logistic regression model achieved moderate performance (accuracy, 0.733; AUC, 0.793; F1-score, 0.62), whereas MLP and SVM also showed balanced but slightly lower predictive values. In contrast, Naive Bayes and AdaBoost exhibit poor performance. Naive Bayes yielded the lowest AUC (0.636) and F1-score (0.57), whereas AdaBoost showed lower accuracy (0.754) and sensitivity (0.69) than the other models. Overall, tree-based ensemble models (XGBoost, Random Forest, and LightGBM) performed better than traditional classifiers in predicting postoperative AKI with higher discriminative power and classification balance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-p3",
+          "reference_ids": [
+            "F0003"
+          ],
+          "en": "The calibration of the best-performing model by using a calibration curve was assessed (Figure 3). Predicted probabilities were plotted against observed event frequencies. The results showed that the calibration curve closely followed the 45-degree diagonal reference line, indicating good agreement between the predicted and actual probabilities of postoperative AKI. Minor deviations from the ideal line were observed in certain probability ranges. However, the overall trend demonstrated that the model’s predicted risk was generally consistent with the true event probability. This suggests that the model not only discriminates well but also provides well-calibrated probability estimates suitable for clinical risk stratification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2001",
+      "title": "Important features",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2001-p1",
+          "reference_ids": [
+            "F0004"
+          ],
+          "en": "The XGBoost algorithm was used to assess the contribution of each variable in the prediction of postoperative AKI. The feature importance was calculated based on the average gain, which reflects the relative contribution of each feature to the model. As shown in Figure 4, the SOFA score was the most important predictor (gain = 0.119), followed by eGFR (0.110), systolic blood pressure (0.094), serum albumin (0.091), and serum phosphorus (0.078). Other variables with relatively high importance included WBC count, BMI, and BUN level. These findings suggest that organ function indicators and preoperative physiological status play key roles in predicting the risk of AKI in surgical patients with CKD.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0004-S2002",
+      "title": "SHAP analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0004-S2002-p1",
+          "reference_ids": [
+            "F0005"
+          ],
+          "en": "To further interpret the contribution and directionality of each predictor, SHAP analysis was performed based on the XGBoost model. The SHAP beeswarm plot in Figure 5 illustrates the distribution and impact of each feature across the individual predictions. Each dot represents a patient, and the position on the x-axis reflects the SHAP value for that feature in that individual. Features were ordered by their overall importance, with SOFA, eGFR, SBP, and albumin showing the greatest influence.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0004-S2002-p2",
+          "reference_ids": [],
+          "en": "The color gradient (from purple to yellow) represents the original feature values, where yellow indicates high values and purple indicates low values. Notably, higher SOFA scores (yellow dots) were associated with an increased risk of AKI, while higher eGFR values (yellow dots) were associated with a lower risk. This suggests that worsening organ dysfunction and renal impairment are closely associated with AKI development. SHAP analysis not only confirmed the importance ranking from the gain-based analysis but also provided interpretability at the individual prediction level.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S0005-S2001",
+      "title": "Overall findings",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2001-p1",
+          "reference_ids": [
+            "CIT0030",
+            "CIT0031",
+            "CIT0032"
+          ],
+          "en": "This study developed and validated nine machine-learning models to predict postoperative AKI in surgical patients with preexisting CKD. By leveraging routinely available clinical, laboratory, and physiological variables, the models demonstrated promising discriminatory and calibration performance, highlighting the potential of data-driven approaches for early risk stratification in high-risk surgical populations. The overall incidence of postoperative AKI in our cohort was 24.2%, which is comparable to that reported in previous studies involving patients with underlying CKD [30,31]. Patients who developed AKI had a higher burden of comorbidities, more severe baseline physiological derangement, and greater exposure to intraoperative stressors, all of which are well-established contributors to renal vulnerability during and after surgery [32]. In summary, while the current model provides robust tabular-data-based prediction for postoperative AKI in patients with CKD, this study should be viewed as a springboard for next-generation dynamic, multimodal, and clinically integrated perioperative kidney protection systems.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2001-p2",
+          "reference_ids": [
+            "CIT0033",
+            "CIT0034"
+          ],
+          "en": "Among the nine models evaluated, ensemble learning methods, particularly XGBoost and Random Forest, consistently outperformed traditional algorithms across all five performance metrics. XGBoost achieved the highest AUC (0.844), accuracy (0.791), sensitivity (0.79), and F1-score (0.73), indicating a superior discriminatory ability and balance between precision and recall. These results align with those of previous studies showing that ensemble algorithms, by aggregating multiple weak learners, can capture nonlinear and complex interactions among clinical predictors more effectively than logistic regression or support vector machines [33,34]. Naive Bayes demonstrated lower performance, likely due to its strong assumption of conditional independence among predictors, which is inconsistent with the correlated biochemical and physiological variables in clinical datasets. AdaBoost is sensitive to noise and class imbalance, which may have contributed to its reduced performance in this cohort.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2001-p3",
+          "reference_ids": [
+            "CIT0035",
+            "CIT0038",
+            "CIT0041",
+            "CIT0042"
+          ],
+          "en": "Importantly, our SHAP analysis revealed that SOFA score, eGFR, systolic blood pressure, albumin level, and phosphorus level were the top five most influential predictors. The SOFA score reflects multiorgan dysfunction and is an established prognostic marker in critically ill patients [35–37]. Lower eGFR and albumin levels suggest impaired baseline renal function and nutritional status, both of which are independently associated with an increased AKI risk. Meanwhile, lower systolic blood pressure may reflect perioperative hemodynamic instability, which contributes to renal hypoperfusion and ischemic injury [38–40]. Elevated phosphorus levels, although less frequently discussed, may indicate underlying mineral metabolism disturbances and subclinical renal tubular damage [41,42].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2001-p4",
+          "reference_ids": [
+            "CIT0043"
+          ],
+          "en": "The findings from both feature importance ranking and SHAP value visualization not only confirmed known risk factors but also enhanced interpretability at the individual level. This is particularly valuable in clinical settings, where personalized decision-making is essential. Beyond discrimination, the XGBoost model demonstrated favorable calibration characteristics, with predicted probabilities closely aligned with the observed AKI incidence. Calibration is a critical but often overlooked aspect of model performance. A well-calibrated model ensures that the predicted risks can be translated into actionable thresholds for clinical decision-making, such as intensified monitoring or nephroprotective interventions [43–47].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2002",
+      "title": "Clinical implications",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2002-p1",
+          "reference_ids": [
+            "CIT0047",
+            "CIT0048"
+          ],
+          "en": "This study contributes to the growing body of literature that advocates machine learning for perioperative risk prediction. Notably, our focus on a CKD population, a group underrepresented in many prediction studies, addresses an important gap. As one of the few studies specifically targeting postoperative AKI in surgical patients with preexisting CKD, our work expands the current evidence to a uniquely high-risk and understudied population. Patients with CKD are inherently more susceptible to AKI, and accurate risk estimation in this group may help tailor perioperative care such as nephrotoxin avoidance, optimized fluid management, and postoperative surveillance [47,48]. This model supports perioperative decision-making by enabling early AKI prevention strategies, potentially reducing the progression to dialysis and mortality. This model can inform AI-powered perioperative decision support systems for AKI prevention in patients with CKD. This SHAP-explainable machine learning model could be embedded into perioperative electronic health records (EHR) dashboards for proactive AKI prevention in patients with CKD.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2003",
+      "title": "Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2003-p1",
+          "reference_ids": [
+            "CIT0049",
+            "CIT0050"
+          ],
+          "en": "From a practical perspective, the models developed in this study can be integrated into clinical workflows using EHRs as real-time risk calculators. Such tools, combined with SHAP-based interpretability, could assist clinicians in understanding not only the predicted risk level but also the key driving factors behind it [49]. Our findings may serve as a scaffold for future multimodal AKI digital twin frameworks. Nonetheless, this study has several limitations. First, our analysis was based on retrospective data from a single center. Although internal validation was performed, external validation using independent datasets, such as MIMIC-IV or other multicenter databases, is necessary to confirm the generalizability [50]. Second, several perioperative variables of clinical relevance (e.g., blood loss, anesthesia type, and perioperative fluid balance) did not appear in the final model because they had excessive missingness or were not retained during model development. Third, although SHAP improves transparency, machine learning models remain inherently more complex than traditional logistic regression models, potentially posing barriers to clinical adoption. Additionally, the development and reporting of our model followed FAIR and provenance principles to ensure the transparency, reproducibility, and traceability of data processing and analytic workflows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2004",
+      "title": "Future directions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2004-p1",
+          "reference_ids": [],
+          "en": "This study demonstrated that machine learning models, especially ensemble-based algorithms such as XGBoost and Random Forest, can effectively predict postoperative AKI in surgical patients with CKD using preoperative clinical data. Explainable AI techniques further enhance clinical interpretability. XGBoost with SHAP interpretability provides explainable AKI signals that are suitable for LLM-based clinical reasoning. Future work should focus on external validation, prospective implementation, and the development of user-friendly decision support tools to facilitate clinical translation. These results could inform digital twin–based perioperative renal monitoring systems or serve as input features for LLM-based autonomous decision support agents. Future prospective trials are needed to evaluate whether EHR-integrated AI risk alerts can prompt early fluid optimization, vasopressor titration, and nephrotoxin avoidance in patients with CKD.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2005",
+      "title": "Beyond tabular prediction: emerging directions for intelligent perioperative kidney protection",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2005-p1",
+          "reference_ids": [],
+          "en": "Future research should advance beyond the static, tabular-data-based prediction of dynamic, multimodal, and physiologically informed perioperative kidney-protection systems. One important direction is the development of perioperative digital renal twins, virtual physiological models capable of simulating renal perfusion, fluid status, and hemodynamic trajectories under different surgical stress conditions. These systems may allow the real-time assessment of renal vulnerability and support personalized nephroprotective strategies before irreversible injury occurs. AI-driven shared decision-making tools that visually present individualized kidney-risk trajectories to surgical teams and patients may further enhance transparency and coordinate perioperative planning.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2005-p2",
+          "reference_ids": [],
+          "en": "Next-generation multimodal AI models can integrate arterial pressure waveform features (e.g., PPV, SVV, and dP/dt), ultrasound-derived renal resistive indices, real-time urinary or metabolomic biomarkers, and CT/MRI-based renal texture markers, providing a more comprehensive depiction of intraoperative renal stress than tabular variables alone. Prehabilitation-oriented AI systems can also estimate risk days before surgery and trigger early renal optimization strategies (e.g., nutritional enhancement, fluid preload targeting, anemia, or albumin correction) to strengthen renal resilience before operative stress.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "S0005-S2005-p3",
+          "reference_ids": [],
+          "en": "Emerging transformer architectures, diffusion forecasting models, and reinforcement learning-based closed-loop decision support may further enable dynamic AKI trajectory prediction, simulation of “what-if” hemodynamic strategies, and autonomous optimization of fluid or vasopressor titrations. Incorporating continual or federated learning can ensure that perioperative AKI models evolve across institutions and over time rather than remaining static. Compared with traditional ensemble models, such as XGBoost or Random Forest, transformer-based multimodal foundation models offer substantially greater capacity for integrating heterogeneous perioperative signals and modeling complex temporal dependencies. Future work could also combine explainable AI methods, such as SHAP, with causal counterfactual analysis to generate actionable “what-if” simulations, for example, estimating how maintaining systolic blood pressure above specific thresholds might modify a patient’s predicted AKI trajectory. Embedding such predictive insights into EHR workflows as automated alerts paired with recommended intervention bundles is essential for real-world translational implementations. Ethical and regulatory readiness will also be crucial, including model drift monitoring, bias auditing, transparency requirements, and governance frameworks for adaptive or continuously learning perioperative AI systems. These advancements highlight the future in which perioperative kidney protection moves beyond prediction toward real-time, adaptive, and AI-integrated clinical decision systems for high-risk CKD patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0005-S2006",
+      "title": "Clinical impact statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0005-S2006-p1",
+          "reference_ids": [],
+          "en": "Our explainable XGBoost model enables real-time perioperative AKI risk prediction in patients with CKD and may serve as a foundation for AI-guided decision support systems in surgical nephrology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0006",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0006-p1",
+          "reference_ids": [],
+          "en": "This study developed and validated multiple machine learning models to predict postoperative AKI in surgical patients with preexisting CKD based on data from the MIMIC-IV database. Our findings demonstrate that ensemble models, particularly XGBoost, achieve superior discrimination and calibration performance compared to traditional algorithms. Furthermore, the application of SHAP analysis enabled the interpretation of individual-level predictions and the identification of key risk factors, including SOFA score, eGFR, systolic blood pressure, albumin, and phosphorus. These results suggest that interpretable machine learning models may serve as valuable tools for perioperative risk stratification and the targeted prevention of AKI in high-risk surgical populations. Future work should focus on external validation, integration into clinical workflows, and the assessment of real-world impacts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-25",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-25-p1",
+          "reference_ids": [],
+          "en": "We acknowledge the MIMIC database and its contributors for providing high-quality, publicly available clinical data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0008",
+      "title": "Disclosure statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0008-p1",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0010",
+      "title": "Consent for publication",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0010-p1",
+          "reference_ids": [],
+          "en": "Not applicable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S0009",
+      "title": "Data availability statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "S0009-p1",
+          "reference_ids": [],
+          "en": "The data sets used and analyzed in this study are available from the first author and the corresponding author upon reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "t0001",
+      "label": "Table 1.",
+      "caption": "Baseline characteristics of patients with and without postoperative AKI.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Variable",
+          "Non-AKI (n = 2919)",
+          "AKI (n = 932)",
+          "P-value"
+        ],
+        [
+          "Demographics",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Age (years)",
+          "65.0 (56.0–74.0)",
+          "69.0 (60.0–78.0)",
+          "<0.001"
+        ],
+        [
+          "Male sex (%)",
+          "58.1%",
+          "59.8%",
+          "0.382"
+        ],
+        [
+          "BMI (kg/m²)",
+          "24.7 (22.1–27.3)",
+          "24.5 (22.0–27.0)",
+          "0.221"
+        ],
+        [
+          "Comorbidities",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Hypertension (%)",
+          "63.9%",
+          "71.2%",
+          "0.008"
+        ],
+        [
+          "Diabetes mellitus (%)",
+          "29.8%",
+          "37.6%",
+          "0.002"
+        ],
+        [
+          "Congestive heart failure (%)",
+          "18.6%",
+          "26.9%",
+          "<0.001"
+        ],
+        [
+          "Myocardial infarction (%)",
+          "10.3%",
+          "14.8%",
+          "0.006"
+        ],
+        [
+          "Cerebrovascular disease (%)",
+          "11.2%",
+          "13.4%",
+          "0.147"
+        ],
+        [
+          "Chronic liver disease (%)",
+          "4.9%",
+          "7.7%",
+          "0.032"
+        ],
+        [
+          "Preoperative labs",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Serum creatinine (mg/dL)",
+          "1.5 (1.2–1.8)",
+          "2.1 (1.6–2.8)",
+          "<0.001"
+        ],
+        [
+          "eGFR (mL/min/1.73 m²)",
+          "56.7 ± 16.6",
+          "43.1 ± 14.2",
+          "<0.001"
+        ],
+        [
+          "Albumin (g/dL)",
+          "3.8 ± 0.4",
+          "3.1 ± 0.5",
+          "<0.001"
+        ],
+        [
+          "Hemoglobin (g/dL)",
+          "10.8 ± 1.9",
+          "9.4 ± 1.7",
+          "<0.001"
+        ],
+        [
+          "WBC count (×10⁹/L)",
+          "7.2 (6.0–9.4)",
+          "8.3 (6.7–10.9)",
+          "<0.001"
+        ],
+        [
+          "Phosphorus (mg/dL)",
+          "4.0 ± 1.6",
+          "5.0 ± 1.9",
+          "0.001"
+        ],
+        [
+          "Vital signs and scores",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Systolic BP (mmHg)",
+          "119.0 (108.0–132.0)",
+          "111.0 (102.0–125.0)",
+          "<0.001"
+        ],
+        [
+          "Diastolic BP (mmHg)",
+          "64.0 (56.0–72.0)",
+          "59.0 (50.0–68.0)",
+          "<0.001"
+        ],
+        [
+          "SOFA score",
+          "4.2 ± 2.1",
+          "6.3 ± 2.5",
+          "<0.001"
+        ],
+        [
+          "SAPS II score",
+          "34.8 ± 10.2",
+          "41.7 ± 12.8",
+          "<0.001"
+        ],
+        [
+          "Surgical and intraoperative factors",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Emergency surgery (%)",
+          "22.5%",
+          "36.9%",
+          "<0.001"
+        ],
+        [
+          "Operative time (min)",
+          "114 (88–151)",
+          "132 (102–168)",
+          "0.004"
+        ],
+        [
+          "Blood transfusion (%)",
+          "18.2%",
+          "30.4%",
+          "<0.001"
+        ],
+        [
+          "Vasopressor use (%)",
+          "22.7%",
+          "40.0%",
+          "<0.001"
+        ],
+        [
+          "Mechanical ventilation (%)",
+          "65.6%",
+          "82.3%",
+          "<0.001"
+        ]
+      ],
+      "footnotes": "Abbreviations: CKD, chronic kidney disease; AKI, acute kidney injury; eGFR, estimated glomerular filtration rate; SOFA, Sequential Organ Failure Assessment; SAPS II, Simplified Acute Physiology Score II; BMI, body mass index; BP, blood pressure; WBC, white blood cell count. Continuous variables are presented as mean ± SD if normally distributed or median (interquartile range) otherwise. Categorical variables are presented as n (%). Comparisons between the AKI and non-AKI groups were performed using Student’s t-test or Mann-Whitney U test for continuous variables and the Chi-square test for categorical variables.",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"t0001\" orientation=\"portrait\"><label>Table 1.</label><caption><p>Baseline characteristics of patients with and without postoperative AKI.</p></caption><table frame=\"hsides\" rules=\"groups\"><colgroup span=\"1\"><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /><col width=\"80pt\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Variable</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">Non-AKI (<italic toggle=\"yes\">n</italic> = 2919)</th><th align=\"center\" colspan=\"1\" rowspan=\"1\">AKI (<italic toggle=\"yes\">n</italic> = 932)</th><th align=\"center\" colspan=\"1\" rowspan=\"1\"><italic toggle=\"yes\">P</italic>-value</th></tr></thead><tbody valign=\"top\"><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Demographics</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"left\" colspan=\"1\" rowspan=\"1\"> </td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Age (years)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">65.0 (56.0–74.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">69.0 (60.0–78.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Male sex (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">58.1%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">59.8%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.382</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> BMI (kg/m²)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">24.7 (22.1–27.3)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">24.5 (22.0–27.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.221</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Comorbidities</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"left\" colspan=\"1\" rowspan=\"1\"> </td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Hypertension (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">63.9%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">71.2%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.008</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Diabetes mellitus (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">29.8%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">37.6%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.002</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Congestive heart failure (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">18.6%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">26.9%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Myocardial infarction (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">10.3%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">14.8%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.006</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Cerebrovascular disease (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">11.2%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">13.4%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.147</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Chronic liver disease (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">4.9%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">7.7%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.032</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Preoperative labs</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"left\" colspan=\"1\" rowspan=\"1\"> </td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Serum creatinine (mg/dL)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">1.5 (1.2–1.8)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">2.1 (1.6–2.8)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> eGFR (mL/min/1.73 m²)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">56.7 ± 16.6</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">43.1 ± 14.2</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Albumin (g/dL)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">3.8 ± 0.4</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">3.1 ± 0.5</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Hemoglobin (g/dL)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">10.8 ± 1.9</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">9.4 ± 1.7</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> WBC count (×10⁹/L)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">7.2 (6.0–9.4)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">8.3 (6.7–10.9)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Phosphorus (mg/dL)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">4.0 ± 1.6</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">5.0 ± 1.9</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Vital signs and scores</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"left\" colspan=\"1\" rowspan=\"1\"> </td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Systolic BP (mmHg)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">119.0 (108.0–132.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">111.0 (102.0–125.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Diastolic BP (mmHg)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">64.0 (56.0–72.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">59.0 (50.0–68.0)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> SOFA score</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">4.2 ± 2.1</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">6.3 ± 2.5</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> SAPS II score</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">34.8 ± 10.2</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">41.7 ± 12.8</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Surgical and intraoperative factors</td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"center\" colspan=\"1\" rowspan=\"1\"> </td><td align=\"left\" colspan=\"1\" rowspan=\"1\"> </td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Emergency surgery (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">22.5%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">36.9%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Operative time (min)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">114 (88–151)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">132 (102–168)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">0.004</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Blood transfusion (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">18.2%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">30.4%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Vasopressor use (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">22.7%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">40.0%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> Mechanical ventilation (%)</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">65.6%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">82.3%</td><td align=\"char\" char=\".\" colspan=\"1\" rowspan=\"1\">&lt;0.001</td></tr></tbody></table><table-wrap-foot><fn id=\"TF1\"><p>Abbreviations: CKD, chronic kidney disease; AKI, acute kidney injury; eGFR, estimated glomerular filtration rate; SOFA, Sequential Organ Failure Assessment; SAPS II, Simplified Acute Physiology Score II; BMI, body mass index; BP, blood pressure; WBC, white blood cell count. Continuous variables are presented as mean ± SD if normally distributed or median (interquartile range) otherwise. Categorical variables are presented as <italic toggle=\"yes\">n (%)</italic>. Comparisons between the AKI and non-AKI groups were performed using Student’s t-test or Mann-Whitney U test for continuous variables and the Chi-square test for categorical variables.</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "F0001",
+      "label": "Figure 1.",
+      "caption": "Receiver operating characteristic (ROC) curves of nine models for predicting postoperative AKI. Abbreviations: ROC: receiver operating characteristic; AUC: area under the curve; AdaBoost: adaptive boosting; KNN: K-nearest neighbors; LightGBM: light gradient boosting machine; MLP: multilayer perceptron; Naive Bayes: Naive Bayes classifier; SVM: support vector machine; XGBoost: extreme gradient boosting.",
+      "caption_zh": "",
+      "graphics": [
+        "IRNF_A_2646411_F0001_C.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0002",
+      "label": "Figure 2.",
+      "caption": "Comparative performance of nine machine learning models using five evaluation metrics: accuracy, AUC, F1-score, sensitivity, and specificity. Abbreviations: AUC: area under the curve; F1-score: harmonic mean of precision and recall; AdaBoost: adaptive boosting; KNN: K-nearest neighbors; LightGBM: light gradient boosting machine; MLP: multilayer perceptron; Naive Bayes: Naive Bayes classifier; SVM: support vector machine; XGBoost: extreme gradient boosting.",
+      "caption_zh": "",
+      "graphics": [
+        "IRNF_A_2646411_F0002_C.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0003",
+      "label": "Figure 3.",
+      "caption": "Calibration curve of the best-performing model (XGBoost) for predicting postoperative AKI. Abbreviation: XGBoost: extreme gradient boosting.",
+      "caption_zh": "",
+      "graphics": [
+        "IRNF_A_2646411_F0003_C.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0004",
+      "label": "Figure 4.",
+      "caption": "Feature importance ranked by average gain in the XGBoost model for predicting postoperative AKI. Variables are ordered by their contribution to the model based on the average gain. The SOFA score, eGFR, SBP, albumin, and phosphorus were identified as the top five most important predictors. Abbreviations: SOFA: sequential organ failure assessment; eGFR: estimated glomerular filtration rate; SBP: systolic blood pressure; WBC: white blood cell count; BMI: body mass index; BUN: blood urea nitrogen; Operative_time: operative time; Blood_transfusion: blood transfusion; MV_use: mechanical ventilation use; Vasopressor_use: use of vasopressor agents; Hb: hemoglobin; DBP: diastolic blood pressure; CHF: congestive heart failure; DM: diabetes mellitus; HTN: hypertension.",
+      "caption_zh": "",
+      "graphics": [
+        "IRNF_A_2646411_F0004_C.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F0005",
+      "label": "Figure 5.",
+      "caption": "SHAP beeswarm plot showing the impact of each feature on the prediction of postoperative AKI in the XGBoost model. Each point represents an individual case, with SHAP values indicating the direction and magnitude of impact. Feature values are color-coded from low (purple) to high (yellow), highlighting how specific variable values influence the predicted risk. Abbreviations: SHAP: SHapley Additive exPlanations; SOFA: sequential organ failure assessment; eGFR: estimated glomerular filtration rate; SBP: systolic blood pressure; DBP: diastolic blood pressure; Hb: hemoglobin; WBC: white blood cell count; Vasopressor_use: use of vasopressor agents; BMI: body mass index; BUN: blood urea nitrogen; MV_use: mechanical ventilation use; Operative_time: operative time; Blood_transfusion: blood transfusion.",
+      "caption_zh": "",
+      "graphics": [
+        "IRNF_A_2646411_F0005_C.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CIT0001",
+      "text": "1Boyer N, Eldridge J, Prowle JR, et al. Postoperative acute kidney injury. Clin J Am Soc Nephrol. 2022;17(10):1535–1545. doi: 10.2215/CJN.16541221.35710717 PMC9528271",
+      "doi": [
+        "10.2215/CJN.16541221"
+      ]
+    },
+    {
+      "id": "CIT0002",
+      "text": "2Prowle JR, Forni LG, Bell M, et al. Postoperative acute kidney injury in adult non-cardiac surgery: joint consensus report of the acute disease quality initiative and perioperative quality initiative. Nat Rev Nephrol. 2021;17(9):605–618. doi: 10.1038/s41581-021-00418-2.33976395 PMC8367817",
+      "doi": [
+        "10.1038/s41581-021-00418-2"
+      ]
+    },
+    {
+      "id": "CIT0003",
+      "text": "3Lin Y, Shi T, Kong G. Acute kidney injury prognosis prediction using machine learning methods: a systematic review. Kidney Med. 2025;7(1):100936. doi: 10.1016/j.xkme.2024.100936.39758155 PMC11699606",
+      "doi": [
+        "10.1016/j.xkme.2024.100936"
+      ]
+    },
+    {
+      "id": "CIT0004",
+      "text": "4Neyra JA, Ortiz-Soriano V, Liu LJ, et al. Prediction of mortality and major adverse kidney events in critically ill patients with acute kidney injury. Am J Kidney Dis. 2023;81(1):36–47. doi: 10.1053/j.ajkd.2022.06.004.35868537 PMC9780161",
+      "doi": [
+        "10.1053/j.ajkd.2022.06.004"
+      ]
+    },
+    {
+      "id": "CIT0005",
+      "text": "5Abdala PM, Swanson EA, Hutchens MP. Meta-analysis of AKI to CKD transition in perioperative patients. Perioper Med (Lond). 2021;10(1):24. doi: 10.1186/s13741-021-00192-6.34183067 PMC8240318",
+      "doi": [
+        "10.1186/s13741-021-00192-6"
+      ]
+    },
+    {
+      "id": "CIT0006",
+      "text": "6Watabe H, Sato A, Hoshi T, et al. Association of contrast-induced acute kidney injury with long-term cardiovascular events in acute coronary syndrome patients with chronic kidney disease undergoing emergent percutaneous coronary intervention. Int J Cardiol. 2014;174(1):57–63. doi: 10.1016/j.ijcard.2014.03.146.24726211",
+      "doi": [
+        "10.1016/j.ijcard.2014.03.146"
+      ]
+    },
+    {
+      "id": "CIT0007",
+      "text": "7Takkavatakarn K, Hofer IS. Artificial intelligence and machine learning in perioperative acute kidney injury. Adv Kidney Dis Health. 2023;30(1):53–60. Epub 2022 Dec 8. doi: 10.1053/j.akdh.2022.10.001.36723283 PMC12228575",
+      "doi": [
+        "10.1053/j.akdh.2022.10.001"
+      ]
+    },
+    {
+      "id": "CIT0008",
+      "text": "8Mangano N, Nguyen N, Davis M, et al. Perioperative acute kidney injury: current prevention, detection, and management strategies. J Anesth. 2026;40(2):295–306. doi: 10.1007/s00540-025-03596-6.41111125",
+      "doi": [
+        "10.1007/s00540-025-03596-6"
+      ]
+    },
+    {
+      "id": "CIT0009",
+      "text": "9Zeuchner J, Elander L, Frisk J, et al. Incidence and trajectories of subclinical and KDIGO-defined postoperative acute kidney injury in patients undergoing major abdominal surgery. BJA Open. 2024;12:100345. doi: 10.1016/j.bjao.2024.100345.39483727 PMC11526046",
+      "doi": [
+        "10.1016/j.bjao.2024.100345"
+      ]
+    },
+    {
+      "id": "CIT0010",
+      "text": "10Zaurito P, Calado A, Quarta L, et al. Incidence and predictors of acute kidney injury and acute kidney disease after robot-assisted radical prostatectomy in prostate cancer patients. Eur Urol Oncol. 2025;S2588-9311(25)00191-9. doi: 10.1016/j.euo.2025.06.011.40645822",
+      "doi": [
+        "10.1016/j.euo.2025.06.011"
+      ]
+    },
+    {
+      "id": "CIT0011",
+      "text": "11Zorrilla-Vaca A, Mena GE, Ripolles-Melchor J, et al. Risk factors for acute kidney injury in an enhanced recovery pathway for colorectal surgery. Surg Today. 2021;51(4):537–544. doi: 10.1007/s00595-020-02107-2.32785846",
+      "doi": [
+        "10.1007/s00595-020-02107-2"
+      ]
+    },
+    {
+      "id": "CIT0012",
+      "text": "12Zhu Y, Xu P, Wang Q, et al. Diclofenac–acetaminophen combination induced acute kidney injury in postoperative pain relief. J Pharm Pharm Sci. 2018;21(1):19–26. doi: 10.18433/J3SH21.29382434",
+      "doi": [
+        "10.18433/J3SH21"
+      ]
+    },
+    {
+      "id": "CIT0013",
+      "text": "13Zhang Y, Jiang L, Wang B, et al. Epidemiological characteristics of and risk factors for patients with postoperative acute kidney injury: a multicenter prospective study in 30 Chinese intensive care units. Int Urol Nephrol. 2018;50(7):1319–1328. Epub 2018 Feb 26. PMID: 29480442. doi: 10.1007/s11255-018-1828-7.29480442",
+      "doi": [
+        "10.1007/s11255-018-1828-7"
+      ]
+    },
+    {
+      "id": "CIT0014",
+      "text": "14Zabrocki L, Marquardt F, Albrecht K, et al. Acute kidney injury after abdominal aortic aneurysm repair: current epidemiology and potential prevention. Int Urol Nephrol. 2018;50(2):331–337. doi: 10.1007/s11255-017-1767-8.29230707",
+      "doi": [
+        "10.1007/s11255-017-1767-8"
+      ]
+    },
+    {
+      "id": "CIT0015",
+      "text": "15Yu Y, Zhang C, Zhang F, et al. Development and validation of a risk nomogram for postoperative acute kidney injury in older patients undergoing liver resection: a pilot study. BMC Anesthesiol. 2022;22(1):22. doi: 10.1186/s12871-022-01566-z.35026992 PMC8756684",
+      "doi": [
+        "10.1186/s12871-022-01566-z"
+      ]
+    },
+    {
+      "id": "CIT0016",
+      "text": "16Yu J, Seo YJ, Lee SK, et al. Postoperative acute kidney injury and risk factors for major adverse kidney events within 30 days of burn surgery. Burns. 2025;51(6):107533. doi: 10.1016/j.burns.2025.107533.40398312",
+      "doi": [
+        "10.1016/j.burns.2025.107533"
+      ]
+    },
+    {
+      "id": "CIT0017",
+      "text": "17Ying T, Chan S, Lane S, et al. Acute kidney injury post-major orthopaedic surgery: a single-Centre case-control study. Nephrology (Carlton). 2018;23(2):126–132. doi: 10.1111/nep.12942.27706879",
+      "doi": [
+        "10.1111/nep.12942"
+      ]
+    },
+    {
+      "id": "CIT0018",
+      "text": "18Yang X, Zhang T, Zhou H, et al. Acute kidney injury as an independent predicting factor for stage 3 or higher chronic kidney disease after nephrectomy. Urol Oncol. 2023;41(3):149.e1-149–e9. doi: 10.1016/j.urolonc.2022.10.011.36463084",
+      "doi": [
+        "10.1016/j.urolonc.2022.10.011"
+      ]
+    },
+    {
+      "id": "CIT0019",
+      "text": "19Xu L, Li C, Zhao L, et al. Acute kidney injury after nephrectomy: a new nomogram to predict postoperative renal function. BMC Nephrol. 2020;21(1):181. doi: 10.1186/s12882-020-01839-0.32410656 PMC7227356",
+      "doi": [
+        "10.1186/s12882-020-01839-0"
+      ]
+    },
+    {
+      "id": "CIT0020",
+      "text": "20Xu L, Li C, Gao S, et al. Personalized prediction of long-term renal function prognosis following nephrectomy using interpretable machine learning algorithms: case-control study. JMIR Med Inform. 2024;12:e52837. doi: 10.2196/52837.39303280 PMC11452755",
+      "doi": [
+        "10.2196/52837"
+      ]
+    },
+    {
+      "id": "CIT0021",
+      "text": "21Zuo F, Zhong L, Min J, et al. Construction and validation of risk prediction models for renal replacement therapy in patients with acute pancreatitis. Eur J Med Res. 2025;30(1):70. doi: 10.1186/s40001-025-02345-5.39905525 PMC11792265",
+      "doi": [
+        "10.1186/s40001-025-02345-5"
+      ]
+    },
+    {
+      "id": "CIT0022",
+      "text": "22Yin W, Zhou G, Zhou L, et al. Validation of pre-operative risk scores of contrast-induced acute kidney injury in a Chinese cohort. BMC Nephrol. 2020;21(1):45. doi: 10.1186/s12882-020-1700-8.32041557 PMC7011449",
+      "doi": [
+        "10.1186/s12882-020-1700-8"
+      ]
+    },
+    {
+      "id": "CIT0023",
+      "text": "23Yan F, Zhou Z, Du X, et al. Neutrophil gelatinase-associated lipocalin for predicting acute kidney injury in orthotopic liver transplantation: a systematic review and meta-analysis. Eur J Gastroenterol Hepatol. 2025;37(6):683–690. doi: 10.1097/MEG.0000000000002935.39976006",
+      "doi": [
+        "10.1097/MEG.0000000000002935"
+      ]
+    },
+    {
+      "id": "CIT0024",
+      "text": "24Xing H, Jiang Z, Wu Y, et al. The role of urinary Dickkopf-3 in the prediction of acute kidney injury: a systematic review meta-analysis. Int Urol Nephrol. 2023;55(12):3175–3188. doi: 10.1007/s11255-023-03593-2.37072601",
+      "doi": [
+        "10.1007/s11255-023-03593-2"
+      ]
+    },
+    {
+      "id": "CIT0025",
+      "text": "25Li J, Zhu M, Yan L. Predictive models of sepsis-associated acute kidney injury based on machine learning: a scoping review. Ren Fail. 2024;46(2):2380748. doi: 10.1080/0886022X.2024.2380748.39082758 PMC11293267",
+      "doi": [
+        "10.1080/0886022X.2024.2380748"
+      ]
+    },
+    {
+      "id": "CIT0026",
+      "text": "26Yu S, Pan X, Zhang M, et al. A machine learning-based prediction model for sepsis-associated delirium in intensive care unit patients with sepsis-associated acute kidney injury. Ren Fail. 2025;47(1):2514186. doi: 10.1080/0886022X.2025.2514186.40456706 PMC12131538",
+      "doi": [
+        "10.1080/0886022X.2025.2514186"
+      ]
+    },
+    {
+      "id": "CIT0027",
+      "text": "27Thongprayoon C, Wathanavasin W, Cheungpasitporn W. Artificial intelligence, machine learning, telemedicine, and digital transformation in nephrology and transplantation. Ren Fail. 2025;47(1):2574537. doi: 10.1080/0886022X.2025.2574537.41111231 PMC12538714",
+      "doi": [
+        "10.1080/0886022X.2025.2574537"
+      ]
+    },
+    {
+      "id": "CIT0028",
+      "text": "28Wyler von Ballmoos M, Likosky DS, Rezaee M, et al. Elevated preoperative Galectin-3 is associated with acute kidney injury after cardiac surgery. BMC Nephrol. 2018;19(1):280. doi: 10.1186/s12882-018-1093-0.30342486 PMC6195960",
+      "doi": [
+        "10.1186/s12882-018-1093-0"
+      ]
+    },
+    {
+      "id": "CIT0029",
+      "text": "29Wilson T, Quan S, Cheema K, et al. Risk prediction models for acute kidney injury following major noncardiac surgery: systematic review. Nephrol Dial Transplant. 2016;31(2):231–240. doi: 10.1093/ndt/gfv415.26705194",
+      "doi": [
+        "10.1093/ndt/gfv415"
+      ]
+    },
+    {
+      "id": "CIT0030",
+      "text": "30Wilnes B, Castello-Branco B, Branco BC, et al. Urinary L-FABP as an early biomarker for pediatric acute kidney injury following cardiac surgery with cardiopulmonary bypass: a Systematic Review and Meta-Analysis. Int J Mol Sci. 2024;25(9):4912. doi: 10.3390/ijms25094912.38732152 PMC11084509",
+      "doi": [
+        "10.3390/ijms25094912"
+      ]
+    },
+    {
+      "id": "CIT0031",
+      "text": "31Zager RA, Johnson ACM, Guillem A, et al. A pharmacologic “Stress Test” for assessing select antioxidant defenses in patients with CKD. Clin J Am Soc Nephrol. 2020;15(5):633–642. doi: 10.2215/CJN.15951219.32291269 PMC7269210",
+      "doi": [
+        "10.2215/CJN.15951219"
+      ]
+    },
+    {
+      "id": "CIT0032",
+      "text": "32Rivas Velasquez KM, Hames E, Masri H. Evaluation and management of the older adult with chronic kidney disease. Prim Care. 2014;41(4):857–874. doi: 10.1016/j.pop.2014.08.006.25439538",
+      "doi": [
+        "10.1016/j.pop.2014.08.006"
+      ]
+    },
+    {
+      "id": "CIT0033",
+      "text": "33McCoy IE, Hsu JY, Zhang X, et al. Probing the association between acute kidney injury and cardiovascular outcomes. Clin J Am Soc Nephrol. 2023;18(7):850–857. doi: 10.2215/CJN.0000000000000163.37116457 PMC10356151",
+      "doi": [
+        "10.2215/CJN.0000000000000163"
+      ]
+    },
+    {
+      "id": "CIT0034",
+      "text": "34Kaballo MA, Elsayed ME, Stack AG. Linking acute kidney injury to chronic kidney disease: the missing links. J Nephrol. 2017;30(4):461–475. doi: 10.1007/s40620-016-0359-5.27928735",
+      "doi": [
+        "10.1007/s40620-016-0359-5"
+      ]
+    },
+    {
+      "id": "CIT0035",
+      "text": "35Jiang K, Greenberg JH, Abraham A, et al. Associations of biomarkers of kidney tubule health, injury, and inflammation with left ventricular hypertrophy in children with CKD. Kidney360. 2023;4(8):1039–1047. doi: 10.34067/KID.0000000000000183.37303083 PMC10476681",
+      "doi": [
+        "10.34067/KID.0000000000000183"
+      ]
+    },
+    {
+      "id": "CIT0036",
+      "text": "36Hw Walmrath HD, Seeger W, Nalesso F, et al. Persistent decrease of renal functional reserve in patients after cardiac surgery-associated acute kidney injury despite clinical recovery. Nephrol Dial Transplant. 2019;34(2):308–317. doi: 10.1093/ndt/gfy227.30053231",
+      "doi": [
+        "10.1093/ndt/gfy227"
+      ]
+    },
+    {
+      "id": "CIT0037",
+      "text": "37Yasin MS, Farah RI, Hammad Y, et al. Determining the risk of acute kidney injury in patients who underwent total joint replacement: a retrospective study. J Orthop Sci. 2020;25(6):1029–1034. doi: 10.1016/j.jos.2019.12.007.32014344",
+      "doi": [
+        "10.1016/j.jos.2019.12.007"
+      ]
+    },
+    {
+      "id": "CIT0038",
+      "text": "38Zappitelli M, Parikh CR, Kaufman JS, et al. Acute kidney injury and risk of CKD and hypertension after pediatric cardiac surgery. Clin J Am Soc Nephrol. 2020;15(10):1403–1412. doi: 10.2215/CJN.00150120.32948644 PMC7536759",
+      "doi": [
+        "10.2215/CJN.00150120"
+      ]
+    },
+    {
+      "id": "CIT0039",
+      "text": "39Zhang D, Teng J, Luo Z, et al. Risk factors and prognosis of acute kidney injury after cardiac surgery in patients with chronic kidney disease. Blood Purif. 2023;52(2):166–173. doi: 10.1159/000526120.36030778",
+      "doi": [
+        "10.1159/000526120"
+      ]
+    },
+    {
+      "id": "CIT0040",
+      "text": "40Chen X, Fang M, Yang J, et al. Incidence and outcomes of acute kidney disease in patients after type A aortic dissection surgery. Asian J Surg. 2023;46(3):1207–1214. doi: 10.1016/j.asjsur.2022.08.002.36050242",
+      "doi": [
+        "10.1016/j.asjsur.2022.08.002"
+      ]
+    },
+    {
+      "id": "CIT0041",
+      "text": "41Gameiro J, Carreiro C, Fonseca JA, et al. Acute kidney disease and long-term outcomes in critically ill acute kidney injury patients with sepsis: a cohort analysis. Clin Kidney J. 2021;14(5):1379–1387. doi: 10.1093/ckj/sfaa130.33959267 PMC8087131",
+      "doi": [
+        "10.1093/ckj/sfaa130"
+      ]
+    },
+    {
+      "id": "CIT0042",
+      "text": "42Yan P, Duan XJ, Liu Y, et al. Acute kidney disease in hospitalized acute kidney injury patients. PeerJ. 2021;9:e11400. doi: 10.7717/peerj.11400.34113486 PMC8158174",
+      "doi": [
+        "10.7717/peerj.11400"
+      ]
+    },
+    {
+      "id": "CIT0043",
+      "text": "43Liu KD, Forni LG, Heung M, et al. Quality of care for acute kidney disease: current knowledge gaps and future directions. Kidney Int Rep. 2020;5(10):1634–1642. doi: 10.1016/j.ekir.2020.07.031.33102955 PMC7569680",
+      "doi": [
+        "10.1016/j.ekir.2020.07.031"
+      ]
+    },
+    {
+      "id": "CIT0044",
+      "text": "44Kim K, Bang JY, Kim SO, et al. Association of preoperative hypoalbuminemia with postoperative acute kidney injury in patients undergoing brain tumor surgery: a retrospective study. J Neurosurg. 2018;128(4):1115–1122. doi: 10.3171/2016.11.JNS162237.28474996",
+      "doi": [
+        "10.3171/2016.11.JNS162237"
+      ]
+    },
+    {
+      "id": "CIT0045",
+      "text": "45Gao N, Wang M, Jiang L, et al. [A multicenter clinical study of critically ill patients with sepsis complicated with acute kidney injury in Beijing: incidence, clinical characteristics and outcomes]. Zhonghua Wei Zhong Bing Ji Jiu Yi Xue. 2024;36(6):567–573. Chinese. doi: 10.3760/cma.j.cn121430-20240210-00124.38991953",
+      "doi": [
+        "10.3760/cma.j.cn121430-20240210-00124"
+      ]
+    },
+    {
+      "id": "CIT0046",
+      "text": "46Xie CM, Yao YT, Yang K, et al. Furosemide does not reduce the incidence of postoperative acute kidney injury in adult patients undergoing cardiac surgery: A PRISMA-compliant systematic review and meta-analysis. J Card Surg. 2022;37(12):4850–4860. doi: 10.1111/jocs.17120.36345680",
+      "doi": [
+        "10.1111/jocs.17120"
+      ]
+    },
+    {
+      "id": "CIT0047",
+      "text": "47Zhao C, Liu S, Zhang H, et al. Does dexmedetomidine reduce the risk of acute kidney injury after cardiac surgery? A meta-analysis of randomized controlled trials. Braz J Anesthesiol. 2024;74(3):744446. doi: 10.1016/j.bjane.2023.07.003.37453497 PMC11148486",
+      "doi": [
+        "10.1016/j.bjane.2023.07.003"
+      ]
+    },
+    {
+      "id": "CIT0048",
+      "text": "48Wang Y, Bellomo R. Cardiac surgery-associated acute kidney injury: risk factors, pathophysiology and treatment. Nat Rev Nephrol. 2017;13(11):697–711. doi: 10.1038/nrneph.2017.119.28869251",
+      "doi": [
+        "10.1038/nrneph.2017.119"
+      ]
+    },
+    {
+      "id": "CIT0049",
+      "text": "49Ortega-Loubon C, Fernández-Molina M, Carrascal-Hinojal Y, et al. Cardiac surgery-associated acute kidney injury. Ann Card Anaesth. 2016;19(4):687–698. doi: 10.4103/0971-9784.191578.27716701 PMC5070330",
+      "doi": [
+        "10.4103/0971-9784.191578"
+      ]
+    },
+    {
+      "id": "CIT0050",
+      "text": "50Lee S, Nam S, Bae J, et al. Intraoperative hyperglycemia in patients with an elevated preoperative C-reactive protein level may increase the risk of acute kidney injury after cardiac surgery. J Anesth. 2021;35(1):10–19. doi: 10.1007/s00540-020-02849-w.32886199",
+      "doi": [
+        "10.1007/s00540-020-02849-w"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Wu M, Liu R, Jiang M, Gui X, Yuan J, He Y.",
+  "journal": "Ren Fail",
+  "year": "2026",
+  "pmid": "42157597",
+  "pmcid": "PMC13195704",
+  "doi": "10.1080/0886022x.2026.2646411",
+  "source": {
+    "retrieved_at": "2026-11-14T17:24:59.946017+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13195704/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13195704.xml"
+}

@@ -1,0 +1,1037 @@
+{
+  "key": "42898725",
+  "body_available": true,
+  "title": "QuRad: Radiomics Feature Extraction for QuPath",
+  "source_url": "https://europepmc.org/articles/PMC13678076",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/No claim to original U.S. Government Works. Distributed under a Creative Commons Attribution License (CC BY 4.0).",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Janan Arslan",
+    "Tamara Künzle",
+    "Yeşim Güner",
+    "Agustí Alentorn"
+  ],
+  "copyright": {
+    "statement": "Copyright © 2026 Janan Arslan et al.",
+    "year": "2026",
+    "holder": "Janan Arslan et al."
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "pub",
+        "year": "2026",
+        "month": "10",
+        "day": "19"
+      },
+      {
+        "type": "collection",
+        "year": "2026",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec1-p1",
+          "reference_ids": [
+            "B1",
+            "B2",
+            "B3",
+            "B6",
+            "B7",
+            "B8",
+            "B9",
+            "B10",
+            "B11",
+            "B12"
+          ],
+          "en": "Radiomics extracts quantitative features from medical images to characterize phenotypic patterns that may not be apparent through visual inspection alone. PyRadiomics [1] is a widely used open-source Python package whose feature definitions largely follow the Image Biomarker Standardization Initiative [2], with documented differences in discretization, resampling, and kurtosis. Radiomics was developed for radiology, where it has been used to study tumor heterogeneity, treatment response, sensitivity to tumor delineation, and integration with genomics [3–6]. It has also been applied to histopathology images, where texture- and intensity-based features have shown clinically relevant patterns [7,8]. In melanoma, Finti et al. recently classified nuclei of the PUMA (Panoptic segmentation of nUclei and tissue in advanced MelanomA) dataset with PyRadiomics and HistomicsTK features [9,10], illustrating both the interest in nucleus-level radiomics and the dependence of such analyses on external Python tooling. On the TIGER (tumor-infiltrating lymphocytes in breast cancer) breast-cancer dataset, work has focused on the computational scoring of tumor-infiltrating lymphocytes [11], including a QuPath pipeline that segments tumor and tumor-associated stroma before scoring [12].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec1-p2",
+          "reference_ids": [
+            "B13",
+            "B14",
+            "B15"
+          ],
+          "en": "QuPath is an open-source platform for whole-slide imaging and digital pathology [13]. It provides cell segmentation, tissue detection, object classification, and measurements of morphology, intensity, and Haralick texture, with extensions for methods such as StarDist and Cellpose [14,15]. A standardized radiomic feature set still requires exporting objects and pixels to external tools. QuRad adds this extraction directly to QuPath for cell detections and annotation regions. We compare its outputs with PyRadiomics under matched preprocessing and aggregation settings, benchmark its throughput, and demonstrate cell- and tissue-level classification. Object identifiers and coordinates accompany the measurements so they can be linked to other spatial data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2",
+      "title": "Materials and Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec3",
+      "title": "Experimental and technical design",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec3-p1",
+          "reference_ids": [
+            "F1"
+          ],
+          "en": "The study had 4 components. We implemented radiomic features as a QuPath extension and an equivalent script; verified their numerical agreement with PyRadiomics on identical pixel masks of a benchmark tile, a second histology dataset, and synthetic images; measured the performance in a reproducible benchmark; and demonstrated their utility by the supervised classification of cells (melanoma; PUMA dataset) and tissue compartments (breast cancer; TIGER dataset) with baseline and ablation models. Figure 1B illustrates the user workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4",
+      "title": "Software implementation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4-p1",
+          "reference_ids": [
+            "F1"
+          ],
+          "en": "QuRad is distributed as an installable QuPath extension and as a self-contained Groovy script that share the same feature-extraction code (version 0.4.0 here). QuRad builds only on QuPath’s Java API and the Java standard library and needs no external plugins or libraries. The extension adds a menu command with a settings dialog and works with QuPath 0.6 and 0.7. The script is opened and run in QuPath’s script editor. Figure 1A gives an overview of the extraction workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec5",
+      "title": "Feature set",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec5-p1",
+          "reference_ids": [
+            "T1",
+            "supplementary-material-1"
+          ],
+          "en": "QuRad implements 119 features in 8 classes (Table 1). The 103 features enabled by default are 2-dimensional quantities, and each has a direct PyRadiomics equivalent: first-order statistics (19), 2-dimensional shape (10), gray-level co-occurrence matrix (GLCM, 23), gray-level run-length matrix (GLRLM, 16), gray-level size-zone matrix (GLSZM, 16), neighborhood gray-tone difference matrix (NGTDM, 5), and gray-level dependence matrix (GLDM, 14). Feature names follow the pattern class_FeatureName. Prefixing original_ gives the PyRadiomics name, so exported columns can be mapped programmatically. The eighth class (shape, 16 features) is optional and disabled by default. It reports 2-dimensional quantities under PyRadiomics’ 3-dimensional shape names, for example, shape_MeshVolume for the polygon area, so that pipelines expecting those column names keep working. PyRadiomics computes its 3-dimensional shape features on a single slice as a one-voxel-thick volume, so its values differ from QuRad’s 2-dimensional quantities. The dialog and the documentation therefore mark these features as legacy. Table S1 gives the feature mapping and validation results, and the online Feature Reference defines each feature.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec6",
+      "title": "Conventions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec6-p1",
+          "reference_ids": [
+            "T1",
+            "T1"
+          ],
+          "en": "Table 1 lists every parameter and convention needed to reproduce QuRad’s output. All of them are also written to a machine-readable settings file next to each comma-separated values (CSV) file. QuRad accepts 8-bit RGB brightfield images and refuses other pixel types. Pixels are read at full resolution and converted to a gray level g=299R+587G+114B/1,000 with integer arithmetic. A pixel belongs to a region of interest (ROI) if its center lies inside the ROI polygon. QuRad implements this rule with a Java2D fill of the exact polygon geometry, without stroke widening or anti-aliasing, and pixels outside the image bounds are ignored. Intensities are discretized with a fixed bin width (default 25), with bin edges at multiples of the bin width from zero, as in PyRadiomics. GLCMs are symmetric and are accumulated over the 4 in-plane directions (0°, 45°, 90°, and 135°) at a configurable pixel distance (default 1). GLRLMs are accumulated over the same 4 directions. In both cases, the matrices are summed before the features are computed. This corresponds to the PyRadiomics setting weightingNorm='no_weighting', whereas the PyRadiomics default averages the feature values over the directions. Size zones and dependences use 8-connectivity with α=0. Undefined quantities, such as those of a flat region, follow PyRadiomics (Table 1). Objects whose polygon contains no pixel center are skipped, and the number skipped is reported. Distances and lengths are in pixels, and the pixel calibration is recorded in the output so that texture scale can be related to physical units.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec7",
+      "title": "Output",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec7-p1",
+          "reference_ids": [],
+          "en": "QuRad writes one CSV per image. It contains the features and 9 metadata columns: image name, object identifier, object type, classification, centroid coordinates, number of pixels used, and pixel width and height in micrometers. A JSON file next to it records the software and QuPath versions and all settings. Optionally, the features are also inserted into QuPath’s measurement list, for measurement maps and interactive exploration. The feature routines are statically compiled Groovy code that operates on dense integer matrices. Extraction is single-threaded and deterministic.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec8",
+      "title": "Datasets",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec9",
+      "title": "Numerical validation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec9-p1",
+          "reference_ids": [
+            "B16",
+            "B17",
+            "supplementary-material-1"
+          ],
+          "en": "We used 3 kinds of input. (a) A single breast-cancer tissue-microarray tile (896 × 768 pixels, 410 labeled cells) from the UCSB Bio-Segmentation benchmark [16], whose label image provides a raster ground truth for the masks. (b) The first 20 primary-melanoma tiles of the PUMA training set [17] (ROIs 001 to 020, 1,024×1,024 pixels, hematoxylin and eosin [H&E], 8,649 annotated nuclei). They come from a different scanner and a different tissue, and their polygons are hand-annotated and vary in size and shape. (c) Twenty-five synthetic ROIs on deterministic images (uniform, checkerboard, gradient, 2-level, noise and random-color images). They comprise square, circular, elongated, star-shaped, ring-shaped, sub-pixel-offset, border-touching and border-crossing polygons, ROIs of 1 to 25 pixels, and ROIs of up to 512 × 512 pixels. Table S2 lists them, and for several of them, the feature values are known analytically.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec10",
+      "title": "Classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec10-p1",
+          "reference_ids": [
+            "B11",
+            "B18"
+          ],
+          "en": "From PUMA, we used the same 20 tiles and kept tumor cells (n=4,130) and lymphocytes (n=2,056), 6,186 nuclei in total. The other cell types were not used. From the TIGER breast-cancer dataset [11,18], we used the region annotations of 6 whole-slide images (100B, 154B, 198B, 207B, 234B, and 242B). We kept invasive tumor (n=103), tumor-associated stroma (n=62), and healthy glands (n=32), 197 regions in total. Classes with fewer than 30 annotations (in situ tumor, necrosis, and a residual “rest” category) were excluded. Healthy glands occur in only 2 of the 6 slides (100B and 198B). The classification feature tables of both datasets were produced with QuRad 0.4 as an extension in QuPath 0.7, with the nucleus (PUMA) and region (TIGER) annotations imported as QuPath objects. The PUMA objects are annotated nuclei imported into QuPath, whereas the whole-slide timing experiment uses automatically detected cells. The PUMA tables agree with the command-line runner output used for the numerical validation to within 3 × 10−15 on every nucleus.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec11",
+      "title": "Human and animal research",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec11-p1",
+          "reference_ids": [],
+          "en": "This study used only publicly available, de-identified image datasets and involved no new experimentation on humans or animals. The validation, PUMA, and TIGER datasets were obtained from their respective public repositories (see Data Availability).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec12",
+      "title": "Numerical validation against PyRadiomics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec12-p1",
+          "reference_ids": [
+            "T1"
+          ],
+          "en": "Both implementations were given identical inputs, so that only the feature computation is compared. A command-line runner distributed with the source code uses the same calculator as the extension and the script on an image and a set of GeoJSON objects. Its output agrees with that of the extension run inside QuPath (see the “Datasets” section). For every object, it exports the pixel mask it used and the grayscale image it computed. PyRadiomics 3.0.1 was then run on these masks and this grayscale image with the settings of Table 1, with all optional features enabled (firstorder_StandardDeviation, shape2D_SphericalDisproportion, shape_Compactness1/2, and shape_SphericalDisproportion) and with weightingNorm='no_weighting'. A second PyRadiomics run used its default angle aggregation, to measure the effect of this setting. For the benchmark tile, the GeoJSON polygons were traced from the label image with marching squares and shifted by half a pixel into QuPath’s coordinate system. The pixel-center rule must then reproduce the label image exactly. We verified this for every cell, and we verified that the grayscale images computed in Java and in NumPy are identical.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec12-p2",
+          "reference_ids": [
+            "B19",
+            "B20",
+            "B21",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1"
+          ],
+          "en": "For every feature we computed, across objects, Pearson’s r, Lin’s concordance correlation coefficient (CCC) [19], the intraclass correlation coefficient ICC(2,1) for absolute agreement [20], the mean, median, and maximum absolute error, the median and maximum relative error, the slope and intercept of QuRad regressed on PyRadiomics, and Bland–Altman statistics [21] (Table S1 and Figs. S1 and S2). A feature meets the agreement tolerance when its maximum absolute or maximum relative error over all objects is below 10−9, with relative errors computed only where the PyRadiomics value exceeds 10−12 in magnitude. This threshold is larger than double-precision rounding errors (about 10−16) and smaller than the differences caused by a change of convention, such as the angle aggregation (at least 2 × 10−3, see the “Numerical agreement with PyRadiomics” section). Unit tests in the source tree additionally check analytically derived values for uniform, checkerboard, and small synthetic inputs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec13",
+      "title": "Performance benchmark",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec13-p1",
+          "reference_ids": [
+            "supplementary-material-1",
+            "supplementary-material-1"
+          ],
+          "en": "We timed QuRad on a complete whole-slide image and in a scaling experiment. On TIGER slide 100B (67,456 × 37,376 pixels), the cells were detected with QuPath’s built-in cell detection (default 5 μm cell expansion) and processed by the extension in QuPath 0.7 on a laptop (Apple M2, 16 GB). In the scaling experiment, the command-line runner processed the 634 nuclei of PUMA tile 001 in 1 to 40 passes (634 to 25,360 objects, nucleus areas 23 to 1,568 pixels, median 275) on an AMD EPYC 7643 server (OpenJDK 21.0.11). QuRad runs on one thread. Times cover region reading, rasterization, and the computation of the 103 default features. CSV writing was timed separately, and insertion into the measurement list is not included. Memory is the sum of the peak use of the JVM heap pools. The Supplementary Materials give the full protocol and 2 further experiments, on ROI size and on single feature classes (Fig. S3 and Table S3).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec14",
+      "title": "Classification analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec14-p1",
+          "reference_ids": [
+            "B22",
+            "B23",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "B24",
+            "B25"
+          ],
+          "en": "Classification was performed with scikit-learn 1.7.2 [22] using a Pipeline whose data-dependent steps are fitted on the training fold only and then applied to the held-out fold: median imputation, removal of constant features, greedy pruning of feature pairs with r>0.90 (the feature with the higher mean absolute correlation to all others is dropped), and standardization. The classifier was a random forest [23] with 500 trees, class_weight='balanced', a minimum split size of 2 and a maximum depth of 15 (PUMA) or 10 (TIGER). The hyperparameters were fixed a priori and not tuned, and the random seeds were 42 (PUMA) and 0 (TIGER). Cross-validation was grouped by image, so that no image contributed to both the training and the test fold. PUMA used 5 folds of 4 tiles. The 6 TIGER slides were split into 3 folds, which GroupKFold filled with 1, 2, and 3 slides to balance the number of regions, and were also evaluated leave-one-slide-out. Fold assignments are listed in Table S4. Both main models used the 103 default features. Ablations repeated the pipeline on 7 feature sets: (a) 10 basic morphology and intensity measurements comparable to QuPath’s built-in cell measurements (area, perimeter, major and minor axis, elongation, sphericity, mean, standard deviation, and minimum and maximum intensity), taken from the QuRad output so that they are computed on the same pixel masks as the other sets; (b) first-order features only; (c) 2-dimensional shape only; (d) texture only; (e) first-order plus shape; (f) first-order plus texture without any shape feature; and (g) all features including the legacy shape class. Feature importance was summarized as the mean decrease in impurity averaged over folds, together with the number of folds in which a feature survived the correlation filter (Table S5). Figure S4 shows the correlation structure of the unfiltered features, ordered by class. Low-dimensional structure was visualized with Uniform Manifold Approximation and Projection (UMAP) [24] on the standardized, correlation-pruned features of a class-balanced subsample of 3,000 PUMA nuclei and of the 197 TIGER regions. Class signatures were shown with a clustered heatmap of the mean z-scored features per class [25].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec15",
+      "title": "Statistical analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec15-p1",
+          "reference_ids": [
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1"
+          ],
+          "en": "Agreement statistics are described above and are reported per feature in Table S1. Over features, we report the median and minimum of r, CCC, and ICC; the number of features within tolerance; and the largest relative error. Classification performance is the macro-F1 of the pooled out-of-fold predictions over all task classes. The mean ± SD of the fold macro-F1 describes the variation between held-out sets, and Table S4 explains how folds that lack a class are scored. Out-of-fold confusion matrices are shown in Fig. S5, per-fold results are shown in Table S4, and per-image results are shown in Table S6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec16",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec17",
+      "title": "Numerical agreement with PyRadiomics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec17-p1",
+          "reference_ids": [
+            "T2",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "supplementary-material-1"
+          ],
+          "en": "On the benchmark tile, the pixel masks used by QuRad were identical to the label image for all 410 cells, and the grayscale images computed in Java and in NumPy were identical pixel for pixel. Under matched settings, all 103 default features met the combined 10−9 tolerance. The largest relative error was about 1.0 × 10−9, for NGTDM contrast, whose absolute error was below the 10−9 threshold. The median of the per-feature maxima was 6 × 10−16. Pearson’s r, CCC, and ICC(2,1) were therefore 1.000 for every feature, and the regression slopes and intercepts were 1 and 0 to numerical precision (Table 2, Table S1, and Figs. S1 and S2).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec17-p2",
+          "reference_ids": [
+            "supplementary-material-1"
+          ],
+          "en": "On the PUMA tiles, PyRadiomics refused 5 of the 8,649 extracted nuclei because they were narrower than 2 pixels, so 8,644 nuclei were compared. Of the 103 features, 97 met the tolerance. The 6 remaining ones are the polygon-based shape features. QuRad measures the annotation polygon as drawn, whereas PyRadiomics reconstructs a marching-squares mesh from the raster, which cuts the corners of a pixelated outline. For polygons traced from the label image with marching squares, as on the benchmark tile, both coincide exactly. For the hand-drawn PUMA polygons, the perimeter differed by a median of 1.6% in either direction (CCC 0.996), the area differed by 0.3% (CCC 1.000), and the sphericity differed by 1.7% (CCC 0.94). The synthetic shapes show the same effect (Table S2): for a 20 × 20 square, the mesh gives an area of 399.5 and a perimeter of 78.8 against 400 and 80 for the polygon, and for a circle of radius 15, the mesh perimeter is 6% longer. PyRadiomics accepted 22 of the 25 synthetic ROIs and refused the 1-pixel, 1 × 2-pixel and 1 × 40-pixel ones. On all 22, every intensity and texture feature met the tolerance, including the uniform, near-uniform, one-bin, border-crossing, ring-shaped, and 512 × 512-pixel regions. All analytically expected values were reproduced: for example, entropy 0 and joint energy 1 for a uniform region, mean 50 and entropy 1 for a 0/100 checkerboard, and coarseness 106 for a flat region.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec18",
+      "title": "Angle aggregation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec18-p1",
+          "reference_ids": [],
+          "en": "We also compared QuRad with the PyRadiomics default, which averages the feature values over the 4 directions. Under that convention, 65 of the 103 features met the tolerance on the benchmark tile, but 38 GLCM and GLRLM features differed. The median relative error was 0.4% for the GLCM features and 2.6% for the GLRLM features, and the differences were much larger for individual cells (up to 46% for glrlm_LongRunEmphasis). The nonnormalized nonuniformity features glrlm_GrayLevelNonUniformity and glrlm_RunLengthNonUniformity were approximately 4-fold larger on this tile when the matrices were summed over 4 directions. Users who compare QuRad with PyRadiomics defaults must therefore expect these differences.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec18-p2",
+          "reference_ids": [
+            "supplementary-material-1"
+          ],
+          "en": "Of the 16 legacy 3D-named shape features, 6 coincide numerically with PyRadiomics on the benchmark tile: shape_VoxelVolume, shape_MajorAxisLength, shape_MinorAxisLength, shape_Elongation, shape_Maximum3DDiameter, and shape_Maximum2DDiameterSlice. On the hand-drawn PUMA polygons, the last 2 also differ. The other 10 do not coincide. For example, shape_Sphericity has r=−0.08, shape_SurfaceArea has CCC 0.02, and shape_LeastAxisLength is constant 0 in PyRadiomics. This is expected because PyRadiomics evaluates the mask as a one-voxel-thick volume. Table S1 lists them.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec19",
+      "title": "Throughput",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec19-p1",
+          "reference_ids": [
+            "supplementary-material-1"
+          ],
+          "en": "On the complete TIGER slide, QuRad processed 184,242 cells (mean 559 pixels) in 161.6 s, or 1,140 cells per second on the laptop, including reading the tiles from the slide file. In the server scaling experiment, the throughput rose from 283 objects per second for 634 nuclei, with just-in-time compilation overhead, to 1,900 objects per second for 25,360 nuclei (Fig. S3). The largest run used 910 MiB of heap memory, and writing its CSV took 1.32 s.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec20",
+      "title": "Radiomic features distinguish tumor cells from lymphocytes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec20-p1",
+          "reference_ids": [
+            "T3",
+            "F2",
+            "supplementary-material-1",
+            "supplementary-material-1",
+            "T4",
+            "F2"
+          ],
+          "en": "With fold-internal preprocessing, 62 to 63 of the 103 default features survived the correlation filter in each fold. The random forest separated tumor cells from lymphocytes with a pooled out-of-fold macro-F1 of 0.853 (mean over folds 0.838 ± 0.022, Table 3 and Fig. 2A). The per-tile macro-F1 ranged from 0.62 to 0.95. Across all PUMA nuclei, the most internally redundant classes are shape2D (20% of within-class pairs with r>0.9), first-order (12%), and GLCM (10%). GLRLM, GLSZM, NGTDM, and GLDM contain few redundant pairs (at most 2.2%, Fig. S4). The most important features were firstorder_Energy, shape2D_MajorAxisLength, glszm_LargeAreaHighGrayLevelEmphasis, glrlm_GrayLevelNonUniformity, and gldm_DependenceVariance, each retained in all 5 folds (Table S5). Lymphocytes have smaller and darker nuclei, hence lower energy, a shorter major axis and fewer large bright zones, and a more heterogeneous dependence structure. In the ablation (Table 4), texture features alone reach a macro-F1 of 0.839; first-order plus shape features, 0.855; and the 10 basic measurements, 0.843; thus, these feature sets performed similarly in this task. Including the legacy shape class changed the pooled score by 0.001. The UMAP of the unsupervised, correlation-pruned feature space shows only a gradual separation of the 2 populations (Fig. 2B).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec21",
+      "title": "Radiomic features classify tissue compartments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec21-p1",
+          "reference_ids": [
+            "T3",
+            "T4",
+            "supplementary-material-1",
+            "F2",
+            "F2"
+          ],
+          "en": "On the TIGER regions, 37 to 43 features survived the fold-internal filter. The random forest reached a pooled macro-F1 of 0.696 under 3-fold cross-validation grouped by slide (mean over folds 0.694 ± 0.057, Table 3). Leave-one-slide-out evaluation gave a pooled macro-F1 of 0.671 with a wide spread over folds (0.60 ± 0.16). Healthy glands are present in only 2 slides, so when one of them is held out, the model must recognize glands from the other slide alone. In the ablation (Table 4), shape features alone reach only 0.54. Texture features alone reach 0.711; intensity plus texture without any shape feature, 0.694; and the full model, 0.696. The baseline of 10 basic measurements reaches 0.651. Apart from shape alone, the differences between these feature sets are within the spread over folds. The leading model feature was glcm_DifferenceVariance, retained in 2 of 3 folds, while firstorder_90Percentile was retained in all 3 (Table S5). The UMAP of individual regions shows partial separation, because the regions within each compartment vary widely (Fig. 2C). The class means, shown as z-scores in the clustered heatmap, nevertheless form a distinct signature for each compartment (Fig. 2D). In the class medians over all regions, tumor-associated stroma is the brightest and most homogeneous compartment: the median of the mean gray level is 156 versus 134 in invasive tumor; the 10th percentile, 108 versus 77; and the interquartile range, 41 versus 61. This fits eosinophilic collagen with sparse nuclei. Healthy glands combine the strongest local contrast and cluster prominence (GLCM contrast 1.02 versus 0.66 in tumor, cluster prominence 453 versus 247) with a wide intensity spread, which aligns with the alternation of dark, densely packed epithelial nuclei with bright lumina and stroma. Invasive tumor regions are the darkest, with intermediate texture, as expected from high nuclear density and the loss of glandular architecture.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec22",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec22-p1",
+          "reference_ids": [],
+          "en": "Under matched settings, all 103 default features met the numerical tolerance on the breast-cancer benchmark, as did all intensity and texture features on the PUMA nuclei and on the synthetic regions that PyRadiomics accepted. Six shape features differed on hand-drawn polygons because QuRad measures the original polygon, whereas PyRadiomics reconstructs a mesh from its pixel mask. GLCM and GLRLM feature values also depend on how the 4 directions are combined, so QuRad records its matrix-summation convention in the exported settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec22-p2",
+          "reference_ids": [
+            "B9"
+          ],
+          "en": "For the melanoma nuclei, the radiomic features separated tumor cells from lymphocytes, but the 10 basic measurements performed about as well. For the breast-cancer tissue regions, texture alone scored highest, removing the shape features changed little, and the class profiles aligned with the known histology of each compartment. These are point estimates without significance tests, and several intensity and texture features also depend on ROI size. Finti et al. [9] reported higher performance for PyRadiomics than for HistomicsTK in their PUMA tumor-versus-nontumor experiment, but their labels and evaluation differ from ours, so the scores are not directly comparable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec22-p3",
+          "reference_ids": [
+            "B10"
+          ],
+          "en": "The classification experiments are limited to a deterministic subset of 20 PUMA tiles and 6 TIGER slides, with healthy glands present in only 2 slides. Grouping by PUMA tile does not guarantee independence between patients, and there was no external validation set. The implementation accepts luminance-converted 8-bit RGB images only, without stain-separated channels, higher bit depths, or PyRadiomics’ filtered inputs. All features use native-resolution pixels. Adjusting the GLCM distance changes only its sampling offset and does not harmonize the other texture families or pixel-based shape measurements across resolutions, so such comparisons require a consistent spatial scale. Future work could add stain-specific channels and parallel extraction, and HistomicsTK’s nucleus-level and stain-specific measurements [10] could complement the current feature set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec22-p4",
+          "reference_ids": [
+            "B7",
+            "B9"
+          ],
+          "en": "In summary, QuRad brings a standardized radiomic feature set into the QuPath workflow, and its default feature values closely match PyRadiomics on identical pixel masks under matched settings. Its features distinguished tumor cells from lymphocytes and classified 3 tissue compartments of breast cancer, in line with earlier radiomic studies of histology [7,9]. They can carry biologically meaningful information, which users can explore directly in QuPath.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-24",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-24-p1",
+          "reference_ids": [],
+          "en": "During the preparation of this work, the authors used AI-assisted tools to support software development and to improve the language of the manuscript. The authors reviewed and verified all outputs and take full responsibility for the content of the article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-24-p2",
+          "reference_ids": [],
+          "en": "Funding: This project is cofunded by the European Union’s Horizon Europe research and innovation programme Cofund SOUND.AI under the Marie Skłodowska-Curie Grant Agreement No 101081674. It is also supported by the Agence Nationale de la Recherche (ANR) JCJC LOCimm (ANR-23-CE17-0027-01) and by the BRAINTWIN project funded under France 2030 through the PEPR Santé Numérique programme (ref. 25-PESN-0002). Additional support was provided by the MultiPOLA project funded by the Institut national du cancer (INCa, OSIRIS25).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-24-p3",
+          "reference_ids": [],
+          "en": "Author contributions: J.A.: Conceptualization, methodology, software, validation, and writing—review and editing. T.K.: Conceptualization, methodology, software, validation, writing—original draft, writing—review and editing, and visualization. Y.G.: Conceptualization, validation, and writing—review and editing. A.A.: Conceptualization, supervision, validation, writing—review and editing, and resources.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-24-p4",
+          "reference_ids": [],
+          "en": "Competing interests: The authors declare that they have no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-25",
+      "title": "Data Availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-25-p1",
+          "reference_ids": [
+            "B16",
+            "B17",
+            "B18"
+          ],
+          "en": "The QuRad source code and documentation are openly available at https://github.com/institutducerveau/QuRad under the MIT license. The version evaluated here, 0.4.0, is archived on Zenodo (https://doi.org/10.5281/zenodo.23062835). The repository contains the feature tables of all 3 datasets, the PyRadiomics comparison tables, the benchmark timings, the 3 notebooks and the helper scripts that produce every table and figure panel of the results, and their outputs. The image used for validation is a single breast-cancer tissue-microarray tile from the UCSB Bio-Segmentation benchmark [16], available under a Creative Commons Attribution 3.0 (CC BY 3.0) license and redistributed with attribution. The biological application datasets are publicly available: the PUMA melanoma dataset [17] from the PUMA Grand Challenge (https://puma.grand-challenge.org/) and the TIGER breast-cancer dataset [18] from the TIGER Grand Challenge (https://tiger.grand-challenge.org/).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "supplementary-material-1",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "T1",
+      "label": "Table 1.",
+      "caption": "Parameters and conventions of QuRad 0.4 and the PyRadiomics 3.0.1 configuration that reproduces them",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Aspect",
+          "QuRad",
+          "PyRadiomics setting"
+        ],
+        [
+          "Input",
+          "8-bit RGB brightfield image, read at full resolution (other pixel types refused)",
+          "force2D=True"
+        ],
+        [
+          "Grayscale",
+          "299R+587G+114B1,000, integer arithmetic",
+          "Same conversion applied before extraction"
+        ],
+        [
+          "Pixel mask",
+          "Pixel included if its center lies inside the ROI polygon (Java2D fill of the exact geometry, no stroke widening or anti-aliasing), clipped to the image",
+          "Label mask"
+        ],
+        [
+          "Discretization",
+          "Fixed bin width 25 (configurable), edges at multiples of the width from 0",
+          "binWidth=25, normalize=False"
+        ],
+        [
+          "Intensity shift",
+          "0",
+          "voxelArrayShift=0"
+        ],
+        [
+          "GLCM",
+          "Symmetric, distance 1 px (configurable), 4 directions (0°, 45°, 90°, and 135°), matrices summed",
+          "symmetricalGLCM=True, distances=[1], weightingNorm='no_weighting'"
+        ],
+        [
+          "GLRLM",
+          "Same 4 directions, matrices summed",
+          "weightingNorm='no_weighting'"
+        ],
+        [
+          "GLSZM, GLDM, NGTDM",
+          "8-connectivity, distance 1, α=0",
+          "Defaults"
+        ],
+        [
+          "Percentiles, median",
+          "Linear interpolation",
+          "Default"
+        ],
+        [
+          "Undefined values",
+          "Flat region: entropy 0, uniformity 1, skewness and kurtosis 0, GLCM correlation 1, informational measures of correlation (IMC1 and IMC2) 0, coarseness 106, and 0 for any other zero denominator",
+          "Same"
+        ],
+        [
+          "Default classes",
+          "First-order 19, shape2D 10, GLCM 23, GLRLM 16, GLSZM 16, NGTDM 5, GLDM 14 (103 features)",
+          "All enabled explicitly, including optional features"
+        ],
+        [
+          "Optional class",
+          "Legacy 3D-named shape (16), off by default",
+          "Not comparable (one-voxel-thick volume)"
+        ],
+        [
+          "Metadata",
+          "Image, object ID, type, class, centroid, pixel count, pixel calibration, settings JSON file",
+          "–"
+        ],
+        [
+          "Threads",
+          "1",
+          "–"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" position=\"float\" id=\"T1\" orientation=\"portrait\"><label>Table 1.</label><caption><p>Parameters and conventions of QuRad 0.4 and the PyRadiomics 3.0.1 configuration that reproduces them</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"1\" colspan=\"1\">Aspect</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">QuRad</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">PyRadiomics setting</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Input</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">8-bit RGB brightfield image, read at full resolution (other pixel types refused)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<monospace>force2D=True</monospace>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Grayscale</td><td align=\"left\" rowspan=\"1\" colspan=\"1\"><inline-formula><ns0:math id=\"M1\" display=\"inline\" overflow=\"scroll\"><ns0:mfenced open=\"⌊\" close=\"⌋\"><ns0:mfrac><ns0:mfenced open=\"(\" close=\")\"><ns0:mrow><ns0:mn>299</ns0:mn><ns0:mi>R</ns0:mi><ns0:mo>+</ns0:mo><ns0:mn>587</ns0:mn><ns0:mi>G</ns0:mi><ns0:mo>+</ns0:mo><ns0:mn>114</ns0:mn><ns0:mi>B</ns0:mi></ns0:mrow></ns0:mfenced><ns0:mn>1,000</ns0:mn></ns0:mfrac></ns0:mfenced></ns0:math></inline-formula>, integer arithmetic</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Same conversion applied before extraction</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Pixel mask</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Pixel included if its center lies inside the ROI polygon (Java2D fill of the exact geometry, no stroke widening or anti-aliasing), clipped to the image</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Label mask</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Discretization</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Fixed bin width 25 (configurable), edges at multiples of the width from 0</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<monospace>binWidth=25, normalize=False</monospace>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Intensity shift</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<monospace>voxelArrayShift=0</monospace>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">GLCM</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Symmetric, distance 1 px (configurable), 4 directions (0°, 45°, 90°, and 135°), matrices summed</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<monospace>symmetricalGLCM=True, distances=[1], weightingNorm='no_weighting'</monospace>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">GLRLM</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Same 4 directions, matrices summed</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<monospace>weightingNorm='no_weighting'</monospace>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">GLSZM, GLDM, NGTDM</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">8-connectivity, distance 1, <inline-formula><ns0:math id=\"M2\" display=\"inline\" overflow=\"scroll\"><ns0:mi>α</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0</ns0:mn></ns0:math></inline-formula></td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Defaults</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Percentiles, median</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Linear interpolation</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Default</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Undefined values</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Flat region: entropy 0, uniformity 1, skewness and kurtosis 0, GLCM correlation 1, informational measures of correlation (IMC1 and IMC2) 0, coarseness 10<sup>6</sup>, and 0 for any other zero denominator</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Same</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Default classes</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">First-order 19, shape2D 10, GLCM 23, GLRLM 16, GLSZM 16, NGTDM 5, GLDM 14 (103 features)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">All enabled explicitly, including optional features</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Optional class</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Legacy 3D-named shape (16), off by default</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Not comparable (one-voxel-thick volume)</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Metadata</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Image, object ID, type, class, centroid, pixel count, pixel calibration, settings JSON file</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">–</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Threads</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">–</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "T2",
+      "label": "Table 2.",
+      "caption": "Feature-wise agreement between QuRad 0.4 and PyRadiomics 3.0.1 on identical masks (default 103 features, matched angle aggregation). Within tolerance: maximum absolute error or maximum relative error <10−9, with reference magnitudes ≤10−12 excluded from relative errors. PUMA excludes 5 nuclei refused by PyRadiomics. ICC(2,1) equals the CCC to 3 decimals in all cases. The 6 polygon-based shape features are shape2D_MeshSurface, shape2D_Perimeter, shape2D_PerimeterSurfaceRatio, shape2D_Sphericity, shape2D_SphericalDisproportion, and shape2D_MaximumDiameter.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Objects",
+          "Features within tolerance",
+          "Median (min) r",
+          "Median (min) CCC",
+          "Largest relative error"
+        ],
+        [
+          "UCSB breast tile",
+          "410",
+          "103/103",
+          "1.000 (1.000)",
+          "1.000 (1.000)",
+          "1.0×10−9 (NGTDM contrast)"
+        ],
+        [
+          "PUMA, 20 tiles",
+          "8,644",
+          "97/103",
+          "1.000 (0.955)",
+          "1.000 (0.942)",
+          "0.38 (maximum diameter)"
+        ],
+        [
+          "Synthetic ROIs",
+          "22",
+          "97–98/103",
+          "–",
+          "–",
+          "Polygon-based shape features only"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"T2\" orientation=\"portrait\"><label>Table 2.</label><caption><p>Feature-wise agreement between QuRad 0.4 and PyRadiomics 3.0.1 on identical masks (default 103 features, matched angle aggregation). Within tolerance: maximum absolute error or maximum relative error &lt;10<sup>−9</sup>, with reference magnitudes ≤10<sup>−12</sup> excluded from relative errors. PUMA excludes 5 nuclei refused by PyRadiomics. ICC(2,1) equals the CCC to 3 decimals in all cases. The 6 polygon-based shape features are shape2D_MeshSurface, shape2D_Perimeter, shape2D_PerimeterSurfaceRatio, shape2D_Sphericity, shape2D_SphericalDisproportion, and shape2D_MaximumDiameter.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"1\" colspan=\"1\">Dataset</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Objects</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Features within tolerance</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Median (min) <italic toggle=\"yes\">r</italic></th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Median (min) CCC</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Largest relative error</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">UCSB breast tile</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">410</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">103/103</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.000 (1.000)</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.000 (1.000)</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.0×10<sup>−9</sup> (NGTDM contrast)</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PUMA, 20 tiles</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8,644</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">97/103</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.000 (0.955)</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.000 (0.942)</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.38 (maximum diameter)</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Synthetic ROIs</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">22</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">97–98/103</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">Polygon-based shape features only</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "T3",
+      "label": "Table 3.",
+      "caption": "Classification performance with fold-internal preprocessing. Precision, recall, and F1 are computed on the pooled out-of-fold predictions, and fold macro-F1 is given as mean ± SD over folds. PUMA: 5-fold grouped by tile, n=6,186 nuclei. TIGER: 3-fold grouped by slide, n=197 regions.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Class",
+          "Precision",
+          "Recall",
+          "F1"
+        ],
+        [
+          "PUMA",
+          "Lymphocyte",
+          "0.82",
+          "0.78",
+          "0.80"
+        ],
+        [
+          "PUMA",
+          "Tumor",
+          "0.89",
+          "0.92",
+          "0.90"
+        ],
+        [
+          "PUMA",
+          "Macro average",
+          "0.86",
+          "0.85",
+          "0.853"
+        ],
+        [
+          "PUMA",
+          "Fold macro-F1",
+          "–",
+          "–",
+          "0.838 ± 0.022"
+        ],
+        [
+          "TIGER",
+          "Healthy glands",
+          "0.75",
+          "0.66",
+          "0.70"
+        ],
+        [
+          "TIGER",
+          "Invasive tumor",
+          "0.70",
+          "0.81",
+          "0.75"
+        ],
+        [
+          "TIGER",
+          "Tumor-associated stroma",
+          "0.71",
+          "0.58",
+          "0.64"
+        ],
+        [
+          "TIGER",
+          "Macro average",
+          "0.72",
+          "0.68",
+          "0.696"
+        ],
+        [
+          "TIGER",
+          "Fold macro-F1",
+          "–",
+          "–",
+          "0.694 ± 0.057"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" position=\"float\" id=\"T3\" orientation=\"portrait\"><label>Table 3.</label><caption><p>Classification performance with fold-internal preprocessing. Precision, recall, and F1 are computed on the pooled out-of-fold predictions, and fold macro-F1 is given as mean ± SD over folds. PUMA: 5-fold grouped by tile, <inline-formula><ns0:math id=\"M13\" display=\"inline\" overflow=\"scroll\"><ns0:mi>n</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>6,186</ns0:mn></ns0:math></inline-formula> nuclei. TIGER: 3-fold grouped by slide, <inline-formula><ns0:math id=\"M14\" display=\"inline\" overflow=\"scroll\"><ns0:mi>n</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>197</ns0:mn></ns0:math></inline-formula> regions.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"1\" colspan=\"1\">Dataset</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Class</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Precision</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Recall</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">F1</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PUMA</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Lymphocyte</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.82</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.78</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.80</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PUMA</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Tumor</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.89</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.92</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.90</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PUMA</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Macro average</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.86</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.85</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.853</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PUMA</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Fold macro-F1</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.838 ± 0.022</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">TIGER</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Healthy glands</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.75</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.66</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.70</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">TIGER</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Invasive tumor</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.70</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.81</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.75</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">TIGER</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Tumor-associated stroma</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.71</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.58</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.64</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">TIGER</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Macro average</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.68</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.696</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">TIGER</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Fold macro-F1</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">–</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.694 ± 0.057</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "T4",
+      "label": "Table 4.",
+      "caption": "Ablation over feature families (pooled out-of-fold macro-F1, with the mean ± SD over folds in brackets). “Basic” denotes 10 morphology and intensity measurements comparable to QuPath’s built-in cell measurements, computed on the same masks.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Feature set",
+          "Features",
+          "PUMA",
+          "TIGER"
+        ],
+        [
+          "Basic morphology/intensity",
+          "10",
+          "0.843 [0.83 ± 0.02]",
+          "0.651 [0.66 ± 0.03]"
+        ],
+        [
+          "First-order only",
+          "19",
+          "0.832 [0.82 ± 0.02]",
+          "0.676 [0.68 ± 0.04]"
+        ],
+        [
+          "Shape 2D only",
+          "10",
+          "0.766 [0.75 ± 0.02]",
+          "0.538 [0.53 ± 0.15]"
+        ],
+        [
+          "Texture only",
+          "74",
+          "0.839 [0.83 ± 0.03]",
+          "0.711 [0.71 ± 0.08]"
+        ],
+        [
+          "First-order + shape 2D",
+          "29",
+          "0.855 [0.84 ± 0.02]",
+          "0.663 [0.66 ± 0.03]"
+        ],
+        [
+          "First-order + texture",
+          "93",
+          "0.838 [0.82 ± 0.02]",
+          "0.694 [0.69 ± 0.03]"
+        ],
+        [
+          "All nonlegacy features",
+          "103",
+          "0.853 [0.84 ± 0.02]",
+          "0.696 [0.69 ± 0.06]"
+        ],
+        [
+          "All + legacy shape",
+          "119",
+          "0.854 [0.84 ± 0.02]",
+          "0.701 [0.69 ± 0.08]"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"T4\" orientation=\"portrait\"><label>Table 4.</label><caption><p>Ablation over feature families (pooled out-of-fold macro-F1, with the mean ± SD over folds in brackets). “Basic” denotes 10 morphology and intensity measurements comparable to QuPath’s built-in cell measurements, computed on the same masks.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" rowspan=\"1\" colspan=\"1\">Feature set</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">Features</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">PUMA</th><th align=\"center\" rowspan=\"1\" colspan=\"1\">TIGER</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Basic morphology/intensity</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">10</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.843 [0.83 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.651 [0.66 ± 0.03]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">First-order only</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">19</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.832 [0.82 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.676 [0.68 ± 0.04]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Shape 2D only</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">10</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.766 [0.75 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.538 [0.53 ± 0.15]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Texture only</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">74</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.839 [0.83 ± 0.03]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.711 [0.71 ± 0.08]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">First-order + shape 2D</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">29</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.855 [0.84 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.663 [0.66 ± 0.03]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">First-order + texture</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">93</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.838 [0.82 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.694 [0.69 ± 0.03]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">All nonlegacy features</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">103</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.853 [0.84 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.696 [0.69 ± 0.06]</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">All + legacy shape</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">119</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.854 [0.84 ± 0.02]</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.701 [0.69 ± 0.08]</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "F1",
+      "label": "Fig. 1.",
+      "caption": "The QuRad workflow. (A) Per-object feature extraction, illustrated on one labeled cell of the breast-cancer benchmark tile: the region of the object is read at full resolution, the polygon is rasterized with the pixel-center rule (orange outline), the pixels are converted to gray levels and discretized with a fixed bin width, and the texture matrices are accumulated over the 4 in-plane directions. The co-occurrence matrix of this object is shown with discretized gray-level bins on both axes, and the bar gives the composition of the 103 features computed by default. Scale bar, 20 μm. (B) The same run as the user performs it in QuPath with the default settings: the image holds the cell detections (blue), the feature classes are chosen in the dialog, every detection is measured, and the values are used inside QuPath, here to shade each nucleus by its mean gray level.",
+      "caption_zh": "",
+      "graphics": [
+        "csbj.0238.fig.001.webp"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F2",
+      "label": "Fig. 2.",
+      "caption": "Application of QuRad features. (A) Three PUMA melanoma tiles (001, 004, and 006, 1,024×1,024 pixels at 0.227 μm per pixel) showing the H&E image, the ground-truth annotations, and the out-of-fold random-forest predictions (tumor = vermilion, lymphocyte = blue, pooled macro-F1 = 0.85 over all 20 tiles). Scale bars, 50 μm. (B) Unsupervised UMAP of the standardized, correlation-pruned QuRad features of a class-balanced subsample of 3,000 PUMA nuclei. (C) Unsupervised UMAP of the 197 TIGER regions (invasive tumor = vermilion, tumor-associated stroma = blue, healthy glands = black). (D) Mean z-scored value per tissue type of the 19 features retained by the correlation filter in every fold, with hierarchical clustering of rows and columns. The bars give the number of regions per class.",
+      "caption_zh": "",
+      "graphics": [
+        "csbj.0238.fig.002.webp"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "B1",
+      "text": "1.van Griethuysen JJM, Fedorov A, Parmar C, Hosny A, Aucoin N, Narayan V, Beets-Tan RGH, Fillion-Robin JC, Pieper S, Aerts HJWL. Computational radiomics system to decode the radiographic phenotype. Cancer Res. 2017;77(21):e104–e107.10.1158/0008-5472.CAN-17-0339PMC567282829092951",
+      "doi": [
+        "10.1158/0008-5472.CAN-17-0339"
+      ]
+    },
+    {
+      "id": "B2",
+      "text": "2.Zwanenburg A, Vallières M, Abdalah MA, Aerts HJWL, Andrearczyk V, Apte A, Ashrafinia S, Bakas S, Beukinga RJ, Boellaard R, et al. The image biomarker standardization initiative: Standardized quantitative radiomics for high-throughput image-based phenotyping. Radiology. 2020;295(2):328–338.10.1148/radiol.2020191145PMC719390632154773",
+      "doi": [
+        "10.1148/radiol.2020191145"
+      ]
+    },
+    {
+      "id": "B3",
+      "text": "3.Tan HQ, Cai J, Tay SH, Sim AYL, Huang L, Chua MLK, Tang Y. Cluster based radiomics reveal spatial heterogeneity of bevacizumab response for treatment of radiotherapy-induced cerebral necrosis. Comput Struct Biotechnol J. 2024;23:43–51.10.1016/j.csbj.2023.11.040PMC1073095338125298",
+      "doi": [
+        "10.1016/j.csbj.2023.11.040"
+      ]
+    },
+    {
+      "id": "B4",
+      "text": "4.Hatamikia S, George G, Schwarzhans F, Mahbod A, Woitek R. Breast MRI radiomics and machine learning-based predictions of response to neoadjuvant chemotherapy—How are they affected by variations in tumor delineation? Comput Struct Biotechnol J. 2024;23:52–63.10.1016/j.csbj.2023.11.016PMC1073099638125296",
+      "doi": [
+        "10.1016/j.csbj.2023.11.016"
+      ]
+    },
+    {
+      "id": "B5",
+      "text": "5.Oh JH, Apte A, Veeraraghavan H, Zhu J, Shukla-Dave A, Deasy JO. Radiomic clustering using graph network techniques coupled with unbalanced optimal transport. Comput Struct Biotechnol J. 2025;27:4772–4778.10.1016/j.csbj.2025.10.066PMC1267707941357300",
+      "doi": [
+        "10.1016/j.csbj.2025.10.066"
+      ]
+    },
+    {
+      "id": "B6",
+      "text": "6.Wang FA, Li Y, Zeng T. Deep learning of radiology-genomics integration for computational oncology: A mini review. Comput Struct Biotechnol J. 2024;23:2708–2716.10.1016/j.csbj.2024.06.019PMC1126040039035833",
+      "doi": [
+        "10.1016/j.csbj.2024.06.019"
+      ]
+    },
+    {
+      "id": "B7",
+      "text": "7.Gupta L, Klinkhammer BM, Seikrit C, Fan N, Bouteldja N, Gräbel P, Gadermayr M, Boor P, Merhof D. Large scale extraction of interpretable features provides new insights into kidney histopathology—A proof-of-concept study. J Pathol Inform. 2022;13: Article 100097.10.1016/j.jpi.2022.100097PMC957699036268111",
+      "doi": [
+        "10.1016/j.jpi.2022.100097"
+      ]
+    },
+    {
+      "id": "B8",
+      "text": "8.Barillot N, Hernandez I, Kirasic E, Houillier C, Mokhtari K, Hoang-Xuan K, Alentorn A. P13.12.A subtypes and survival analysis of primary central nervous system lymphoma with radiomics features. Neuro Oncol. 2023;25:ii103.",
+      "doi": []
+    },
+    {
+      "id": "B9",
+      "text": "9.Finti A, Marinozzi F, Pasini G, Russo G, Stefano A, Bini F. Digital pathology-based comparison of PyRadiomics and HistomicsTK for nuclei classification in melanoma whole slide images. Int J Biomed Imaging. 2026;2026:7419529.10.1155/ijbi/7419529PMC1304234141929986",
+      "doi": [
+        "10.1155/ijbi/7419529"
+      ]
+    },
+    {
+      "id": "B10",
+      "text": "10.Gutman DA, Khalilia M, Lee S, Nalisnik M, Mullen Z, Beezley J, Chittajallu DR, Manthey D, Cooper LAD. The digital slide archive: A software platform for management, integration, and analysis of histology for cancer research. Cancer Res. 2017;77(21):e75–e78.10.1158/0008-5472.CAN-17-0629PMC589823229092945",
+      "doi": [
+        "10.1158/0008-5472.CAN-17-0629"
+      ]
+    },
+    {
+      "id": "B11",
+      "text": "11.van Rijthoven M, Aswolinskiy W, Tessier L, Salgado R, van der Laak J, Ciompi F, TIGER Consortium. Analysis of computational tumor-infiltrating lymphocytes in breast cancer from the results of the TIGER challenge. Nat Commun. 2026;17:6480.10.1038/s41467-026-72956-xPMC1337707242140903",
+      "doi": [
+        "10.1038/s41467-026-72956-x"
+      ]
+    },
+    {
+      "id": "B12",
+      "text": "12.Tafavvoghi M, Bongo LA, Delgado AB, Shvetsov N, Sildnes A, Moi L, Busund LTR, Møllersen K. Automating tumor infiltrating lymphocyte assessment in breast cancer histopathology images using QuPath: A transparent and accessible machine learning pipeline. arXiv. 2025. 10.48550/arXiv.2504.16979",
+      "doi": [
+        "10.48550/arXiv.2504.16979"
+      ]
+    },
+    {
+      "id": "B13",
+      "text": "13.Bankhead P, Loughrey MB, Fernández JA, Dombrowski Y, McArt DG, Dunne PD, McQuaid S, Gray RT, Murray LJ, Coleman HG, et al. QuPath: Open source software for digital pathology image analysis. Sci Rep. 2017;7(1):16878.10.1038/s41598-017-17204-5PMC571511029203879",
+      "doi": [
+        "10.1038/s41598-017-17204-5"
+      ]
+    },
+    {
+      "id": "B14",
+      "text": "14.Schmidt U, Weigert M, Broaddus C, Myers G. Cell detection with star-convex polygons. In: Medical image computing and computer assisted intervention—MICCAI 2018. 11071 Cham: Springer; 2018. p. 265–273.",
+      "doi": []
+    },
+    {
+      "id": "B15",
+      "text": "15.Stringer C, Wang T, Michaelos M, Pachitariu M. Cellpose: A generalist algorithm for cellular segmentation. Nat Methods. 2021;18(1):100–106.10.1038/s41592-020-01018-x33318659",
+      "doi": [
+        "10.1038/s41592-020-01018-x"
+      ]
+    },
+    {
+      "id": "B16",
+      "text": "16.Drelie Gelasca E, Byun J, Obara B, Manjunath BS. Evaluation and benchmark for biological image segmentation. In: 15th IEEE International Conference on Image Processing. San Diego (CA): IEEE; 2008. p. 1816–1819.",
+      "doi": []
+    },
+    {
+      "id": "B17",
+      "text": "17.Schuiveling M, Liu H, Eek D, Breimer GE, Suijkerbuijk KPM, Blokx WAM, Veta M. A novel dataset for nuclei and tissue segmentation in melanoma with baseline nuclei segmentation and tissue segmentation benchmarks. GigaScience. 2025;14:giaf011.10.1093/gigascience/giaf011PMC1183775739970004",
+      "doi": [
+        "10.1093/gigascience/giaf011"
+      ]
+    },
+    {
+      "id": "B18",
+      "text": "18.Diagnostic Image Analysis Group, Radboud University Medical Center. TIGER: Tumor-infiltrating lymphocytes in breast cancer, training data. Registry of Open Data on AWS, 2022. [accessed 16 September 2026] https://registry.opendata.aws/tiger/",
+      "doi": []
+    },
+    {
+      "id": "B19",
+      "text": "19.Lin LIK. A concordance correlation coefficient to evaluate reproducibility. Biometrics. 1989;45(1):255–268.2720055",
+      "doi": []
+    },
+    {
+      "id": "B20",
+      "text": "20.Koo TK, Li MY. A guideline of selecting and reporting intraclass correlation coefficients for reliability research. J Chiropr Med. 2016;15(2):155–163.10.1016/j.jcm.2016.02.012PMC491311827330520",
+      "doi": [
+        "10.1016/j.jcm.2016.02.012"
+      ]
+    },
+    {
+      "id": "B21",
+      "text": "21.Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. Lancet. 1986;327(8476):307–310.2868172",
+      "doi": []
+    },
+    {
+      "id": "B22",
+      "text": "22.Pedregosa F, Varoquaux G, Gramfort A, Michel V, Thirion B, Grisel O, Blondel M, Prettenhofer P, Weiss R, Dubourg V, et al. Scikit-learn: Machine learning in python. J Mach Learn Res. 2011;12:2825–2830.",
+      "doi": []
+    },
+    {
+      "id": "B23",
+      "text": "23.Breiman L. Random forests. Mach Learn. 2001;45:5–32.",
+      "doi": []
+    },
+    {
+      "id": "B24",
+      "text": "24.McInnes L, Healy J, Melville J. UMAP: Uniform manifold approximation and projection for dimension reduction. arXiv. 2018. 10.48550/arXiv.1802.03426",
+      "doi": [
+        "10.48550/arXiv.1802.03426"
+      ]
+    },
+    {
+      "id": "B25",
+      "text": "25.Zheng Y, Zheng Z, Rendeiro AF, Cheung E. Marsilea: An intuitive generalized paradigm for composable visualizations. Genome Biol. 2025;26(1):5.10.1186/s13059-024-03469-3PMC1170202339762969",
+      "doi": [
+        "10.1186/s13059-024-03469-3"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Arslan J, Künzle T, Güner Y, Alentorn A.",
+  "journal": "Computational and structural biotechnology journal",
+  "year": "2026",
+  "pmid": "42898725",
+  "pmcid": "PMC13678076",
+  "doi": "10.34133/csbj.0238",
+  "source": {
+    "retrieved_at": "2026-11-14T17:13:25.289973+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13678076/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13678076.xml"
+}

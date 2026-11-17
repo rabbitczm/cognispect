@@ -1,0 +1,1904 @@
+{
+  "key": "42965064",
+  "body_available": true,
+  "title": "WSI-Babel-Shark: A modular pipeline for robust metadata extraction from heterogeneous whole slide image labels in digital pathology",
+  "source_url": "https://europepmc.org/articles/PMC13721096",
+  "license": {
+    "text": "This is an open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/).",
+    "urls": [],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Shahram Aliyari",
+    "Maximilian Legnar",
+    "Christoph Blattgerste",
+    "Ayk Jessen",
+    "Balamurugan Thirukonda Subramanian Balakrishnan",
+    "Nils Englert",
+    "Philip SJ Kaib",
+    "Mark Sementsov",
+    "Constantin Schwab",
+    "Cleo-Aron Weis"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Author(s)",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2026",
+        "month": "9",
+        "day": "24"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "s0005",
+      "title": "Introduction and objectives",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0075",
+          "reference_ids": [
+            "bb0005",
+            "bb0010",
+            "bb0015"
+          ],
+          "en": "Reliable slide-level metadata are essential for modern digital pathology workflows. They enable the linkage of whole-slide images (WSIs) with corresponding cases in lab information systems (LIS) and picture archiving and communication systems (PACS). Accurate metadata ensure traceability, facilitate automated data integration, and support downstream analyses as well as FAIR data stewardship.1, 2 In routine diagnostic practice, barcode-based identifiers typically provide this linkage by encoding case and block information directly on slide labels, allowing scanners and LIS interfaces to synchronize records automatically.3 However, when barcode identifiers are missing, unreadable, or inconsistent across systems, automated linkage becomes non-trivial and requires robust text-based extraction from label images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0080",
+          "reference_ids": [
+            "bb0020",
+            "bb0025",
+            "bb0030",
+            "bb0035",
+            "bb0040",
+            "bb0020",
+            "bb0040"
+          ],
+          "en": "In research, archival, and biobank settings, barcode-based identifiers are often missing, damaged, or do not align with institutional standards. The problem is further compounded by the high variability of label designs across scanners and institutions. Differences in typography, label orientation, and the presence of handwritten elements pose major challenges for optical character recognition (OCR)-based metadata extraction.4 Several open-source frameworks provide essential infrastructure for digital pathology, such as OpenSlide for vendor-neutral WSI access5 and DICOM-based standards for metadata representation.6, 7 Yet, only a few recent approaches have addressed the practical challenge of automatically extracting structured metadata from heterogeneous label layouts. Whereas some OCR-based methods, such as AutoLDP,8 have demonstrated high accuracy for standardized label formats, most existing tools still rely on fixed spatial and semantic rules or manually defined regions of interest (ROIs), which limits their scalability and adaptability in multi-institutional settings.4, 8 Consequently, there remains a need for a metadata extraction framework that can automatically adapt to heterogeneous label layouts, detect previously unseen label structures, recover metadata when barcode information is incomplete or unavailable, and be designed for deployment across different scanner platforms and institutional workflows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0085",
+          "reference_ids": [
+            "bb0020",
+            "bb0045"
+          ],
+          "en": "Our previous framework, WSI-Babel-Fish, demonstrated the feasibility of automated metadata extraction from label images using OCR.4 The system successfully retrieved case numbers, specimen identifiers (Pot identifier), block number, and staining information directly from label regions and achieved high accuracy within a single institutional context. However, despite these promising results, the WSI-Babel-Fish approach had several critical limitations. It relied on fixed label layouts, lacked the capability to classify or reject unseen label types, and could not automatically determine the label layout category to guide downstream ROI extraction. In addition, WSI-Babel-Fish required external software such as ImageJ9 for ROI definition and did not incorporate barcode-based redundancy. These constraints collectively limited its generalizability, maintainability, and integration potential across different scanners or institutions. Collectively, these limitations motivated the development of WSI-Babel-Shark as a flexible and extensible metadata extraction framework designed to accommodate heterogeneous label layouts across different scanners and institutions through hybrid label-layout classification, classifier-guided ROI localization, barcode-aware metadata extraction, and a modular software architecture.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0090",
+          "reference_ids": [],
+          "en": "To overcome these limitations, we developed WSI-Babel-Shark, a modular and extensible pipeline for robust metadata extraction from heterogeneous WSI labels. WSI-Babel-Shark integrates a deep learning-based label layout classifier capable of classifying known label formats while identifying previously unseen layouts through an open-set recognition strategy. It provides a dedicated ROI-annotation interface that generates JSON configurations, thereby eliminating the need for third-party tools. The system employs a hierarchical extraction strategy that prioritizes data matrix code decoding and, when necessary, applies ROI-based OCR with rule-based validation to ensure reliability. All modules are containerized for reproducible deployment and orchestrated through a unified configuration and logging framework. Extracted metadata and associated quality metrics are stored in an integrated SQLite database, ensuring full traceability and data integrity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0095",
+          "reference_ids": [],
+          "en": "This study presents the design, implementation, and validation of WSI-Babel-Shark and compares its performance with the previously developed WSI-Babel-Fish framework. Unlike existing OCR-based metadata extraction approaches, WSI-Babel-Shark combines prototype-based open-set layout recognition, classifier-guided dynamic ROI localization, barcode-aware redundancy, rule-based metadata validation, and a modular containerized architecture within a unified framework. Together, these methodological advances provide a unified end-to-end framework for automated slide-label metadata extraction, addressing several practical limitations of previous OCR-based approaches while facilitating reproducible deployment. Rather than introducing a single algorithmic improvement, WSI-Babel-Shark integrates these complementary methodological advances into a unified end-to-end framework for automated slide-label metadata extraction, thereby addressing several practical limitations of existing OCR-based approaches within a single reproducible workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0010",
+      "title": "Materials and methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0100",
+          "reference_ids": [],
+          "en": "This section outlines the datasets, architecture, and evaluation procedures used to develop and validate the WSI-Babel-Shark framework. We first describe the characteristics and sources of the datasets, followed by details of the modular pipeline architecture, including data matrix code decoding, layout classification, ROI-based OCR, and rule-based parsing. Subsequent subsections explain the classifier design, graphical annotation tools, and evaluation strategy used to assess performance, robustness, and reproducibility. The section concludes with implementation details and information on code and data availability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0015",
+      "title": "Slide data and source",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0105",
+          "reference_ids": [],
+          "en": "All slides included in this study originated from routine diagnostic workflows conducted at the Institute of Pathology Heidelberg (IPH). No patient-identifying information is contained in these slides. For the publicly shared subset of data, all case identifiers were replaced with fully synthetic, non-patient identifiers to ensure that no identifiable information is disclosed. The dataset represents a small but diverse subset of the institute's digital pathology archive and includes a variety of tissue types, staining protocols, and label formats commonly encountered in daily diagnostic practice. The slides were digitized using two high-resolution scanners, the Hamamatsu NanoZoomer S60 and the Leica GT450, which produced WSIs in the standard digital formats (.ndpi and .svs). The IPH applies a consistent internal nomenclature for case and slide identification, which provides the structural basis for metadata extraction in the WSI-Babel-Shark framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0110",
+          "reference_ids": [],
+          "en": "Each WSI in .svs or .ndpi format contains both the scanned tissue section and the corresponding slide label area. The WSI-Babel-Shark pipeline automatically isolates this label region and converts it into a standardized image representation that preserves all printed and handwritten information on the physical slide. These label images form the primary input for the metadata extraction process, which focuses exclusively on the label content rather than the tissue section.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0115",
+          "reference_ids": [],
+          "en": "Compared with the dataset used in the earlier WSI-Babel-Fish study, the current dataset incorporates material from multiple scanner systems and includes labels with greater variability in layout, typography, and staining annotations. Details regarding the standard structure of slide labels and the associated naming conventions have been described previously in work on the WSI-Babel-Fish framework. In the present study, this variability was intentionally retained to evaluate the robustness and generalizability of WSI-Babel-Shark under realistic heterogeneous scanner and label-layout conditions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0120",
+          "reference_ids": [],
+          "en": "Only the information visible on the slide labels, such as case numbers, block identifiers, and stain designations, was used in this study. The general structure of IPH slide labels and the corresponding naming conventions have been described in prior work and served as the reference for interpreting all metadata elements in the current dataset. No patient names, clinical information, or other personally identifiable data were accessed or processed. All analyses were performed in full compliance with the data protection and confidentiality regulations of the IPH and the General Data Protection Regulation (EU 2016/679).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0020",
+      "title": "Datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0125",
+          "reference_ids": [],
+          "en": "Four distinct datasets were used for the development and evaluation of the WSI-Babel-Shark framework, each serving a specific methodological purpose. All datasets originated from the diagnostic archive of the IPH and were strictly partitioned to ensure complete separation between training, validation, and evaluation phases. No slide used for evaluation was included in the datasets employed for classifier training or in any material derived from the earlier WSI-Babel-Fish framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0025",
+      "title": "Primary dataset for classifier development",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0130",
+          "reference_ids": [],
+          "en": "A total of 1836 slide-label images were collected and manually categorized into 10 distinct layout groups (G1–G10), representing the predominant label configurations routinely encountered within the institute. Because no universal ROI configuration could reliably capture metadata across the diverse label formats encountered in routine lab practice, these images were systematically reviewed. The review identified 10 recurring layout configurations, and labels were subsequently grouped according to the spatial arrangement of ROI-relevant elements, including the positions of the Data Matrix code, lab identifier, case identifier, block identifier, stain field, and other printed information. Although some layouts differed only in one or a few metadata regions, separate layout groups were intentionally maintained whenever these differences affected ROI definition. This conservative grouping strategy enabled the assignment of a dedicated ROI template to each layout group, thereby ensuring accurate localization of metadata fields before OCR. As a result, 10 recurring layout configurations were identified, collectively representing all routinely encountered label structures within the available dataset. Each layout group was subsequently associated with a dedicated JSON-based ROI template used for automated metadata localization and extraction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0135",
+          "reference_ids": [],
+          "en": "The observed class imbalance reflects the natural distribution of label layouts encountered during routine diagnostic workflows rather than an artifact of dataset construction. Frequently used lab workflows naturally produced substantially larger numbers of labels than less common or legacy label formats. No artificial balancing strategy was applied because the objective was to preserve the natural distribution of label layouts encountered in routine lab practice.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0140",
+          "reference_ids": [
+            "f0005"
+          ],
+          "en": "Fig. 1 shows the distribution of sample counts across groups, highlighting the class imbalance with larger cohorts in G1–G3 and smaller groups in G9–G10.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0145",
+          "reference_ids": [
+            "f0010"
+          ],
+          "en": "Representative examples of the 10 label-layout groups are illustrated in Fig. 2. To preserve patient confidentiality, all displayed labels were reconstructed using fictitious case identifiers while retaining the original spatial arrangement of metadata elements.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0150",
+          "reference_ids": [],
+          "en": "The dataset was subsequently divided into training and testing subsets (80/20) using stratified sampling to maintain proportional representation across all groups, and was used exclusively for the development and validation of the label-layout classifier within the known layout domain.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0030",
+      "title": "Unknown-class dataset for open-set evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0155",
+          "reference_ids": [],
+          "en": "To assess the classifier's ability to recognize previously unseen label layouts, we assembled an additional dataset of 61 slide-label images that did not match any of the 10 predefined layout groups. These images included handwritten labels, labels with partially obscured or incomplete metadata, labels without a data matrix code, and legacy label formats that were not represented in the main training dataset. The 61 images were excluded from all training and validation steps and were used exclusively for open-set evaluation to test the classifier's ability to identify and reject novel or non-standard label configurations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0035",
+      "title": "Independent dataset for end-to-end and fallback evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0160",
+          "reference_ids": [],
+          "en": "To evaluate the WSI-Babel-Shark pipeline in an end-to-end setting under conditions representative of routine diagnostic workflows, we compiled an independent dataset of 270 WSIs scanned on 2 platforms (Aperio and Hamamatsu) and stored in both .svs and .ndpi formats. Each slide contained a verified lab and case identifier, providing reliable ground truth for the assessment of barcode decoding, layout classification, and fallback OCR-based extraction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0165",
+          "reference_ids": [],
+          "en": "In contrast to the dataset used in the earlier WSI-Babel-Fish study, which consisted solely of .ndpi files and followed two predefined label layouts, the present dataset includes slides with six distinct label configurations used in routine diagnostics. These configurations encompass variations in lab prefixes, case identifier formatting, and stain annotation. This diversity provided a more realistic representation of lab variability and served as a robust benchmark for evaluating WSI-Babel-Shark's adaptability and generalization.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0040",
+      "title": "Cross-dataset compatibility with WSI-Babel-Fish",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0170",
+          "reference_ids": [],
+          "en": "For comparative analysis and backward-compatibility testing, we reprocessed the dataset from the previously published WSI-Babel-Fish framework. The WSI-Babel-Fish training set was used exclusively to train the label-layout classifier, whereas the WSI-Babel-Fish test set (110 slides) was re-analyzed using WSI-Babel-Shark under identical conditions. This setup ensured strict separation between training and evaluation data and enabled a direct comparison of methodological continuity, reproducibility, and performance between the two systems.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0175",
+          "reference_ids": [],
+          "en": "Although both datasets originated from the same institutional archive, they differed significantly in their temporal span and structural composition. The WSI-Babel-Fish dataset contained only slides from 2024, whereas the WSI-Babel-Shark evaluation dataset included material from both 2024 (n = 129), 2025 (n = 27), and 2026 (n = 113). The WSI-Babel-Shark dataset also exhibited greater diversity in case numbering and label design, comprising 76 unique case identifiers compared with 14 in WSI-Babel-Fish. The number of distinct pot identifiers was 7 in WSI-Babel-Shark and 12 in WSI-Babel-Fish, whereas the number of block identifiers decreased from 18 in WSI-Babel-Fish to 9 in WSI-Babel-Shark. Additionally, the WSI-Babel-Shark dataset exhibited substantially greater staining variability, encompassing 60 distinct stain categories compared with 28 in WSI-Babel-Fish. Furthermore, whereas WSI-Babel-Fish comprised two predefined label layouts, the WSI-Babel-Shark dataset contained six distinct label-configuration groups derived from multiple scanner systems.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0180",
+          "reference_ids": [],
+          "en": "Collectively, these differences resulted in a more heterogeneous and representative dataset for assessing WSI-Babel-Shark's robustness and generalization across temporal, structural, and staining variations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0045",
+      "title": "Pipeline architecture and components",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "s0050",
+      "title": "Overview",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0185",
+          "reference_ids": [],
+          "en": "The WSI-Babel-Shark framework is a modular, containerized, and YAML-configured workflow for automated extraction, normalization, and consolidation of slide-level metadata from WSIs. Developed in Python, the system integrates decoding of data matrix code, OCR, rule-based parsing, stain recognition, and database registration within a unified and reproducible architecture.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0190",
+          "reference_ids": [],
+          "en": "Incoming WSIs are continuously collected from designated monitoring folders and automatically registered for processing. Each slide is screened for prior inclusion in the central registry to prevent duplication and ensure traceable versioning of processed data. After ingestion, label regions are isolated through a vendor-neutral interface capable of accessing embedded image layers within the WSI structure.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0195",
+          "reference_ids": [],
+          "en": "When a dedicated label image is not embedded within the whole-slide file, the corresponding macro-overview image is automatically utilized to localize and extract the label region. This fallback ensures reliable metadata acquisition across heterogeneous scanner formats, including those that do not explicitly store label images within their metadata. The extracted label crops are geometrically normalized, rotated to a canonical orientation, and exported as standardized image files that serve as inputs for downstream metadata extraction stages.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0200",
+          "reference_ids": [
+            "f0015"
+          ],
+          "en": "A schematic overview of the complete data flow, module interdependencies, and orchestration logic is provided in Fig. 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0055",
+      "title": "Primary pathway: Data matrix code decoding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0205",
+          "reference_ids": [
+            "bb0050",
+            "bb0055"
+          ],
+          "en": "The primary extraction route captures metadata directly from two-dimensional (2D) data matrix codes printed on slide labels. Decoding is implemented via the pylibdmtx library10 combined with OpenCV-based11 image preprocessing and adaptive thresholding, enabling resilience to variation in resolution, illumination, and partial occlusion.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0210",
+          "reference_ids": [],
+          "en": "Each data matrix code string follows a structured alphanumeric convention (e.g., E2024001546SA-1-1), where the prefix (“E”) denotes the diagnostic unit, followed by the four-digit year, six-digit case number, and the separator “S” preceding the pot identifier (e.g., “A”). The subsequent numerical fields indicate the block number and section index, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0215",
+          "reference_ids": [],
+          "en": "Each successfully decoded string is parsed using regular-expression templates into structured metadata fields encompassing lab identifier, case number, pot identifier, block number, and section indices. Decoded entries undergo internal consistency validation and are forwarded to the central metadata registry.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0220",
+          "reference_ids": [],
+          "en": "This high-fidelity pathway establishes a deterministic linkage between digital slides and lab records while minimizing dependence on text-based recognition methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0060",
+      "title": "Fallback pathway: Classifier-guided ROI and OCR",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0225",
+          "reference_ids": [],
+          "en": "When data matrix code decoding is not feasible because of missing, damaged, or non-standard codes, the framework activates a classifier-guided fallback procedure that relies on targeted OCR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0230",
+          "reference_ids": [],
+          "en": "A dedicated label-layout classifier integrates convolutional feature embeddings with structural and intensity descriptors to predict the most likely layout category. The predicted layout determines the predefined ROI configuration used for text extraction. ROI definitions were established during system development using manually annotated reference templates created with an in-house annotation utility, ensuring consistent and reproducible localization of key metadata fields across all label types.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0235",
+          "reference_ids": [
+            "bb0060",
+            "bb0065"
+          ],
+          "en": "Each ROI is subjected to a sequence of image preprocessing operations, including scaling, denoising, and contrast-limited adaptive histogram equalization implemented through OpenCV and NumPy.12 OCR inference is subsequently performed using EasyOCR13 to capture text within each designated region. The extracted text segments are normalized and processed by a rule-based parsing engine that automatically corrects typographical and segmentation errors.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0240",
+          "reference_ids": [],
+          "en": "This fallback pathway provides a reliable mechanism for metadata recovery from heterogeneous labels, including partially obscured, or labels without data matrix code while preserving compatibility with institutional formatting conventions and ensuring high overall robustness of the metadata extraction workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0065",
+      "title": "Stain extraction and slide identifier",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0245",
+          "reference_ids": [],
+          "en": "Stain information is not encoded within the data matrix code or any other barcode format in our institution. Instead, it is extracted through OCR applied to the stain-designated region of the slide label. The recognized text tokens are matched against a locally curated stain vocabulary using fuzzy string matching to account for variations in spelling, punctuation, and OCR noise. Matched tokens are subsequently normalized to canonical terminology to ensure consistent representation across slides.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0250",
+          "reference_ids": [],
+          "en": "When multiple stain labels are detected, they are automatically merged into standardized composite forms—for example, “PAS&HE” to denote mixed or dual staining procedures. In routine hematoxylin–eosin (H&E) slides used in hematological diagnostics, the stain name is frequently not printed on the label. Consequently, incomplete, degraded, or missing label information can cause the initial OCR result to default to “H&E.” When no valid stain is identified, or when this default behavior occurs, the pipeline triggers an automated ROI- and classifier-guided re-evaluation of the stain region. This secondary analysis increases accuracy by correcting potential misclassifications and detecting compound or non-standard stains that may not have been captured in the initial pass.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0255",
+          "reference_ids": [],
+          "en": "Validated metadata from both the data matrix code pathway and the fallback OCR pathway are subsequently integrated with the normalized stain result to construct a standardized slide identifier (SlideID). Each digital slide is then atomically renamed through transactional file operations and reorganized into a hierarchical, case-based directory structure, ensuring complete traceability, reproducibility, and consistent linkage between digital slides and lab records.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0070",
+      "title": "Database and orchestration",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0260",
+          "reference_ids": [
+            "bb0070",
+            "bb0075"
+          ],
+          "en": "All consolidated metadata are stored in a normalized SQLite registry implemented with the native sqlite314 and pandas15 interfaces. Each update operation is performed atomically to prevent partial writes and ensure transactional integrity. In parallel, mirrored CSV summaries are generated to facilitate interoperability with external systems and to support long-term archival. The database schema provides a fully queryable and auditable record of case-level identifiers, stain annotations, and file mappings, enabling transparent traceability across the entire workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0265",
+          "reference_ids": [],
+          "en": "The execution of all pipeline components is managed by a dedicated orchestration layer that validates configuration files, resolves inter-module dependencies, and coordinates both batch and continuous-monitoring modes. The orchestration logic adheres to unified coding and documentation standards, including explicit module-level docstrings, structured logging, and comprehensive exception handling. These conventions ensure deterministic reproducibility, fault tolerance, and ease of maintenance across diverse computing environments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0270",
+          "reference_ids": [],
+          "en": "A complete specification of parameter configurations, software dependencies, and workflow blueprints is provided in Supplementary File 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0075",
+      "title": "Label layout classifier",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0275",
+          "reference_ids": [],
+          "en": "A dedicated label layout recognition module was developed to automatically classify the structural type of slide labels and guide ROI selection during fallback metadata extraction. This module enables WSI-Babel-Shark to adapt dynamically to heterogeneous label formats originating from different scanners and institutions. By determining the label layout before OCR, the system automatically selects the appropriate ROI configuration, ensuring that metadata such as lab identifier, case number, pot identifier, block identifier, section number, and stain information are extracted from the correct image regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0280",
+          "reference_ids": [],
+          "en": "Unlike conventional end-to-end discriminative classifiers, the proposed method follows a prototype-based similarity learning strategy combined with open-set recognition. Instead of directly predicting class labels through a trainable fully connected classification layer, the classifier represents each layout category by a prototype generated from representative training samples. During inference, each incoming label image is compared with all stored prototypes, allowing the classifier not only to recognize known layouts but also to reject previously unseen label structures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0285",
+          "reference_ids": [
+            "bb0080"
+          ],
+          "en": "Deep image representations are extracted using a pretrained ResNet-18 convolutional neural network.16 The network is employed exclusively as a fixed feature extractor, with the final fully connected classification layer removed. All weights are initialized from the ImageNet pretrained model, and no additional fine-tuning is performed. Each input label image is resized according to the standard ResNet preprocessing pipeline and converted into a normalized 512-dimensional embedding describing the global structural characteristics of the label. This design substantially reduces training requirements while maintaining high generalization across different label appearances.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0290",
+          "reference_ids": [],
+          "en": "To complement the deep representation, a handcrafted layout descriptor is extracted from every label image. This descriptor captures structural information that may not be fully represented by the convolutional embedding alone. Specifically, it combines grayscale projection profiles, edge-density distributions, low-frequency Fourier transform coefficients, hue–saturation–value color statistics, hue histograms, and local ink-density measurements. All descriptor vectors are independently L2-normalized before feature fusion. These complementary descriptors improve robustness to differences in typography, printing quality, illumination, and scanner-specific color characteristics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0295",
+          "reference_ids": [],
+          "en": "For every predefined layout group, a prototype representation is generated from the training dataset. Each prototype consists of three complementary prototype representations: (i) the mean ResNet embedding, (ii) the mean handcrafted layout descriptor, and (iii) the normalized average grayscale image representation computed from all training samples belonging to the corresponding layout class. These prototype vectors are stored as compact NumPy index files (.npz), enabling rapid loading during inference without retraining the classifier. Because only prototype representations are retained, the memory footprint remains small while preserving representative information for each layout category.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0300",
+          "reference_ids": [],
+          "en": "Classification is performed using a weighted similarity fusion strategy. For every incoming label image, three cosine similarity scores are computed independently by comparing the extracted ResNet embedding, average grayscale representation, and handcrafted layout descriptor with the corresponding prototype of each layout class. The final similarity score is calculated as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "s0075-p7",
+          "reference_ids": [],
+          "en": "where SCNN, SAVG, and SLayout denote the cosine similarities of the deep embedding, average image representation, and handcrafted descriptor, respectively. The weighting coefficients were empirically selected using the validation dataset and fixed to (α = 0.60), (β = 0.20), and (γ = 0.20), assigning greater importance to the deep representation while preserving complementary information provided by the average grayscale representation and handcrafted layout descriptors.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0305",
+          "reference_ids": [],
+          "en": "To improve robustness in practical deployment, WSI-Babel-Shark incorporates an adaptive open-set recognition mechanism. Instead of forcing every sample into one of the predefined layout groups, the classifier evaluates both global and class-specific confidence thresholds learned from an independent validation dataset. During threshold estimation, the similarity distributions of correctly classified validation samples are analyzed to derive class-specific acceptance thresholds and confidence margins. During inference, if the highest similarity score does not exceed the corresponding acceptance threshold or fails the confidence-margin criteria, the sample is automatically assigned to the “Unknown” category rather than being forced into an incorrect layout class. This strategy substantially improves reliability when previously unseen label formats are encountered in routine lab practice.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0310",
+          "reference_ids": [
+            "bb0085"
+          ],
+          "en": "The complete classifier is implemented in Python using PyTorch17 for deep feature extraction, OpenCV for image preprocessing, and NumPy for feature normalization and similarity computation. The implementation supports both CPU and GPU execution without modification. Prototype generation, threshold learning, validation, and inference are organized as independent processing stages through a unified configuration-driven command-line interface (CLI), facilitating reproducible deployment and straightforward adaptation to new institutions or additional label layouts. Throughout execution, all predictions, similarity scores, confidence thresholds, and decision outcomes are automatically recorded to ensure full traceability and reproducibility of the classification process.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0315",
+          "reference_ids": [],
+          "en": "Finally, by combining deep convolutional representations, handcrafted structural descriptors, prototype-based similarity learning, and adaptive open-set recognition, WSI-Babel-Shark provides a flexible and computationally efficient framework for robust label layout recognition across heterogeneous WSI environments. This design eliminates the need for end-to-end classifier training while providing a compact and reusable feature representation for layout comparison.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0080",
+      "title": "Classifier training and ROI annotation GUI tools",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0320",
+          "reference_ids": [
+            "f0020",
+            "bb0090"
+          ],
+          "en": "To enhance usability and streamline the creation of customized models and configurations, WSI-Babel-Shark provides a set of graphical user interface (GUI) tools dedicated to classifier training, evaluation, and ROI annotation (Fig. 4). These applications were developed in Python using the CustomTkinter18 framework and are designed to simplify the technical processes of classifier construction and label annotation for non-programming users while maintaining full compatibility with the WSI-Babel-Shark pipeline.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0325",
+          "reference_ids": [
+            "f0020"
+          ],
+          "en": "The classifier training GUI provides an interactive environment for building new label layout classifiers through a user-guided workflow that integrates dataset import, feature extraction, prototype generation, and validation. Users can train and evaluate layout classifiers from annotated datasets without command-line operations. Real-time visualization of training progress, class distribution, and accuracy metrics is displayed throughout the process. Upon completion, the system automatically computes confusion matrices, precision-recall metrics, and open-set rejection statistics. Results are exported as structured Excel and JSON reports, and the generated prototype indices are stored as compact NumPy archives (.npz) for direct deployment within the WSI-Babel-Shark pipeline. The classifier training interface is illustrated in Fig. 4A, demonstrating the interactive workflow for dataset preparation, classifier training, prototype generation, and model evaluation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0330",
+          "reference_ids": [
+            "bb0095"
+          ],
+          "en": "Beyond model training, the GUI includes dedicated interfaces for configuration and dataset management. The configuration editor provides an interactive environment for creating and modifying YAML19 and JSON files with automatic syntax validation, parameter range checking, and path normalization across operating systems. The dataset manager supports controlled splitting of image data into training, validation, and testing subsets using stratified sampling with fixed random seeds to ensure reproducibility. All operations generate timestamped logs and human-readable documentation for transparency and traceability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0335",
+          "reference_ids": [
+            "f0020"
+          ],
+          "en": "Complementing the classifier GUI, WSI-Babel-Shark incorporates a stand-alone ROI annotation tool that replaces the dependency on ImageJ present in the earlier WSI-Babel-Fish framework. For each manually defined layout group, a representative average label image was generated by pixel-wise averaging all label images belonging to that group. These average images served as layout-specific templates for manual ROI definition. Using the ROI annotator application, rectangular ROIs corresponding to metadata fields, including the data matrix code, lab identifier, case identifier, block identifier, stain information, and other relevant printed elements, were manually delineated and assigned semantic labels. The ROI coordinates are subsequently exported as standardized JSON configuration files. The ROI annotation interface is shown in Fig. 4B, illustrating the interactive definition of metadata regions and the generation of standardized JSON-based ROI templates for automated ROI localization before OCR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0340",
+          "reference_ids": [
+            "bb0100",
+            "bb0105"
+          ],
+          "en": "During metadata extraction, the label layout classifier first determines the corresponding layout group, after which the associated JSON ROI template is automatically loaded to localize the metadata regions before OCR, enabling robust extraction despite substantial variability in label layout. The tool employs OpenCV and Pillow20 for image rendering, NumPy for numerical operations, and jsonschema21 for configuration validation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0345",
+          "reference_ids": [],
+          "en": "Both the classifier training GUI and the ROI annotation tool were designed as independent, stand-alone applications operating outside the core WSI-Babel-Shark pipeline but producing standardized outputs fully compatible with it. This modular design allows classifier development and ROI definition to be performed independently, facilitating flexible integration, version control, and reproducibility across different deployment environments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0350",
+          "reference_ids": [],
+          "en": "In addition to its role within WSI-Babel-Shark, the ROI annotation tool was released as an independent open-source utility in a separate public repository to encourage reuse and adaptation in other biomedical imaging and computer-vision projects. Its modular design and standardized JSON export format make it suitable as a lightweight, general-purpose annotation interface for tasks beyond digital pathology, including document analysis and microscopy-based image labeling. By providing accessible graphical interfaces for both classifier training and ROI creation, WSI-Babel-Shark bridges the gap between advanced computational functionality and practical usability in real-world lab workflows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0085",
+      "title": "Evaluation design",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0355",
+          "reference_ids": [],
+          "en": "The evaluation strategy of WSI-Babel-Shark was designed to comprehensively assess both the performance of the label-layout classifier and the robustness of the complete metadata extraction pipeline under realistic diagnostic conditions. All experiments were performed on datasets that were entirely independent of those used for classifier training and development, ensuring unbiased and reproducible results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0090",
+      "title": "Classifier evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0360",
+          "reference_ids": [],
+          "en": "The label-layout classifier was evaluated under both closed- and open-set conditions using the datasets described in the “Datasets” subsection of Materials and methods. Closed-set evaluation was performed on the 20% stratified test split of the 1836-label dataset, whereas open-set performance was assessed using 61 unseen label images representing handwritten or slides without data matrix code. Quantitative performance was measured using accuracy, precision, recall, F1-score, confusion matrices, and open-set rejection rates. These metrics captured both the classifier's ability to correctly recognize known label structures and its capacity to reject previously unseen configurations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0095",
+      "title": "Pipeline and fallback evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0365",
+          "reference_ids": [],
+          "en": "To evaluate WSI-Babel-Shark under conditions representative of routine diagnostic workflows, an independent set of WSIs was selected from multiple scanner platforms to capture real-world variability in label layouts and file structures. Each slide label contained both a verified 2D data matrix code and human-readable printed text encoding lab , case, and specimen identifiers, ensuring reliable ground-truth metadata for validation across both data matrix code- and OCR-based extraction pathways.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0370",
+          "reference_ids": [],
+          "en": "The evaluation was performed in two complementary modes designed to characterize standard and fallback operation. In the standard mode, the complete WSI-Babel-Shark pipeline was executed end-to-end, beginning with data matrix code decoding, followed by ROI-based OCR, metadata parsing, and database registration. This configuration represented typical diagnostic conditions in which data matrix code information was available and readable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0375",
+          "reference_ids": [],
+          "en": "In the fallback mode, data matrix code decoding was intentionally disabled to activate the OCR-based extraction pathway. In this configuration, metadata retrieval relied entirely on the label-layout classifier, predefined ROI configuration, OCR recognition, and rule-based parsing. This mode simulated practical failure scenarios including missing, damaged, or occluded data matrix codes, allowing direct assessment of the fallback mechanism's contribution to the pipeline's overall reliability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0380",
+          "reference_ids": [],
+          "en": "For each slide, metadata obtained through the fallback pathway were directly compared with the ground-truth metadata decoded from the corresponding data matrix codes. This comparison enabled quantitative estimation of field-specific accuracy and concordance across identifiers including case number, block ID, section number, and staining information. Slides with partial decoded of data matrix code were further analyzed to delineate the operational boundaries and robustness of the fallback module under heterogeneous label conditions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0100",
+      "title": "Cross-framework reproducibility",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0385",
+          "reference_ids": [],
+          "en": "To verify backward compatibility and ensure methodological continuity, WSI-Babel-Shark was benchmarked against the previously published WSI-Babel-Fish framework using datasets from the original study. The WSI-Babel-Fish training subset was employed exclusively to retrain and adapt the WSI-Babel-Shark label-layout classifier, ensuring full compatibility of feature representations and ROI configurations between the two systems. The corresponding WSI-Babel-Fish test dataset was then reprocessed through the complete WSI-Babel-Shark pipeline, including its ROI-based fallback module, under identical preprocessing and evaluation parameters. This controlled benchmarking design enabled a direct, framework-level assessment of reproducibility and methodological consistency across versions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0105",
+      "title": "Statistical and implementation details",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0390",
+          "reference_ids": [],
+          "en": "All experiments were conducted in a controlled Linux environment using Python 3.11 as the primary programming language.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0395",
+          "reference_ids": [],
+          "en": "The WSI-Babel-Shark framework was implemented as a fully modular and containerized system to ensure reproducibility, maintainability, and platform independence.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0400",
+          "reference_ids": [
+            "bb0110"
+          ],
+          "en": "A dedicated Docker image22 was developed to encapsulate all dependencies, enabling consistent deployment across heterogeneous computational environments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0405",
+          "reference_ids": [],
+          "en": "Core image-handling and preprocessing operations were implemented using OpenSlide, OpenCV, and Pillow, whereas numerical computation and data manipulation relied on NumPy and pandas.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0410",
+          "reference_ids": [],
+          "en": "OCR in the fallback extraction pathway was performed using EasyOCR, fully integrated within the ROI-based workflow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0415",
+          "reference_ids": [
+            "bb0115"
+          ],
+          "en": "Deep learning components, including the label-layout classifier, were developed using PyTorch and scikit-learn23 backends.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0420",
+          "reference_ids": [],
+          "en": "Configuration management was handled through YAML files, and metadata storage utilized SQLite3 for lightweight, file-based database integration.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0425",
+          "reference_ids": [],
+          "en": "Each module was designed as an independent CLI supporting standardized argument parsing, structured logging, and atomic file writing to prevent data corruption during batch operations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0430",
+          "reference_ids": [],
+          "en": "A central orchestration layer managed task sequencing, dependency validation, and exception handling, while maintaining reproducible log files for every execution.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0435",
+          "reference_ids": [],
+          "en": "Logging adhered to a unified format with timestamped INFO, WARNING, and ERROR entries to ensure traceability and auditability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0440",
+          "reference_ids": [],
+          "en": "Statistical analyses of performance metrics were carried out using NumPy and SciPy libraries.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0445",
+          "reference_ids": [],
+          "en": "Evaluation metrics included classification accuracy, precision, recall, and F1-score for the label-layout classifier, as well as field-level concordance rates for pipeline- and fallback-derived metadata.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0450",
+          "reference_ids": [],
+          "en": "Comparative analyses between data matrix code- and OCR-based outputs employed pairwise string matching and regular-expression–based normalization to ensure consistent identifier comparison.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0110",
+      "title": "Code and data availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0455",
+          "reference_ids": [],
+          "en": "The complete WSI-Babel-Shark framework, including the source code, YAML configuration templates, and documentation, is publicly available under an open-source license through the project's GitHub repository (https://github.com/cpheidelberg/WSI-Babel-Shark).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0460",
+          "reference_ids": [],
+          "en": "Two companion tools are provided through independent GitHub repositories: (i) the ROI annotator (https://github.com/cpheidelberg/ROI-Annotator), an interactive application for creating and editing layout-specific ROIs; and (ii) the Label-Layout-Classifier GUI (https://github.com/cpheidelberg/label-layout-classifier), which provides a graphical interface for classifier training, visual inspection, and manual verification of predicted label layouts. Both companion repositories are referenced in the main WSI-Babel-Shark repository to facilitate access and use alongside the core framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0465",
+          "reference_ids": [],
+          "en": "To support reproducible deployment across different computing environments, a pre-built Docker image is available via Docker Hub (https://hub.docker.com/r/bioinfo2026/wsi-babel-shark).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0470",
+          "reference_ids": [],
+          "en": "In addition, a small synthetic test dataset comprising 22 label-only images containing artificial, non-patient metadata is publicly available through heiDATA, the institutional research data repository of Heidelberg University (https://doi.org/10.11588/data/ZBS9RS). This dataset is intended exclusively for installation testing and basic pipeline validation and does not contain real WSIs or any patient-identifiable information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0115",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "s0120",
+      "title": "Classifier performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0475",
+          "reference_ids": [
+            "t0005"
+          ],
+          "en": "The label-layout classifier showed strong performance in assigning slides to the correct layout group. On the closed-set test set, which included 20% of the 1836 manually annotated samples, the model achieved an overall accuracy of 97.41%. Class-wise precision, recall, and F1-scores are summarized in Table 1, demonstrating consistently high performance across the 10 predefined layout groups, with macro-averaged precision and recall values of 0.98 and 0.97, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0480",
+          "reference_ids": [],
+          "en": "These findings further support the robustness of the proposed label-layout classifier across heterogeneous label configurations. This robustness is evidenced by consistently high classification performance despite substantial class imbalance, accurate rejection of previously unseen layouts through open-set evaluation, and the observation that the few remaining misclassifications were confined to structurally similar label categories.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0485",
+          "reference_ids": [
+            "f0025"
+          ],
+          "en": "The confusion matrix in Fig. 5 shows that errors were concentrated in a small number of cases and occurred primarily between layout groups with very similar structures. These misclassifications were mainly related to minor shifts in the position of the barcode or text fields and did not indicate systematic confusion between unrelated groups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0490",
+          "reference_ids": [],
+          "en": "Open-set performance was evaluated on 61 previously unseen labels, including handwritten, heterogeneous, or non-standard layouts. The classifier identified all of these samples as out-of-distribution, yielding a recall of 1.00 and a precision of 0.91 for the “Unknown” class, resulting in a F1-score of 0.95. These results demonstrate that the model distinguishes known institutional layouts from non-standard formats with high reliability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0125",
+      "title": "Pipeline performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0495",
+          "reference_ids": [],
+          "en": "The complete WSI-Babel-Shark pipeline was evaluated on 270 WSIs representing 5 predefined label-layout groups acquired from 2 scanner platforms. Label regions were successfully detected and extracted from all 270 WSIs, generating standardized label crops for downstream processing. Direct data matrix code decoding reconstructed the required metadata for 236 slides (87.4%). The remaining 34 slides (12.6%), for which the data matrix codes were damaged, partially occluded, or unreadable, were processed using the classifier-guided ROI-based fallback extraction pathway. Within the fallback workflow, the label layout was first classified, followed by automatic loading of the corresponding ROI template and OCR-based metadata extraction. Metadata were extracted for 31 of the 34 fallback cases, whereas metadata extraction failed for the remaining 3 slides because label-layout classification and/or OCR-based metadata extraction could not recover the required metadata. These three slides were excluded from the subsequent quantitative analysis. Consequently, 267 slides were included in the final performance evaluation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0500",
+          "reference_ids": [],
+          "en": "Following metadata extraction, stain information was extracted from all 267 evaluable label images using the OCR-based stain extraction module. The extracted stain information was subsequently combined with the recovered metadata to generate the final SlideID and automatically rename the corresponding WSIs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0505",
+          "reference_ids": [],
+          "en": "According to the predefined evaluation criterion, a SlideID was considered correct only when all required metadata fields were extracted accurately. Based on this criterion, 258 of the 267 evaluable slides (96.6%) were reconstructed without error, whereas the remaining 9 slides (3.4%) contained one or more metadata extraction errors.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0510",
+          "reference_ids": [],
+          "en": "Field-level analysis demonstrated high extraction accuracy across the individual metadata components. The case number and year were correctly extracted for all 267 evaluable slides. Three extraction errors were observed for the lab identifier, three for the pot identifier, three for the block identifier, and three for the stain annotation. Because multiple metadata fields were incorrect in some slides, these errors were distributed across nine slides rather than representing independent failure cases. The observed extraction errors were associated with degraded label quality, including low print contrast, partial label damage, glare artifacts, handwritten markings, mixed-format stain annotations, and OCR confusion between visually similar individual characters or digits during character-level recognition.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0515",
+          "reference_ids": [],
+          "en": "To further evaluate the accuracy of the OCR-based metadata extraction independently of the routine pipeline, the 236 slides with successfully decoded data matrix codes were additionally processed through the classifier-guided ROI-based OCR pathway. The OCR-derived metadata were compared with the corresponding data matrix-decoded metadata on a field-by-field basis. Complete agreement across all evaluated metadata fields was observed for 230 of 236 slides (97.5%). Field-level concordance reached 100.0% for the lab identifier and year, 99.6% for the case number, 99.2% for the pot identifier, and 98.3% for the block identifier.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0130",
+      "title": "Cross-framework comparison",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0520",
+          "reference_ids": [],
+          "en": "When evaluated on the legacy dataset previously used in the WSI-Babel-Fish study, WSI-Babel-Shark maintained a comparable level of accuracy across all metadata fields.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0525",
+          "reference_ids": [
+            "t0010"
+          ],
+          "en": "As summarized in Table 2, OCR-based retrieval achieved near-perfect identification rates for lab prefix, case number, year suffix, block number, and staining information in both training and testing subsets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0530",
+          "reference_ids": [],
+          "en": "Field-level accuracies remained consistent with those reported for WSI-Babel-Fish, indicating that the new framework preserved the reliability of the original implementation while introducing a more modular and reproducible architecture.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0535",
+          "reference_ids": [],
+          "en": "Minor variations were primarily observed in lab identifiers, pot identifiers, block identifiers, and stain annotations and were mainly attributable to label artifacts such as glare, partial occlusion, or data matrix code degradation rather than model misclassification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0135",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "s0140",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0540",
+          "reference_ids": [
+            "bb0020",
+            "t0015"
+          ],
+          "en": "The WSI-Babel-Shark framework represents a substantial improvement over its predecessor, WSI-Babel-Fish,4 in the automated extraction of slide-level metadata from WSIs. Building on the conceptual foundation established by Babel Fish, it evolves a prototype into a robust and reproducible system capable of operating across heterogeneous lab environments. Whereas the original WSI-Babel-Fish system demonstrated the feasibility of OCR-based metadata retrieval within a single institutional setting, WSI-Babel-Shark extends this approach through deep-learning–based layout recognition, open-set identification of previously unseen label types, and a classifier-guided fallback mechanism that supports reliable metadata recovery even when data matrix code information is incomplete or unavailable. In contrast to Babel Fish, which extracted only predefined metadata fields, WSI-Babel-Shark processes all extractable label information and applies intentional trade-offs to maximize recovery across diverse formats. The principal methodological and architectural differences between WSI-Babel-Fish and the proposed WSI-Babel-Shark framework are summarized in Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0545",
+          "reference_ids": [],
+          "en": "The experimental results confirm that WSI-Babel-Shark performs reliably under a wide range of diagnostic conditions and maintains consistent field-level accuracy across label formats and the two scanner platforms included in this study. The high end-to-end success rate observed in heterogeneous datasets demonstrates the stability of the pipeline and its capability to handle both structured and irregular label layouts. The robustness of the proposed label-layout classifier is further supported by its high classification performance across 10 heterogeneous layout groups despite substantial class imbalance, reliable recognition of previously unseen layouts through the open-set evaluation, and the observation that the few remaining misclassifications occurred only between structurally similar label categories. Importantly, none of the observed errors affected case identification in the present dataset. All discrepancies were limited to block identifiers and stain labels, and these can be corrected manually with minimal effort, preventing any risk of mixing up cases. Minor inconsistencies were primarily attributable to physical artifacts on the label, such as low print contrast, misaligned edges, or partial trimming, rather than model misclassification. These findings highlight that label print quality and scanning conditions remain key determinants of metadata extraction accuracy.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0550",
+          "reference_ids": [],
+          "en": "Beyond numerical performance, WSI-Babel-Shark introduces several conceptual and architectural advances that broaden its utility. The classifier-guided fallback strategy dynamically adapts ROI extraction based on the predicted label layout, whereas the open-set module prevents incorrect assignments to known categories. The introduction of GUIs for classifier training and ROI annotation removes reliance on third-party software and enables customization by users without programming expertise. Containerized deployment ensures reproducible execution across computing environments, and an unified YAML-based configuration facilitates transparent parameter management and supports cross-institutional deployment. Together, these features establish WSI-Babel-Shark as an extensible foundation for automated slide-level metadata extraction in digital pathology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0555",
+          "reference_ids": [
+            "bb0035",
+            "bb0030"
+          ],
+          "en": "Unlike radiology, where standardized image formats and metadata models have become widely established through DICOM, digital pathology still comprises a heterogeneous ecosystem of scanner vendors, proprietary image formats, and institution-specific slide-label conventions.7 Although ongoing standardization efforts are expected to improve interoperability in the future, widespread adoption remains incomplete across many research and diagnostic environments.6 Rather than relying on the emergence of a universal labeling standard, WSI-Babel-Shark was designed to operate within this existing heterogeneous landscape by providing layout-aware metadata extraction that can be adapted to diverse label configurations. This pragmatic strategy reduces dependence on uniform label designs and facilitates interoperability across current lab workflows without requiring changes to existing slide-generation processes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0560",
+          "reference_ids": [],
+          "en": "Although WSI-Babel-Shark demonstrates strong robustness and adaptability, several components could be further improved. The fallback OCR pathway remains sensitive to glare, faint printing, and handwritten annotations, which can introduce minor inconsistencies in text recognition. Slides for which reliable metadata reconstruction cannot be achieved are automatically flagged for manual review instead of being assigned potentially incorrect metadata, thereby providing a fail-safe quality assurance mechanism within the current end-to-end pipeline. These issues could be reduced through additional image-normalization steps, adaptive thresholding, or the integration of small handwriting-recognition modules. The rule-based parsing logic, while effective under current institutional naming conventions, may require adjustment when applied in labs that use different identifier formats; developing configurable parsing templates or semi-automatic schema-learning tools would support easier adaptation. In addition, although the open-set classifier reliably detects new label layouts, incorporating domain-adaptation techniques, incremental learning, and periodic self-supervised updates could strengthen its generalization across institutions, scanners, and evolving label designs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0145",
+      "title": "Strengths and limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0565",
+          "reference_ids": [],
+          "en": "The proposed WSI-Babel-Shark framework offers several methodological and practical advantages that distinguish it from conventional slide-label processing workflows. A principal strength of the framework is its modular software architecture, which separates label layout classification, ROI localization, OCR, metadata parsing, and configuration management into independent components. This design simplifies maintenance, facilitates future extension, and allows individual modules to be updated or replaced without requiring modifications to the entire pipeline. This modular organization also enables institution-specific adaptation by allowing individual components to evolve independently as lab workflows, scanner technologies, or label formats change over time.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0570",
+          "reference_ids": [],
+          "en": "Furthermore, the prototype-based layout classifier enables straightforward incorporation of newly encountered label layouts by generating additional prototypes and corresponding ROI templates rather than retraining a complete deep-learning model. The dedicated ROI annotator application further improves reproducibility by providing a standardized workflow for generating layout-specific JSON-based ROI templates, whereas the graphical configuration tools reduce deployment complexity for users without extensive programming experience.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0575",
+          "reference_ids": [],
+          "en": "Several limitations should nevertheless be acknowledged. First, although the software architecture was intentionally designed to support heterogeneous scanner vendors and diverse label formats, the current experimental evaluation was performed using label layouts originating from only two scanner platforms and the label formats routinely encountered at our institution. Consequently, additional validation on datasets acquired from other scanner vendors, lab workflows, and institutions is required to further evaluate the generalizability of the proposed framework. Second, the current implementation requires the one-time creation of layout-specific ROI templates whenever a previously unseen label layout is introduced. Although this process is supported by the dedicated ROI annotator application and does not require modification of the underlying algorithms, it still involves manual user interaction during the initial configuration phase. Third, the present implementation does not yet provide direct integration with LIS or PACS. Accordingly, integration with institutional information systems was not evaluated in the present study. The extracted metadata are exported in standardized formats suitable for downstream processing, and seamless bidirectional communication with institutional information systems remains an important direction for future development. Finally, as with all OCR-based document analysis systems, overall performance remains dependent on image quality, label printing conditions, and the readability of printed text, factors that lie largely outside the control of the software itself.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0150",
+      "title": "Future directions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0580",
+          "reference_ids": [],
+          "en": "Future directions for WSI-Babel-Shark include the integration of handwriting-recognition models, adaptive stain classifiers, and multimodal strategies that combine textual and visual features for more comprehensive metadata validation. Additional opportunities include comparing section morphology to detect potential slide mix-ups, aligning section shape with block identifiers, and automatically verifying stain appearance against the printed label annotation. Integration with LIS and PACS through standardized interoperability frameworks, including DICOM-WSI, may further support translation into clinical workflows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0155",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0585",
+          "reference_ids": [],
+          "en": "WSI-Babel-Shark provides an experimentally validated, robust, and extensible solution for automated slide-level metadata extraction by combining layout-aware deep learning, prototype-based open-set recognition, and a classifier-guided fallback strategy within a reproducible, modular architecture. Its broader coverage of heterogeneous label formats and high end-to-end reliability demonstrate meaningful improvements over WSI-Babel-Fish. Whereas minor configuration adjustments may be required across institutions, the framework offers a practical foundation for metadata harmonization in digital pathology. Continued advances in domain adaptation, handwriting interpretation, and stain-label validation are expected to further enhance its generalization and support clinical integration.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0175",
+      "title": "Consent for publication",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0605",
+          "reference_ids": [],
+          "en": "Not applicable. No identifiable human data are included.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0170",
+      "title": "Ethics approval and consent to participate",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0600",
+          "reference_ids": [],
+          "en": "All slide-label images used in this study originated from routine diagnostic workflows at the Institute of Pathology Heidelberg. No patient data have been used. In accordance with institutional and national regulations, the use of fully anonymized retrospective material for methodological development does not require formal ethics committee approval.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0160",
+      "title": "Declaration of generative AI and AI-assisted technologies in the writing process",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0590",
+          "reference_ids": [],
+          "en": "During the preparation of this work, the authors used ChatGPT (OpenAI) to improve clarity, structure, and readability. All AI-generated suggestions were reviewed, edited, and verified by the authors, who take full responsibility for the content of the published article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0165",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0595",
+          "reference_ids": [],
+          "en": "No funding was received for this study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "coi0005",
+      "title": "Declaration of competing interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0610",
+          "reference_ids": [],
+          "en": "The authors declare no known competing financial interests or personal relationships that could have influenced the work reported in this article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0620",
+          "reference_ids": [],
+          "en": "Supplementary data to this article can be found online at https://doi.org/10.1016/j.jpi.2026.100722.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "s0180",
+      "title": "Supplementary data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "da0005",
+      "title": "Data availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0030",
+          "reference_ids": [],
+          "en": "The publicly shareable subset of slide-label images, configuration templates, and example outputs used in this study is available in the heiDATA repository under the persistent identifier:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0035",
+          "reference_ids": [],
+          "en": "https://doi.org/10.11588/data/ZBS9RS",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0040",
+          "reference_ids": [],
+          "en": "Additional anonymized datasets used for internal validation are available from the corresponding author upon reasonable request and in compliance with institutional data-protection policies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0045",
+          "reference_ids": [],
+          "en": "Code availability",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0050",
+          "reference_ids": [],
+          "en": "The complete source code for the WSI-Babel-Shark framework is available at:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0055",
+          "reference_ids": [],
+          "en": "https://github.com/cpheidelberg/WSI-Babel-Shark",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0060",
+          "reference_ids": [],
+          "en": "A corresponding containerized implementation is available on Docker Hub:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0065",
+          "reference_ids": [],
+          "en": "https://hub.docker.com/r/bioinfo2026/wsi-babel-shark",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0070",
+          "reference_ids": [],
+          "en": "All code versions used for generating the results in this manuscript are archived within the repository.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "bi0005",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "bi0005_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "The complete WSI-Babel-Shark framework, including the source code, YAML configuration templates, and documentation, is publicly available under an open-source license through the project's GitHub repository (https://github.com/cpheidelberg/WSI-Babel-Shark).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p2",
+          "reference_ids": [],
+          "en": "Two companion tools are provided through independent GitHub repositories: (i) the ROI annotator (https://github.com/cpheidelberg/ROI-Annotator), an interactive application for creating and editing layout-specific ROIs; and (ii) the Label-Layout-Classifier GUI (https://github.com/cpheidelberg/label-layout-classifier), which provides a graphical interface for classifier training, visual inspection, and manual verification of predicted label layouts. Both companion repositories are referenced in the main WSI-Babel-Shark repository to facilitate access and use alongside the core framework.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p3",
+          "reference_ids": [],
+          "en": "To support reproducible deployment across different computing environments, a pre-built Docker image is available via Docker Hub (https://hub.docker.com/r/bioinfo2026/wsi-babel-shark).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p4",
+          "reference_ids": [],
+          "en": "In addition, a small synthetic test dataset comprising 22 label-only images containing artificial, non-patient metadata is publicly available through heiDATA, the institutional research data repository of Heidelberg University (https://doi.org/10.11588/data/ZBS9RS). This dataset is intended exclusively for installation testing and basic pipeline validation and does not contain real WSIs or any patient-identifiable information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p5",
+          "reference_ids": [],
+          "en": "The publicly shareable subset of slide-label images, configuration templates, and example outputs used in this study is available in the heiDATA repository under the persistent identifier:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p6",
+          "reference_ids": [],
+          "en": "https://doi.org/10.11588/data/ZBS9RS",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p7",
+          "reference_ids": [],
+          "en": "Additional anonymized datasets used for internal validation are available from the corresponding author upon reasonable request and in compliance with institutional data-protection policies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p8",
+          "reference_ids": [],
+          "en": "Code availability",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p9",
+          "reference_ids": [],
+          "en": "The complete source code for the WSI-Babel-Shark framework is available at:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p10",
+          "reference_ids": [],
+          "en": "https://github.com/cpheidelberg/WSI-Babel-Shark",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p11",
+          "reference_ids": [],
+          "en": "A corresponding containerized implementation is available on Docker Hub:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p12",
+          "reference_ids": [],
+          "en": "https://hub.docker.com/r/bioinfo2026/wsi-babel-shark",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "_adda93_-p13",
+          "reference_ids": [],
+          "en": "All code versions used for generating the results in this manuscript are archived within the repository.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "t0005",
+      "label": "Table 1",
+      "caption": "Performance metrics for the label-layout classifier.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Class",
+          "Precision",
+          "Recall",
+          "F1-score",
+          "Support"
+        ],
+        [
+          "G1",
+          "1.000",
+          "0.960",
+          "0.980",
+          "79"
+        ],
+        [
+          "G2",
+          "1.000",
+          "1.000",
+          "1.000",
+          "71"
+        ],
+        [
+          "G3",
+          "0.950",
+          "0.940",
+          "0.940",
+          "64"
+        ],
+        [
+          "G4",
+          "1.000",
+          "1.000",
+          "1.000",
+          "41"
+        ],
+        [
+          "G5",
+          "1.000",
+          "0.930",
+          "0.960",
+          "27"
+        ],
+        [
+          "G6",
+          "1.000",
+          "1.000",
+          "1.000",
+          "27"
+        ],
+        [
+          "G7",
+          "1.000",
+          "1.000",
+          "1.000",
+          "24"
+        ],
+        [
+          "G8",
+          "0.890",
+          "0.890",
+          "0.890",
+          "19"
+        ],
+        [
+          "G9",
+          "1.000",
+          "1.000",
+          "1.000",
+          "6"
+        ],
+        [
+          "G10",
+          "1.000",
+          "1.000",
+          "1.000",
+          "5"
+        ],
+        [
+          "Unknown",
+          "0.910",
+          "1.000",
+          "0.950",
+          "61"
+        ],
+        [
+          "Overall accuracy",
+          "–",
+          "–",
+          "0.974",
+          "424"
+        ],
+        [
+          "Macro Avg",
+          "0.980",
+          "0.970",
+          "0.980",
+          "424"
+        ],
+        [
+          "Weighted Avg",
+          "0.975",
+          "0.974",
+          "0.974",
+          "424"
+        ]
+      ],
+      "footnotes": "Precision, recall, F1-score, and support are provided for each predefined layout group (G1–G10) and for the open-set “Unknown” category. Macro- and weighted-average values summarize overall classifier performance on the 424-sample test set.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"t0005\" position=\"float\"><label>Table 1</label><caption><p>Performance metrics for the label-layout classifier.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Class</th><th colspan=\"1\" rowspan=\"1\">Precision</th><th colspan=\"1\" rowspan=\"1\">Recall</th><th colspan=\"1\" rowspan=\"1\">F1-score</th><th colspan=\"1\" rowspan=\"1\">Support</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">G1</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">0.960</td><td colspan=\"1\" rowspan=\"1\">0.980</td><td colspan=\"1\" rowspan=\"1\">79</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G2</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">71</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G3</td><td colspan=\"1\" rowspan=\"1\">0.950</td><td colspan=\"1\" rowspan=\"1\">0.940</td><td colspan=\"1\" rowspan=\"1\">0.940</td><td colspan=\"1\" rowspan=\"1\">64</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G4</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">41</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G5</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">0.930</td><td colspan=\"1\" rowspan=\"1\">0.960</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G6</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G7</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">24</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G8</td><td colspan=\"1\" rowspan=\"1\">0.890</td><td colspan=\"1\" rowspan=\"1\">0.890</td><td colspan=\"1\" rowspan=\"1\">0.890</td><td colspan=\"1\" rowspan=\"1\">19</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G9</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">6</td></tr><tr><td colspan=\"1\" rowspan=\"1\">G10</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">5</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Unknown</td><td colspan=\"1\" rowspan=\"1\">0.910</td><td colspan=\"1\" rowspan=\"1\">1.000</td><td colspan=\"1\" rowspan=\"1\">0.950</td><td colspan=\"1\" rowspan=\"1\">61</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Overall accuracy</td><td colspan=\"1\" rowspan=\"1\">–</td><td colspan=\"1\" rowspan=\"1\">–</td><td colspan=\"1\" rowspan=\"1\">0.974</td><td colspan=\"1\" rowspan=\"1\">424</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Macro Avg</td><td colspan=\"1\" rowspan=\"1\">0.980</td><td colspan=\"1\" rowspan=\"1\">0.970</td><td colspan=\"1\" rowspan=\"1\">0.980</td><td colspan=\"1\" rowspan=\"1\">424</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Weighted Avg</td><td colspan=\"1\" rowspan=\"1\">0.975</td><td colspan=\"1\" rowspan=\"1\">0.974</td><td colspan=\"1\" rowspan=\"1\">0.974</td><td colspan=\"1\" rowspan=\"1\">424</td></tr></tbody></table><table-wrap-foot><fn id=\"fn3\"><p>Precision, recall, F1-score, and support are provided for each predefined layout group (G1–G10) and for the open-set “Unknown” category. Macro- and weighted-average values summarize overall classifier performance on the 424-sample test set.</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "t0010",
+      "label": "Table 2",
+      "caption": "Results of the ROI-based metadata extraction module.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Label information",
+          "Correctly identified (Accuracy)"
+        ],
+        [
+          "WSI-Babel-Fish dataset",
+          "WSI-Babel-Shark dataset"
+        ],
+        [
+          "Prefix/lab ID",
+          "110/110 (1.000)",
+          "264/267 (0.989)"
+        ],
+        [
+          "Case number",
+          "110/110 (1.000)",
+          "267/267 (1.000)"
+        ],
+        [
+          "Suffix/year",
+          "110/110 (1.000)",
+          "267/267 (1.000)"
+        ],
+        [
+          "Pot identifier",
+          "107/110 (0.973)",
+          "264/267 (0.989)"
+        ],
+        [
+          "Block number",
+          "108/110 (0.982)",
+          "264/267 (0.989)"
+        ],
+        [
+          "Staining",
+          "109/110 (0.991)",
+          "264/267 (0.989)"
+        ],
+        [
+          "Entire information set",
+          "105/110 (0.955)",
+          "258/267 (0.966)"
+        ]
+      ],
+      "footnotes": "The module was evaluated on 2 independent datasets comprising 110 (WSI-Babel-Fish) and 270 (WSI-Babel-Shark) slide labels. Three WSI-Babel-Shark labels failed the metadata extraction workflow owing to severe label degradation and were excluded from field-level accuracy analysis, resulting in 267 evaluable slide labels. Individual metadata fields (Prefix/Lab ID, Case number, Suffix/Year, Pot identifier, Block number, and Staining) and the complete information set per slide were subsequently evaluated.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"t0010\" position=\"float\"><label>Table 2</label><caption><p>Results of the ROI-based metadata extraction module.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">Label information</th><th colspan=\"2\" rowspan=\"1\">Correctly identified (Accuracy)<hr /></th></tr><tr><th colspan=\"1\" rowspan=\"1\">WSI-Babel-Fish dataset</th><th colspan=\"1\" rowspan=\"1\">WSI-Babel-Shark dataset</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Prefix/lab ID</td><td colspan=\"1\" rowspan=\"1\">110/110 (1.000)</td><td colspan=\"1\" rowspan=\"1\">264/267 (0.989)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Case number</td><td colspan=\"1\" rowspan=\"1\">110/110 (1.000)</td><td colspan=\"1\" rowspan=\"1\">267/267 (1.000)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Suffix/year</td><td colspan=\"1\" rowspan=\"1\">110/110 (1.000)</td><td colspan=\"1\" rowspan=\"1\">267/267 (1.000)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Pot identifier</td><td colspan=\"1\" rowspan=\"1\">107/110 (0.973)</td><td colspan=\"1\" rowspan=\"1\">264/267 (0.989)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Block number</td><td colspan=\"1\" rowspan=\"1\">108/110 (0.982)</td><td colspan=\"1\" rowspan=\"1\">264/267 (0.989)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Staining</td><td colspan=\"1\" rowspan=\"1\">109/110 (0.991)</td><td colspan=\"1\" rowspan=\"1\">264/267 (0.989)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Entire information set</td><td colspan=\"1\" rowspan=\"1\">105/110 (0.955)</td><td colspan=\"1\" rowspan=\"1\">258/267 (0.966)</td></tr></tbody></table><table-wrap-foot><fn id=\"fn4\"><p>The module was evaluated on 2 independent datasets comprising 110 (WSI-Babel-Fish) and 270 (WSI-Babel-Shark) slide labels. Three WSI-Babel-Shark labels failed the metadata extraction workflow owing to severe label degradation and were excluded from field-level accuracy analysis, resulting in 267 evaluable slide labels. Individual metadata fields (Prefix/Lab ID, Case number, Suffix/Year, Pot identifier, Block number, and Staining) and the complete information set per slide were subsequently evaluated.</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "t0015",
+      "label": "Table 3",
+      "caption": "Comparison of the methodological and architectural characteristics of WSI-Babel-Fish and the proposed WSI-Babel-Shark framework.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Component",
+          "WSI-Babel-Fish",
+          "WSI-Babel-Shark"
+        ],
+        [
+          "Label layout handling",
+          "Fixed label layouts",
+          "Prototype-based label-layout classifier with automatic layout recognition"
+        ],
+        [
+          "Previously unseen layouts",
+          "Not supported",
+          "Open-set recognition enables rejection of unknown layouts"
+        ],
+        [
+          "ROI localization",
+          "Manually defined ROI selection",
+          "Automatic loading of layout-specific JSON ROI templates after layout classification"
+        ],
+        [
+          "ROI annotation",
+          "External ImageJ software",
+          "Dedicated ROI annotator GUI integrated into the workflow"
+        ],
+        [
+          "Metadata extraction strategy",
+          "OCR-based extraction from predefined ROIs",
+          "Hierarchical extraction combining data matrix decoding, classifier-guided ROI localization, OCR, and rule-based parsing"
+        ],
+        [
+          "Barcode redundancy",
+          "Not available",
+          "Automatic data matrix decoding with OCR fallback"
+        ],
+        [
+          "Metadata validation",
+          "Limited",
+          "Rule-based validation and standardized parsing"
+        ],
+        [
+          "Configuration",
+          "Manual configuration",
+          "Centralized YAML- and JSON-based configuration"
+        ],
+        [
+          "Deployment",
+          "Prototype implementation",
+          "Docker-containerized, modular, reproducible pipeline"
+        ],
+        [
+          "Software architecture",
+          "Single-purpose research prototype",
+          "Modular architecture with independent components for classification, ROI localization, OCR, parsing, and reporting"
+        ],
+        [
+          "Extensibility",
+          "Limited adaptation to new layouts",
+          "New layouts can be incorporated by generating additional prototypes and ROI templates without retraining the entire classifier"
+        ]
+      ],
+      "footnotes": "WSI-Babel-Shark extends the previous framework through automated layout recognition, open-set classification, classifier-guided ROI localization, standardized ROI annotation, modular software architecture, and containerized deployment, thereby improving adaptability, reproducibility, and scalability across heterogeneous label layouts.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"t0015\" position=\"float\"><label>Table 3</label><caption><p>Comparison of the methodological and architectural characteristics of WSI-Babel-Fish and the proposed WSI-Babel-Shark framework.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Component</th><th colspan=\"1\" rowspan=\"1\">WSI-Babel-Fish</th><th colspan=\"1\" rowspan=\"1\">WSI-Babel-Shark</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Label layout handling</td><td colspan=\"1\" rowspan=\"1\">Fixed label layouts</td><td colspan=\"1\" rowspan=\"1\">Prototype-based label-layout classifier with automatic layout recognition</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Previously unseen layouts</td><td colspan=\"1\" rowspan=\"1\">Not supported</td><td colspan=\"1\" rowspan=\"1\">Open-set recognition enables rejection of unknown layouts</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ROI localization</td><td colspan=\"1\" rowspan=\"1\">Manually defined ROI selection</td><td colspan=\"1\" rowspan=\"1\">Automatic loading of layout-specific JSON ROI templates after layout classification</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ROI annotation</td><td colspan=\"1\" rowspan=\"1\">External ImageJ software</td><td colspan=\"1\" rowspan=\"1\">Dedicated ROI annotator GUI integrated into the workflow</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Metadata extraction strategy</td><td colspan=\"1\" rowspan=\"1\">OCR-based extraction from predefined ROIs</td><td colspan=\"1\" rowspan=\"1\">Hierarchical extraction combining data matrix decoding, classifier-guided ROI localization, OCR, and rule-based parsing</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Barcode redundancy</td><td colspan=\"1\" rowspan=\"1\">Not available</td><td colspan=\"1\" rowspan=\"1\">Automatic data matrix decoding with OCR fallback</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Metadata validation</td><td colspan=\"1\" rowspan=\"1\">Limited</td><td colspan=\"1\" rowspan=\"1\">Rule-based validation and standardized parsing</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Configuration</td><td colspan=\"1\" rowspan=\"1\">Manual configuration</td><td colspan=\"1\" rowspan=\"1\">Centralized YAML- and JSON-based configuration</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Deployment</td><td colspan=\"1\" rowspan=\"1\">Prototype implementation</td><td colspan=\"1\" rowspan=\"1\">Docker-containerized, modular, reproducible pipeline</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Software architecture</td><td colspan=\"1\" rowspan=\"1\">Single-purpose research prototype</td><td colspan=\"1\" rowspan=\"1\">Modular architecture with independent components for classification, ROI localization, OCR, parsing, and reporting</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Extensibility</td><td colspan=\"1\" rowspan=\"1\">Limited adaptation to new layouts</td><td colspan=\"1\" rowspan=\"1\">New layouts can be incorporated by generating additional prototypes and ROI templates without retraining the entire classifier</td></tr></tbody></table><table-wrap-foot><fn id=\"fn5\"><p>WSI-Babel-Shark extends the previous framework through automated layout recognition, open-set classification, classifier-guided ROI localization, standardized ROI annotation, modular software architecture, and containerized deployment, thereby improving adaptability, reproducibility, and scalability across heterogeneous label layouts.</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "f0005",
+      "label": "Fig. 1",
+      "caption": "Distribution of sample counts across groups (G1–G10).The figure illustrates the number of slides in each group, ranging from 27 samples in G10 to 398 samples in G1.",
+      "caption_zh": "",
+      "graphics": [
+        "gr1.webp",
+        "gr1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "f0010",
+      "label": "Fig. 2",
+      "caption": "Representative examples of the 10 manually defined label-layout groups (G1–G10) used in WSI-Babel-Shark.Each panel illustrates the characteristic spatial arrangement of metadata fields used for ROI definition and subsequent metadata extraction. Colored text denotes the metadata fields extracted by the pipeline: Lab ID (red), Case number (blue), Year/Date (green), Staining (dark red), Block number (orange), Pot identifier (olive), and Section number (teal). All remaining text shown in black represents layout-specific information, including manufacturer labels, lab abbreviations, lot numbers, auxiliary numeric codes, and other institution-specific printed elements that are not used for SlideID generation. When an alphanumeric code is present (e.g., A1), the alphabetic character represents the Pot identifier, whereas the following numeric character represents the Block number. Stand-alone numeric values appearing separately on the label correspond to the Section number. (For interpretation of the references to color in this figure legend, the reader is referred to the web version of this article.)",
+      "caption_zh": "",
+      "graphics": [
+        "gr2.webp",
+        "gr2.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "f0015",
+      "label": "Fig. 3",
+      "caption": "Workflow of the WSI-Babel-Shark main pipeline.The flowchart illustrates the sequential execution of all processing modules coordinated by runner.py under centralized YAML configuration control. The unified command-line interface implemented in cli_main.py manages ROI-based metadata extraction and fallback operations. Together, these modules enable fully automated and reproducible processing of whole-slide images—from initial slide collection and label extraction to data matrix code decoding, stain identification, SlideID generation, and integration of all metadata into the structured SQLite registry.",
+      "caption_zh": "",
+      "graphics": [
+        "gr3.webp",
+        "gr3.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "f0020",
+      "label": "Fig. 4",
+      "caption": "Graphical user interfaces developed for WSI-Babel-Shark.(A) Screenshot of one module of the classifier training application, illustrating the graphical environment for prototype generation, model training, validation, and classifier evaluation. The complete application comprises multiple modules supporting the full classifier development workflow, including dataset management and configuration editing. (B) Screenshot of the stand-alone ROI annotator showing manual delineation of ROIs corresponding to predefined metadata fields on an averaged representative slide-label image. The annotated ROIs are exported as standardized JSON templates, which are automatically loaded following label-layout classification to guide ROI-based metadata localization before OCR during the fallback workflow.",
+      "caption_zh": "",
+      "graphics": [
+        "gr4.webp",
+        "gr4.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "f0025",
+      "label": "Fig. 5",
+      "caption": "Confusion matrix of the label-layout classifier.The figure summarizes the classifier's performance on an independent 424-sample test set across all predefined layout groups (G1–G10) and the open-set “Unknown” category. Strong diagonal dominance indicates high agreement between predicted and true classes, whereas the few off-diagonal entries represent misclassifications between visually similar label layouts.",
+      "caption_zh": "",
+      "graphics": [
+        "gr5.webp",
+        "gr5.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "fo0005",
+      "text": "S=αSCNN+βSAVG+γSLayout",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"fo0005\"><ns0:math id=\"M1\" display=\"block\" altimg=\"si1.svg\"><ns0:mi>S</ns0:mi><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:msub><ns0:mi mathvariant=\"italic\">αS</ns0:mi><ns0:mi mathvariant=\"italic\">CNN</ns0:mi></ns0:msub><ns0:mo linebreak=\"badbreak\">+</ns0:mo><ns0:msub><ns0:mi mathvariant=\"italic\">βS</ns0:mi><ns0:mi mathvariant=\"italic\">AVG</ns0:mi></ns0:msub><ns0:mo linebreak=\"badbreak\">+</ns0:mo><ns0:msub><ns0:mi mathvariant=\"italic\">γS</ns0:mi><ns0:mi mathvariant=\"italic\">Layout</ns0:mi></ns0:msub></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "bb0005",
+      "text": "1.Tommasino C., Merolla F., Russo C., Staibano S., Rinaldi A.M. Histopathological image deep feature representation for CBIR in smart PACS. J Digit Imaging. 2023;36(5):2194–2209. doi: 10.1007/s10278-023-00832-x.",
+      "doi": []
+    },
+    {
+      "id": "bb0010",
+      "text": "2.McClintock D.S., Abel J.T., Cornish T.C. Whole Slide Imaging: Current Applications and Future Directions. Springer; 2021. Whole slide imaging hardware, software, and infrastructure; pp. 23–56.",
+      "doi": []
+    },
+    {
+      "id": "bb0015",
+      "text": "3.Fraggetta F., L'imperio V., Ameisen D., et al. Best practice recommendations for the implementation of a digital pathology workflow in the anatomic pathology laboratory by the European Society of Digital and Integrative Pathology (ESDIP) Diagnostics (Basel, Switzerland) 2021;11(11) doi: 10.3390/diagnostics11112167.",
+      "doi": []
+    },
+    {
+      "id": "bb0020",
+      "text": "4.Englert N., Schwab C., Legnar M., Weis C.-A. Presenting the framework of the whole slide image file Babel fish: an OCR-based file labeling tool. J Pathol Inform. 2024;15 doi: 10.1016/j.jpi.2024.100402.",
+      "doi": []
+    },
+    {
+      "id": "bb0025",
+      "text": "5.Satyanarayanan M., Goode A., Gilbert B., Harkes J., Jukic D. Openslide: a vendor-neutral software foundation for digital pathology. J Pathol Inform. 2013;4(1):27. doi: 10.4103/2153-3539.119005.",
+      "doi": []
+    },
+    {
+      "id": "bb0030",
+      "text": "6.Clunie D.A. DICOM format and protocol standardization—a core requirement for digital pathology success. Toxicol Pathol. 2021;49(4):738–749. doi: 10.1177/0192623320965893.",
+      "doi": []
+    },
+    {
+      "id": "bb0035",
+      "text": "7.Herrmann M.D., Clunie D.A., Fedorov A., et al. Implementing the DICOM standard for digital pathology. J Pathol Inform. 2018;9(1):37. doi: 10.4103/jpi.jpi_42_18.",
+      "doi": []
+    },
+    {
+      "id": "bb0040",
+      "text": "8.Zhao Y., Ye H., Yang J., et al. AutoLDP: an accurate and efficient artificial intelligence-based tool for automatic labeling of digital pathology. EngMedicine. 2025;2(1)",
+      "doi": []
+    },
+    {
+      "id": "bb0045",
+      "text": "9.Schindelin J., Rueden C.T., Hiner M.C., Eliceiri K.W. The ImageJ ecosystem: an open platform for biomedical image analysis. Mol Reprod Dev. 2015;82(7–8):518–529. doi: 10.1002/mrd.22489.",
+      "doi": []
+    },
+    {
+      "id": "bb0050",
+      "text": "10.Randon B. pylibdmtx: Python Wrapper for libdmtx (Version 0.1.10) 2018. https://pypi.org/project/pylibdmtx/0.1.10 Available from:",
+      "doi": []
+    },
+    {
+      "id": "bb0055",
+      "text": "11.Bradski G., Kaehler A. OpenCV. Dr Dobb's J Softw Tools. 2000;3(2)",
+      "doi": []
+    },
+    {
+      "id": "bb0060",
+      "text": "12.Harris C.R., Millman K.J., Van Der Walt S.J., et al. Array programming with NumPy nature. 2020;585(7825):357–362. doi: 10.1038/s41586-020-2649-2.",
+      "doi": []
+    },
+    {
+      "id": "bb0065",
+      "text": "13.JaidedAI EasyOCR: Ready-to-Use OCR with 80+ Languages Supported. 2020. https://github.com/JaidedAI/EasyOCR Available from:",
+      "doi": []
+    },
+    {
+      "id": "bb0070",
+      "text": "14.Muddana A.L., Vinayakam S. Python for Data Science. Springer; 2024. SQLite3; pp. 201–216.",
+      "doi": []
+    },
+    {
+      "id": "bb0075",
+      "text": "15.McKinney W. Data structures for statistical computing in Python. scipy. 2010;445(1):51–56.",
+      "doi": []
+    },
+    {
+      "id": "bb0080",
+      "text": "16.He K., Zhang X., Ren S., Sun J., editors. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2016. Deep residual learning for image recognition.",
+      "doi": []
+    },
+    {
+      "id": "bb0085",
+      "text": "17.Paszke A., Gross S., Massa F., et al. Pytorch: an imperative style, high-performance deep learning library. Adv Neural Inf Proces Syst. 2019;32",
+      "doi": []
+    },
+    {
+      "id": "bb0090",
+      "text": "18.Schimansky T. 2022. CustomTkinter.",
+      "doi": []
+    },
+    {
+      "id": "bb0095",
+      "text": "19.Ben-Kiki O., Evans C., Net I.D. YAML Ain't Markup Language (YAML™) Version 1.2. 2009. https://yaml.org/spec/1.2/spec.html Available from:",
+      "doi": []
+    },
+    {
+      "id": "bb0100",
+      "text": "20.Clark A. Pillow (PIL Fork) 2015. https://python-pillow.org Available from:",
+      "doi": []
+    },
+    {
+      "id": "bb0105",
+      "text": "21.Julian D. jsonschema. 2023. https://pypi.org/project/jsonschema Available from.",
+      "doi": []
+    },
+    {
+      "id": "bb0110",
+      "text": "22.Merkel D. Docker: lightweight linux containers for consistent development and deployment. Linux j. 2014;239(2):2.",
+      "doi": []
+    },
+    {
+      "id": "bb0115",
+      "text": "23.Kramer O. Machine learning for evolution strategies. Springer; 2016. Scikit-learn; pp. 45–53.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Aliyari S, Legnar M, Blattgerste C, Jessen A, Thirukonda Subramanian Balakrishnan B, Englert N, Kaib PSJ, Sementsov M, Schwab C, Weis CA.",
+  "journal": "Journal of pathology informatics",
+  "year": "2026",
+  "pmid": "42965064",
+  "pmcid": "PMC13721096",
+  "doi": "10.1016/j.jpi.2026.100722",
+  "source": {
+    "retrieved_at": "2026-11-14T17:07:36.743290+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13721096/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13721096.xml"
+}

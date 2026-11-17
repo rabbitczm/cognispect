@@ -1,0 +1,1809 @@
+{
+  "key": "41573362",
+  "body_available": true,
+  "title": "Consistent explainable image quality assessment for medical imaging",
+  "source_url": "https://europepmc.org/articles/PMC12819959",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Caner Ozer",
+    "Arda Guler",
+    "Aysel Turkvatan Cansever",
+    "Ilkay Oksuz"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2026",
+    "year": "2026",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2026",
+        "month": "1",
+        "day": "20"
+      },
+      {
+        "type": "collection",
+        "year": "2026",
+        "month": "12",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5",
+            "CR6",
+            "CR7",
+            "CR8"
+          ],
+          "en": "Maintaining high image quality during a medical scan is essential for obtaining a clear diagnosis of a patient. However, some distortions in the image quality may hinder an accurate analysis of the acquired medical scan, and this could eventually lead to inaccurate diagnostic conclusions by the physician. The reasons include physiological and patient-based motion artefacts in Magnetic Resonance Imaging (MRI) [1, 2], mistriggering-based motion artefacts in MRI, which happen due to incorrect ECG triggering during the MRI scan [3], or the contrast problem in CT due to low-dose imaging [4]. Assuming the existence of a reference image, it is possible to evaluate the level of distortion through image quality assessment metrics, such as Peak Signal-to-Noise Ratio (PSNR), Structural Similarity Index [5], or among more recent methods: HaarPSI [6] and DISTS [7]. However, often such a reference does not exist and manual labelling based on qualitative analysis is required [8]. This procedure is generally tedious and prone to human error.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR9",
+            "CR10",
+            "CR11"
+          ],
+          "en": "In many clinical scenarios, obtaining a reference-quality scan is infeasible, making no-reference image quality assessment (NR-IQA) essential [9]. Localized quality degradations are especially challenging, as small but diagnostically critical regions can compromise the entire scan. Common examples include foreign objects such as clips or buttons obscuring the lung or cardiac areas in Chest X-Ray images [10], and the unintended appearance of the Left Ventricular Outflow Tract (LVOT) in long-axis cardiac MRI due to suboptimal planning [11]. While recent work has advanced global multi-class IQA and domain adaptation, local IQA problems require models that can reliably identify and reason about specific regions where quality issues arise. Automatic IQA systems remain crucial for filtering low-quality data in large-scale studies, improving acquisition pipelines, and ensuring trustworthy performance in downstream tasks such as segmentation and diagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR12",
+            "CR13",
+            "CR14",
+            "CR15",
+            "CR16"
+          ],
+          "en": "Explainability has become a crucial aspect of evaluating the trustworthiness of automatic diagnostic systems in particularly in black-box deep learning applications [12]. Given that a deep classifier provides only the predicted label for a given medical scan, it is imperative to find cues that can help ensure the decision has been made based on relatable sets of features. Additionally, it has recently been shown that physicians, lacking task-specific knowledge, can benefit from the recommendations of explainable AI more than human advice, particularly in the form of visual annotations [13]. However, an explainability analysis is not well-studied for understanding the deep learning models for medical image quality assessment, even though this research field has recently been challenged in Arun et al. [14] and Jin et al. [15]. Also, the methodology responsible for the explainability analysis should quantitatively analyze the precision and consistency aspects of the saliency maps [16]. All these aspects become vital, especially in the presence of abnormalities in the medical scan in terms of medical image quality.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR17",
+            "CR14",
+            "CR18"
+          ],
+          "en": "The quantitative evaluation measure should be reasonable for understanding the effect of assisting radiologists with saliency maps in a clinical environment. Despite several available measures, such as insertion/deletion score [17], overlap ratio, or even structural similarity [14] between the saliency map and ground truth annotations, we consider the Pointing Game [18] to be the most practical metric for clinical interpretability applications for the following reasons.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "CR19",
+            "CR20",
+            "CR21"
+          ],
+          "en": "First, insertion and deletion procedures may generate out-of-distribution images during masking or deblurring and primarily consider the ranking of saliency values rather than their actual magnitudes, limiting their interpretability in a clinical setting [19, 20]. Second, overlap-based metrics, such as Dice score or intersection-over-union between a thresholded saliency map and a ground-truth bounding box, can produce misleading segmentation masks that do not faithfully reflect the model’s attention, making them potentially unreliable for evaluation. Third, ground truth annotations do not preserve luminance or contrast information, so using structural similarity may not accurately assess the quality of the generated saliency maps. Finally, radiologists focus on specific regions when performing diagnoses, and while these gazes are associated with generated saliency maps [21], the Pointing Game encapsulates this information by measuring the proximity between the ground truth and the peak location of the saliency map. Accordingly, we base our interpretability analysis on the Pointing Game while ensuring that the experiments are clinically plausible.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR22",
+            "CR23",
+            "Sec2",
+            "Sec5",
+            "Sec7",
+            "Sec17"
+          ],
+          "en": "In this paper, we propose a consistent, explainable image quality assessment pipeline based on NormGrad [22]. This paper has been built upon our previous work, [23], in which we proposed using NormGrad to localise the regions that cause image quality degradation on Chest X-Rays by pointing out foreign objects. Here, we extend this approach to off-axis 4-chamber Cardiac MRI scans by localizing the LVOT regions and demonstrate the strength of NormGrad by stress-testing a number of saliency detectors. To the best of our knowledge, this is the first approach that uses NormGrad for medical image quality assessment and the first paper to perform a comprehensive, explainable image quality assessment on Chest X-Ray and Cardiac MRI data. The main contributions of our approach are listed as follows:Extensive validation experiments are performed to assess the quantitative performance of NormGrad for medical image quality assessment, contrasting it with other explainability methods. We measured the effect of using smoothing on the saliency maps, randomising the neural network models, repeating the experiments from scratch a different number of times, and changing the network architecture. To make our approach clinically plausible, we used the Pointing Game as our core metric.The Difference of Means (DoM) metric is proposed to demonstrate the consistency of a saliency detector whenever there is a change in the network architecture.The pipeline is validated using Object-CXR (X-Ray) and LVOT Detection (Cardiac MRI) datasets.The remainder of the paper is organized as follows. Section 2 provides the relevant literature for this work. Section 3 defines the mathematical background of the methods used for our explainability analysis, and Sect. 4 presents our results of qualitative and quantitative analyses to evaluate the performance of a variety of explainability methods. Further discussion is made on the methods in Sect. 5, before providing our conclusions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "Extensive validation experiments are performed to assess the quantitative performance of NormGrad for medical image quality assessment, contrasting it with other explainability methods. We measured the effect of using smoothing on the saliency maps, randomising the neural network models, repeating the experiments from scratch a different number of times, and changing the network architecture. To make our approach clinically plausible, we used the Pointing Game as our core metric.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "The Difference of Means (DoM) metric is proposed to demonstrate the consistency of a saliency detector whenever there is a change in the network architecture.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [],
+          "en": "The pipeline is validated using Object-CXR (X-Ray) and LVOT Detection (Cardiac MRI) datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Literature review",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "In this section, we provide an overview of related works on image quality assessment and interpretability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec3",
+      "title": "Image quality assessment",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR9"
+          ],
+          "en": "Medical Image Quality Assessment (IQA) is becoming an emergent research field with the advent of deep learning-based approaches. Maintaining sufficient image quality is crucial for alleviating potential diagnostic errors in both automatic and manual image quality assessment procedures, as detailed in Chow et al. [9]. Predominantly, domain knowledge holds the key when assessing quality. Therefore, historically, most approaches have been applicable to a single modality and specific types of image quality assessment problems. In addition, reference images may not be available depending on the problem domain, which has led to the development of the No-Reference Image Quality Assessment (NR-IQA) field. Indeed, this has driven the creation of suitable methods and datasets for medical image analysis that have not been evaluated using reference-based quality metrics, such as PSNR and SSIM.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR24",
+            "CR25",
+            "CR26",
+            "CR27",
+            "CR23"
+          ],
+          "en": "For instance, Sujit et al. [24] proposed a model for structural brain MRI quality assessment using a small CNN architecture to automatically measure overall image quality. Additionally, Hu et al. [25] proposed a diagnostic quality assessment dataset composed of Chest X-Rays and used a semantic segmentation-guided multi-label classification framework. Mortamet et al. [26] identified several factors contributing to quality degradation in brain MRIs and proposed two different quality measures based on voxel-wise quality assessment. Treating quality assessment as a regression problem, Abdi et al. [27] assessed the quality of echocardiography cines in five different views using a convolutional neural network with multi-head LSTM layers. Similarly, in our previous approach, Ozer et al. [23] assessed the quality of Chest X-Ray scans depending on the existence of foreign objects.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "CR28",
+            "CR29"
+          ],
+          "en": "Recent advances have further expanded IQA to more generalizable and multi-class settings, including attention-guided unsupervised domain adaptation for cardiac MRI [28] and multi-teacher knowledge distillation for robust motion artifact detection [29].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "CR30",
+            "CR31",
+            "CR32",
+            "CR33",
+            "CR1",
+            "CR34",
+            "CR2"
+          ],
+          "en": "In Chen et al. [30], an intravascular ultrasound dataset was constructed, consisting of three quality labels. They used a ResNet-18 model [31] with squeeze and excitation modules [32] to predict the quality label. In Bottani et al. [33], a dataset of 3D T1-weighted brain MRIs was curated, and their quality was determined based on properness, gadolinium usage, and diagnostic quality. Classification of these acquisitions was performed using 3D CNNs. Moreover, Ma et al. [1] developed a T2-weighted abdomen MR dataset consisting of good quality scans and scans with motion artifacts. They used a 4-layer CNN framework to automatically assess scan quality. Gagoski et al. [34] performed prospective medical image quality assessment on fetal brain HASTE (Half Fourier Single-shot Turbo spin-Echo) images with a teacher-student network architecture. Additionally, Oksuz et al. [2] further advanced motion artifact detection by adopting not only a synthetic motion artifact generation scheme but also by performing detection and overcoming quality issues during the reconstruction phase of short-axis cardiac MRI scans by turning it into a full-reference IQA problem.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "CR35",
+            "CR36",
+            "CR37",
+            "CR38"
+          ],
+          "en": "Further, dual-domain cardiac coverage assessment [35], meta-learning for cross-cohort multi-class IQA [36], and automated Chest X-Ray quality assessment using deep learning and linear regression cascades for positioning and acquisition verification on large-scale datasets [37] have advanced the field further. Foundational prompt-based models have also been proposed for more generalizable, cross-modality NR-IQA [38].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Interpretability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR39",
+            "CR40",
+            "CR41",
+            "CR42",
+            "CR43",
+            "CR43",
+            "CR22",
+            "CR44",
+            "CR45",
+            "CR46",
+            "CR17"
+          ],
+          "en": "Interpretability is an important area of research at the intersection of medical image analysis and deep learning. Early approaches to interpretability in deep learning include the DeConvNet [39] approach, which visualizes intermediate-level activations by reverting them to the original image dimensionality. However, the use of gradients for saliency map visualizations was initiated by Grad [40], which calculates the derivative of the output with respect to the input image. Subsequently, due to the nature of the ReLU activation function and advancing network architectures, Guided Backpropagation [41] was proposed to alter the gradient backpropagation mechanism by also considering the sign values of the upstream gradient. Following this, various methods that combine activations and gradients have become more prevalent in the general computer vision and medical image analysis literature. These include Input x Grad [42], Grad-CAM [43], Guided Grad-CAM [43], and NormGrad [22]. In addition to these methods, Integrated Gradients [44], Score-CAM [45], Smooth-Grad [46], and RISE [17] have proposed to use different iterative procedures to calculate the saliency map. These methods take substantially longer time to generate the saliency map compared to methods like Input x Grad.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR47",
+            "CR48"
+          ],
+          "en": "Beyond standard saliency detectors, model-agnostic interpretability frameworks such as SHAP [47] and LIME [48] estimate feature importance through repeated input perturbations and surrogate modeling. While flexible, these approaches are computationally intensive and rely solely on changes in model outputs, without accessing internal gradients or feature activations. In contrast, model-specific CAM-based methods such as NormGrad efficiently leverage gradients and intermediate activations to generate high-resolution, spatially coherent explanations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "CR49",
+            "CR50",
+            "CR51",
+            "CR52"
+          ],
+          "en": "Recently, the use of saliency detectors to demonstrate diagnostic findings through heatmaps has become increasingly popular in medical imaging. For instance, [49] used Grad-CAM to localise the brain regions that do and do not contribute to schizophrenia on the spatial source phase maps. [50] modified the DenseNet architecture to improve the visualization of Grad-CAM without any fall in accuracy for arrhythmia detection using ECG. [51] adopted a Vision Transformer-based architecture for COVID-19 severity quantification and used a variety of CAM and deep taylor decomposition to show the saliency maps. [52] leveraged the saliency maps to train a diabetic retinopathy grading framework in a self-supervised fashion. In this regard, we benchmark NormGrad with other saliency detection methods for the interpretable no-reference image quality assessment problem.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR53",
+            "CR54",
+            "CR55",
+            "CR45"
+          ],
+          "en": "Even though the research community demonstrates the findings shown by a saliency method qualitatively, works that provide a systematic quantitative analysis to validate the relationship between a saliency method and the model’s performance in the domain of medical image analysis are relatively recent. For example, [53] evaluates different saliency detectors for an arrhythmia detection task on electrocardiograms, where the authors used intersection over union, Pointing Game, and the absolute difference of insertion and deletion metrics. Similarly, [54] focuses on the breast tissue classification task and applies Class Activation Mapping to construct the saliency maps. The evaluation of saliency maps is performed with the Pointing Game. Lastly, [55] generates a counterfactual saliency map for Chest X-Ray lesion detection using a conditioned generative adversarial network. The saliency map is evaluated with Energy-based Pointing Game [45] and deletion metric. In this work, we find it intuitive to adopt the Pointing Game for evaluating the saliency maps for medical image quality assessment, specifically those generated for LVOT and foreign object localisation tasks for Cardiac MRIs and Chest X-Rays, respectively. This is mainly due to the fact that the Pointing Game is a highly related concept to the gaze of physicians when they are performing a diagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Method",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [],
+          "en": "In this section, we briefly describe the use of NormGrad for medical image quality assessment, aiding in constructing a saliency map of deep neural network-based classifiers. We consider two variants of NormGrad in this work. NormGrad Single computes the saliency map based on the gradients and activation maps of a single target layer, while NormGrad Multi aggregates gradients and activation maps from multiple layers to produce a combined saliency map.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "We start by assuming that there exists a pre-trained neural network from which we intend to extract knowledge about a specific target layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$k_t$$\\end{document}kt. We also designate its preceding layers as p and succeeding layers as q. Given an input image \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}} \\in \\mathbb {R}^{C \\times H \\times W}$$\\end{document}x∈RC×H×W, where C represents the number of input channels, and H and W represent the size of the image, we can define the relationship between \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}^{in} \\in \\mathbb {R}^{K \\times H' \\times W'}$$\\end{document}xin∈RK×H′×W′, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}^{out} \\in \\mathbb {R}^{K' \\times H' \\times W'}$$\\end{document}xout∈RK′×H′×W′, and the network output \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {y}}$$\\end{document}y as follows:We define the gradient w.r.t. the parameters of layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$k_t$$\\end{document}kt as \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out} \\in \\mathrm{I\\!R}^{K' \\times H' \\times W'}$$\\end{document}gout∈IRK′×H′×W′ and the activations of the same layer as \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}^{out}$$\\end{document}xout. Unless stated otherwise, the gradient is calculated by assuming that \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {y}}$$\\end{document}y is the ground-truth class label, while this may not be true for all samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [],
+          "en": "Additionally, consider the presence of a virtual identical layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{k}_t$$\\end{document}k~t right after the layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$k_t$$\\end{document}kt, with an output denoted as \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {x}}}^{out}$$\\end{document}x~out and satisfying the property \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {x}}}^{out} = {\\textbf {x}}^{out}$$\\end{document}x~out=xout. The purpose of introducing this layer is to ensure the collection of activations and gradients from the same point in the network. Moreover, this layer can be selected from scaling or convolutional layers. In this regard, we accumulate the output activations, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {x}}}^{out}$$\\end{document}x~out, and the corresponding upstream gradient, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}$$\\end{document}gout, of the layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{k}_t$$\\end{document}k~t.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "NormGrad",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "CR22",
+            "Tab1"
+          ],
+          "en": "NormGrad [22] directly utilizes \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}$$\\end{document}gout without needing to estimate a weight vector from either gradients or activations. It also allows the use of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {x}}}^{out}$$\\end{document}x~out, enabling the availability of both gradient and activations at a specific location within a neural network. This is facilitated by incorporating a virtual identity layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{k_t}$$\\end{document}kt~ immediately after the layer of interest \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$k_t$$\\end{document}kt. Moreover, the selection of a virtual identity layer also influences spatial contributions, and also the generated saliency map, as illustrated in Table 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "The first row corresponds to a scaling layer where the spatial contribution is obtained by calculating the element-wise multiplication of the upstream gradient, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}$$\\end{document}gout, with the activations, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}^{out}$$\\end{document}xout. This results in a saliency map that is directly equal to the Frobenius Norm of the spatial contribution. However, for the second row, additional operations are needed to calculate the spatial contributions and the corresponding saliency maps for an \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$N \\times N$$\\end{document}N×N convolutional virtual identity layer. Suppose that the output relation of the convolution operation using the unfolded version of the input tensor, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {X}}_{N \\times N}^{out} \\in \\mathrm{I\\!R}^{N^2K \\times H'W'}$$\\end{document}XN×Nout∈IRN2K×H′W′, and the reshaped version of the parameters of the layer \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{k}_t$$\\end{document}k~t, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {W}}}_{N \\times N} \\in \\mathrm{I\\!R}^{K' \\times N^2K}$$\\end{document}W~N×N∈IRK′×N2K, is expressed in the form ofwhich uses matrix multiplication to express \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {X}}}^{out} \\in \\mathrm{I\\!R}^{K' \\times H'W'}$$\\end{document}X~out∈IRK′×H′W′. The unfold operation extracts \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$N \\times N$$\\end{document}N×N patches from the input tensor, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}_{out}$$\\end{document}xout in order to accelerate the convolution operation. If we denote each of the column elements of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {X}}_{N \\times N}^{out}$$\\end{document}XN×Nout as \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}_{u, N \\times N}^{out} \\in \\mathrm{I\\!R}^{N^2 K'}$$\\end{document}xu,N×Nout∈IRN2K′, we can find the spatial contribution by calculating the gradient of loss with respect to \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tilde{{\\textbf {W}}}_{N \\times N}$$\\end{document}W~N×N which isSince the Frobenius Norm of an outer product can be decomposed into the multiplication of Frobenius Norms, we can calculate the resulting saliency map by first computing the Frobenius Norms of \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}$$\\end{document}gout and \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {x}}^{out}_{N \\times N}$$\\end{document}xN×Nout separately and multiplying these two matrices. The general procedure for transforming the spatial contributions into saliency maps is defined as the aggregation, which concludes by upsampling the saliency maps to the original image size, [H, W], to obtain the final output for a single-layer scenario, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {m}}_{NG}$$\\end{document}mNG.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "An additional feature of NormGrad is its ability to combine saliency maps from multiple layers within a neural network, generated using gradients and activations. In this paper, we define this as NormGrad Multi (denoted by the letter (M)), and we use a uniform setting for calculating the combined saliency map, which involves taking the geometric mean of the provided saliency maps. Moreover, for a fair comparison, we use identical virtual identity layers when generating the combined saliency map. This approach provides a unified and unbiased source of information about what the network has learned by integrating outputs from different layers. In other words, if we have J saliency maps, the combined saliency map \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {M}}_{NG}$$\\end{document}MNG is obtained by:where \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {M}}_{NG}$$\\end{document}MNG becomes the final output as the whole procedure is demonstrated in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Experimental results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "CR10",
+            "Sec8",
+            "Sec11",
+            "Sec12",
+            "Sec13",
+            "Sec16"
+          ],
+          "en": "We perform our experiments on two datasets which are Object-CXR [10] and the LVOT dataset. We provide details about the datasets in Sect. 4.1, our general approach in evaluating the saliency maps in Sect. 4.2, measure the effect of smoothing the saliency maps in Sect. 4.3, make a comparison during the initialization and post-training phases in Sect. 4.4, and compare the variability across different neural network models in Sect. 4.5. We make the code and the experiments available on https://github.com/canerozer/explainable-iqa.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "Object-CXR is a benchmarking dataset with the objective of recognizing and localizing foreign objects on Chest X-Rays. It contains a total of 10, 000 Chest X-Ray images, with 5, 000 images including foreign objects and 5, 000 images without.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "Left Ventricular Outflow Tract (LVOT) detection is a cardiac MR dataset where the presence of LVOT is a local quality issue that hinders the accurate analysis of atrial regions. The dataset is composed of a range of 4-chamber cardiac MRI scans from 690 2D+ time patient records, with an even number of samples with and without LVOT. We apply a patient-wise splitting on the dataset, using 551 patients for training, 69 patients for validation, and 70 patients for testing. Since our network is designed to handle 2D images, we consider each of the slices of the four-chamber view independently. Hence, we expand the number to 8, 682 good quality and 8, 522 LVOT samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "For the Object-CXR dataset, we directly use the bounding boxes released by JFHealthcare as part of the original benchmark, which were manually produced by expert annotators. For the LVOT dataset, ground-truth annotations were generated through a two-step process. First, an experienced cardiologist manually delineated the LVOT region using a pixel-wise segmentation mask on all slices where the structure appeared. Second, we computed the tightest axis-aligned bounding box that enclosed the segmentation mask, and used this bounding box solely for Pointing Game evaluation. A senior radiologist reviewed a randomly selected subset of the segmentation masks and confirmed their correctness.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Object-CXR",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par35",
+          "reference_ids": [
+            "CR31",
+            "CR56",
+            "CR57",
+            "CR58",
+            "Tab7"
+          ],
+          "en": "We train ResNet-34 [31] and EfficientNet-B0 [56] models, both predicting whether there is at least one foreign object present or not, given a resized \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$600 \\times 600 \\times 3$$\\end{document}600×600×3 image. We fine-tune these models, previously trained on the ImageNet dataset [57], for 20 epochs using a batch size of 16 and a cross-entropy loss function. We adapt our input by triplicating it on the channel axis three times and replace the last layer of the pre-trained model, which now has two output neurons, with random parameters using He initialization [58]. In order to optimise the parameters during the training procedure, we use the Stochastic Gradient Descent with Momentum optimiser, with a learning rate set to 0.005, and the learning rate reduced by a factor of 10 every five epochs. Also, to prevent overfitting during training, we use colour jittering, affine transformations, and horizontal flips as data augmentations. Finally, we keep the best-performing model, based on validation accuracy. The performance of the models in terms of AUC score and accuracy is presented in Table 7, where we observe that the peak performance was achieved in the first trial of the ResNet-34 (R34) model, reaching an accuracy of 0.870 and an AUC score of 0.938.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "LVOT detection",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par36",
+          "reference_ids": [],
+          "en": "We train ResNet-50 and EfficientNet-B0 models, which predict the presence or absence of LVOT, given a \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$224 \\times 224 \\times 3$$\\end{document}224×224×3 input image. Similar to the Object-CXR, we use an ImageNet pre-trained model and fine-tune the model with Stochastic Gradient Descent with Momentum optimizer, setting the learning rate to 0.0002 and weight decay to 0.0005. The fine-tuning procedure takes 60 epochs using a batch size of 64 when the cross-entropy loss function is used. Additionally, the same types of data augmentations employed in the foreign object detection task are used. Our best LVOT detection model achieves top performance in the first trial of the ResNet-50 (R50) model, with an accuracy and AUC score of 0.971 and 0.998, respectively. For the rest of the paper, we refer to this dataset as the LVOT dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Experimental evaluation on the saliency maps",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "In order to analyse the saliency maps, we conduct a qualitative and quantitative assessment of the validation and testing sets for the Object-CXR and LVOT datasets. We begin by examining the impact of applying smoothing to the saliency maps generated by these methods. Subsequently, we delve into randomisation experiments, evaluating the saliency maps under two conditions: (i) complete randomisation of model parameters and (ii) adoption of convolutional layer parameters from ImageNet with randomised classification layer. We compare these outcomes with the results obtained from the trained models, showcasing their repeated Pointing Game scores. Lastly, we present our reproducibility results, intended to observe the consistency in Pointing Game accuracies across different models, specifically ResNet and EfficientNet.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "CR43",
+            "CR43",
+            "CR41",
+            "CR42"
+          ],
+          "en": "To highlight the abilities of NormGrad, we do not only stick to using the penultimate layer (conv4.2) of ResNet-50. We also use the spatial contribution at \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$J=4$$\\end{document}J=4 different layers, e.g., conv2.0, conv3.0, conv4.0, and conv4.2 after aggregating the saliency maps corresponding to numerous layers of the ResNet architecture. For EfficientNet models instead, despite NormGrad Single also using the penultimate layer of the model (features.8.2), we aggregate the spatial contribution at \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$J=10$$\\end{document}J=10 layers, namely, features.0.0, features.1.0, features.2.0, features.3.0, features.4.0, features.5.0, features.6.0, features.7.0, features.8.0, and, features.8.2. Then, we compare our results with other saliency detector baselines such as Grad-CAM [43], Guided Grad-CAM [43], Guided Backpropagation [41], and Input x Gradient [42].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "CR18"
+          ],
+          "en": "In our study, we use Pointing Game [18] for quantitatively analysing the abilities of saliency detectors. Our purpose is to detect if saliency maps show a correspondence with the ground-truth bounding boxes given a medical scan. In Pointing Game, we measure this correspondence by finding the maximum value of a saliency map and then checking the maximum value’s proximity to the ground-truth with an offset, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tau$$\\end{document}τ. We take the default value, \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tau =15$$\\end{document}τ=15, for both datasets. If the maximum value is close enough to the bounding boxes, we define the saliency map to be accurate. If we name the number of accurate saliency maps with T and inaccurate ones with F, we can derive an accuracy metric A such that:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Effect of smoothing the saliency maps",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [
+            "CR18",
+            "Fig2",
+            "Tab2",
+            "Tab2"
+          ],
+          "en": "This study investigates the effects of smoothing on the performance of various saliency detectors for medical image quality problems. Motivated by the work of [18], which suggests that some methods such as Grad x Input tend to output noisy saliency maps and require a smoothing operation to reduce sparsity and noise, a Gaussian kernel with a standard deviation of 1.0 was applied to smooth the saliency maps. The results of smoothing the saliency maps are shown in Fig. 2, where it is observed that saliency maps generated by GradCAM and NormGrad are stable, but Input x Grad (IxG), Guided Backpropagation (GBP), and Guided GradCAM are not. We also notice that the conv3x3 multi model of NormGrad successfully focuses on all target foreign objects of interest, especially on the clip at the top. Furthermore, Table 2 demonstrates that the changes in Pointing Game accuracies are insignificant for both LVOT and Object-CXR datasets when NormGrad or GradCAM is used. However, smoothing becomes increasingly crucial for methods that directly use gradient information, as seen in the first three rows of Table 2. Therefore, smoothing was applied in all comparisons to provide fairness across all saliency detectors while considering the noisiness factor of Input x Grad, Guided Backpropagation, and Guided Grad-CAM. Despite this, the success of NormGrad is still evident, while the Multi versions of NormGrad appear to be more consistent when their performance on both datasets is considered.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Randomisation and repeatability experiments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR14",
+            "CR57",
+            "CR58"
+          ],
+          "en": "In this part of our study, our goal is to demonstrate interpretability by measuring the Pointing Game accuracy of randomly initiated and trained models. We are influenced by the work of [14], which claims that saliency maps have several shortcomings, as saliency detectors are not always robust to randomisation, repeatability, and reproducibility. To measure the effect of randomisation on the saliency maps, we examined two different configurations to initialise the models. First, we use a model with all parameters randomised (Fully Randomised, FR) and second, we inherit an ImageNet [57] model for convolutional layer parameters and randomise only the final fully-connected layer (Semi Randomised, SR). Our purpose in analysing the models during the initialisation stage is to see whether it is possible to catch any significant difference in the interpretability maps after training the neural network. Hence, we assess whether we can use this information as an alternative way of measuring a deep learning model’s performance in terms of explainability. During full randomisation, we used He initialisation [58] to randomise the weight parameters whereas for semi-randomisation, we used the ImageNet pre-trained model parameters. While repeating these randomisation experiments three times to have an estimate with high confidence, we also train three models with different seeds to demonstrate the performance as a result of training. We also make a comparison between pre- and post-trained models’ performance. In all our experiments, we report the mean and standard deviation of the Pointing Game accuracy.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [],
+          "en": "Higher Pointing Game scores for fully randomised models than for semi-randomised models can occasionally occur because broad architectural activation and gradient patterns may overlap with the target region by chance, relative to the expected behavior of a model that has not learned any meaningful representation. These randomised networks are included only as diagnostic baselines to help assess the stability of saliency extraction under different initialization conditions, and their scores do not correspond to meaningful localization capability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Results for the LVOT experiments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par44",
+          "reference_ids": [
+            "Tab3",
+            "Fig3"
+          ],
+          "en": "In Table 3, we demonstrate the randomisation and repeatability experiments for the LVOT dataset. First, we notice a significant improvement in the Pointing Game accuracies after training the networks and running all of the saliency detection methods. As we demonstrate in Fig. 3, we associate it with the appropriately learned representations to fulfill the task and aggregate the information coming from different layers. This also leads to another statement that it is almost obligatory to train the neural networks for making them point to relevant regions of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "Secondly, utilizing the multi versions of NormGrad can result in substantial improvements in Pointing Game accuracy compared to the performance of single-layer saliency detectors. Transitioning from GradCAM to the multi layer setting of NormGrad Conv1x1, we observe an enhancement in our Pointing Game accuracy from 0.547 to 0.611. Further advancements are evident upon adopting the multi layer setting in place of the single-layer setting of NormGrad. The most notable performance improvement is observed in the NormGrad Conv3x3 setting, achieving a repeated Pointing Game accuracy of 0.602 from 0.430 by utilizing multiple layers. This improvement can be attributed to the efficiency of NormGrad Multi in localizing small target regions of interest, considering the activation maps and gradients of four different layers. Lastly, we cannot draw a conclusive statement for the LVOT dataset regarding whether using pre-trained parameters would enhance the initial performance of Pointing Game accuracy since, for some NormGrad settings, fully-randomised models outperform their semi-randomised counterparts. This observation can be linked to the LVOT region’s small size compared to the image, suggesting that the multi configuration of NormGrad, utilizing gradients and activations from various layers, is crucial for addressing this limitation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [
+            "Fig4"
+          ],
+          "en": "The consistency of NormGrad methods after retraining the models is also visually evaluated by comparing them with the baseline methods, revealing noticeable changes in saliency maps. As shown in Fig. 4, Input x Grad and Guided Backpropagation (GBP) present issues with additional focus on the background. GradCAM may exhibit saliency outside the cardiac area or fail to focus on the target region of interest in case of misclassification, and Guided GradCAM is reliant on the performance of GradCAM and GBP. However, NormGrad maintains consistency by covering the cardiac area in saliency maps and even enhances precision by combining saliency maps generated by multiple layers.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Results for the object-CXR experiments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par48",
+          "reference_ids": [
+            "Tab4",
+            "Fig5",
+            "Fig5",
+            "Fig5"
+          ],
+          "en": "The results for the Object-CXR dataset are presented in Table 4, indicating a significant improvement in methods after training the models, similar to the LVOT dataset. As depicted in Fig. 5, this improvement is visually apparent after training the models. However, it is important to note that not all trained representations are relevant. In the \"Trained\" column of Fig. 5, saliency detectors like Input x Grad and Guided GradCAM highlight a region on the left side of the neck, not present for NormGrad-based methods, as seen in the bottom two rows of the same figure. NormGrad successfully identifies all foreign objects and even improves precision when using the multi-setting of NormGrad. Moreover, the standard deviations of the repeatability experiments on the Object-CXR dataset for the NormGrad methods are relatively smaller than the baselines’ standard deviations, demonstrating the confidence and utility of the NormGrad methods as an unbiased interpretability measurement tool regardless of task repetition. There is also an insignificant difference among the NormGrad methods, all of which outperform the baseline models. Interestingly, GradCAM has the lowest repeated Pointing Game metric among all saliency detectors, raising questions about its ability to point to relevant regions through saliency maps, as illustrated in Fig. 5. In summary, NormGrad provides the best results, achieving the highest mean repeated Pointing Game performance of 0.853 using the single layer and Conv3x3 setting. Additionally, unlike the results for randomisation in the LVOT detection task, there is an improvement in the Pointing Game accuracy as a result of using ImageNet features, attributed to the increased area of the foreign objects of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Reproducibility experiments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par50",
+          "reference_ids": [
+            "CR56"
+          ],
+          "en": "Another criterion for evaluating the reliability of saliency detectors is their reproducibility on different architectures. In this context, we assess their performance whenever we train a completely different network architecture. We compare the saliency detection performance of ResNet with EfficientNet-B0 [56] for both tasks and propose a basic metric named \"Difference of Means\" (DoM) to measure the consistency under a change in network architecture. From our perspective, a saliency detector should be model-agnostic, and the generated saliency map should only depend on the input image. Consequently, the Pointing Game scores corresponding to different model architectures need to be similar, and the DoM measure provides a quantification of the consistency of the saliency detection method. To calculate the DoM measure, we obtain the repeated Pointing Game metric for each of the network architectures, and we find the absolute difference between their means. A lower DoM score indicates a more consistent saliency detection method, whereas a higher DoM score signals inconsistency in the saliency detection method across different architectures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par51",
+          "reference_ids": [
+            "CR59"
+          ],
+          "en": "Pointing Game accuracies form empirical sets of scalar outcomes, not samples from a continuous probability model. Distributional divergences such as Kullback–Leibler and Jensen-Shannon therefore do not apply in this regime. In contrast, Maximum Mean Discrepancy (MMD) [59] provides a nonparametric comparison suitable for empirical scalar sets. In the one-dimensional case with a linear kernel, MMD reduces to the absolute difference of the means, which corresponds exactly to the DoM metric we employ. This correspondence allows DoM to be interpreted as a principled, distribution-based measure of consistency between saliency detectors across architectures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par52",
+          "reference_ids": [
+            "Tab5",
+            "Tab6",
+            "Fig6"
+          ],
+          "en": "In Tables 5 and 6, we evaluate the performance of baseline methods and NormGrad on the LVOT and Object-CXR datasets using two different architectures. First, we observe that the performance of NormGrad methods surpasses that of the baselines on both datasets, except for GradCAM when the ResNet-50 (R50) architecture is used for the LVOT detection task. Notably, when single-layer methods perform poorly, NormGrad becomes more effective and precise by combining information from different layers, as all multi-layer settings of NormGrad exceed the baselines. Second, the best performance is achieved by the single-layer version of NormGrad for the LVOT detection task using the EfficientNet-B0 (EB0) model, while there is a slight discrepancy between this setting and the best setting for the Object-CXR benchmark. However, we also notice significant differences in mean Pointing Game performance when comparing these two models under the single-layer version of NormGrad, particularly for the LVOT detection task. Although this issue does not occur for the Object-CXR benchmark, the use of multiple layers is crucial for accurate model interpretation, as indicated by the minimal DoM measure on both datasets. The differences in the saliency maps generated by different models are illustrated in Fig. 6 for the Object-CXR dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par53",
+          "reference_ids": [],
+          "en": "It is worth mentioning the effect of using different VIL types, as their behavior varies noticeably across datasets and configurations. We observe distinct behaviors of the visualization layer (VIL) types depending on the dataset. For Object-CXR, differences among Scaling, Conv1×1, and Conv3×3 are minimal, with all variants achieving similarly high Pointing Game accuracies. Because foreign objects in Object-CXR are comparatively large and visually prominent, precise spatial modeling through the VIL plays a less critical role. For LVOT, however, the choice of VIL has a substantial impact. In the single-layer configuration, NormGrad Scaling performs best among the VIL types. In the multi-layer configuration, Conv1×1 achieves the highest performance, with differences being more pronounced in the EB0 architecture than R50. This pattern arises from the characteristics of the LVOT detection problem: in our dataset, the LVOT region tends to be localized near the image center, making global channel-wise reweighting (Scaling and Conv1×1) more effective than larger spatial kernels.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Discussion and conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par54",
+          "reference_ids": [],
+          "en": "In this work, we introduced an automatic and explainable framework for medical image quality assessment using NormGrad to explain its decisions by pointing to relevant regions of interest. We compared the results of NormGrad with various baseline-category saliency detectors under specific conditions, employing the Pointing Game metric. In our study, we initially presented the saliency detector performance under smoothing conditions by applying Gaussian smoothing to the generated saliency maps. Then, we evaluated the saliency detector performance under two different randomisation schemes, comparing them with their trained counterparts. Finally, we reported the saliency detector performance when different neural network architectures were employed, and proposed a basic but intuitive metric named \"Difference of Means\" (DoM), which measures the consistency between the saliency detection performance on two different architectures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par55",
+          "reference_ids": [],
+          "en": "Comparing other saliency detection methods, we observe that smoothing had a negligible effect on NormGrad, as indicated by its minimal impact on performance for both datasets. Furthermore, the method effectively showcased the learning capability of a neural network by demonstrating a significant difference in the Pointing Game metric between the randomised and repeated versions of a neural network. It is also important to note that, using the multiple layer setting of NormGrad provides a reliable approach to interpretability from a more global perspective by integrating information from different layers. While a significant difference can be achieved by using the multi version for the LVOT detection task, this difference became insignificant for the Object-CXR task, although numerous cases still demonstrated the superiority of using the multi-setting of NormGrad in terms of precision. Ultimately, we can assert that the multi-setting of NormGrad exhibits more consistency in terms of the DoM metric and outperforms the baseline models in Pointing Game scores. Therefore, NormGrad emerges as a versatile method suitable for various medical image quality assessment tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par56",
+          "reference_ids": [
+            "CR60"
+          ],
+          "en": "Our approach still has limitations. First, it is unlikely to use NormGrad for sensitive predictive tasks such as segmentation in radiation therapy planning [60], where the tissue may vary in size. If the tissue is sufficiently large compared to the image size, NormGrad may not accurately localize the tissue, potentially causing radiation therapy damage to healthy cells. This limitation extends to tasks with a substantial amount of data available, allowing the training of a segmentation framework with pixel-level ground truth annotations. Second, the Pointing Game metric has inherent constraints. It considers a saliency map successful if it touches any part of a bounding box, which can oversimplify evaluation in images containing many or large regions of interest. Although this is not an issue for LVOT detection, where there is a single well defined region, it is more problematic for foreign object detection, which may involve multiple targets in a single image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par57",
+          "reference_ids": [],
+          "en": "Furthermore, the Pointing Game metric assumes that the quality-related target can be localized using a bounding box. This assumption does not hold for global image quality issues, such as movement-based image degradation, where the degradation affects the entire image and cannot be meaningfully annotated with discrete bounding boxes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par58",
+          "reference_ids": [],
+          "en": "We also acknowledge that saliency maps can be misleading, for example when they highlight clinically irrelevant structures (e.g., objects outside the heart and thoracic area) or when the model is overconfident on borderline-quality images. Therefore, we recommend that saliency maps be treated as decision support rather than ground truth and interpreted by radiologists in conjunction with their own judgment and established image quality criteria. Finally, the application of the Difference of Means (DoM) metric in this work has been restricted to two commonly used architectures for the sake of brevity. Although these results provide initial insights, extending DoM based evaluation across a broader set of architectures would offer a more comprehensive understanding of a saliency detector performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par59",
+          "reference_ids": [],
+          "en": "We consider that our approach can be applied immediately after the image acquisition stage to promptly identify cases with quality errors. By assisting the radiologists and pointing directly to regions of interest through saliency maps, it becomes possible to make an immediate decision for re-acquisition without any human intervention. Furthermore, the verification of a saliency detector for different tasks can be conducted using our proposed experimentation setting and the DoM metric. As for future work, we plan to incorporate NormGrad saliency maps during the training stage of image quality assessment and enhancement frameworks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-19",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-19-p1",
+          "reference_ids": [],
+          "en": "Publisher's Note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-19-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-19-p3",
+          "reference_ids": [],
+          "en": "We thank Mehmet Ozan Unal for his contribution to the development of the Object-CXR pre-trained model, Tolga Ok and Emir Oğuz for the fruitful discussions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-19-p4",
+          "reference_ids": [],
+          "en": "Caner Ozer: Conceptualization, Methodology, Software, Validation, Investigation, Data Curation, Writing - Original Draft, Writing - Review & Editing, Visualization. Arda Guler: Investigation, Data Curation, Writing - Review & Editing. Aysel Turkvatan Cansever: Supervision, Investigation, Data Curation, Writing - Review & Editing. Ilkay Oksuz: Conceptualization, Writing - Original Draft, Writing - Review & Editing, Supervision, Project administration, Funding acquisition.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-19-p5",
+          "reference_ids": [],
+          "en": "Open access funding provided by the Scientific and Technological Research Council of Türkiye (TÜBİTAK). This paper has been produced benefiting from the 2232 International Fellowship for Outstanding Researchers Program of Scientific and Technological Research Institution of Turkey (TUBITAK, Project No: 118C353). However, the entire responsibility of the publication/paper belongs to the owner of the paper. The financial support received from TUBITAK does not mean that the content of the publication is approved in a scientific sense by or TUBITAK. The paper also benefited from Istanbul Technical University Scientific Research Projects (ITU BAP) funds, grant number 44250.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-19-p6",
+          "reference_ids": [],
+          "en": "The LVOT dataset cannot be made publicly available due to patient privacy concerns; however, the Object-CXR dataset is available at https://academictorrents.com/details/fdc91f11d7010f7259a05403fc9d00079a09f5d5/tech.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par60",
+          "reference_ids": [],
+          "en": "All authors certify that they have no affiliations with or involvement in any organization or entity with any financial interest or non-financial interest in the subject matter or materials discussed in this manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par61",
+          "reference_ids": [],
+          "en": "LVOT dataset is constructed by acquiring the images from the Istanbul Mehmet Akif Ersoy Thoracic and Cardiovascular Surgery Training and Research Hospital, where the local ethics committee has waived the need for informed consent for using the anonymised patient records in this retrospective study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "A classification model performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par62",
+          "reference_ids": [
+            "Tab7"
+          ],
+          "en": "We report the accuracy (Acc) and area under the curve (AUC) scores for the LVOT and Object-CXR datasets using the ResNet (R34, R50) and EfficientNet (EB0) architectures in Table 7. T1, T2, and T3 represent our three trials using different random seed values. For both datasets, the best performance is achieved in the first trial, T1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Spatial contributions, shapes and saliency map formulas of different virtual identity layer choices",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Layer",
+          "Spatial contribution",
+          "Shape",
+          "Saliency map"
+        ],
+        [
+          "Scaling",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}_{u} \\odot {\\textbf {x}}^{out}_{u}$$\\end{document}guout⊙xuout",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$K'$$\\end{document}K′",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Vert {\\textbf {g}}^{out} \\odot {\\textbf {x}}^{out} \\Vert _F$$\\end{document}‖gout⊙xout‖F"
+        ],
+        [
+          "Conv \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$N \\times N$$\\end{document}N×N",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\textbf {g}}^{out}_u {{\\textbf {x}}^{out}_{u, N \\times N}}^\\intercal$$\\end{document}guoutxu,N×Nout⊺",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$K' \\times N^2K'$$\\end{document}K′×N2K′",
+          "\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Vert {\\textbf {g}}^{out} \\Vert _F$$\\end{document}‖gout‖F \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\Vert {\\textbf {x}}^{out}_{N \\times N} \\Vert _F$$\\end{document}‖xN×Nout‖F"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Spatial contributions, shapes and saliency map formulas of different virtual identity layer choices</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Layer</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Spatial contribution</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Shape</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Saliency map</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq21\"><alternatives><tex-math id=\"d33e953\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${\\textbf {g}}^{out}_{u} \\odot {\\textbf {x}}^{out}_{u}$$\\end{document}</tex-math><ns0:math id=\"d33e956\"><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">g</ns0:mi></ns0:mrow><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo>⊙</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq22\"><alternatives><tex-math id=\"d33e980\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$K'$$\\end{document}</tex-math><ns0:math id=\"d33e983\"><ns0:msup><ns0:mi>K</ns0:mi><ns0:mo>′</ns0:mo></ns0:msup></ns0:math></alternatives></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq23\"><alternatives><tex-math id=\"d33e992\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\Vert {\\textbf {g}}^{out} \\odot {\\textbf {x}}^{out} \\Vert _F$$\\end{document}</tex-math><ns0:math id=\"d33e995\"><ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup><ns0:mo>⊙</ns0:mo><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup><ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:mi>F</ns0:mi></ns0:msub></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Conv <inline-formula id=\"IEq24\"><alternatives><tex-math id=\"d33e1026\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$N \\times N$$\\end{document}</tex-math><ns0:math id=\"d33e1029\"><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq25\"><alternatives><tex-math id=\"d33e1039\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$${\\textbf {g}}^{out}_u {{\\textbf {x}}^{out}_{u, N \\times N}}^\\intercal$$\\end{document}</tex-math><ns0:math id=\"d33e1042\"><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">g</ns0:mi></ns0:mrow><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:msup><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>u</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mo>⊺</ns0:mo></ns0:msup></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq26\"><alternatives><tex-math id=\"d33e1073\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$K' \\times N^2K'$$\\end{document}</tex-math><ns0:math id=\"d33e1076\"><ns0:mrow><ns0:msup><ns0:mi>K</ns0:mi><ns0:mo>′</ns0:mo></ns0:msup><ns0:mo>×</ns0:mo><ns0:msup><ns0:mi>N</ns0:mi><ns0:mn>2</ns0:mn></ns0:msup><ns0:msup><ns0:mi>K</ns0:mi><ns0:mo>′</ns0:mo></ns0:msup></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq27\"><alternatives><tex-math id=\"d33e1093\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\Vert {\\textbf {g}}^{out} \\Vert _F$$\\end{document}</tex-math><ns0:math id=\"d33e1096\"><ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">g</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup><ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:mi>F</ns0:mi></ns0:msub></ns0:mrow></ns0:math></alternatives></inline-formula>\n<inline-formula id=\"IEq28\"><alternatives><tex-math id=\"d33e1115\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\Vert {\\textbf {x}}^{out}_{N \\times N} \\Vert _F$$\\end{document}</tex-math><ns0:math id=\"d33e1118\"><ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">‖</ns0:mo></ns0:mrow><ns0:mi>F</ns0:mi></ns0:msub></ns0:mrow></ns0:math></alternatives></inline-formula>\n</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Pointing Game accuracies for all available saliency methods, with and without the application of smoothing, are reported",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "LVOT",
+          "Object-CXR"
+        ],
+        [
+          "",
+          "Unsmoothed",
+          "Smoothed",
+          "Unsmoothed",
+          "Smoothed"
+        ],
+        [
+          "Input × Grad",
+          "0.000",
+          "0.098",
+          "0.162",
+          "0.670"
+        ],
+        [
+          "Guided Backpropagation",
+          "0.000",
+          "0.135",
+          "0.132",
+          "0.648"
+        ],
+        [
+          "Guided GradCAM",
+          "0.051",
+          "0.319",
+          "0.256",
+          "0.640"
+        ],
+        [
+          "GradCAM",
+          "0.582",
+          "0.554",
+          "0.572",
+          "0.546"
+        ],
+        [
+          "NormGrad Scaling",
+          "0.472",
+          "0.468",
+          "0.850",
+          "0.852"
+        ],
+        [
+          "NormGrad Scaling (M)",
+          "0.627",
+          "0.626",
+          "0.840",
+          "0.838"
+        ],
+        [
+          "NormGrad Conv1×1",
+          "0.431",
+          "0.430",
+          "0.848",
+          "0.848"
+        ],
+        [
+          "NormGrad Conv1×1 (M)",
+          "0.639",
+          "0.639",
+          "0.840",
+          "0.838"
+        ],
+        [
+          "NormGrad Conv3×3",
+          "0.295",
+          "0.292",
+          "0.850",
+          "0.850"
+        ],
+        [
+          "NormGrad Conv3×3 (M)",
+          "0.640",
+          "0.649",
+          "0.846",
+          "0.846"
+        ]
+      ],
+      "footnotes": "Smoothing has only a slight effect on saliency detectors like NormGrad and GradCAM, while it becomes more crucial for noisier saliency detectors such as Input × Grad, Guided Backpropagation, and Guided GradCAM. The best-performing methods are underlined and highlighted in bold.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Pointing Game accuracies for all available saliency methods, with and without the application of smoothing, are reported</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"2\" rowspan=\"1\">LVOT</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">Object-CXR</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">Unsmoothed</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Smoothed</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Unsmoothed</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Smoothed</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Input × Grad</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.098</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.162</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.670</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided Backpropagation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.135</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.132</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.648</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.051</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.319</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.256</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.640</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.582</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.554</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.572</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.546</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.472</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.468</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.850</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.852</underline></bold></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.627</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.626</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.840</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.838</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.431</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.430</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.848</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.848</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.639</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.639</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.840</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.838</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.295</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.292</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.850</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.850</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.640</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.649</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.846</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.846</td></tr></tbody></table><table-wrap-foot><p>Smoothing has only a slight effect on saliency detectors like NormGrad and GradCAM, while it becomes more crucial for noisier saliency detectors such as Input × Grad, Guided Backpropagation, and Guided GradCAM. The best-performing methods are underlined and highlighted in bold.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Pointing Game accuracies (mean±standard deviation) of all available saliency methods when the model is initiated via ImageNet parameters except for the final fully-connected layer (Semi-randomised, SR), random parameters at full (Fully-randomised, FR), and repeatedly trained and examined (Repeated) for the LVOT dataset",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "LVOT"
+        ],
+        [
+          "",
+          "SR",
+          "FR",
+          "Repeated"
+        ],
+        [
+          "Input × Grad",
+          "0.001±0.001",
+          "0.048±0.015",
+          "0.106±0.058"
+        ],
+        [
+          "Guided Backpropagation",
+          "0.004±0.002",
+          "0.103±0.041",
+          "0.152±0.075"
+        ],
+        [
+          "Guided GradCAM",
+          "0.027±0.025",
+          "0.044±0.057",
+          "0.325±0.075"
+        ],
+        [
+          "GradCAM",
+          "0.061±0.104",
+          "0.008±0.014",
+          "0.547±0.020"
+        ],
+        [
+          "NormGrad Scaling",
+          "0.069±0.029",
+          "0.007±0.002",
+          "0.497±0.140"
+        ],
+        [
+          "NormGrad Scaling (M)",
+          "0.066±0.038",
+          "0.057±0.023",
+          "0.600±0.054"
+        ],
+        [
+          "NormGrad Conv1×1",
+          "0.048±0.000",
+          "0.011±0.016",
+          "0.479±0.139"
+        ],
+        [
+          "NormGrad Conv1×1 (M)",
+          "0.054±0.011",
+          "0.082±0.079",
+          "0.611±0.051"
+        ],
+        [
+          "NormGrad Conv3×3",
+          "0.073±0.000",
+          "0.215±0.041",
+          "0.430±0.185"
+        ],
+        [
+          "NormGrad Conv3×3 (M)",
+          "0.118±0.006",
+          "0.057±0.023",
+          "0.602±0.061"
+        ]
+      ],
+      "footnotes": "Trained models illustrate superior performance over the randomised models, and NormGrad Multi configurations outweigh the baselines after training",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Pointing Game accuracies (mean±standard deviation) of all available saliency methods when the model is initiated via ImageNet parameters except for the final fully-connected layer (Semi-randomised, SR), random parameters at full (Fully-randomised, FR), and repeatedly trained and examined (Repeated) for the <bold>LVOT</bold> dataset</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"3\" rowspan=\"1\">LVOT</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">SR</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">FR</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Repeated</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Input × Grad</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.001±0.001</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.048±0.015</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.106±0.058</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided Backpropagation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.004±0.002</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.103±0.041</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.152±0.075</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.027±0.025</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.044±0.057</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.325±0.075</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.061±0.104</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.008±0.014</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.547±0.020</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.069±0.029</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.007±0.002</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.497±0.140</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.066±0.038</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.057±0.023</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.600±0.054</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.048±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.011±0.016</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.479±0.139</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.054±0.011</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.082±0.079</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.611</underline></bold>±<bold><underline>0.051</underline></bold></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.073±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.215±0.041</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.430±0.185</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.118±0.006</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.057±0.023</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.602±0.061</td></tr></tbody></table><table-wrap-foot><p>Trained models illustrate superior performance over the randomised models, and NormGrad Multi configurations outweigh the baselines after training</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab4",
+      "label": "Table 4",
+      "caption": "Pointing Game accuracies (mean±standard deviation) of all available saliency methods when the model is initiated via ImageNet parameters except for the final fully-connected layer (Semi randomised, SR), random parameters at full (Fully randomised, FR), and repeatedly trained and examined (Repeated) for the Object-CXR dataset",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Object-CXR"
+        ],
+        [
+          "",
+          "SR",
+          "FR",
+          "Repeated"
+        ],
+        [
+          "Input × Grad",
+          "0.111±0.028",
+          "0.185±0.041",
+          "0.663±0.013"
+        ],
+        [
+          "Guided Backpropagation",
+          "0.091±0.008",
+          "0.160±0.007",
+          "0.640±0.053"
+        ],
+        [
+          "Guided GradCAM",
+          "0.166±0.055",
+          "0.200±0.028",
+          "0.645±0.012"
+        ],
+        [
+          "GradCAM",
+          "0.200±0.066",
+          "0.093±0.103",
+          "0.545±0.018"
+        ],
+        [
+          "NormGrad Scaling",
+          "0.279±0.021",
+          "0.126±0.032",
+          "0.852±0.000"
+        ],
+        [
+          "NormGrad Scaling (M)",
+          "0.320±0.029",
+          "0.147±0.053",
+          "0.843±0.005"
+        ],
+        [
+          "NormGrad Conv1×1",
+          "0.280±0.000",
+          "0.153±0.025",
+          "0.851±0.006"
+        ],
+        [
+          "NormGrad Conv1×1 (M)",
+          "0.325±0.004",
+          "0.185±0.027",
+          "0.839±0.010"
+        ],
+        [
+          "NormGrad Conv3×3",
+          "0.298±0.000",
+          "0.153±0.017",
+          "0.853±0.003"
+        ],
+        [
+          "NormGrad Conv3×3 (M)",
+          "0.334±0.016",
+          "0.193±0.027",
+          "0.845±0.005"
+        ]
+      ],
+      "footnotes": "Trained models exhibit significant performance over randomised models, and all NormGrad configurations outperform the baselines after training",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab4\" position=\"float\" orientation=\"portrait\"><label>Table 4</label><caption><p>Pointing Game accuracies (mean±standard deviation) of all available saliency methods when the model is initiated via ImageNet parameters except for the final fully-connected layer (Semi randomised, SR), random parameters at full (Fully randomised, FR), and repeatedly trained and examined (Repeated) for the <bold>Object-CXR</bold> dataset</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"3\" rowspan=\"1\">Object-CXR</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">SR</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">FR</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Repeated</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Input × Grad</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.111±0.028</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.185±0.041</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.663±0.013</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided Backpropagation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.091±0.008</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.160±0.007</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.640±0.053</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.166±0.055</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.200±0.028</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.645±0.012</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.200±0.066</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.093±0.103</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.545±0.018</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.279±0.021</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.126±0.032</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.852±0.000</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.320±0.029</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.147±0.053</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.843±0.005</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.280±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.153±0.025</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.851±0.006</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.325±0.004</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.185±0.027</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.839±0.010</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.298±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.153±0.017</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.853</underline></bold>±<bold><underline>0.003</underline></bold></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.334±0.016</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.193±0.027</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.845±0.005</td></tr></tbody></table><table-wrap-foot><p>Trained models exhibit significant performance over randomised models, and all NormGrad configurations outperform the baselines after training</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab5",
+      "label": "Table 5",
+      "caption": "Pointing Game performances are compared across two different network architectures: ResNet (R50) and EfficientNet (EB0)",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "LVOT"
+        ],
+        [
+          "",
+          "R50",
+          "EB0",
+          "DoM"
+        ],
+        [
+          "Input × Grad",
+          "0.106±0.058",
+          "0.218±0.042",
+          "0.112"
+        ],
+        [
+          "Guided Backpropagation",
+          "0.152±0.075",
+          "0.318±0.049",
+          "0.166"
+        ],
+        [
+          "Guided GradCAM",
+          "0.325±0.075",
+          "0.453±0.035",
+          "0.128"
+        ],
+        [
+          "GradCAM",
+          "0.547±0.020",
+          "0.569±0.027",
+          "0.022"
+        ],
+        [
+          "NormGrad Scaling",
+          "0.497±0.140",
+          "0.778±0.020",
+          "0.281"
+        ],
+        [
+          "NormGrad Scaling (M)",
+          "0.600±0.054",
+          "0.620±0.010",
+          "0.020"
+        ],
+        [
+          "NormGrad Conv1×1",
+          "0.479±0.139",
+          "0.754±0.041",
+          "0.275"
+        ],
+        [
+          "NormGrad Conv1×1 (M)",
+          "0.611±0.051",
+          "0.634±0.018",
+          "0.023"
+        ],
+        [
+          "NormGrad Conv3×3",
+          "0.430±0.185",
+          "0.728±0.033",
+          "0.298"
+        ],
+        [
+          "NormGrad Conv3×3 (M)",
+          "0.602±0.061",
+          "0.607±0.020",
+          "0.005"
+        ]
+      ],
+      "footnotes": "The conv3×3 multi-layer setting of NormGrad achieves the lowest Difference of Means (DoM) score for the LVOT dataset. Given the small-scale nature of the LVOT quality issue, the multi-layer setting of NormGrad performs better and more consistently than the baseline methods",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab5\" position=\"float\" orientation=\"portrait\"><label>Table 5</label><caption><p>Pointing Game performances are compared across two different network architectures: ResNet (R50) and EfficientNet (EB0)</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"3\" rowspan=\"1\">LVOT</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">R50</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">EB0</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">DoM</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Input × Grad</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.106±0.058</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.218±0.042</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.112</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided Backpropagation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.152±0.075</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.318±0.049</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.166</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.325±0.075</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.453±0.035</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.128</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.547±0.020</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.569±0.027</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.022</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.497±0.140</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.778</underline></bold>±<bold><underline>0.020</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.281</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.600±0.054</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.620±0.010</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.020</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.479±0.139</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.754±0.041</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.275</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.611</underline></bold>±<bold><underline>0.051</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.634±0.018</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.023</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.430±0.185</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.728±0.033</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.298</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.602±0.061</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.607±0.020</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.005</underline></bold></td></tr></tbody></table><table-wrap-foot><p>The conv3×3 multi-layer setting of NormGrad achieves the lowest Difference of Means (DoM) score for the LVOT dataset. Given the small-scale nature of the LVOT quality issue, the multi-layer setting of NormGrad performs better and more consistently than the baseline methods</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab6",
+      "label": "Table 6",
+      "caption": "Pointing Game performances are evaluated on two network architectures: ResNet (R34) and EfficientNet (EB0)",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Object-CXR"
+        ],
+        [
+          "",
+          "R34",
+          "EB0",
+          "DoM"
+        ],
+        [
+          "Input × Grad",
+          "0.663±0.013",
+          "0.617±0.036",
+          "0.046"
+        ],
+        [
+          "Guided Backpropagation",
+          "0.640±0.053",
+          "0.595±0.045",
+          "0.045"
+        ],
+        [
+          "Guided GradCAM",
+          "0.645±0.012",
+          "0.784±0.005",
+          "0.139"
+        ],
+        [
+          "GradCAM",
+          "0.545±0.020",
+          "0.771±0.005",
+          "0.226"
+        ],
+        [
+          "NormGrad Scaling",
+          "0.852±0.000",
+          "0.857±0.010",
+          "0.005"
+        ],
+        [
+          "NormGrad Scaling (M)",
+          "0.843±0.005",
+          "0.856±0.002",
+          "0.013"
+        ],
+        [
+          "NormGrad Conv1×1",
+          "0.851±0.006",
+          "0.850±0.000",
+          "0.001"
+        ],
+        [
+          "NormGrad Conv1×1 (M)",
+          "0.839±0.010",
+          "0.851±0.008",
+          "0.011"
+        ],
+        [
+          "NormGrad Conv3×3",
+          "0.853±0.003",
+          "0.863±0.002",
+          "0.009"
+        ],
+        [
+          "NormGrad Conv3×3 (M)",
+          "0.845±0.005",
+          "0.859±0.007",
+          "0.014"
+        ]
+      ],
+      "footnotes": "The conv1×1 single-layer setting of NormGrad delivers the best performance for the Object-CXR dataset. Notably, all NormGrad-based methods outperform the baselines and demonstrate greater consistency, largely due to the scale of the quality issue involved",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab6\" position=\"float\" orientation=\"portrait\"><label>Table 6</label><caption><p>Pointing Game performances are evaluated on two network architectures: ResNet (R34) and EfficientNet (EB0)</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"3\" rowspan=\"1\">Object-CXR</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">R34</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">EB0</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">DoM</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Input × Grad</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.663±0.013</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.617±0.036</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.046</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided Backpropagation</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.640±0.053</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.595±0.045</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.045</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Guided GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.645±0.012</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.784±0.005</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.139</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">GradCAM</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.545±0.020</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.771±0.005</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.226</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.852±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.857±0.010</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.005</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Scaling (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.843±0.005</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.856±0.002</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.013</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.851±0.006</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.850±0.000</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.001</underline></bold></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv1×1 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.839±0.010</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.851±0.008</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.011</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.853</underline></bold>±<bold><underline>0.003</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.863</underline></bold>±<bold><underline>0.002</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.009</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">NormGrad Conv3×3 (M)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.845±0.005</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.859±0.007</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.014</td></tr></tbody></table><table-wrap-foot><p>The conv1×1 single-layer setting of NormGrad delivers the best performance for the Object-CXR dataset. Notably, all NormGrad-based methods outperform the baselines and demonstrate greater consistency, largely due to the scale of the quality issue involved</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab7",
+      "label": "Table 7",
+      "caption": "Accuracy (Acc) and area under curve (AUC) scores for all models. Numbers in bold and underlined font show the best performance during a trial",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "LVOT",
+          "Object-CXR"
+        ],
+        [
+          "",
+          "R50",
+          "EB0",
+          "R34",
+          "EB0"
+        ],
+        [
+          "",
+          "Acc",
+          "AUC",
+          "Acc",
+          "AUC",
+          "Acc",
+          "AUC",
+          "Acc",
+          "AUC"
+        ],
+        [
+          "T1",
+          "0.971",
+          "0.998",
+          "0.929",
+          "0.978",
+          "0.870",
+          "0.938",
+          "0.858",
+          "0.937"
+        ],
+        [
+          "T2",
+          "0.949",
+          "0.994",
+          "0.867",
+          "0.949",
+          "0.853",
+          "0.938",
+          "0.857",
+          "0.936"
+        ],
+        [
+          "T3",
+          "0.943",
+          "0.992",
+          "0.915",
+          "0.971",
+          "0.865",
+          "0.931",
+          "0.856",
+          "0.936"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab7\" position=\"float\" orientation=\"portrait\"><label>Table 7</label><caption><p>Accuracy (Acc) and area under curve (AUC) scores for all models. Numbers in bold and underlined font show the best performance during a trial</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"4\" rowspan=\"1\">LVOT</th><th align=\"left\" colspan=\"4\" rowspan=\"1\">Object-CXR</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"2\" rowspan=\"1\">R50</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">EB0</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">R34</th><th align=\"left\" colspan=\"2\" rowspan=\"1\">EB0</th></tr><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" colspan=\"1\" rowspan=\"1\">Acc</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">AUC</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Acc</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">AUC</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Acc</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">AUC</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Acc</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">AUC</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">T1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.971</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.998</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.929</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.978</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.870</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.938</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.858</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.937</underline></bold></td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">T2</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.949</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.994</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.867</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.949</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.853</td><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold><underline>0.938</underline></bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.857</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.936</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">T3</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.943</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.992</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.915</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.971</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.865</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.931</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.856</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.936</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "NormGrad Framework: The top part illustrates the flow of a neural network, where multiple virtual identity layers (VILs) are positioned right after the convolutional blocks to accumulate the activations and gradients from different locations. The bottom part demonstrates how these values are utilized to generate a unified heat map using NormGrad. Regions with high and low values are indicated by red and blue colors within the heat maps. \"Conv Block\" denotes a convolutional layer with batch normalization and ReLU activation function, while \"GAP\" and \"FC\" operations refer to Global Average Pooling and Fully-Connected layers, respectively. The input image displays the appearance of the Left Ventricular Outflow Tract in a 4-chamber Cardiac MRI scan, highlighted by a red bounding box",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Figa",
+      "label": "Algorithm 1",
+      "caption": "NormGrad per-layer VIL computation and multi-layer aggregation",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Figa_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "The smoothing operation when used on different interpretability methods. Although IxG (Input x Grad), GBP (Guided Backpropagation), and Guided GradCAM’s saliency outputs change heavily, we do not observe such drastic changes in the saliency maps generated by GradCAM and NormGrad. Red bounding boxes demonstrate the ground-truth annotations for foreign objects",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "Saliency maps before and after training. Learning appropriate representations has an enormous effect on the quality of saliency maps. Still, combining the saliency map information of different layers is crucial with regard to precision. The red bounding box highlights the LVOT region as the ground-truth",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "Repeatability results for a sample from the LVOT Test Set (Best viewed in zoom). Consistent results are achieved for GradCAM, Guided GradCAM, and NormGrad methods, while the precision is the best for the Multi-setting of NormGrad. The LVOT region is indicated with a red bounding box, and the most salient point is marked with a cross",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Saliency maps before and after training demonstrate the significant impact of learning appropriate representations on their quality. Red bounding boxes highlight the ground-truth annotations for foreign objects",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig6",
+      "label": "Fig. 6",
+      "caption": "Reproducibility results for a sample from Object-CXR Test Set when ResNet-34 (R34) and EfficientNet-B0 (EB0) architectures are utilized for foreign object detection task. Consistent results are achieved for NormGrad methods since it focuses on all three foreign objects of interest. Red bounding boxes demonstrate the ground-truth annotations for foreign objects",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_411_Fig6_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ1",
+      "text": "1\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} \\begin{aligned} {\\textbf {x}}^{in}&= p({\\textbf {x}}) \\\\ {\\textbf {x}}^{out}&= k_t({\\textbf {x}}^{in}) \\\\ {\\textbf {y}}&= q({\\textbf {x}}^{out}). \\end{aligned} \\end{aligned}$$\\end{document}xin=p(x)xout=kt(xin)y=q(xout).",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ1\"><label>1</label><alternatives><tex-math id=\"d33e608\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} \\begin{aligned} {\\textbf {x}}^{in}&amp;= p({\\textbf {x}}) \\\\ {\\textbf {x}}^{out}&amp;= k_t({\\textbf {x}}^{in}) \\\\ {\\textbf {y}}&amp;= q({\\textbf {x}}^{out}). \\end{aligned} \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"d33e612\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">in</ns0:mi></ns0:mrow></ns0:msup></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:mi>p</ns0:mi><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mrow /><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:msub><ns0:mi>k</ns0:mi><ns0:mi>t</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">in</ns0:mi></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mrow /><ns0:mi mathvariant=\"bold\">y</ns0:mi></ns0:mrow></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:mi>q</ns0:mi><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></alternatives></disp-formula>We define the gradient w.r.t. the parameters of layer "
+    },
+    {
+      "id": "Equ2",
+      "text": "2\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} \\tilde{{\\textbf {X}}}^{out} = \\tilde{{\\textbf {W}}}_{N \\times N} {\\textbf {X}}_{N \\times N}^{out}, \\end{aligned}$$\\end{document}X~out=W~N×NXN×Nout,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ2\"><label>2</label><alternatives><tex-math id=\"d33e1263\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} \\tilde{{\\textbf {X}}}^{out} = \\tilde{{\\textbf {W}}}_{N \\times N} {\\textbf {X}}_{N \\times N}^{out}, \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"d33e1267\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msup><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">X</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msup><ns0:mo>=</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow></ns0:msub><ns0:msubsup><ns0:mi mathvariant=\"bold\">X</ns0:mi><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></alternatives></disp-formula>which uses matrix multiplication to express "
+    },
+    {
+      "id": "Equ3",
+      "text": "3\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} \\begin{aligned} \\frac{dL}{d\\tilde{{\\textbf {W}}}_{N \\times N}}&= \\sum _{u \\in \\Omega } \\frac{d}{d\\tilde{{\\textbf {W}}}}_{N \\times N} \\langle {\\textbf {g}}^{out}_u, \\tilde{{\\textbf {W}}}_{N \\times N} {\\textbf {x}}^{out}_{u, N \\times N} \\rangle \\\\ &= \\sum _{u \\in \\Omega } {\\textbf {g}}_u^{out} {{\\textbf {x}}^{out}_{u, N \\times N}}^\\intercal . \\end{aligned} \\end{aligned}$$\\end{document}dLdW~N×N=∑u∈ΩddW~N×N⟨guout,W~N×Nxu,N×Nout⟩=∑u∈Ωguoutxu,N×Nout⊺.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ3\"><label>3</label><alternatives><tex-math id=\"d33e1430\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} \\begin{aligned} \\frac{dL}{d\\tilde{{\\textbf {W}}}_{N \\times N}}&amp;= \\sum _{u \\in \\Omega } \\frac{d}{d\\tilde{{\\textbf {W}}}}_{N \\times N} \\langle {\\textbf {g}}^{out}_u, \\tilde{{\\textbf {W}}}_{N \\times N} {\\textbf {x}}^{out}_{u, N \\times N} \\rangle \\\\ &amp;= \\sum _{u \\in \\Omega } {\\textbf {g}}_u^{out} {{\\textbf {x}}^{out}_{u, N \\times N}}^\\intercal . \\end{aligned} \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"d33e1434\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mfrac><ns0:mrow><ns0:mi mathvariant=\"italic\">dL</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>d</ns0:mi><ns0:msub><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:mfrac></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>u</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi mathvariant=\"normal\">Ω</ns0:mi></ns0:mrow></ns0:munder><ns0:msub><ns0:mfrac><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mi>d</ns0:mi><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover></ns0:mrow></ns0:mfrac><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">⟨</ns0:mo><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">g</ns0:mi></ns0:mrow><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo>,</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:mo stretchy=\"false\">~</ns0:mo></ns0:mover><ns0:mrow><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow></ns0:msub><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>u</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:mo stretchy=\"false\">⟩</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow /></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>u</ns0:mi><ns0:mo>∈</ns0:mo><ns0:mi mathvariant=\"normal\">Ω</ns0:mi></ns0:mrow></ns0:munder><ns0:msubsup><ns0:mi mathvariant=\"bold\">g</ns0:mi><ns0:mi>u</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup><ns0:msup><ns0:mrow><ns0:msubsup><ns0:mrow><ns0:mi mathvariant=\"bold\">x</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>u</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>N</ns0:mi><ns0:mo>×</ns0:mo><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi mathvariant=\"italic\">out</ns0:mi></ns0:mrow></ns0:msubsup></ns0:mrow><ns0:mo>⊺</ns0:mo></ns0:msup><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></alternatives></disp-formula>Since the Frobenius Norm of an outer product can be decomposed into the multiplication of Frobenius Norms, we can calculate the resulting saliency map by first computing the Frobenius Norms of "
+    },
+    {
+      "id": "Equ4",
+      "text": "4\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} {\\textbf {M}}_{NG} = \\Pi _{j=1}^J \\root J \\of {{\\textbf {m}}_{NG}^{(j)}}, \\end{aligned}$$\\end{document}MNG=Πj=1JmNG(j)J,",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ4\"><label>4</label><alternatives><tex-math id=\"d33e1625\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} {\\textbf {M}}_{NG} = \\Pi _{j=1}^J \\root J \\of {{\\textbf {m}}_{NG}^{(j)}}, \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"d33e1629\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"bold\">M</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">NG</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:msubsup><ns0:mi mathvariant=\"normal\">Π</ns0:mi><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>J</ns0:mi></ns0:msubsup><ns0:mroot><ns0:msubsup><ns0:mi mathvariant=\"bold\">m</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">NG</ns0:mi></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mi>J</ns0:mi></ns0:mroot><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></alternatives></disp-formula>where "
+    },
+    {
+      "id": "Equ5",
+      "text": "5\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\begin{aligned} A = \\frac{T}{T + F} \\end{aligned}$$\\end{document}A=TT+F",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ5\"><label>5</label><alternatives><tex-math id=\"d33e1846\">\\documentclass[12pt]{minimal}\n\t\t\t\t\\usepackage{amsmath}\n\t\t\t\t\\usepackage{wasysym} \n\t\t\t\t\\usepackage{amsfonts} \n\t\t\t\t\\usepackage{amssymb} \n\t\t\t\t\\usepackage{amsbsy}\n\t\t\t\t\\usepackage{mathrsfs}\n\t\t\t\t\\usepackage{upgreek}\n\t\t\t\t\\setlength{\\oddsidemargin}{-69pt}\n\t\t\t\t\\begin{document}$$\\begin{aligned} A = \\frac{T}{T + F} \\end{aligned}$$\\end{document}</tex-math><ns0:math id=\"d33e1850\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>A</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mi>T</ns0:mi><ns0:mrow><ns0:mi>T</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>F</ns0:mi></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></alternatives></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Ma JJ, Nakarmi U, Kin CYS, Sandino CM, Cheng JY, Syed AB, Wei P, Pauly JM, Vasanawala SS. Diagnostic image quality assessment and classification in medical imaging: Opportunities and challenges. IEEE ISBI. 10.1109/ISBI45749.2020.909873510.1109/isbi45749.2020.9098735PMC771039133274013",
+      "doi": [
+        "10.1109/isbi45749.2020.9098735"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.OksuzICloughJRRuijsinkBAntonEPBustinACruzGDeep learning-based detection and correction of cardiac mr motion artefacts during reconstruction for high-quality segmentationIEEE Trans Med Imaging2020391240011010.1109/TMI.2020.300893032746141Oksuz I, Clough JR, Ruijsink B, Anton EP, Bustin A, Cruz G, et al. Deep learning-based detection and correction of cardiac mr motion artefacts during reconstruction for high-quality segmentation. IEEE Trans Med Imaging. 2020;39(12):4001–10. 10.1109/TMI.2020.3008930.32746141 10.1109/TMI.2020.3008930",
+      "doi": [
+        "10.1109/TMI.2020.3008930",
+        "10.1109/TMI.2020.3008930"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.OksuzIRuijsinkBPuyol-AntónECloughJRCruzGBustinAAutomatic cnn-based detection of cardiac MR motion artefacts using k-space data augmentation and curriculum learningMed Image Anal2019551364710.1016/j.media.2019.04.00931055126PMC6688894Oksuz I, Ruijsink B, Puyol-Antón E, Clough JR, Cruz G, Bustin A, et al. Automatic cnn-based detection of cardiac MR motion artefacts using k-space data augmentation and curriculum learning. Med Image Anal. 2019;55:136–47. 10.1016/j.media.2019.04.009.31055126 10.1016/j.media.2019.04.009PMC6688894",
+      "doi": [
+        "10.1016/j.media.2019.04.009",
+        "10.1016/j.media.2019.04.009"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.GoldmanLWPrinciples of ct: radiation dose and image qualityJ Nucl Med Technol200735421322510.2967/jnmt.106.03784618006597Goldman LW. Principles of ct: radiation dose and image quality. J Nucl Med Technol. 2007;35(4):213–25. 10.2967/jnmt.106.037846.18006597 10.2967/jnmt.106.037846",
+      "doi": [
+        "10.2967/jnmt.106.037846",
+        "10.2967/jnmt.106.037846"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.WangZBovikACSheikhHRSimoncelliEPImage quality assessment: from error visibility to structural similarityIEEE Trans Image Process20041346001210.1109/TIP.2003.81986115376593Wang Z, Bovik AC, Sheikh HR, Simoncelli EP. Image quality assessment: from error visibility to structural similarity. IEEE Trans Image Process. 2004;13(4):600–12. 10.1109/TIP.2003.819861.15376593 10.1109/tip.2003.819861",
+      "doi": [
+        "10.1109/TIP.2003.819861",
+        "10.1109/tip.2003.819861"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.ReisenhoferRBosseSKutyniokGWiegandTA haar wavelet-based perceptual similarity index for image quality assessmentSignal Process Image Commun201861334310.1016/j.image.2017.11.001Reisenhofer R, Bosse S, Kutyniok G, Wiegand T. A haar wavelet-based perceptual similarity index for image quality assessment. Signal Process Image Commun. 2018;61:33–43. 10.1016/j.image.2017.11.001.",
+      "doi": [
+        "10.1016/j.image.2017.11.001"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.DingKMaKWangSSimoncelliEPImage quality assessment: unifying structure and texture similarityIEEE Trans Pattern Anal Mach Intell202244525678110.1109/TPAMI.2020.304581033338012Ding K, Ma K, Wang S, Simoncelli EP. Image quality assessment: unifying structure and texture similarity. IEEE Trans Pattern Anal Mach Intell. 2022;44(5):2567–81. 10.1109/TPAMI.2020.3045810.33338012 10.1109/TPAMI.2020.3045810",
+      "doi": [
+        "10.1109/TPAMI.2020.3045810",
+        "10.1109/TPAMI.2020.3045810"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.YoneyamaKVavereALCerciRAhmedRAraiAENiinumaHInfluence of image acquisition settings on radiation dose and image quality in coronary angiography by 320-detector volume computed tomography: the core320 pilot experienceHeart Int2012722012–1110.4081/hi.2012.e11PMC350430323185678Yoneyama K, Vavere AL, Cerci R, Ahmed R, Arai AE, Niinuma H, et al. Influence of image acquisition settings on radiation dose and image quality in coronary angiography by 320-detector volume computed tomography: the core320 pilot experience. Heart Int. 2012;7(2):2012–11. 10.4081/hi.2012.e11.10.4081/hi.2012.e11PMC350430323185678",
+      "doi": [
+        "10.4081/hi.2012.e11",
+        "10.4081/hi.2012.e11"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.ChowLSParamesranRReview of medical image quality assessmentBiomed Signal Process Control20162714515410.1016/j.bspc.2016.02.006Chow LS, Paramesran R. Review of medical image quality assessment. Biomed Signal Process Control. 2016;27:145–54. 10.1016/j.bspc.2016.02.006.",
+      "doi": [
+        "10.1016/j.bspc.2016.02.006"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.JFHealthcare: Automatic detection of foreign objects on chest X-rays. Github. Accessed on 11/27/2020 (2020)",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Oksuz I, Ruijsink B, Puyol-Antón E, Sinclair M, Rueckert D, Schnabel JA, King AP. Automatic left ventricular outflow tract classification for accurate cardiac mr planning. In: IEEE ISBI, 2018, pp. 462–465. 10.1109/ISBI.2018.8363616.",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.van der VeldenBHMKuijfHJGilhuijsKGAViergeverMAExplainable artificial intelligence (XAI) in deep learning-based medical image analysisMed Image Anal20227910247010.1016/j.media.2022.10247035576821van der Velden BHM, Kuijf HJ, Gilhuijs KGA, Viergever MA. Explainable artificial intelligence (XAI) in deep learning-based medical image analysis. Med Image Anal. 2022;79:102470. 10.1016/j.media.2022.102470.35576821 10.1016/j.media.2022.102470",
+      "doi": [
+        "10.1016/j.media.2022.102470",
+        "10.1016/j.media.2022.102470"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.GaubeSSureshHRaueMLermerEKochTKHudecekMFCAckeryADGroverSCCoughlinJFFreyDKitamuraFCGhassemiMColakENon-task expert physicians benefit from correct explainable AI advice when reviewing x-raysSci Rep2023131138310.1038/s41598-023-28633-w36697450PMC9876883Gaube S, Suresh H, Raue M, Lermer E, Koch TK, Hudecek MFC, et al. Non-task expert physicians benefit from correct explainable AI advice when reviewing x-rays. Sci Rep. 2023;13(1):1383. 10.1038/s41598-023-28633-w.36697450 10.1038/s41598-023-28633-wPMC9876883",
+      "doi": [
+        "10.1038/s41598-023-28633-w",
+        "10.1038/s41598-023-28633-w"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.ArunNGawNSinghPChangKAggarwalMChenBAssessing the trustworthiness of saliency maps for localizing abnormalities in medical imagingRadiology: Artificial Intelligence20213620026710.1148/ryai.2021200267PMC863723134870212Arun N, Gaw N, Singh P, Chang K, Aggarwal M, Chen B, et al. Assessing the trustworthiness of saliency maps for localizing abnormalities in medical imaging. Radiology: Artificial Intelligence. 2021;3(6):200267. 10.1148/ryai.2021200267.10.1148/ryai.2021200267PMC863723134870212",
+      "doi": [
+        "10.1148/ryai.2021200267",
+        "10.1148/ryai.2021200267"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.JinWLiXFatehiMHamarnehGGuidelines and evaluation of clinical explainable ai in medical image analysisMed Image Anal.202210.1016/j.media.2022.10268436516555Jin W, Li X, Fatehi M, Hamarneh G. Guidelines and evaluation of clinical explainable ai in medical image analysis. Med Image Anal. 2022. 10.1016/j.media.2022.102684.10.1016/j.media.2022.10268436516555",
+      "doi": [
+        "10.1016/j.media.2022.102684",
+        "10.1016/j.media.2022.102684"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.Adebayo J, Gilmer J, Muelly M, Goodfellow I, Hardt M, Kim B. Sanity checks for saliency maps. In: NIPS, 2018, pp. 9525–9536. https://proceedings.neurips.cc/paper/2018/hash/294a8ed24b1ad22ec2e7efea049b8737-Abstract.html.",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Petsiuk V, Das A, Saenko K. RISE: randomized input sampling for explanation of black-box models. In: BMVC, 2018, p. 151. http://bmvc2018.org/contents/papers/1064.pdf",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.ZhangJBargalSALinZBrandtJShenXSclaroffSTop-down neural attention by excitation backpropInt J Computer Vis201812610108410210.1007/978-3-319-46493-0_33Zhang J, Bargal SA, Lin Z, Brandt J, Shen X, Sclaroff S, et al. Top-down neural attention by excitation backprop. Int J Computer Vis. 2018;126(10):1084–102. 10.1007/978-3-319-46493-0_33.",
+      "doi": [
+        "10.1007/978-3-319-46493-0_33"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.Gomez T, Fréour T, Mouchère H. Metrics for saliency map evaluation of deep learning explanation methods. In: El-Yacoubi MA, Granger E, Yuen PC, Pal U, Vincent N, editors. Pattern Recognition and Artificial Intelligence - Third International Conference, ICPRAI 2022, Paris, France, June 1-3, 2022, Proceedings, Part I. Lecture Notes in Computer Science, 2022, vol. 13363, pp. 84–95. Springer, 10.1007/978-3-031-09037-0_8",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Englebert A, Cornu O, Vleeschouwer CD. Backward recursive class activation map refinement for high resolution saliency map. In: 26th International Conference on Pattern Recognition, ICPR 2022, Montreal, QC, Canada, August 21-25, 2022, 2022, pp. 2444–2450. IEEE, 10.1109/ICPR56361.2022.9956711.",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Lanfredi RB, Arora A, Drew T, Schroeder JD, Tasdizen T. Comparing radiologists’ gaze and saliency maps generated by interpretability methods for chest x-rays. CoRR, 2021. arXiv:2112.11716.",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Rebuffi S-A, Fong R, Ji X, Vedaldi A. There and back again: Revisiting backpropagation saliency methods. In: IEEE CVPR,, 2020, pp. 8836–8845. 10.1109/CVPR42600.2020.00886.",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Ozer C, Oksuz I. Explainable image quality analysis of chest x-rays. In: Medical Imaging with Deep Learning 2021. https://openreview.net/forum?id=ln797A8lAb0",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Sujit SJ, Gabr RE, Coronado I, Robinson M, Datta S, Narayana PA. Automated image quality evaluation of structural brain magnetic resonance images using deep convolutional neural networks. In: 9th Cairo Int Biomed Eng Conf, 2018, pp. 33–36. 10.1109/CIBEC.2018.8641830",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.HuJZhangCZhouKGaoSChest x-ray diagnostic quality assessment: how much is pixel-wise supervision needed?IEEE Trans Med Imaging202241717112310.1109/TMI.2022.314917135120002Hu J, Zhang C, Zhou K, Gao S. Chest x-ray diagnostic quality assessment: how much is pixel-wise supervision needed? IEEE Trans Med Imaging. 2022;41(7):1711–23. 10.1109/TMI.2022.3149171.35120002 10.1109/TMI.2022.3149171",
+      "doi": [
+        "10.1109/TMI.2022.3149171",
+        "10.1109/TMI.2022.3149171"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.MortametBBernsteinMAJackCRJrGunterJLWardCBritsonPJAutomatic quality assessment in structural brain magnetic resonance imagingMagn Reson Med20096223657210.1002/mrm.2199219526493PMC2780021Mortamet B, Bernstein MA, Jack CR Jr, Gunter JL, Ward C, Britson PJ, et al. Automatic quality assessment in structural brain magnetic resonance imaging. Magn Reson Med. 2009;62(2):365–72.19526493 10.1002/mrm.21992PMC2780021",
+      "doi": [
+        "10.1002/mrm.21992",
+        "10.1002/mrm.21992"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.Abdi AH, Luong C, Tsang T, Jue J, Gin K, Yeung D, Hawley D, Rohling R, Abolmaesumi P. Quality assessment of echocardiographic cine using recurrent neural networks: Feasibility on five standard view planes. In: MICCAI 2017 Proceedings, Part III, 2017, pp. 302–310. Springer, Berlin, Heidelberg. 10.1007/978-3-319-66179-7_35.",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Nabavi S, Hamedani KA, Moghaddam ME, Abin AA, Frangi AF. Statistical Distance-Guided Unsupervised Domain Adaptation for Automated Multi-Class Cardiovascular Magnetic Resonance Image Quality Assessment 2024. https://arxiv.org/abs/2409.00375",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Nabavi S, Hamedani KA, Moghaddam ME, Abin AA, Frangi AF. Multiple Teachers-Meticulous Student: A Domain Adaptive Meta-Knowledge Distillation Model for Medical Image Classification 2024. https://arxiv.org/abs/2403.11226.",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Chen Q, Min X, Duan H, Zhu Y, Zhai G. Muiqa: Image quality assessment database and algorithm for medical ultrasound images. In: IEEE ICIP, 2021, pp. 2958–2962.10.1109/ICIP42928.2021.9506431.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.He K, Zhang X, Ren S, Sun J. Deep residual learning for image recognition. In: IEEE CVPR, 2016, pp. 770–778. 10.1109/CVPR.2016.90",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Hu J, Shen L, Sun G. Squeeze-and-excitation networks. In: IEEE CVPR, 2018, pp. 7132–7141. 10.1109/CVPR.2018.00745",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.BottaniSBurgosNMaireAWildAStröerSDormontDColliotOAutomatic quality control of brain T1-weighted magnetic resonance images for a clinical data warehouseMed Image Anal20227510221910.1016/j.media.2021.10221934773767Bottani S, Burgos N, Maire A, Wild A, Ströer S, Dormont D, et al. Automatic quality control of brain T1-weighted magnetic resonance images for a clinical data warehouse. Med Image Anal. 2022;75:102219. 10.1016/j.media.2021.102219.34773767 10.1016/j.media.2021.102219",
+      "doi": [
+        "10.1016/j.media.2021.102219",
+        "10.1016/j.media.2021.102219"
+      ]
+    },
+    {
+      "id": "CR34",
+      "text": "34.GagoskiBXuJWightonPTisdallMDFrostRLoW-CAutomated detection and reacquisition of motion-degraded images in fetal HASTE imaging at 3 TMagn Reson Med202287419142210.1002/mrm.2910634888942PMC8810713Gagoski B, Xu J, Wighton P, Tisdall MD, Frost R, Lo W-C, et al. Automated detection and reacquisition of motion-degraded images in fetal HASTE imaging at 3 T. Magn Reson Med. 2022;87(4):1914–22. 10.1002/mrm.29106.34888942 10.1002/mrm.29106PMC8810713",
+      "doi": [
+        "10.1002/mrm.29106",
+        "10.1002/mrm.29106"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.NabaviSHashemiMEbrahimi MoghaddamMAbinAAFrangiAFAutomated cardiac coverage assessment in cardiovascular magnetic resonance imaging using an explainable recurrent 3D dual-domain convolutional networkMed Phys20245112878980310.1002/mp.1741139312585Nabavi S, Hashemi M, Ebrahimi Moghaddam M, Abin AA, Frangi AF. Automated cardiac coverage assessment in cardiovascular magnetic resonance imaging using an explainable recurrent 3D dual-domain convolutional network. Med Phys. 2024;51(12):8789–803. 10.1002/mp.17411.39312585 10.1002/mp.17411",
+      "doi": [
+        "10.1002/mp.17411",
+        "10.1002/mp.17411"
+      ]
+    },
+    {
+      "id": "CR36",
+      "text": "36.NabaviSSimchiHMoghaddamMEAbinAAFrangiAFA generalised deep meta-learning model for automated quality control of cardiovascular magnetic resonance imagesComput Methods Programs Biomed202324210777010.1016/j.cmpb.2023.10777037714020Nabavi S, Simchi H, Moghaddam ME, Abin AA, Frangi AF. A generalised deep meta-learning model for automated quality control of cardiovascular magnetic resonance images. Comput Methods Programs Biomed. 2023;242:107770. 10.1016/j.cmpb.2023.107770.37714020 10.1016/j.cmpb.2023.107770",
+      "doi": [
+        "10.1016/j.cmpb.2023.107770",
+        "10.1016/j.cmpb.2023.107770"
+      ]
+    },
+    {
+      "id": "CR37",
+      "text": "37.MengYRuanJYangBGaoYJinJDongFJiHHeLChengGGongXAutomated quality assessment of chest radiographs based on deep learning and linear regression cascade algorithmsEur Radiol202232117680769010.1007/s00330-022-08771-x35420306Meng Y, Ruan J, Yang B, Gao Y, Jin J, Dong F, et al. Automated quality assessment of chest radiographs based on deep learning and linear regression cascade algorithms. Eur Radiol. 2022;32(11):7680–90. 10.1007/s00330-022-08771-x.35420306 10.1007/s00330-022-08771-x",
+      "doi": [
+        "10.1007/s00330-022-08771-x",
+        "10.1007/s00330-022-08771-x"
+      ]
+    },
+    {
+      "id": "CR38",
+      "text": "38.Xun S, Sun Y, Chen J, Yu Z, Tong T, Liu X, Wu M, Tan T. MedIQA: A scalable foundation model for prompt-driven medical image quality assessment . In: Proceedings of Medical Image Computing and Computer Assisted Intervention – MICCAI 2025, 2025. Springer",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Zeiler MD, Fergus R. Visualizing and understanding convolutional networks. In: Fleet D, Pajdla T, Schiele B, Tuytelaars T, editors. ECCV, 2014, pp. 818–833. Springer, Cham. 10.1007/978-3-319-10590-1_53.",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Simonyan K, Zisserman A. Very deep convolutional networks for large-scale image recognition. In: ICLR 2015. http://arxiv.org/abs/1409.1556.",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Springenberg JT, Dosovitskiy A, Brox T, Riedmiller MA. Striving for simplicity: The all convolutional net. In: ICLR 2015. http://arxiv.org/abs/1412.6806.",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Shrikumar A, Greenside P, Kundaje A. Learning important features through propagating activation differences. In: Precup D, Teh YW, editors. ICML. PMLR, 2017, vol. 70, pp. 3145–3153. http://proceedings.mlr.press/v70/shrikumar17a.html.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.SelvarajuRRCogswellMDasAVedantamRParikhDBatraDGrad-cam: visual explanations from deep networks via gradient-based localizationInt J Comput Vis202012823365910.1007/S11263-019-01228-7Selvaraju RR, Cogswell M, Das A, Vedantam R, Parikh D, Batra D. Grad-cam: visual explanations from deep networks via gradient-based localization. Int J Comput Vis. 2020;128(2):336–59. 10.1007/S11263-019-01228-7.",
+      "doi": [
+        "10.1007/S11263-019-01228-7"
+      ]
+    },
+    {
+      "id": "CR44",
+      "text": "44.Sundararajan M, Taly A, Yan Q. Axiomatic attribution for deep networks. In: Precup D, Teh YW, editors. ICML, 2017, vol. 70, pp. 3319–3328. PMLR. http://proceedings.mlr.press/v70/sundararajan17a.html.",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Wang H, Wang Z, Du M, Yang F, Zhang Z, Ding S, Mardziel P, Hu X. Score-cam: Score-weighted visual explanations for convolutional neural networks. In: IEEE CVPRW 2020. 10.1109/CVPRW50498.2020.00020",
+      "doi": []
+    },
+    {
+      "id": "CR46",
+      "text": "46.Smilkov D, Thorat N, Kim B, Viégas FB, Wattenberg M. Smoothgrad: removing noise by adding noise. CoRR, 2017. arXiv:1706.0382510.48550/arXiv.1706.03825.",
+      "doi": []
+    },
+    {
+      "id": "CR47",
+      "text": "47.Lundberg SM, Lee S. A unified approach to interpreting model predictions. In: Guyon I, Luxburg U, Bengio S, Wallach HM, Fergus R, Vishwanathan SVN, Garnett R, editors. Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, 2017, pp. 4765–4774",
+      "doi": []
+    },
+    {
+      "id": "CR48",
+      "text": "48.Ribeiro MT, Singh S, Guestrin C. \"why should I trust you?\": Explaining the predictions of any classifier. In: Krishnapuram B, Shah M, Smola AJ, Aggarwal CC, Shen D, Rastogi R, editors. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, San Francisco, CA, USA, August 13-17, 2016, 2016, pp. 1135–1144. ACM. 10.1145/2939672.2939778",
+      "doi": []
+    },
+    {
+      "id": "CR49",
+      "text": "49.LinQ-HNiuY-WSuiJZhaoW-DZhuoCCalhounVDSspnet: an interpretable 3d-cnn for classification of schizophrenia using phase maps of resting-state complex-valued fmri dataMed Image Anal20227910243010.1016/j.media.2022.10243035397470Lin Q-H, Niu Y-W, Sui J, Zhao W-D, Zhuo C, Calhoun VD. Sspnet: an interpretable 3d-cnn for classification of schizophrenia using phase maps of resting-state complex-valued fmri data. Med Image Anal. 2022;79:102430. 10.1016/j.media.2022.102430.35397470 10.1016/j.media.2022.102430",
+      "doi": [
+        "10.1016/j.media.2022.102430",
+        "10.1016/j.media.2022.102430"
+      ]
+    },
+    {
+      "id": "CR50",
+      "text": "50.KimJ-KJungSParkJHanSWArrhythmia detection model using modified densenet for comprehensible grad-cam visualizationBiomed Signal Process Control20227310340810.1016/j.bspc.2021.103408Kim J-K, Jung S, Park J, Han SW. Arrhythmia detection model using modified densenet for comprehensible grad-cam visualization. Biomed Signal Process Control. 2022;73:103408. 10.1016/j.bspc.2021.103408.",
+      "doi": [
+        "10.1016/j.bspc.2021.103408"
+      ]
+    },
+    {
+      "id": "CR51",
+      "text": "51.ParkSKimGOhYSeoJBLeeSMKimJHMulti-task vision transformer using low-level chest x-ray feature corpus for covid-19 diagnosis and severity quantificationMed Image Anal20227510229910.1016/j.media.2021.10229934814058PMC8566090Park S, Kim G, Oh Y, Seo JB, Lee SM, Kim JH, et al. Multi-task vision transformer using low-level chest x-ray feature corpus for covid-19 diagnosis and severity quantification. Med Image Anal. 2022;75:102299. 10.1016/j.media.2021.102299.34814058 10.1016/j.media.2021.102299PMC8566090",
+      "doi": [
+        "10.1016/j.media.2021.102299",
+        "10.1016/j.media.2021.102299"
+      ]
+    },
+    {
+      "id": "CR52",
+      "text": "52.Huang Y, Lyu J, Cheng P, Tam R, Tang X. Ssit: Saliency-guided self-supervised image transformer for diabetic retinopathy grading. CoRR, 2022. arXiv:2210.10969, 10.48550/arXiv.2210.10969.10.1109/JBHI.2024.336287838319784",
+      "doi": [
+        "10.1109/JBHI.2024.3362878"
+      ]
+    },
+    {
+      "id": "CR53",
+      "text": "53.Suh J, Kim J, Jung E, Rhee W. Evaluating feature attribution methods for electrocardiogram. CoRR 2022. arXiv:2211.1270210.48550/arXiv.2211.12702.",
+      "doi": []
+    },
+    {
+      "id": "CR54",
+      "text": "54.ByraMDobruch-SobczakKPiotrzkowska-WroblewskaHKlimondaZLitniewskiJExplaining a deep learning based breast ultrasound image classifier with saliency mapsJ Ultrasonography20222289707510.15557/JoU.2022.0013PMC923151435811586Byra M, Dobruch-Sobczak K, Piotrzkowska-Wroblewska H, Klimonda Z, Litniewski J. Explaining a deep learning based breast ultrasound image classifier with saliency maps. J Ultrasonography. 2022;22(89):70–5. 10.15557/JoU.2022.0013.10.15557/JoU.2022.0013PMC923151435811586",
+      "doi": [
+        "10.15557/JoU.2022.0013",
+        "10.15557/JoU.2022.0013"
+      ]
+    },
+    {
+      "id": "CR55",
+      "text": "55.Kim J, Kim M, Ro YM. Interpretation of lesional detection via counterfactual generation. In: 2021 IEEE International Conference on Image Processing (ICIP), 2021, pp. 96–100. 10.1109/ICIP42928.2021.9506282.",
+      "doi": []
+    },
+    {
+      "id": "CR56",
+      "text": "56.Tan M, Le QV. Efficientnet: Rethinking model scaling for convolutional neural networks. In: Chaudhuri K, Salakhutdinov R, editors. ICML, 2019, vol. 97, pp. 6105–6114. PMLR. http://proceedings.mlr.press/v97/tan19a.html",
+      "doi": []
+    },
+    {
+      "id": "CR57",
+      "text": "57.Deng J, Dong W, Socher R, Li L, Kai L, Li F-F. Imagenet: A large-scale hierarchical image database. In: IEEE CVPR, 2009, pp. 248–255. 10.1109/CVPR.2009.5206848.",
+      "doi": []
+    },
+    {
+      "id": "CR58",
+      "text": "58.He K, Zhang X, Ren S, Sun J. Delving deep into rectifiers: Surpassing human-level performance on imagenet classification. In: IEEE ICCV, 2015, pp. 1026–1034. 10.1109/ICCV.2015.123",
+      "doi": []
+    },
+    {
+      "id": "CR59",
+      "text": "59.GrettonABorgwardtKMRaschMJSchölkopfBSmolaAA kernel two-sample testJ Mach Learn Res2012132572373Gretton A, Borgwardt KM, Rasch MJ, Schölkopf B, Smola A. A kernel two-sample test. J Mach Learn Res. 2012;13(25):723–73.",
+      "doi": []
+    },
+    {
+      "id": "CR60",
+      "text": "60.SamarasingheGJamesonMVinodSFieldMDowlingJSowmyaADeep learning for segmentation in radiation therapy planning: a reviewJ Med Imaging Radiat Oncol20216555789510.1111/1754-9485.1328634313006Samarasinghe G, Jameson M, Vinod S, Field M, Dowling J, Sowmya A, et al. Deep learning for segmentation in radiation therapy planning: a review. J Med Imaging Radiat Oncol. 2021;65(5):578–95. 10.1111/1754-9485.13286.34313006 10.1111/1754-9485.13286",
+      "doi": [
+        "10.1111/1754-9485.13286",
+        "10.1111/1754-9485.13286"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Ozer C, Guler A, Turkvatan Cansever A, Oksuz I.",
+  "journal": "Health information science and systems",
+  "year": "2026",
+  "pmid": "41573362",
+  "pmcid": "PMC12819959",
+  "doi": "10.1007/s13755-025-00411-0",
+  "source": {
+    "retrieved_at": "2026-11-14T17:05:36.204746+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12819959/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC12819959.xml"
+}

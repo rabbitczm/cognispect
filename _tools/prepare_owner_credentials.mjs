@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import {passwordHash,secretHash} from '../cloud/auth-password.js';
+let input='';for await(const chunk of process.stdin)input+=chunk;
+const {username,password}=JSON.parse(input);
+const recovery=crypto.randomUUID().replaceAll('-','');
+const hash=await passwordHash(password),recoveryHash=await secretHash(recovery);
+const quote=value=>"'"+String(value).replaceAll("'","''")+"'";
+const directory='D:/workspace/codex_list/scratch/zhijing-v21-backup';
+const sql=`INSERT INTO account_credentials(user_id,username,password_hash,recovery_hash,updated_at) SELECT id,${quote(username)},${quote(hash)},${quote(recoveryHash)},${Date.now()} FROM users WHERE role='owner' AND email='210438161@qq.com' ON CONFLICT(user_id) DO NOTHING;\n`;
+await fs.writeFile(directory+'/initialize-owner.sql',sql);
+await fs.mkdir('D:/workspace/codex_list/output/zhijing-v21',{recursive:true});
+await fs.writeFile('D:/workspace/codex_list/output/zhijing-v21/站主恢复码.txt',`知镜站主账号：${username}\n恢复码：${recovery}\n\n在“登录／注册 → 忘记密码”输入账号、恢复码和新密码。使用后会生成新的恢复码。\n`);
+console.log('Prepared hashed owner credentials and local recovery-code file; no password written.');

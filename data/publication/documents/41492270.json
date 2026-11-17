@@ -1,0 +1,1644 @@
+{
+  "key": "41492270",
+  "body_available": true,
+  "title": "Predicting lung cancer survival with attention-based CT slices combination",
+  "source_url": "https://europepmc.org/articles/PMC12764710",
+  "license": {
+    "text": "Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Domenico Paolo",
+    "Carlo Greco",
+    "Edy Ippolito",
+    "Michele Fiore",
+    "Sara Ramella",
+    "Paolo Soda",
+    "Matteo Tortora",
+    "Alessandro Bria",
+    "Rosa Sicilia"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2026",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2026",
+        "month": "1",
+        "day": "4"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1"
+          ],
+          "en": "Lung cancer remains one of the leading causes of cancer-related mortality worldwide, making early diagnosis and accurate prognosis critical for improving patient outcomes [1]. Computed tomography (CT) is the standard imaging modality for lung cancer detection and monitoring, providing high-resolution, volumetric information about tumor morphology and surrounding tissues. CT imaging is widely available in clinical practice and offers detailed structural insights that are essential for treatment planning and disease progression assessment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR2",
+            "CR4"
+          ],
+          "en": "Integrating artificial intelligence (AI), and in particular deep learning methods, into CT imaging analysis has the potential to further enhance clinical decision-making. Convolutional neural networks (CNNs) have become the backbone of state-of-the-art approaches for medical image analysis, enabling automated detection, segmentation, and characterization of lung lesions [2–4]. The increasing availability of annotated CT datasets has facilitated the development of models capable of assisting radiologists and clinicians in diagnosis and prognosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR5"
+          ],
+          "en": "Despite these advancements, predicting overall survival (OS) from CT images remains challenging. OS prediction involves estimating the likelihood that a patient will survive over a defined timeframe and requires capturing subtle imaging patterns correlated with patient outcomes. Developing models for OS prediction is difficult due to the high computational demands and extensive data required to process complex medical images like CT scans [5]. These models often exhibit limited generalization capability due to the inherent variability in medical images, particularly when applied across different institutions and equipment, resulting in reduced robustness and accuracy. Moreover, reliance on large annotated datasets presents practical and ethical challenges, while variations in image quality and annotation consistency can further complicate model training and introduce noise.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR6",
+            "CR7",
+            "CR11"
+          ],
+          "en": "To fill this gap, in this work, we propose a novel methodology that leverages CNN representations of CT scans, integrated through a soft attention mechanism to highlight the most relevant slices in the volume for the 2-year OS prediction task in Non-Small Cell Lung Cancer (NSCLC) patients. NSCLC is the most prevalent form of lung cancer, accounting for an estimated 135,000 deaths annually [6]. Accurate prognosis is crucial for effective treatment planning and improved patient care. We focus on a 2-year OS because this timeframe serves as a critical window for prognostication in NSCLC patients, allowing physicians to evaluate the effectiveness of initial treatments and to tailor therapeutic strategies based on the individual patient’s response [7–11].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [],
+          "en": "Our main contributions are summarized as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [],
+          "en": "We propose a completely automated process for extracting a rich 3D representation from CT data by utilizing a 2D CNN backbone combined with a soft attention mechanism;",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [],
+          "en": "We validate our approach on a real-world clinical problem, conducting ablation studies to assess the effectiveness of the soft attention mechanism in assigning varying importance to each slice of the 3D volume and employing the time-dependent concordance index (Ctd-index) as a performance metric to capture the evolution of risk over time;",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "The results show that the proposed approach outperform conventional 3D networks in producing robust 3D representations for OS prediction, demonstrate its adaptability across diverse 2D backbone architectures, and underscore the critical importance of a dual-stage transfer learning strategy to effectively address challenges posed by data-limited scenarios.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec1-p9",
+          "reference_ids": [
+            "Sec2",
+            "Sec3",
+            "Sec5",
+            "Sec10",
+            "Sec14",
+            "Sec16"
+          ],
+          "en": "The rest of this manuscript is organized as follows: Section \"Related works\" reviews related works. Section \"Materials\" introduces the datasets, providing an overview of the adopted pre-processing steps. Section \"Methods\" describes the details of our approach. Section \"Experimental setup\" explains the experimental setup, while Section \"Results and Discussion\" discusses the results. Finally, Section \"Conclusions\" offers concluding remarks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Related works",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "CR12",
+            "CR14",
+            "CR15",
+            "CR7",
+            "CR11",
+            "CR16"
+          ],
+          "en": "With the advent of high-quality CT scans, it has become feasible to integrate quantitative image features into OS prediction models. OS prediction involves estimating how long patients are expected to live after being diagnosed with a disease. This task can be divided into two main categories: OS classification and OS regression. In OS classification, the goal is to predict whether a patient will survive beyond a specific time threshold, framing the problem as a classification task with a categorical outcome. On the other hand, OS regression focuses on estimating the precise time until the event of interest (death) occurs, while accounting for censored data, i.e. data where the event of interest has not been observed for certain subjects by the end of the study period. In this case, the task is to predict how many months or years a patient is expected to survive after diagnosis, treating the problem as a regression task where the target is a continuous variable (time to event). Traditionally, such studies have primarily relied on radiomics features, which consist of a predetermined set of mathematically defined characteristics [12–14]. However, AI-based techniques, particularly deep learning approaches, have emerged as valuable tools for the automatic learning of potentially relevant patterns from medical images [15]. Recent studies [7–11] have explored the use of deep learning for OS classification in NSCLC patients using the public NSCLC-Radiomics (LUNG1) dataset from the MAASTRO clinic [16], which, to the best of our knowledge, represents the most comprehensive and extensive resource for OS prediction in NSCLC cases.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "CR7",
+            "CR8",
+            "CR9"
+          ],
+          "en": "In Braghetto et al. [7], radiomics and deep-learning approaches were compared on the LUNG1 dataset for the classification of 2-year OS. For radiomics, the study considered the best combination between two feature selectors (ANOVA, Cluster reducer) and six classifiers (SVM, BAG, XGB, Neural Network, KNN, RF). The optimal combination achieved an average AUC of 0.67 across five random test splits. The deep learning approach, consisting of a 2D convolutional neural network (CNN), achieved a slightly lower average AUC of 0.64 across the same splits. In Zheng et al. [8], a hybrid model that integrated both image and clinical features was implemented using a 3D CNN for the classification of 2-year OS in stage I-IIIA non-small cell lung cancer patients. Image features were learned from cubic patches containing lung tumors extracted from pre-treatment CT scans. Relevant clinical variables were identified through analyses, revealing that age and clinical stage are the most significant prognostic factors for 2-year OS. Using these two clinical variables in combination with image features from pretreatment CT scans, the hybrid model, after training on the University Medical Center Groningen (UMCG) dataset, achieved a median AUC of 0.64 on the LUNG1 test set, which contained 228 patients (n=228) with stage I-IIIA lung tumors treated with radiation or concurrent chemoradiation. In [9], a foundation model for cancer 2-year OS classification was developed by training a convolutional encoder through self-supervised learning using a comprehensive dataset of 11,467 radiographic lesions. The foundation model was then fine-tuned using data from the HarvardRT cohort (n=291) to classify 2-year overall survival after treatment. Subsequently, the model was evaluated on the LUNG1 cohort, achieving an AUC of 0.638.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "CR10",
+            "CR16",
+            "CR21",
+            "CR11"
+          ],
+          "en": "Deep learning techniques have also been applied on LUNG1 for OS regression. In [10] Torres et al. developed a fully automated imaging-based prognostication technique (IPRO) using a 3D CNN to predict 1-year, 2-year, and 5-year mortality from pretreatment CTs of patients with stage I-IV lung cancer by sing six publicly available data sets (1,689 patients, of whom 1,110 were diagnosed with non–small-cell lung) [16–21]. IPRO showed a Concordance-index (C-index) of 0.72 for 1-year, 0.70 for 2-year, and 0.68 for 5-year mortality, performing a fivefold cross-validation. In [11], Haamburger et al. showed that by simplifying survival analysis to median survival classification, convolutional neural networks can be trained with small batch sizes and learn features that concatenated with radiomics features predict survival equally well as end-to-end hazard prediction networks. They obtained a C-index of 0.623 over 100 random splits, where for each split, 60%, 15% and 25% of the data was used for training, validation and testing, respectively. Direct hazard predictions from a neural network with radiomics features (multi-modal) and without were less precise with C-index of 0.613 and 0.585 respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "CR8",
+            "CR10",
+            "CR22"
+          ],
+          "en": "While these studies have demonstrated promising results in both classification and regression tasks, there are several notable limitations. A major limitation is represented by the high dimensionality of CT data and model complexity. The use of 3D CNNs in survival prediction models, as in studies like Zheng et al. [8] and Torres et al. [10], involves processing vast amounts of image data. Although 3D CNNs can capture volumetric details, the high dimensionality leads to increased computational costs and the risk of overfitting, particularly when datasets are limited in size. In this work, we propose a method that integrates a 2D convolutional neural network (CNN) with a soft attention mechanism to create a comprehensive representation of the 3D volume for the 2-year OS regression task. This approach aims to leverage the benefits of automatic feature extraction from images while focusing on relevant slices within the 3D images, which is achieved through the attention mechanism. Using 2D CNNs with soft attention reduces the complexity of the model compared to 3D CNNs, which can lead to easier training and better generalization, especially when data is limited. Another limitation consists in the underutilization of temporal dynamics in survival prediction since these state-of-the-art papers primarily focus on fixed time points (e.g., 2-year survival), not accounting for the dynamic nature of survival, where the risk of mortality changes over time. In this work, we address this issue by processing the enhanced representation, generated by a CNN combined with a soft attention mechanism, through a risk-assessment network known as DeepHit [22]. This network is specifically designed to manage censored data, a common challenge in medical research. Censored data refers to patients whose follow-up ended before the completion of the 2-year observation period. In survival analysis, these patients provide partial information: we know only that they survived until their last follow-up.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "DeepHit employs a specialized loss function that not only accounts for censoring but also optimizes survival predictions over multiple time points, rather than a single static measure, making it particularly well-suited for predicting OS. By utilizing this method, we are able to estimate survival risk at several points across the 2-year time horizon, providing a dynamic, rather than static, survival prediction. To assess the effectiveness of the proposed approach, we employ the time-dependent C-index (Ctd-index), which is particularly suitable for OS regression as it accounts for the time to the event. This index offers a more comprehensive evaluation of model performance over the entire time horizon, rather than limiting the assessment to a single endpoint. Consequently, it provides deeper insights into the model’s ability to predict survival risks at different intervals, ultimately leading to more robust and accurate survival predictions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec3",
+      "title": "Materials",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "CR16",
+            "CR23",
+            "CR24"
+          ],
+          "en": "We used two datasets for our experiments: the publicly available LUNG1 dataset [16] and a proprietary dataset, hereafter referred to as CLARO. The LUNG1 dataset consists of 422 patients with stages I-III NSCLC. We excluded seven patients from the 422 due to missing CT slices in the complete volume (i.e. LUNG1-014, LUNG1-021, LUNG1-085, LUNG1-095, LUNG1-128, LUNG1-194, LUNG1-246). The CLARO dataset consists of 119 patients with stage III NSCLC, who received concurrent radiochemotherapy at the radiotherapy department of Campus Bio-Medico University, and has already been utilized in our previous studies [23, 24].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR16",
+            "CR25"
+          ],
+          "en": "CT scans in LUNG1 were acquired on different Siemens Sensation models (16, 40, 10, and Open) and reconstructed at 3 mm slice thickness [16], whereas the CLARO scans were obtained on a Siemens Somatom Emotion scanner with fixed acquisition parameters (140 kV, 80 mAs, 3 mm slice thickness) and standardized reconstruction kernels (B70 for lung, B31 for mediastinum) [25]. These differences in scanner hardware and reconstruction protocols may affect image characteristics such as sharpness, noise, and contrast, thereby contributing to domain shift.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "Tab1"
+          ],
+          "en": "The 2-year OS distributions of the two datasets are depicted in Table 1. For both datasets, we employed only the pretreatment CT scans. The preprocessing steps applied to these scans are outlined in the following subsection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "The preprocessing pipeline of a single CT scan is depicted in Fig. 1. In the initial step, we extracted a 3D array with voxel intensity values represented as Hounsfield Units from Digital Imaging and Communications in Medicine (DICOM) data and resampled the image voxels to a resolution of (1, 1, 3) mm to standardize the spatial dimensions of the CT scan. This resolution strikes a balance between spatial detail and computational efficiency. A voxel size of 1 mm in the x and y directions ensures high spatial resolution in the axial plane, which is essential for accurately visualizing fine details of lung tumors and lesions. Meanwhile, the 3 mm resolution in the z direction reduces the number of slices needed to cover the entire volume, thereby lowering computational demands without significantly sacrificing diagnostic quality.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR26"
+          ],
+          "en": "Next, we applied an area filtering criterion to isolate a specific volume of the CT scan. This step utilized a U-net model, trained specifically for lung segmentation [26], to segment each individual slice and extract the right and left lungs. Slices containing less than 2% lung area relative to the total slice area were excluded to remove apical or basal sections with minimal lung tissue. This threshold was empirically chosen to balance prognostically relevant regions and computational efficiency, as processing entire CT volumes with full peripheral slices would significantly increase GPU memory usage.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [],
+          "en": "In the third step, we focused on extracting the region of interest (ROI). Once all slices were segmented, we extracted the ROI by identifying the largest bounding box that encompassed the lungs across all the selected slices and applied it to the entire volume.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "Finally, we resized each slice to 224×224 pixels to standardize the input size for subsequent processing stages, thus enabling the use of pre-trained models on ImageNet.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "Fig2"
+          ],
+          "en": "We propose a novel architecture for 2-year OS risk prediction integrating a 2D CNN, specifically EfficientNetB0, with a soft attention mechanism. This combination creates a comprehensive representation of the CT volume, which is then processed through a risk-assessment network called DeepHit. Our method is depicted in Fig. 2 and presented in the following subsections.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Problem formulation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par24",
+          "reference_ids": [],
+          "en": "Survival data for each patient provides three critical elements: the observed features, the time elapsed since features were collected, and a label indicating whether the event of interest (e.g., death) has occurred. In our approach, we consider survival time as a discrete number, with a finite time horizon. We define the time set as T={0,…,Tmax}, where Tmax represents the predetermined maximum time horizon, set to 2 years with a monthly granularity, resulting in Tmax=24.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "A common challenge in survival data is truncation, which occurs when the event of interest is not observed due to the patient being lost to follow-up. Specifically, truncation happens when the observation period for a patient ends before the event (e.g., death) occurs. Addressing this challenge is a crucial aspect of our analysis. We define truncation as the event k=0 and the set of possible events as K={0,1}, where k=1 denotes the event of interest. Each data point is thus therefore a triple (x,s,k), where x∈RD is a D-dimensional vector of features, s∈T is the time at which the event or truncation occurred, and k∈K indicates whether the event (k=1 ) or truncation (k=0) occurred at time s.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [],
+          "en": "The dataset D={(x(i),s(i),k(i))}i=1N describes a finite set of observed instances or patients in our analysis. For each tuple (x(i),s(i),k(i)) with k(i)≠0, our focus is on determining the actual probability P(s=s(i),k=k(i)∣x=x(i)), which models the likelihood that a patient with features x(i) will encounter the event k(i) at time s(i). Since the true probabilities cannot be directly derived from a finite dataset, our objective is to estimate P^ as an approximation of these probabilities, providing a reliable representation of the underlying survival dynamics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "EfficientNetB0 and soft attention mechanism",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "Sec10",
+            "CR27",
+            "CR30",
+            "CR31"
+          ],
+          "en": "Our approach harnesses the power of automatic feature extraction from images while focusing on the most relevant slices within the 3D CT scans, thanks to the soft attention mechanism. We selected the EfficientNet-B0 as our backbone due to its numerous advantages. The primary benefit is its exceptional efficiency. EfficientNet-B0 consists of a low number of parameters and FLOPS (Floating Point Operations per Second), detailed in Section \"Experimental setup\" This ensures that we can obtain high-quality features while minimizing the number of parameters, reducing the risk of overfitting on small datasets. Moreover, EfficientNet-B0 is a versatile network. Its efficient feature extraction capabilities make it suitable for a wide range of computer vision tasks, enhancing its applicability across different projects [27–30]. The EfficientNetB0 was pretrained on ImageNet [31] and only the last layer was fine-tuned for the OS risk prediction task. For each slice j of a volume i the EfficientNetB0 generates a representation sj(i) of size de. These representations are then combined using the soft attention mechanism by assigning each of them a weight, which is a scalar obtained by applying the softmax function to the output of a fully connected layer (soft attention mechanism):",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec7-p2",
+          "reference_ids": [],
+          "en": "where W∈R1×de and b∈R are learnable parameters. The result is a representation x(i) of size de that summarizes the information from the volume, focusing on the most important slices.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec7-p3",
+          "reference_ids": [],
+          "en": "where R is the number of slices in the volume i, wj(i) is a scalar weighing the contribution of j-th slice and sj(i) is the j-th slice representation of i-th volume. Hence, this method provides a 3D representation of the CT scan using a 2D CNN with few parameters (328.224) and a soft attention mechanism, thereby reducing the model’s complexity compared to a 3D CNN. This reduction in complexity leads to easier training and better generalization, especially when data is limited, as in our case.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Risk-assessment network",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "CR22"
+          ],
+          "en": "The representation x(i) becomes the vector of features fed to a risk-assessment neural network named DeepHit [22]. It is important to note that no clinical or interventional data were used in the analysis; all DeepHit predictions were exclusively based on imaging features extracted from the baseline pre-treatment CT scans. DeepHit learns the distribution of survival times directly, without making assumptions about the form of the underlying stochastic process. The objective is to train the risk-assessment network to acquire the knowledge of P^, the estimate for the joint distribution of survival times and competing events. DeepHit consists of a shared sub-network (SN) and multiple cause-specific sub-networks (CSNs), depending on the number of events k. To ensure learning of the joint distribution of k competing events, rather than the marginal distributions of individual events, DeepHit employs a single softmax layer as its output layer. Additionally, the model incorporates a residual connection linking the input features to each CSN, enhancing the robustness and effectiveness of the learning process. In our specific context, the sole event under consideration is the patient’s death, denoted as k=1. Consequently, we have just one CSN. The shared SN and the CSN are composed of fully-connected layers. The shared SN takes features x(i) as inputs and generates an output vector fs(x(i)) capturing the latent representation of features. On the other hand, the CSN takes pairs z=(fs(x(i)),x(i)) as inputs and produces an output vector fc(z) representing the probability of the survival times. These SNs incorporate both the output of the shared network and the original features as inputs. This design allows the SNs to access the learned common representation fs(x(i)) while retaining the ability to learn distinct aspects of the representation. The softmax layer generates a probability distribution denoted as y=[y1,1,...,y1,Tmax], where y1,s represents the estimated probability P^(s,k(i))|x(i)) indicating the likelihood of the patient experiencing event k(i)=1 at the time s. This architectural framework enables the network to capture potentially non-linear and non-proportional relationships between features and associated risks. To assess the risk of event occurrence, the cause-specific cumulative incidence function (CIF), expressed as Fk(i)(t|x(i)), is employed. This function quantifies the probability that the event k(i)=1 occurs by time t, given the features x(i), where t represents the time horizon, set to 2 years in our case. Formally, the CIF for event k(i)=1 is expressed as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec8-p2",
+          "reference_ids": [],
+          "en": "However, since the true CIF Fk(i)(t|x(i)) is not known, we utilize the estimated CIF:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Loss function",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "We used the loss function L of DeepHit, specifically crafted to handle truncated data effectively. It is expressed as L=αL1+βL2, where α and β are weights for the terms L1 and L2, described as follows. The term L1 represents the log-likelihood of the joint distribution of the first hitting time and the unique event, adapted to accommodate truncated data. For patients who have not experienced truncation, L1 includes both the occurrence of the event and the corresponding time. For patients who have been truncated, L1 captures the truncation time, indicating they were alive up to that point, thus providing valuable status information. Formally:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec9-p2",
+          "reference_ids": [],
+          "en": "where 1 is an indicator function and N is the number of patients in the dataset. The first term captures information from patients who have not undergone truncation, whilst the second term addresses truncation bias by recognizing that these patients are alive at truncation time, enabling the model to anticipate that the first hitting event will occur after this time.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [],
+          "en": "The L2 term incorporates cause-specific ranking loss functions, utilizing the estimated CIFs computed at various times corresponding to the instances when events occur. This approach fine-tunes the network for each cause-specific estimated CIF. The ranking loss function integrates the concept of concordance: a patient experiencing an event at time s should exhibit a higher risk at time s than a patient who has survived beyond s. Formally:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec9-p4",
+          "reference_ids": [],
+          "en": "where the coefficients θk are chosen to balance the ranking losses of the k-th competing event, η(a,b) is a convex loss function defined as η(a,b)=exp-(a-b)σ with σ set to 0.1, and Ak,i,j is defined as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec9-p5",
+          "reference_ids": [],
+          "en": "representing pairs (i, j) suitable for event k. The inclusion of L2 in the overall loss function penalizes the misordering of pairs concerning each event. Consequently, minimizing the total loss encourages the correct ordering of pairs for each event.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Experimental setup",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [],
+          "en": "This section elucidates the experiments conducted to evaluate the effectiveness and quality of our approach. Additionally, it elaborates on the experimental setting and the performance metric employed for these evaluations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Comparative analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [],
+          "en": "To demonstrate the benefits and strengths of our methodology, we compared our model against several competitors, each selected and configured to provide a clear and rigorous comparison. Below, we outline the key questions we aim to address through these comparisons, along with a detailed description of the experimental setups for each competing method.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par33",
+          "reference_ids": [],
+          "en": "Question 1: How does our method compare to 3D networks?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "CR32",
+            "CR33",
+            "CR34",
+            "CR35"
+          ],
+          "en": "To assess the effectiveness of our approach for constructing a robust representation of 3D volumes for the 2-year OS risk prediction task, we carried out a comparative evaluation by replacing our approach with competitive 3D baselines: an 18-layer 3D ResNet (ResNet3D_18) [32] pre-trained on the Kinetics dataset [33], a 121-layer DenseNet3D (DenseNet3D_121), and a Medical Slice Transformer (MST) [34] leveraging DINOv2 [35]. We evaluated both the 3D networks and our approach by employing different layer-freezing strategies. We evaluated two training strategies. First, we froze half of the layers in both the 3D networks and the 2D backbone (EfficientNetB0) of our approach. Next, we opted to freeze all layers except the last one (feature extractor), based on the hypothesis that reducing the number of parameters to optimize would enhance generalization with a limited dataset. This systematic evaluation allowed us to understand the impact of various layer-freezing configurations on the performance and efficiency of the models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "Question 2: How effective is the soft attention mechanism?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [],
+          "en": "We aimed to demonstrate the efficacy of the attention mechanism by comparing it with two alternative approaches: a simple average of the slices representations generated by the backbone, and a self-attention mechanism that incorporates a class token (CTk) summarizing the entire volume before being passed to the risk-assessment network. This set of experiments was conducted by freezing all backbone layers except the last one, as this configuration yielded higher performance in previous experiments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "Question 3: Is our approach adaptable to different 2D backbones?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "CR36",
+            "CR37",
+            "CR37",
+            "CR38",
+            "CR39"
+          ],
+          "en": "To illustrate the adaptability of our approach with various 2D backbones, we conducted another set of experiments using as backbone widely recognized architectures, including VGG16 [36], ResNet50 [37], AlexNet [37], Vision Transformer (ViT) [38], and MedViT_small [39]. These architectures were selected to represent different foundational paradigms—namely, convolutional networks (e.g., VGG16, ResNet50, AlexNet) and attention-based models (e.g., Vision Transformer, MedViT)—to evaluate the versatility of our approach across both convolutional and attentional frameworks. This set of experiments also was conducted by freezing all backbone layers except the last one.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [],
+          "en": "Question 4: What is the impact of fine-tuning?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [],
+          "en": "To underscore the significance of transfer learning, particularly when dealing with limited data, we conducted two experiments using the CLARO dataset. One experiment involved training without fine-tuning on LUNG1, whilst the other included fine-tuning on LUNG1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [],
+          "en": "Question 5: What is the computational complexity of the proposed method?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [],
+          "en": "To demonstrate the efficiency and cost-effectiveness of our approach, we conducted a computational complexity analysis of the various neural network configurations by considering the mean number of slices in the dataset, i.e. 72 and includes the number of parameters and the FLOPS for each configuration, providing insight into the computational demands of each model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Performance metric",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par43",
+          "reference_ids": [
+            "CR40",
+            "CR41"
+          ],
+          "en": "We used the time-dependent concordance index (Ctd-index) [40] as our performance metric, which ranges from 0 to 1. It is important to highlight that the conventional concordance index (C-index) [41] is a widely utilized discriminative metric. The C-index operates under the assumption that patients with longer lifespans should be associated with a lower risk compared to those with shorter lifespans. However, the traditional C-index is calculated solely at the initial observation time, lacking the capacity to capture potential variations in risk over time. In contrast, the time-dependent concordance index considers the temporal aspect, offering a more comprehensive understanding of how risk evolves over the course of observation. The Ctd-index for event k is defined as:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec12-p2",
+          "reference_ids": [],
+          "en": "Thus, the Ctd-index for event k is computed by comparing pairs of observations. In each pair, one patient has experienced event k at a specific time, whilst the other has neither encountered the event nor been censored by that time. The significance of this discriminative index lies in its independence from a single fixed time. This characteristic renders it well-suited for situations where the impact of covariates on survival varies over time. In other words, this index is particularly valuable when risks exhibit non-proportional behavior throughout the observation period. Hence, the Ctd-index evaluates how well a model ranks patients according to their risk over time. When a single type of input data is used, models often capture similar patterns, which can result in Ctd values that are close to each other. Nevertheless, even small differences in the index can indicate meaningful distinctions in predicted risk, helping to identify patients who may require closer monitoring or different management strategies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Experimental settings",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par44",
+          "reference_ids": [
+            "CR42",
+            "Tab2"
+          ],
+          "en": "We implemented all considered methods in PyTorch [42] and trained them on an NVIDIA A100 40GB GPU. The training data augmentation strategy involved randomly flipping and rotating within a range of 20∘ each 2D slice with a probability of 0.2. During the training and evaluation of the risk-assessment network, we employed tenfold cross-validation. For each fold, the 90% portion allocated for training was further split using a 90-10 ratio (90% for training and 10% for validation). All tested networks were trained with AdamW optimizer with base learning rate 1×10-4, weight decay 1×10-2 and batch size 4 for 100 epochs. The best-performing model configuration was selected based on the highest time-dependent concordance index (Ctd-index) achieved on the validation set. The loss weights and the other DeepHit hyperparameters were not optimized but were kept fixed at the values listed in Table 2. For the experiments on the CLARO dataset, we selected the best model configuration for each fold based on performance on the LUNG1 validation set. We then fine-tuned this configuration using the CLARO training set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Results and discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par45",
+          "reference_ids": [
+            "Sec11"
+          ],
+          "en": "We conducted a series of experiments to thoroughly evaluate the performance and flexibility of our proposed approach. First, we aimed to compare it against 3D baselines in survival prediction tasks, particularly focusing on the impact of employing a soft attention mechanism. Additionally, we tested the adaptability of our method by integrating alternative 2D backbones, such as ResNet50 and ViT, to assess whether it can maintain strong performance across diverse architectures. Moreover, we explored the significance of domain-specific transfer learning by fine-tuning models pre-trained on the LUNG1 dataset to investigate its impact on the smaller CLARO dataset and performed a detailed computational complexity analysis to determine the efficiency of our approach and its viability for survival prediction tasks in resource-limited environments. In the following, we present the results addressing the questions raised in Section \"Comparative Analysis\".",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "Question 1: How does our method compare to 3D networks?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par47",
+          "reference_ids": [
+            "Tab3"
+          ],
+          "en": "Table 3 summarizes the results of the initial set of experiments, where our approach was compared with competitive 3D baselines: an 18-layer ResNet3D, a 121-layer DenseNet3D, and a Medical Slice Transformer.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par48",
+          "reference_ids": [],
+          "en": "As shown in the table, our fusion approach, which combines EfficientNetB0 with a soft attention mechanism, consistently outperforms the 3D models under both layer-freezing strategies. This demonstrates the superior capacity of our method to create a consistent volume representation suitable for the OS prediction task, which is crucial for the risk-assessment network. Notably, the best performance is achieved with the EfficientNetB0 as the feature extractor, indicating that optimizing fewer parameters leads to better generalization when dealing with limited data availability. Given that we only one measurement per fold in the cross-validation, classical significance tests such as the paired t-test or Wilcoxon signed-rank test are not reliable, as their statistical power is limited in such low-sample settings and their distributional assumptions may not hold. To address this, we adopted a permutation-based paired t-test. In this approach, the observed difference in Ctd-index between two models is compared against a null distribution obtained by repeatedly (5000 times) randomly swapping (with probability 0.5) the predictions of the two models at the patient level. The p-value is then computed as the proportion of permuted differences as extreme as the observed one. This non-parametric procedure makes no assumptions about the underlying distribution and is therefore more robust in our context of limited sample size. The results show that our proposed method (EfficientNetB0 + Soft Attention) achieves statistically significant improvements compared to all 3D baselines (ResNet3D_18, DenseNet3D_121, and MST), with p<0.05 in all cases. This confirms that the observed performance gains are unlikely to be due to chance. The only non-significant comparison (p=0.4162) arises when comparing our approach trained with the feature extractor strategy against the same model trained with half of the layers frozen. This result highlights that the advantage comes not only from the architecture itself but also from the training strategy: using EfficientNetB0 as a frozen feature extractor reduces the number of trainable parameters and thus improves generalization under limited data availability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par49",
+          "reference_ids": [],
+          "en": "Question 2: How effective is the soft attention mechanism?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par50",
+          "reference_ids": [
+            "Sec14",
+            "Tab4"
+          ],
+          "en": "We compared the soft attention approach with a simple average of the slices’ representations generated by the backbone, and a self-attention mechanism incorporating a class token (CTk) summarizing the entire volume. We selected in all the experiments the EfficientNetB0 as feature extractor since it was the experiment with the best performance in the previous analysis in Section \"Results and Discussion\". Table 4 shows the results of this comparison study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par51",
+          "reference_ids": [],
+          "en": "The table demonstrates that the fusion approach using the soft attention mechanism yields superior performance compared to both the average and self-attention approaches. The superior performance of the soft attention mechanism over the Average Pooling approach can be attributed to its ability to weigh the most important slices within the volume. This weighting allows the risk-assessment network to focus on the most relevant portions of the volume, which are more critical for overall survival prediction. When compared to the self-attention mechanism, the superior performance of soft attention may be due to its better generalization capability and the optimization of fewer parameters, which together can lead to more effective learning and improved performance, especially when dealing with limited data, as shown in the previous experiments. To assess the statistical significance of these differences, we employed a permutation-based paired t-test across the 10 cross-validation folds. The results confirmed that the improvements of soft attention over average pooling (p=0.5450) and over self-attention (p=0.3240) were not statistically significant. Nevertheless, the proposed method consistently achieved the highest mean Ctd-index across folds, supporting its robustness. Beyond the numerical results, soft attention provides a more flexible aggregation strategy by weighting slices according to their relevance, providing interpretable insights into which regions contribute most to the prediction. In addition, compared to the self-attention mechanism, soft attention requires fewer parameters and is computationally more efficient, making it more suitable in scenarios with limited data and for practical deployment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par52",
+          "reference_ids": [],
+          "en": "Question 3: Is our approach adaptable to different 2D backbones?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par53",
+          "reference_ids": [
+            "Tab5"
+          ],
+          "en": "Table 5 reports the results of these experiments. EfficientNetB0’s superior performance with respect to other 2D backbones stems from its compound scaling method, which balances network depth, width, and resolution, optimizing its architecture for both accuracy and efficiency. Additionally, its streamlined architecture, characterized by a reduced number of parameters, makes it particularly well-suited for data-limited scenarios, where it effectively minimizes the risk of overfitting while preserving high computational efficiency. As evidenced by the results, our fusion approach achieves higher performance with different backbones compared to the 3D approach. This demonstrates that the mechanism of combining 2D slice representations to construct a 3D volume representation is more effective for OS prediction, particularly when working with limited data. The enhanced performance underscores the advantage of leveraging 2D networks over directly using 3D networks in this context.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par54",
+          "reference_ids": [],
+          "en": "Question 4: What is the impact of fine-tuning?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par55",
+          "reference_ids": [
+            "Tab6"
+          ],
+          "en": "The results of these experiments are presented in Table 6. Since the CLARO dataset is extremely small, we did not report the standard deviation. We had to aggregate the test folds to obtain a single measurement, making it impossible to calculate variability across folds. The results clearly indicate that domain-specific transfer learning from the LUNG1 dataset leads to better performance on the CLARO dataset compared to fine-tuning. To further demonstrate the robustness of our approach, we repeated the experiments five additional times and performed statistical testing. With fine-tuning on LUNG1, the model achieved an average performance of 0.577±0.021, whereas training a model from scratch directly on the CLARO dataset resulted in 0.503±0.017.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par56",
+          "reference_ids": [],
+          "en": "To compare the two models we conducted a paired statistical test. Each model was evaluated over the six repeated runs, with each run producing a single aggregated performance metric from a tenfold cross-validation. The pairing is feasible because the same data splits and experimental conditions were used for both models in each run, ensuring that performance differences reflect the model initialization strategy rather than variability in the data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par57",
+          "reference_ids": [],
+          "en": "Given the small number of paired samples (n=6) and the unknown distribution of performance differences, we used the Wilcoxon signed-rank test, a non-parametric alternative to the paired t-test. This test assesses whether the median difference between paired observations is significantly different from zero without assuming normality. Additionally, we report the effect size (r) to quantify the magnitude of the observed difference.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par58",
+          "reference_ids": [],
+          "en": "The Wilcoxon signed-rank test yielded a statistic of 0.0, with a p-value of 0.03125 and a large effect size (r = 0.899).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par59",
+          "reference_ids": [],
+          "en": "These results indicate a statistically significant difference between the two models (p<0.05), with the pretrained model consistently outperforming that trained from scratch. The large effect size (r≈0.9) further confirms that this difference is not only statistically significant but also practically meaningful.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par60",
+          "reference_ids": [],
+          "en": "In conclusion, pretraining the EfficientNetB0-based architecture provides a clear advantage over training from scratch, and the Wilcoxon signed-rank test robustly supports this finding despite the limited number of repeated runs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par61",
+          "reference_ids": [],
+          "en": "This improvement can be attributed to the limited data available in the CLARO dataset, which makes fine-tuning a model from scratch challenging. In contrast, leveraging the knowledge learned from the LUNG1 dataset provides a substantial boost, as the pretrained model can exploit previously acquired patterns and features, thereby enhancing performance on the smaller CLARO dataset. These findings underscore the value of domain-specific transfer learning in scenarios with constrained data availability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par62",
+          "reference_ids": [],
+          "en": "In addition, to further assess the generalizability of our approach and examine robustness to domain shift, we directly evaluated the best-performing model (pretrained on LUNG1) selected from the tenfold cross-validation on the external CLARO dataset without any fine-tuning. The model achieved a Ctd-index of 0.5608, indicating that the learned representations retain prognostic relevance beyond the training cohort, despite the absence of dataset-specific adaptation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par63",
+          "reference_ids": [],
+          "en": "Looking ahead, future work will further strengthen generalizability by validating the model on additional larger external cohorts beyond CLARO, thereby addressing potential limitations related to sample size and overfitting.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par64",
+          "reference_ids": [],
+          "en": "Question 5: What is the computational complexity of the proposed method?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par65",
+          "reference_ids": [
+            "Fig3"
+          ],
+          "en": "The computational complexity analysis of the various model configurations is detailed in Fig. 3. The figure is a bubble chart comparing various model configurations based on their performances (x-axis) and GFLOPS (y-axis, log scale). Each bubble represents a specific model, with its size indicating the number of parameters. The analysis highlights the trade-offs between performance and computational cost across different model architectures and layer-freezing strategies. Notably, EfficientNetB0 variants are characterized by lower parameter counts and computational costs, making them a suitable choice for resource-constrained environments with high performance. In the versions of EfficientNet with the lowest costs, the soft attention mechanism is utilized to further enhance efficiency. In comparison, other 2D backbones demonstrate inferior performance and higher computational costs relative to EfficientNetB0, underscoring the crucial role of parameter efficiency in data-limited scenarios. On the other hand, 3D networks yields significantly higher computational costs and parameter counts, leading to lower efficiency and performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Interpretability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par67",
+          "reference_ids": [],
+          "en": "Interpretability remains a fundamental challenge in deep learning, particularly in medical applications: understanding why a model produces a specific prediction is critical for clinical trust and adoption. In this study, we address this challenge by leveraging attention weights derived from a soft attention mechanism to identify the CT scan slices that the model considered most informative for prognostic prediction. By highlighting these slices, we provide a window into the model’s decision-making process, thereby bridging the gap between algorithmic output and clinical understanding.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par68",
+          "reference_ids": [],
+          "en": "Our model was trained to assign attention weights to individual slices within a 3D CT volume, quantifying their relative contribution to the final prognostic outcome. For the interpretability analysis, we relied on the models trained on the LUNG1 dataset in the 10 cross-validation folds. For each fold, attention weights were computed on the corresponding test set. Since the number of slices varies between patients, we normalized slice positions by calculating relative slice indices. Subsequently, we averaged the attention weights across all patients and folds to obtain a robust, mean attention distribution.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par69",
+          "reference_ids": [
+            "Fig4"
+          ],
+          "en": "Analysis of this aggregated distribution revealed a consistent and clinically meaningful pattern, as illustrated in Fig. 4. Specifically, basal lung regions consistently received higher attention weights from the model. This observation aligns closely with clinical evidence: tumors located in the basal regions of the lung are often associated with worse outcomes in non-small cell lung cancer. Basal tumor location has been linked to several prognostic factors, including:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par70",
+          "reference_ids": [
+            "CR43",
+            "CR45"
+          ],
+          "en": "Advanced stage and aggressiveness: Tumors in basal regions are frequently detected at later stages and may exhibit higher invasive potential due to delayed symptom onset and the complexity of anatomical positioning [43–45].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par71",
+          "reference_ids": [],
+          "en": "Proximity to vital structures: Basal tumors are anatomically positioned near critical organs such as the heart, great vessels, and diaphragm, which can complicate surgical interventions and directly impact prognosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par72",
+          "reference_ids": [],
+          "en": "Increased symptom burden: These tumors often result in more severe respiratory impairment and cardiac complications, including pleural effusion and atelectasis, negatively affecting both survival and quality of life.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Sec15-p7",
+          "reference_ids": [],
+          "en": "The correspondence between the model’s attention focus and established clinical knowledge reinforces the biological plausibility of the learned features. This not only enhances interpretability but also increases confidence in the model’s ability to capture clinically relevant patterns, which is essential for translational applications in precision oncology. By highlighting CT slices associated with known prognostic indicators, attention-based interpretability enables a more transparent and informative dialogue between AI predictions and clinician decision-making.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par73",
+          "reference_ids": [
+            "Fig5"
+          ],
+          "en": "An illustrative example is shown in Fig. 5, highlighting the slices in the 50th percentile of the mean attention weight distribution for patient LUNG1-040 (total slices = 57) with stage III NSCLC. The tumor is present in the lower (basal) slices, consistent with its advanced stage and basal position, which underscores the model’s ability to capture clinically meaningful spatial patterns in the lung. Furthermore, the patient’s observed survival time was 19 months, and the model assigns a corresponding probability of 0.61 for the occurrence of the event “death” at that time, demonstrating coherent alignment between model prediction and clinical outcome.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par74",
+          "reference_ids": [],
+          "en": "In this study, we propose an innovative method for OS prediction in NSCLC using a pre-trained 2D CNN EfficientNetB0 to generate rich representations of 3D volumes. Our approach integrates a soft attention mechanism to enhance the accuracy of survival predictions, outperforming other approaches such as 3D network, average pooling, and self-attention mechanism. These results demonstrate the effectiveness of our method in predicting OS in NSCLC. While the observed Ctd-index of 0.584 is only modestly above random chance (0.5), it demonstrates that meaningful prognostic information can be extracted from imaging alone. This underscores the potential of our approach as a methodological framework that may be extended in future research to other clinical prediction tasks, contingent on broader validation. We also demonstrate that a transfer learning strategy involving pre-trained models can improve performance on limited datasets. As a first step toward broader external validation, we also evaluated on CLARO the pretrained model directly on LUNG1 without fine-tuning, obtaining a Ctd-index of 0.5608. This result supports the robustness of our approach, even in the absence of domain-specific adaptation, and motivates future extensions to additional large-scale external cohorts. To further ensure generalizability, future work will extend validation to additional larger external cohorts beyond CLARO, addressing concerns related to sample size and overfitting, explicitly investigating the impact of scanner type, acquisition parameters, and center heterogeneity to better understand and mitigate potential domain shift. Beyond the achievements highlighted in this study, our methodology can be tailored to tackle a broader spectrum of clinical prediction tasks. It has the potential to be applied to various medical domains, such as predicting disease progression, treatment response, or patient prognosis across different conditions. While the current study focused exclusively on imaging data to rigorously evaluate the contribution of our architectural innovations, the framework is fully compatible with hybrid and multimodal models. In future work, we aim to extend the methodology to integrate clinical variables, treatment information, and diverse data modalities beyond CT scans, including both structured and unstructured sections of electronic health records, which are expected to further improve survival prediction and patient stratification in NSCLC.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par75",
+          "reference_ids": [],
+          "en": "In conclusion, the presented methodology not only advances the understanding of NSCLC prognosis but also lays the foundation for a wide range of clinical prediction applications. Its adaptability and potential to synergize with various data sources make it a promising tool for the future of medical research and healthcare.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack1",
+      "title": "Acknowledgements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "ack1-p1",
+          "reference_ids": [],
+          "en": "Domenico Paolo is a Ph.D. student enrolled in the National Ph.D. in Artificial Intelligence, XXXVIII cycle, course on Health and life sciences, organized by Università Campus Bio-Medico di Roma. This work was partially supported by PNRR MUR projects PE0000013-FAIR. This work was partially supported by PRIN 2022 MUR 20228MZFAA- AIDA (CUP C53D23003620008, CUP H53D23003480006). Resources are provided by the National Academic Infrastructure for Supercomputing in Sweden (NAISS) and the Swedish National Infrastructure for Computing (SNIC) at Alvis @ C3SE, partially funded by the Swedish Research Council through grant agreement no. 2022-06725 and no. 2018-05973.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Author contributions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "Domenico Paolo: Methodology, Software, Validation, Formal analysis, Investigation, Data Curation, Writing—Original Draft, Writing—Review and Editing, Visualization Carlo Greco: Resources, Data Curation, Writing—Review and Editing Edy Ippolito: Resources, Data Curation, Writing—Review and Editing Michele Fiore: Resources, Data Curation, Writing—Review and Editing Sara Ramella: Conceptualization, Resources, Data Curation, Writing—Review and Editing, Project Administration Paolo Soda: Conceptualization, Methodology, Formal Analysis, Resources, Writing—Review and Editing, Visualization, Project administration, Funding acquisition Matteo Tortora: Conceptualization, Data Curation, Methodology, Formal Analysis, Writing—Original Draft, Writing—Review and Editing, Visualization, Supervision Alessandro Bria: Conceptualization, Methodology, Formal Analysis, Writing—Original Draft, Writing—Review and Editing, Visualization, Supervision, Project administration, Funding acquisition Rosa Sicilia: Conceptualization, Methodology, Formal Analysis, Writing—Original Draft, Writing—Review and Editing, Visualization, Supervision, Project administration.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes2",
+      "title": "Funding",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes2-p1",
+          "reference_ids": [],
+          "en": "Open access funding provided by Umea University. This work was partially supported by PNRR MUR projects PE0000013-FAIR. This work was partially supported by PRIN 2022 MUR 20228MZFAA- AIDA (CUP C53D23003620008, CUP H53D23003480006).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes3",
+      "title": "Data availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes3-p1",
+          "reference_ids": [],
+          "en": "Link for LUNG1: https://www.cancerimagingarchive.net/collection/nsclc-radiomics",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes4",
+      "title": "Declarations",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "FPar3",
+      "title": "Conflict of interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par76",
+          "reference_ids": [],
+          "en": "The authors declare that they have no Conflict of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar2",
+      "title": "Consent for publication",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par77",
+          "reference_ids": [],
+          "en": "Not applicable",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Ethical approval",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par78",
+          "reference_ids": [],
+          "en": "Not applicable",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "fn-group1-p1",
+          "reference_ids": [],
+          "en": "Publisher's Note",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "fn-group1-p2",
+          "reference_ids": [],
+          "en": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Bib1",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Bib1_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "Link for LUNG1: https://www.cancerimagingarchive.net/collection/nsclc-radiomics",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "2-Year OS distributions for LUNG1 and CLARO datasets",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Outcome",
+          "A-priori probability"
+        ],
+        [
+          "LUNG1",
+          "0 (Survivor)",
+          "0.40"
+        ],
+        [
+          "1 (Non-Survivor)",
+          "0.60"
+        ],
+        [
+          "CLARO",
+          "0 (Survivor)",
+          "0.57"
+        ],
+        [
+          "1 (Non-Survivor)",
+          "0.43"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\"><label>Table 1</label><caption><p>2-Year OS distributions for LUNG1 and CLARO datasets</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Dataset</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Outcome</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">A-priori probability</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"2\" colspan=\"1\">LUNG1</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0 (Survivor)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.40</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1 (Non-Survivor)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.60</td></tr><tr><td align=\"left\" rowspan=\"2\" colspan=\"1\">CLARO</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0 (Survivor)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.57</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">1 (Non-Survivor)</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.43</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Hyperparameters of the risk-assessment network",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Hyperparameter",
+          "Value"
+        ],
+        [
+          "# hidden layers for both SN and CSNs",
+          "5"
+        ],
+        [
+          "# neurons per hidden layer",
+          "100"
+        ],
+        [
+          "Dropout rate",
+          "0.2"
+        ],
+        [
+          "Activation function",
+          "ReLU"
+        ],
+        [
+          "Loss function L",
+          ""
+        ],
+        [
+          "α",
+          "0.5"
+        ],
+        [
+          "β",
+          "0.5"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab2\" position=\"float\"><label>Table 2</label><caption><p>Hyperparameters of the risk-assessment network</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Hyperparameter</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Value</th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"># hidden layers for both SN and CSNs</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">5</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"># neurons per hidden layer</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">100</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Dropout rate</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.2</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Activation function</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">ReLU</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Loss function <inline-formula id=\"IEq70\"><ns0:math id=\"d33e2457\"><ns0:mi mathvariant=\"script\">L</ns0:mi></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\" /></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> <inline-formula id=\"IEq71\"><ns0:math id=\"d33e2470\"><ns0:mi>α</ns0:mi></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.5</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"> <inline-formula id=\"IEq72\"><ns0:math id=\"d33e2483\"><ns0:mi>β</ns0:mi></ns0:math></inline-formula>\n</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.5</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Comparison between our approach and ResNet3D_18",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Approach",
+          "Training strategy",
+          "Ctd-index (mean ± std)"
+        ],
+        [
+          "ResNet3D_18",
+          "Half layers freezed",
+          "0.528±0.069"
+        ],
+        [
+          "DenseNet3D_121",
+          "Half layers freezed",
+          "0.5331±0.038"
+        ],
+        [
+          "MST",
+          "Half layers freezed",
+          "0.4915±0.066"
+        ],
+        [
+          "EfficientNetB0 + Soft Attention",
+          "Half layers freezed",
+          "0.572±0.064"
+        ],
+        [
+          "ResNet3D_18",
+          "Feature extractor",
+          "0.507±0.074"
+        ],
+        [
+          "DenseNet3D_121",
+          "Feature extractor",
+          "0.5281±0.056"
+        ],
+        [
+          "MST",
+          "Feature extractor",
+          "0.504±0.051"
+        ],
+        [
+          "EfficientNetB0 + Soft Attention",
+          "Feature extractor",
+          "0.584±0.054"
+        ]
+      ],
+      "footnotes": "Results of Ctd-index over tenfold cross-validationThe best result is highlighted in bold",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab3\" position=\"float\"><label>Table 3</label><caption><p>Comparison between our approach and ResNet3D_18</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Approach</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Training strategy</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq83\"><ns0:math id=\"d33e2876\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index (mean ± std) </th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet3D_18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Half layers freezed</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq84\"><ns0:math id=\"d33e2896\"><ns0:mrow><ns0:mn>0.528</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.069</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet3D_121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Half layers freezed</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq85\"><ns0:math id=\"d33e2914\"><ns0:mrow><ns0:mn>0.5331</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.038</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">MST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Half layers freezed</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq86\"><ns0:math id=\"d33e2932\"><ns0:mrow><ns0:mn>0.4915</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.066</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EfficientNetB0 + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Half layers freezed</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq87\"><ns0:math id=\"d33e2950\"><ns0:mrow><ns0:mn>0.572</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.064</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet3D_18</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Feature extractor</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq88\"><ns0:math id=\"d33e2968\"><ns0:mrow><ns0:mn>0.507</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.074</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">DenseNet3D_121</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Feature extractor</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq89\"><ns0:math id=\"d33e2986\"><ns0:mrow><ns0:mn>0.5281</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.056</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">MST</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Feature extractor</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq90\"><ns0:math id=\"d33e3004\"><ns0:mrow><ns0:mn>0.504</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.051</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>EfficientNetB0 + Soft Attention</bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Feature extractor</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq91\"><ns0:math id=\"d33e3024\"><ns0:mrow><ns0:mrow><ns0:mn mathvariant=\"bold\">0.584</ns0:mn></ns0:mrow><ns0:mo>±</ns0:mo><ns0:mrow><ns0:mn mathvariant=\"bold\">0.054</ns0:mn></ns0:mrow></ns0:mrow></ns0:math></inline-formula>\n</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p52\"><p>Results of <inline-formula id=\"IEq82\"><ns0:math id=\"d33e3041\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index over tenfold cross-validation</p><p>The best result is highlighted in bold</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab4",
+      "label": "Table 4",
+      "caption": "Comparison between the soft attention mechanism with the Average Pooling and Self Attention approaches",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Approach",
+          "Aggregation mechanism",
+          "Ctd-index (mean ± std)"
+        ],
+        [
+          "EfficientNetB0",
+          "Average pooling",
+          "0.570±0.033"
+        ],
+        [
+          "EfficientNetB0",
+          "Self attention + CTk",
+          "0.579±0.079"
+        ],
+        [
+          "EfficientNetB0",
+          "Soft attention",
+          "0.584±0.054"
+        ]
+      ],
+      "footnotes": "All backbone layers are frozen, except for the last one (feature extractor). Results of Ctd-index over tenfold cross-validationThe best result is highlighted in bold",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab4\" position=\"float\"><label>Table 4</label><caption><p>Comparison between the soft attention mechanism with the Average Pooling and Self Attention approaches</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Approach</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Aggregation mechanism</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq96\"><ns0:math id=\"d33e3124\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index (mean ± std) </th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EfficientNetB0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Average pooling</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq97\"><ns0:math id=\"d33e3144\"><ns0:mrow><ns0:mn>0.570</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.033</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">EfficientNetB0</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Self attention + CTk</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq98\"><ns0:math id=\"d33e3162\"><ns0:mrow><ns0:mn>0.579</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.079</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>EfficientNetB0</bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">Soft attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq99\"><ns0:math id=\"d33e3182\"><ns0:mrow><ns0:mrow><ns0:mn mathvariant=\"bold\">0.584</ns0:mn></ns0:mrow><ns0:mo>±</ns0:mo><ns0:mrow><ns0:mn mathvariant=\"bold\">0.054</ns0:mn></ns0:mrow></ns0:mrow></ns0:math></inline-formula>\n</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p58\"><p>All backbone layers are frozen, except for the last one (feature extractor). Results of <inline-formula id=\"IEq95\"><ns0:math id=\"d33e3199\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index over tenfold cross-validation</p><p>The best result is highlighted in bold</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab5",
+      "label": "Table 5",
+      "caption": "Comparison between the EfficientNetB0 with other 2D backbones in combination with the Soft Attention mechanism",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Approach",
+          "Ctd-index (mean ± std)"
+        ],
+        [
+          "ResNet50 + Soft Attention",
+          "0.564±0.067"
+        ],
+        [
+          "Vgg16 + Soft Attention",
+          "0.524±0.063"
+        ],
+        [
+          "AlexNet + Soft Attention",
+          "0.550±0.0510"
+        ],
+        [
+          "ViT_b_16 + Soft Attention",
+          "0.546±0.043"
+        ],
+        [
+          "MedViT_small + Soft Attention",
+          "0.5482±0.056"
+        ],
+        [
+          "EfficientNetB0 + Soft Attention",
+          "0.584±0.054"
+        ]
+      ],
+      "footnotes": "All backbone layers are frozen, except for the last one (feature extractor). Results of Ctd-index over tenfold cross-validationThe best result is highlighted in bold",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab5\" position=\"float\"><label>Table 5</label><caption><p>Comparison between the EfficientNetB0 with other 2D backbones in combination with the Soft Attention mechanism</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Approach</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq104\"><ns0:math id=\"d33e3272\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index (mean ± std) </th></tr></thead><tbody><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ResNet50 + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq105\"><ns0:math id=\"d33e3290\"><ns0:mrow><ns0:mn>0.564</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.067</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">Vgg16 + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq106\"><ns0:math id=\"d33e3306\"><ns0:mrow><ns0:mn>0.524</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.063</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">AlexNet + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq107\"><ns0:math id=\"d33e3322\"><ns0:mrow><ns0:mn>0.550</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.0510</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">ViT_b_16 + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq108\"><ns0:math id=\"d33e3338\"><ns0:mrow><ns0:mn>0.546</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.043</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\">MedViT_small + Soft Attention</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq109\"><ns0:math id=\"d33e3354\"><ns0:mrow><ns0:mn>0.5482</ns0:mn><ns0:mo>±</ns0:mo><ns0:mn>0.056</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr><tr><td align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>EfficientNetB0 + Soft Attention</bold></td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq110\"><ns0:math id=\"d33e3372\"><ns0:mrow><ns0:mrow><ns0:mn mathvariant=\"bold\">0.584</ns0:mn></ns0:mrow><ns0:mo>±</ns0:mo><ns0:mrow><ns0:mn mathvariant=\"bold\">0.054</ns0:mn></ns0:mrow></ns0:mrow></ns0:math></inline-formula>\n</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p64\"><p>All backbone layers are frozen, except for the last one (feature extractor). Results of <inline-formula id=\"IEq103\"><ns0:math id=\"d33e3389\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index over tenfold cross-validation</p><p>The best result is highlighted in bold</p></fn></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab6",
+      "label": "Table 6",
+      "caption": "Results of Ctd-index on CLARO",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Approach",
+          "Fine-tuning on LUNG1",
+          "Ctd-index"
+        ],
+        [
+          "EfficientNetB0 + Soft Attention",
+          "No",
+          "0.503"
+        ],
+        [
+          "EfficientNetB0 + Soft Attention",
+          "Yes",
+          "0.579"
+        ]
+      ],
+      "footnotes": "All backbone layers are frozen, except for the last one (feature extractor)The best result is highlighted in bold",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Tab6\" position=\"float\"><label>Table 6</label><caption><p>Results of <inline-formula id=\"IEq111\"><ns0:math id=\"d33e3417\"><ns0:msup><ns0:mrow><ns0:mi mathvariant=\"bold\">C</ns0:mi></ns0:mrow><ns0:mi mathvariant=\"bold\">td</ns0:mi></ns0:msup></ns0:math></inline-formula>-index on CLARO</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" colspan=\"1\" rowspan=\"1\">Approach</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">Fine-tuning on LUNG1</th><th align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq112\"><ns0:math id=\"d33e3442\"><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup></ns0:math></inline-formula>-index </th></tr></thead><tbody><tr><td align=\"center\" colspan=\"1\" rowspan=\"1\">EfficientNetB0 + Soft Attention</td><td align=\"center\" colspan=\"1\" rowspan=\"1\">No</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">0.503</td></tr><tr><td align=\"center\" colspan=\"1\" rowspan=\"1\"><bold>EfficientNetB0 + Soft Attention</bold></td><td align=\"center\" colspan=\"1\" rowspan=\"1\">Yes</td><td align=\"left\" colspan=\"1\" rowspan=\"1\">\n<inline-formula id=\"IEq113\"><ns0:math id=\"d33e3471\"><ns0:mrow><ns0:mn mathvariant=\"bold\">0.579</ns0:mn></ns0:mrow></ns0:math></inline-formula>\n</td></tr></tbody></table><table-wrap-foot><fn id=\"_fn_p69\"><p>All backbone layers are frozen, except for the last one (feature extractor)</p><p>The best result is highlighted in bold</p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Fig. 1",
+      "caption": "Preprocessing Pipeline",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_404_Fig1_HTML.jpg",
+        "13755_2025_404_Fig1_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Fig. 2",
+      "caption": "Overview of the proposed method. The approach employs the EfficientNetB0 as the backbone to generate dense representations of CT slices within a volume. These representations are then combined using a soft attention mechanism to produce a comprehensive 3D representation. This 3D representation is subsequently processed by the risk-assessment network to predict survival risk",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_404_Fig2_HTML.jpg",
+        "13755_2025_404_Fig2_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Fig. 3",
+      "caption": "Computational complexity analysis of the experimented models. The x-axis represents the model’s performance, while the y-axis shows the number of giga floating-point operations per second (GFLOPS) required for inference. The size of each point is proportional to the number of parameters of the corresponding model, providing a visual representation of the trade-off between model accuracy, computational cost, and model size",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_404_Fig3_HTML.jpg",
+        "13755_2025_404_Fig3_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Fig. 4",
+      "caption": "Average attention weight distributions generate by our model",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_404_Fig4_HTML.jpg",
+        "13755_2025_404_Fig4_HTML.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Fig. 5",
+      "caption": "Example of the attention weight distribution for patient LUNG1-040 (stage III NSCLC, total slices = 57). Slices around the 50th percentile of the mean attention distribution are highlighted, revealing a concentration of attention in the basal lung regions corresponding to the tumor site. This pattern aligns with the advanced disease stage. In this case, the lesion (NSCLC, large cell type) is challenging to visually identify on CT images due to its low contrast, indistinct margins, and proximity to the diaphragm, underscoring the value of automated models in detecting subtle imaging patterns",
+      "caption_zh": "",
+      "graphics": [
+        "13755_2025_404_Fig5_HTML.jpg",
+        "13755_2025_404_Fig5_HTML.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "Equ8",
+      "text": "wj(i)=expWsj(i)+b∑k=1RexpWsk(i)+b,i=1,⋯,R",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ8\"><ns0:math id=\"d33e996\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msubsup><ns0:mi>w</ns0:mi><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mtext>exp</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:msubsup><ns0:mi mathvariant=\"bold\">s</ns0:mi><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo>+</ns0:mo><ns0:mi>b</ns0:mi></ns0:mfenced></ns0:mrow><ns0:mrow><ns0:msubsup><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>R</ns0:mi></ns0:msubsup><ns0:mrow><ns0:mtext>exp</ns0:mtext><ns0:mfenced close=\")\" open=\"(\"><ns0:mi mathvariant=\"bold\">W</ns0:mi><ns0:msubsup><ns0:mi mathvariant=\"bold\">s</ns0:mi><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo>+</ns0:mo><ns0:mi>b</ns0:mi></ns0:mfenced></ns0:mrow></ns0:mrow></ns0:mfrac><ns0:mo>,</ns0:mo><ns0:mspace width=\"1em\" /><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mrow><ns0:mn>1</ns0:mn><ns0:mo>,</ns0:mo><ns0:mo>⋯</ns0:mo><ns0:mo>,</ns0:mo><ns0:mi>R</ns0:mi></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ1",
+      "text": "1x(i)=∑j=0Rwj(i)sj(i)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ1\"><label>1</label><ns0:math id=\"d33e1128\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>=</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0</ns0:mn></ns0:mrow><ns0:mi>R</ns0:mi></ns0:munderover><ns0:msubsup><ns0:mi>w</ns0:mi><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:msubsup><ns0:mi mathvariant=\"bold\">s</ns0:mi><ns0:mi>j</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ2",
+      "text": "2Fk(i)(t|x(i))=∑s∗=0tP(s=s∗,k=k(i)|x=x(i)).",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ2\"><label>2</label><ns0:math id=\"d33e1587\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mi>F</ns0:mi><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>t</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mmultiscripts><ns0:mi>s</ns0:mi><ns0:mrow /><ns0:mrow><ns0:mrow /><ns0:mo>∗</ns0:mo></ns0:mrow></ns0:mmultiscripts><ns0:mo>=</ns0:mo><ns0:mn>0</ns0:mn></ns0:mrow><ns0:mi>t</ns0:mi></ns0:munderover><ns0:mi>P</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>s</ns0:mi><ns0:mo>=</ns0:mo><ns0:mmultiscripts><ns0:mi>s</ns0:mi><ns0:mrow /><ns0:mrow><ns0:mrow /><ns0:mo>∗</ns0:mo></ns0:mrow></ns0:mmultiscripts><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mo>=</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ3",
+      "text": "3F^k(i)(s(i)|x(i))=∑m=0s(i)y1,m.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ3\"><label>3</label><ns0:math id=\"d33e1716\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>0</ns0:mn></ns0:mrow><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup></ns0:munderover><ns0:msub><ns0:mi>y</ns0:mi><ns0:mrow><ns0:mn>1</ns0:mn><ns0:mo>,</ns0:mo><ns0:mi>m</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ4",
+      "text": "4L1=-∑i=1N1(k(i)≠∅)·log(yk(i),s(i)(i))+1(k(i)=∅)·log1-∑k=1KF^k(s(i)|x(i)),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ4\"><label>4</label><ns0:math id=\"d33e1884\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mn>1</ns0:mn></ns0:msub><ns0:mo>=</ns0:mo><ns0:mo>-</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfenced close=\"]\" open=\"[\"><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>≠</ns0:mo><ns0:mi mathvariant=\"normal\">∅</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>·</ns0:mo><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msubsup><ns0:mi>y</ns0:mi><ns0:mrow><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>,</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup></ns0:mrow><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msubsup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mrow /><ns0:mo>+</ns0:mo><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>=</ns0:mo><ns0:mi mathvariant=\"normal\">∅</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>·</ns0:mo><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mn>1</ns0:mn><ns0:mo>-</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>K</ns0:mi></ns0:munderover><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mfenced><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ5",
+      "text": "5L2=∑k=1Kθk·∑i=1i≠jNAk,i,j·η(F^k(s(i)|x(i)),F^k(s(i)|x(j))),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ5\"><label>5</label><ns0:math id=\"d33e2068\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mn>2</ns0:mn></ns0:msub><ns0:mo>=</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>K</ns0:mi></ns0:munderover><ns0:msub><ns0:mi>θ</ns0:mi><ns0:mi>k</ns0:mi></ns0:msub><ns0:mo>·</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd><ns0:mrow><ns0:mrow /><ns0:mi>i</ns0:mi><ns0:mo>≠</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:msub><ns0:mi>A</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>·</ns0:mo><ns0:mi>η</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ6",
+      "text": "6Ak,i,j=1(k(i)=k,s(i)<s(j)),",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ6\"><label>6</label><ns0:math id=\"d33e2272\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msub><ns0:mi>A</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>=</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>,</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>&lt;</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "Equ7",
+      "text": "7Ctd=P(F^k(s(i)|x(i))>F^k(s(i)|x(j))|s(i)<s(j))≈∑i≠jAk,i,j·1(F^k(s(i)|x(i))>F^k(s(i)|x(j)))∑i≠jAk,i,j.",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"Equ7\"><label>7</label><ns0:math id=\"d33e2538\" display=\"block\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mtable><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:msup><ns0:mi>C</ns0:mi><ns0:mrow><ns0:mi mathvariant=\"italic\">td</ns0:mi></ns0:mrow></ns0:msup><ns0:mo>=</ns0:mo><ns0:mi>P</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>&gt;</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo>&lt;</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mrow /><ns0:mo>≈</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>≠</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi>A</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>·</ns0:mo><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>&gt;</ns0:mo><ns0:msub><ns0:mover accent=\"true\"><ns0:mi>F</ns0:mi><ns0:mo stretchy=\"false\">^</ns0:mo></ns0:mover><ns0:mi>k</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msup><ns0:mi>s</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:msup><ns0:mi mathvariant=\"bold\">x</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow><ns0:mrow><ns0:msub><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>≠</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:msub><ns0:mi>A</ns0:mi><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub></ns0:mrow></ns0:mfrac><ns0:mo>.</ns0:mo></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.Shong LY-W, Lam DC-L. Emerging trends in global lung cancer burden. In: Seminars in respiratory and critical care medicine. New York: Thieme Medical Publishers Inc.; 2025",
+      "doi": []
+    },
+    {
+      "id": "CR2",
+      "text": "2.Salehi AW, Khan S, Gupta G, Alabduallah BI, Almjally A, Alsolai H, et al. A study of CNN and transfer learning in medical imaging: advantages, challenges, future scope. Sustainability. 2023;15(7):5930.",
+      "doi": []
+    },
+    {
+      "id": "CR3",
+      "text": "3.Qi Y, Yang L, Liu B, Liu L, Liu Y, Zheng Q, et al. Highly accurate diagnosis of lung adenocarcinoma and squamous cell carcinoma tissues by deep learning. Spectrochim Acta Part A. 2022;265:120400.",
+      "doi": []
+    },
+    {
+      "id": "CR4",
+      "text": "4.Liu CZ, Sicilia R, Tortora M, Cordelli E, Nibid L, Sabarese G, et al. Exploring deep pathomics in lung cancer. In: 2021 IEEE 34th International symposium on computer-based medical systems (CBMS). IEEE; 2021. p. 407–12.",
+      "doi": []
+    },
+    {
+      "id": "CR5",
+      "text": "5.Tiwari S, Jain G, Shetty DK, Sudhi M, Balakrishnan JM, Bhatta SR. A comprehensive review on the application of 3d convolutional neural networks in medical imaging. Eng Proc. 2023;59(1):3.",
+      "doi": []
+    },
+    {
+      "id": "CR6",
+      "text": "6.Bellail AC, Hao C. Trail apoptotic pathway-targeted therapies for NSCLC. Transl Lung Cancer Res. 2012;1(2):155.",
+      "doi": []
+    },
+    {
+      "id": "CR7",
+      "text": "7.Braghetto A, Marturano F, Paiusco M, Baiesi M, Bettinelli A. Radiomics and deep learning methods for the prediction of 2-year overall survival in lung1 dataset. Sci Rep. 2022;12(1):14132.",
+      "doi": []
+    },
+    {
+      "id": "CR8",
+      "text": "8.Zheng S, Guo J, Langendijk JA, Both S, Veldhuis RN, Oudkerk M, et al. Survival prediction for stage I-IIIA non-small cell lung cancer using deep learning. Radiother Oncol. 2023;180:109483.",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.Pai S, Bontempi D, Hadzic I, Prudente V, Sokač M, Chaunzwa TL, et al. Foundation model for cancer imaging biomarkers. Nat Mach Intell. 2024;6(3):354–67.",
+      "doi": []
+    },
+    {
+      "id": "CR10",
+      "text": "10.Torres FS, Akbar S, Raman S, Yasufuku K, Schmidt C, Hosny A, et al. End-to-end non–small-cell lung cancer prognostication using deep learning applied to pretreatment computed tomography. JCO Clin Cancer Inform. 2021;5:1141–50.",
+      "doi": []
+    },
+    {
+      "id": "CR11",
+      "text": "11.Haarburger C, Weitz P, Rippel O, Merhof D. Image-based survival prediction for lung cancer patients using CNNs. In: 2019 IEEE 16th International symposium on biomedical imaging (ISBI 2019). IEEE; 2019. p. 1197–201.",
+      "doi": []
+    },
+    {
+      "id": "CR12",
+      "text": "12.Chen M, Copley SJ, Viola P, Lu H, Aboagye EO. Radiomics and artificial intelligence for precision medicine in lung cancer treatment. In: Seminars in cancer biology, vol. 93. Elsevier; 2023. p. 97–113.",
+      "doi": []
+    },
+    {
+      "id": "CR13",
+      "text": "13.Le VH, Kha QH, Minh TNT, Nguyen VH, Le VL, Le NQK. Development and validation of CT-based radiomics signature for overall survival prediction in multi-organ cancer. J Digit Imaging. 2023;36(3):911–22.",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.Le VH, Minh TNT, Kha QH, Le NQK. Deep learning radiomics for survival prediction in non-small-cell lung cancer patients from CT images. J Med Syst. 2025;49(1):22.",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Mall PK, Singh PK, Srivastav S, Narayan V, Paprzycki M, Jaworska T, et al. A comprehensive review of deep neural networks for medical image processing: recent developments and future opportunities. Healthc Anal. 2023;100216.",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.Aerts HJWL, Wee L, Rios Velazquez E, Leijenaar RTH, Parmar C, Grossmann P, Carvalho S, Bussink J, Monshouwer R, Haibe-Kains B, Rietveld D, Hoebers F, Rietbergen MM, Leemans CR, Dekker A, Quackenbush J, Gillies RJ, Lambin P. Data from NSCLC-radiomics (version 4) [Data set]. The Cancer Imaging Archive 2014. 10.7937/K9/TCIA.2015.PF0M9REI",
+      "doi": []
+    },
+    {
+      "id": "CR17",
+      "text": "17.Aberle DR, Berg CD, Black W, et al. The national lung screening trial: overview and study design. Radiology. 2007;2011:258.",
+      "doi": []
+    },
+    {
+      "id": "CR18",
+      "text": "18.Bakr S, Gevaert O, Echegaray S, Ayers K, Zhou M, Shafiq M, et al. Data for NSCLC Radiogenomics collection. The Cancer Imaging Archive. 2017.",
+      "doi": []
+    },
+    {
+      "id": "CR19",
+      "text": "19.Grove O, Berglund AE, Schabath MB, Aerts HJ, Dekker A, Wang H, et al. Quantitative computed tomographic descriptors associate tumor shape complexity and intratumor heterogeneity with prognosis in lung adenocarcinoma. PLoS ONE. 2015;10(3):0118261.",
+      "doi": []
+    },
+    {
+      "id": "CR20",
+      "text": "20.Kirk S, Lee Y, Kumar P, Filippini J, Albertina B, Watson M, Rieger-Christ K, Lemmerman J. The cancer genome atlas lung squamous cell carcinoma collection (TCGA-LUSC) (version 4) [Data set]. The Cancer Imaging Archive. 2016",
+      "doi": []
+    },
+    {
+      "id": "CR21",
+      "text": "21.Albertina B, Watson M, Holback C, al: Radiology data from the cancer genome atlas lung adenocarcinoma [TCGA-LUAD] collection. The Cancer Imaging Arch. 2016",
+      "doi": []
+    },
+    {
+      "id": "CR22",
+      "text": "22.Lee C, Zame W, Yoon J, Van Der Schaar M. Deephit: A deep learning approach to survival analysis with competing risks. In: Proceedings of the AAAI conference on artificial intelligence, vol. 32. 2018",
+      "doi": []
+    },
+    {
+      "id": "CR23",
+      "text": "23.Tortora M, Cordelli E, Sicilia R, Miele M, Matteucci P, Iannello G, et al. Deep reinforcement learning for fractionated radiotherapy in non-small cell lung carcinoma. Artif Intell Med. 2021;119:102137.",
+      "doi": []
+    },
+    {
+      "id": "CR24",
+      "text": "24.Tortora M, Cordelli E, Sicilia R, Nibid L, Ippolito E, Perrone G, et al. Radiopathomics: multimodal learning in non-small cell lung cancer for adaptive radiotherapy. IEEE Access. 2023;11:47563–78. 10.1109/ACCESS.2023.3275126.",
+      "doi": []
+    },
+    {
+      "id": "CR25",
+      "text": "25.Caruso CM, Guarrasi V, Cordelli E, Sicilia R, Gentile S, Messina L, et al. A multimodal ensemble driven by multiobjective optimisation to predict overall survival in non-small-cell lung cancer. J Imaging. 2022;8(11):298.",
+      "doi": []
+    },
+    {
+      "id": "CR26",
+      "text": "26.Hofmanninger J, Prayer F, Pan J, Röhrich S, Prosch H, Langs G. Automatic lung segmentation in routine imaging is primarily a data diversity problem, not a methodology problem. Eur Radiol Exp. 2020;4:1–13.",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.Patel CH, Undaviya D, Dave H, Degadwala S, Vyas D. EfficientNetB0 for brain stroke classification on computed tomography scan. In: 2023 2nd International conference on applied artificial intelligence and computing (ICAAIC). IEEE; 2023. p. 713–8.",
+      "doi": []
+    },
+    {
+      "id": "CR28",
+      "text": "28.Mandal AC, Phatak A. Optimizing deep learning based retinal diseases classification on optical coherence tomography scans. In: European conference on biomedical optics. Optica Publishing Group; 2023. p. 1263220",
+      "doi": []
+    },
+    {
+      "id": "CR29",
+      "text": "29.Tadepalli Y, Kollati M, Kuraparthi S, Kora P. EfficientNet-B0 based monocular dense-depth map estimation. Traitement du Signal. 2021;38(5)",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.Anand V, Koundal D, Alghamdi WY, Alsharbi BM. Smart grading of diabetic retinopathy: an intelligent recommendation-based fine-tuned efficientNetB0 framework. Front Artif Intell. 2024;7:1396160.",
+      "doi": []
+    },
+    {
+      "id": "CR31",
+      "text": "31.Deng J, Dong W, Socher R, Li L-J, Li K, Fei-Fei L. Imagenet: a large-scale hierarchical image database. In: 2009 IEEE Conference on computer vision and pattern recognition. IEEE; 2009. p. 248–55.",
+      "doi": []
+    },
+    {
+      "id": "CR32",
+      "text": "32.Tran D, Wang H, Torresani L, Ray J, LeCun Y, Paluri M. A closer look at spatiotemporal convolutions for action recognition. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2018. p. 6450–59",
+      "doi": []
+    },
+    {
+      "id": "CR33",
+      "text": "33.Kay W, Carreira J, Simonyan K, Zhang B, Hillier C, Vijayanarasimhan S, Viola F, Green T, Back T, Natsev P, et al.: The kinetics human action video dataset. 2017. arXiv:1705.06950",
+      "doi": []
+    },
+    {
+      "id": "CR34",
+      "text": "34.Müller-Franzes G, Khader F, Siepmann R, Han T, Kather JN, Nebelung S, et al. Medical slice transformer for improved diagnosis and explainability on 3D medical images with DINOv2. Sci Rep. 2025;15(1):23979.",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Oquab M, Darcet T, Moutakanni T, Vo H, Szafraniec M, Khalidov V, Fernandez P, Haziza D, Massa F, El-Nouby A, et al.: Dinov2: learning robust visual features without supervision. 2023. arXiv:2304.07193",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Simonyan K, Zisserman A. Very deep convolutional networks for large-scale image recognition. 2014. arXiv:1409.1556",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Krizhevsky A. One weird trick for parallelizing convolutional neural networks. 2014. arXiv:1404.5997",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.Alexey D. An image is worth 16x16 words: transformers for image recognition at scale. 2020. arXiv: 2010.11929",
+      "doi": []
+    },
+    {
+      "id": "CR39",
+      "text": "39.Manzari ON, Ahmadabadi H, Kashiani H, Shokouhi SB, Ayatollahi A. Medvit: a robust vision transformer for generalized medical image classification. Comput Biol Med. 2023;157:106791.",
+      "doi": []
+    },
+    {
+      "id": "CR40",
+      "text": "40.Antolini L, Boracchi P, Biganzoli E. A time-dependent discrimination index for survival data. Stat Med. 2005;24(24):3927–44.",
+      "doi": []
+    },
+    {
+      "id": "CR41",
+      "text": "41.Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the yield of medical tests. JAMA. 1982;247(18):2543–6.",
+      "doi": []
+    },
+    {
+      "id": "CR42",
+      "text": "42.Paszke A, Gross S, Massa F, Lerer A, Bradbury J, Chanan G, et al. Pytorch: an imperative style, high-performance deep learning library. Adv Neural Inf Process Syst. 2019;32.",
+      "doi": []
+    },
+    {
+      "id": "CR43",
+      "text": "43.Lee HW, Park YS, Park S, Lee C-H. Poor prognosis of NSCLC located in lower lobe is partly mediated by lower frequency of EGFR mutations. Sci Rep. 2020;10(1):14933.",
+      "doi": []
+    },
+    {
+      "id": "CR44",
+      "text": "44.Lin Y-H, Hung J-J, Yeh Y-C, Hsu W-H. Prognostic significance of basal versus superior segment in patients with completely resected lung adenocarcinoma in the lower lobe. Thoracic Cancer. 2019;10(2):312–20.",
+      "doi": []
+    },
+    {
+      "id": "CR45",
+      "text": "45.Lee HW, Lee C-H, Park YS. Location of stage I–III non-small cell lung cancer and survival rate: systematic review and meta-analysis. Thoracic Cancer. 2018;9(12):1614–22.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Paolo D, Greco C, Ippolito E, Fiore M, Ramella S, Soda P, Tortora M, Bria A, Sicilia R.",
+  "journal": "Health Inf Sci Syst",
+  "year": "2026",
+  "pmid": "41492270",
+  "pmcid": "PMC12764710",
+  "doi": "10.1007/s13755-025-00404-z",
+  "source": {
+    "retrieved_at": "2026-11-14T17:24:42.619336+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12764710/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC12764710.xml"
+}

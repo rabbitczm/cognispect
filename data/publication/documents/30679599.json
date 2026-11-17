@@ -1,0 +1,1128 @@
+{
+  "key": "30679599",
+  "body_available": true,
+  "title": "Assessing robustness of radiomic features by image perturbation",
+  "source_url": "https://europepmc.org/articles/PMC6345842",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Alex Zwanenburg",
+    "Stefan Leger",
+    "Linda Agolli",
+    "Karoline Pilz",
+    "Esther G. C. Troost",
+    "Christian Richter",
+    "Steffen Löck"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2019",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2019",
+        "month": "1",
+        "day": "24"
+      },
+      {
+        "type": "collection",
+        "year": "2019",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5"
+          ],
+          "en": "Radiomics is the high-throughput quantitative analysis of medical imaging to facilitate model-based treatment decisions1,2. A prevalent approach relies on the computation of image biomarkers (features) within a region of interest (ROI). In this approach features quantify different aspects of the ROI, such as mean intensity, volume and texture heterogeneity. Variations in patient positioning, image acquisition and segmentation affect each feature to varying degrees3,4. If radiomic models use features that are not robust against such influences, they will perform poorly when applied to new data5. Assessing feature robustness is thus recommended to improve generalisability of radiomic models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR6",
+            "CR10"
+          ],
+          "en": "Non-robust image features are commonly identified using test-retest imaging6–10. In test-retest imaging, the same region of interest is imaged twice within a time interval of minutes to days, usually with the same acquisition protocol. Consequently, these two images are similar, but not identical, which allows the identification of non-robust features. After identification, non-robust features are excluded from further analysis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [
+            "CR11",
+            "CR7",
+            "CR12",
+            "CR14"
+          ],
+          "en": "Although the identification of robust features is important, implementing test-retest imaging for every radiomic study has been difficult to achieve for several reasons. First, feature robustness is dependent on the phenotype of interest as well as the imaging modality. This means that information concerning feature robustness cannot be transferred between studies on different phenotypes11 and modalities7. Furthermore, feature values depend on multiple factors, including the voxel size and discretisation used12–14. Thus, even if a previous study determined feature robustness for a particular phenotype and modality, the results may not be transferable due to the use of different computational settings. Second, test-retest imaging may be difficult to obtain generally, as it is not part of the clinical routine. Acquiring test-retest imaging would thus require additional resources in terms of personnel and imaging time, and, potentially, an increased patient radiation dose. An alternative would be to use the appropriate publicly available test-retest data set, but such data are likewise sparse.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR15"
+          ],
+          "en": "It would therefore be convenient if feature robustness against perturbations could be assessed from single images. To do so, we can use methods more prevalent in the deep learning computer vision field. Here, networks are constructed to be invariant to various perturbations, e.g. noise, rotation and translation15. To achieve invariance, such perturbations are created on purpose, distorted images are generated and subsequently used as input data to develop deep learning models. The same principle may apply to the hand-crafted features that are considered in this work. We hypothesise that perturbations of single images may successfully identify the majority of features that are not robust in test-retest imaging. The aim is thus to identify perturbations that minimise the number of false positive robust features, using robustness in test-retest imaging as reference.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par6",
+          "reference_ids": [],
+          "en": "Two test-retest data sets of computed tomography (CT) images were assessed, namely: (I) a publicly available non-small cell lung cancer (NSCLC) cohort of 31 patients; and (II) an in-house head and neck squamous cell carcinoma (HNSCC) cohort of 19 patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "Fig1",
+            "Tab1",
+            "MOESM1"
+          ],
+          "en": "After delineating the gross tumour volume (GTV), the CT images were perturbed by rotation (R), Gaussian noise addition (N), translation (T), volume adaptation (growth/shrinkage of the ROI mask; V) and supervoxel-based contour randomisation (C), see Fig. 1 and Table 1. Eighteen combinations of perturbations were created by chaining perturbation operations. All chains involved repetition with different settings or randomisation. Morphological, statistical and texture features (4032 in total) were computed from the GTV ROI in each distorted image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "CR16",
+            "Fig2",
+            "CR17"
+          ],
+          "en": "Robustness of each feature was measured by the intraclass correlation coefficient (1, 1) (ICC)16. We computed the ICC of a feature between either the test and retest images (test-retest ICC), or between the perturbed images of each perturbation chain (perturbation ICC), see Fig. 2. The 95% confidence interval (CI) of the ICC was then used to determine robustness by comparing with a threshold of 0.9017. Thus, a feature is robust if CI ≥ 0.90, non-robust if CI < 0.90, and has an indeterminate robustness if the CI overlaps with the threshold.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par9",
+          "reference_ids": [],
+          "en": "A table containing all estimated ICC values and their 95% confidence intervals for all features and both cohorts was appended as supplementary data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec3",
+      "title": "Comparison between NSCLC and HNSCC cohorts",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par10",
+          "reference_ids": [],
+          "en": "To validate the basic premise that feature robustness is dependent on the phenotype, we compared feature robustness based on the test-retest ICC in both cohorts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [],
+          "en": "In the NSCLC cohort 2310 (57.3%) features were found to be robust, 597 (14.8%) were non-robust and 1125 (27.9%) had an indeterminate robustness. In the HNSCC cohort 582 (14.4%) features were robust, 1369 (34.0%) were non-robust and 2081 (51.6%) had an indeterminate robustness.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par12",
+          "reference_ids": [],
+          "en": "454 (11.3%) and 280 (6.9%) features were robust and non-robust in both cohorts, respectively. Additionally, 656 (16.3%) features were robust in the NSCLC cohort, but not in the HNSCC cohort, and 35 (0.9%) features were robust in the HNSCC cohort, but not in the NSCLC cohort. The remainder could not be compared due to indeterminate robustness in the NSCLC cohort (526; 13.0%), the HNSCC cohort (1482; 36.8%) or both cohorts (599; 14.9%).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Robustness under image perturbations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "Fig3",
+            "Tab1"
+          ],
+          "en": "The fraction of robust features for test-retest imaging and image perturbations is shown in Fig. 3. In both cohorts, the N perturbation yielded the highest number of robust features (NSCLC: 95.0%; HNSCC: 97.4%), which was higher than the number of robust features as determined by test-retest imaging (NSCLC: 57.3%; HNSCC: 14.4%). The lowest number of robust features in the NSCLC cohort was identified by the TVC perturbation chain (32.9%), followed by RVC (33.3%), NTVC (33.7%), RNVC (34.2%) and RC (38.3%). In the HNSCC cohort, TVC (16.6%), NTVC and RNVC (both 16.7%), RVC (16.8%), VC (17.8%) and V (30.8%) identified fewest robust features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Feature-wise comparison of perturbation and test-retest robustness",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par14",
+          "reference_ids": [
+            "Fig4",
+            "Tab1"
+          ],
+          "en": "Test-retest and perturbation robustness were also compared directly for the same feature. Thus, when comparing test-retest and perturbation robustness for each feature, a feature may be robust under both perturbation and test-retest conditions, non-robust under both, robust under test-retest or perturbation conditions only, or of indeterminate robustness. Using test-retest robustness as a reference, these conditions represent true positive, true negative, false negative, false positive and indeterminate cases, respectively. The direct feature-wise comparison of robustness is presented in Fig. 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [],
+          "en": "No perturbation identified every feature that was non-robust under test-retest conditions in both cohorts. The number of false positives differed between perturbations and cohorts. Perturbation chains in the NSCLC cohort yielded less false positives than the HNSCC cohort on average (2.0% vs. 9.4%).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par16",
+          "reference_ids": [],
+          "en": "In the NSCLC cohort, the RC perturbation chain caused the lowest number of false positives (0.0%), followed by RVC (0.2%), RNVC (0.5%) and NTVC (0.7%). The lowest false positive fraction in the HNSCC cohort was produced by RNVC perturbation chain (1.7%), followed by RVC (1.8%), TVC and NTVC (both 1.9%). In the HNSCC cohort, the RC perturbation chain led to 5.7% false positives.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par17",
+          "reference_ids": [],
+          "en": "We compared several methods for perturbing images to determine feature robustness. The perturbation chains that combine rotation or translation with volume adaptation and contour randomisation (RVC, RNVC, TVC, NTVC) led to a low number of false positives in both cohorts, using test-retest robustness as reference, and where otherwise comparable. Hence any of these chains may be used as an alternative to test-retest imaging to assess feature robustness.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [],
+          "en": "Other perturbation methods performed poorly, particularly if only one kind of perturbation was used. This includes methods such as noise addition or simple rotations or translations. The combination of rotation and translation was not better than rotation or translation alone. Chaining perturbation methods that primarily alter the intensity content (noise, translation, rotation) with methods that update the region of interest mask (volume adaptation and contour randomisation) improved results in terms of less false positives with regard to test-retest imaging.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "MOESM1",
+            "MOESM1",
+            "CR11",
+            "MOESM1",
+            "CR18",
+            "CR19",
+            "CR20",
+            "CR21",
+            "CR22"
+          ],
+          "en": "Considerable difference in overall robustness was observed between NSCLC and HNSCC cohorts. Specific image processing parameters or contributions of particular feature family are unlikely to cause this difference (Supplementary Notes 7 and 8). The differences are more likely caused by either inherent differences between tumour phenotypes11 or by limitations inherent to test-retest imaging in patients. As only two test-retest images are usually acquired in patients, the number of possible acquisition options that can be assessed is constrained. Lack of access to raw imaging data to assess different reconstruction settings compounds this limitation. In this study, two different image acquisition and reconstruction protocols were used in the HNSCC cohort, whereas only one protocol was used for test-retest imaging in the NSCLC cohort. In the HNSCC cohort exposure and reconstruction kernels differed between protocols (Supplementary Note 1). The exposure between both HNSCC images differed by a factor 4 on average, whereas exposure in the NSCLC set was similar between images. The HNSCC test-retest set may thus have captured differences in exposure. However, the effect of exposure and tube current on feature robustness has been contested. Larue et al. and Mackin et al. both found that exposure had a marginal effect on feature robustness18,19, whereas Midya et al. found that it had a more pronounced effect20. The HNSCC test-retest set may also have been affected by the difference in reconstruction kernels. Though both kernels in the HNSCC cohort produce smooth images, differences in reconstruction kernels may strongly affect feature values21,22.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "CR23"
+          ],
+          "en": "Aside from the overall difference in robustness between the NSCLC and HNSCC cohorts, a large difference in indeterminate robustness fractions can be observed between both cohorts. This is reflected in the 95% confidence interval of the ICC value of each feature. The average width of the 95% confidence interval of test-retest ICCs was 0.12 (NSCLC) and 0.35 (HNSCC). This indicates that feature values in the HNSCC cohort were less consistent between both images of the test-retest set, which may be related to the aforementioned difference in acquisition and reconstruction protocols. Yet, the decreased consistency between test and retest images may also be related to delineation uncertainties. The potential role of delineation uncertainties may observed by comparing the single perturbations for volume adaptation and contour randomisation between both cohorts with perturbations that only affect intensities. In the NSCLC cohort, delineation perturbations affect feature robustness less than in the HNSCC cohort, which was also found by Pavic et al.23.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "CR5"
+          ],
+          "en": "Image perturbations allows performing repeated measurements without actual acquisition of multiple images, which could be considered an advantage over test-retest imaging. We consider three methods for incorporating repeated measurements into radiomics modelling. The first, straightforward, method is to include only robust features in the modelling process, and omit indeterminate and non-robust features. This method is commonly used when robustness is determined using test-retest imaging and its implementation into a modelling workflow should therefore be easy5. Moreover, this method is useful when only a subset of the development cohort is perturbed, or a separate data set is used for robustness analysis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par22",
+          "reference_ids": [
+            "CR24",
+            "CR17"
+          ],
+          "en": "It should be noted that the number of indeterminate features correlates with the number of perturbations, as the 95% confidence interval of the ICC shrinks with increasing repeated measurements. It is thus possible to increase the number of robust and non-robust features by increasing the number of perturbations, albeit with diminishing returns. Many studies sidestep this issue entirely by applying a threshold against the estimated ICC24 instead of its confidence interval. This criterion is less stringent than comparison against the confidence interval and may lead to the inclusion of features that have reasonable probability (between 2.5 and 50%) of actually not meeting the criterion. This is particularly risky if the confidence intervals are wide and overlap with ICC values < 0.50 (poor robustness) and 0.50 ≥ ICC < 0.75 (moderate robustness)17. Thus, if a confidence interval is provided with an ICC value, it would be preferable to use this interval instead of the estimated ICC for selecting robust features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR16"
+          ],
+          "en": "The second way to use repeated measurements for radiomics modelling is by averaging the measurements for each feature. Averaging suppresses noise and as a consequence the corresponding panel ICC is always higher than that of a single measurement16, and its 95% confidence interval smaller. The mean values of the features that are robust according to the panel ICC are then included in the modelling process. This method requires that all images in the development cohort are perturbed, and may thus computationally be more expensive than the first.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [],
+          "en": "The final method builds upon the second, and is conceptually close to the use of image perturbations for deep learning. Instead of averaging values and selecting robust features prior to modelling, all values are included in the model development process. One advantage of this method is that information concerning the distribution of feature values within and across samples is not lost, and may be exploited during the model development process. Another advantage is that an explicit robustness threshold is not required. However, this method does require that all images in the development cohort are perturbed and may add complexity to radiomics modelling frameworks. A future study should compare the three methods and their effect on the performance of radiomic models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "One limitation of the current study is that we only assessed test-retest imaging based on computed tomography, as test-retest data sets for other modalities were not available to us. The proposed methodology should be assessed for other modalities, e.g. positron emission tomography (PET) and magnetic resonance imaging (MRI). Some image perturbation parameters, such as the volume of supervoxels, may require revision for other modalities.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "CR23"
+          ],
+          "en": "Another limitation of the current study is that we did not assess the effect of expert delineation uncertainties directly. As mentioned before, delineation uncertainties also cause variability in feature values23. Volume adaptation and contour randomisation perturbations try to induce this uncertainty, but a comparison against a multiple delineation data set should be performed in the future.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par27",
+          "reference_ids": [],
+          "en": "In conclusion, we investigated the use of image perturbations to determine the robustness of radiomic features, using test-retest imaging as reference. Our findings indicate that perturbation methods that distort image intensities and deform the ROI mask (NTVC, TVC, RNVC and RVC) may be used as an alternative to test-retest imaging to determine feature robustness.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec8",
+      "title": "Test-retest cohorts",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par28",
+          "reference_ids": [
+            "CR25",
+            "CR26",
+            "CR27",
+            "CR28",
+            "MOESM1"
+          ],
+          "en": "Two patient cohorts with test-retest computed tomography imaging were used: a publicly available non-small cell lung cancer cohort of 31 patients25,26 and an in-house cohort (DRKS 00006007) of 19 patients with locally advanced head and neck squamous cell carcinoma27. The NSCLC cohort is available from the Cancer Imaging Archive28. For the NSCLC cohort, two separate images were acquired within 15 minutes of each other, using the same scanner and acquisition protocol. Images in the HNSCC cohort were acquired within 4 days of each other using a different protocol, i.e. one CT image was acquired for 18F-Fludeoxyglucose positron emission tomography (PET) attenuation correction, and the other for attenuation correction of 18F-Fluoromisonidazole PET. Image acquisition parameters for both cohorts are shown in Supplementary Note 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "Informed consent was obtained from all patients. Approval for analysis of the in-house data set was provided by the local ethics committee (Ethikkomission an der TU Dresden: EK 177042017). This study was conducted according to relevant guidelines and regulations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [],
+          "en": "The GTV was delineated by experienced radio-oncologists (L.A., K.P., E.G.C.T) using the Raystation 4.6 treatment planning system software (RaySearch Laboratories AB, Stockholm, Sweden), and subsequently used as the region of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Image processing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "CR29",
+            "Fig5",
+            "Tab2",
+            "CR29",
+            "CR30",
+            "CR29"
+          ],
+          "en": "Image processing was conducted using the scheme and recommendations provided by the Image Biomarker Standardisation Initiative (IBSI)29. An overview of the processing steps is provided in Fig. 5, and further details may be found in the IBSI documentation. A complete overview of the image processing parameters, excluding perturbation-related parameters, may be found in Table 2, and are reported in compliance with the preliminary IBSI reporting guidelines29,30.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "MOESM1",
+            "CR31",
+            "CR32",
+            "CR33",
+            "MOESM1"
+          ],
+          "en": "In short, after loading a CT image, DICOM RTSTRUCT polygons were used to generate a voxel-based segmentation mask for the GTV ROI. The image and mask were then both rotated over a set angle θ (optional). Gaussian noise, based on the noise levels present in the original image, was added to the image (optional). Subsequently, both image and mask were translated with a sub-voxel shift η (optional) and interpolated with prior Gaussian anti-aliasing (Supplementary Note 2). After interpolating to isotropic voxel dimensions, the image intensity values were rounded to the nearest integer Hounsfield unit, and the mask was re-labelled based on the partial voxel volume threshold. The mask was then grown or shrunk to alter the volume by a fraction τ (optional), before being perturbed by supervoxel-based contour randomisation31 (optional). The mask was subsequently copied to generate an intensity mask and a morphological mask. The intensity mask was re-segmented to an intensity range which includes only soft-tissue voxels. Voxels with intensities deviating more than three standard deviations from the mean of the ROI were excluded from the intensity mask as well32,33. The image and both masks were subsequently used to compute radiomic features, with several feature families requiring additional discretisation (Supplementary Note 3).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Image perturbations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par33",
+          "reference_ids": [
+            "Fig1",
+            "CR31",
+            "MOESM1"
+          ],
+          "en": "Five basic image perturbation methods were implemented in the image processing scheme described above. These were rotation (R), noise addition (N), translation (T), volume adaptation (V) and contour randomisation (C). Examples are shown in Fig. 1. Rotation perturbs the image and mask by performing an affine transformation that rotates the image and mask in the axial (x, y) plane, i.e. around the z-axis, for a specified angle \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\theta \\in [\\,-\\,{13}^{\\circ },\\,{13}^{\\circ }]$$\\end{document}θ∈[−13∘,13∘]. Noise addition perturbs image intensities by adding random noise that was drawn from a normal distribution with mean 0 and a standard deviation equal to the estimated standard deviation of the noise present in the image. Translation perturbs the image and mask by performing an affine transformation that shifts the image and mask for specified fractions \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$(\\eta \\in \\mathrm{[0.00,}\\,\\mathrm{0.75]})$$\\end{document}(η∈[0.00,0.75]) of the isotropic voxel spacing along the x, y and z axis. Volume adaptation grows and/or shrinks the mask by a specified fraction \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\tau \\in [\\,-\\,\\mathrm{0.28,}\\,\\mathrm{0.28]}$$\\end{document}τ∈[−0.28,0.28]. Contour randomisation is based on simple linear iterative clustering31, and perturbs the mask by randomly selecting supervoxels based on the overlap with the original mask. The algorithmic implementation of these perturbations is described in Supplementary Note 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "Perturbations were chained using the settings documented in Supplementary Note 5. Each rotation angle and volume adaptation fraction led to generation of a new image. Noise addition and contour randomisation could be repeated multiple times, with each repetition producing a new perturbed image as well. The translation fraction was permuted over the different directions. For example, for translation fractions \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$\\eta =\\{\\mathrm{0.25,}\\,0.5\\}$$\\end{document}η={0.25,0.5}, 23 = 8 permutations were generated. Each permutation generated a new image. When chaining perturbations, all provided parameters were permuted.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [
+            "Tab1"
+          ],
+          "en": "An overview of the perturbation chains and the number of perturbed images created is shown in Table 1. All perturbation chains produced between 27 and 40 perturbed images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec11",
+      "title": "Features",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "CR29",
+            "CR34",
+            "MOESM1"
+          ],
+          "en": "All features defined in the IBSI documentation were implemented29, leading to a set of 182 base features that were used to assess morphological, statistical and texture characteristics of the ROI. These base features belong to the morphological, local intensity, intensity-based statistical, intensity-histogram, intensity-volume histogram, grey level co-occurrence matrix-based texture, grey level run length matrix-based texture, grey level size zone matrix-based texture, grey level distance zone matrix-based texture, neighbourhood grey tone difference matrix-based texture, and neighbouring grey level dependence matrix-based texture feature families. All base features were computed at multiple scales, namely for isotropic voxel spacings of 1, 2, 3 and 4 mm34. 118 base features required discretisation. Both fixed bin size and fixed bin width discretisation algorithms were used, each with four settings. Thus, a total of 4032 features were computed in each image. Supplementary Note 3 contains further details with regard to feature computation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [
+            "CR35"
+          ],
+          "en": "Both image processing and feature computation were conducted using our IBSI-compliant in-house framework based on Python 3.635.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "Robustness analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par38",
+          "reference_ids": [
+            "CR16"
+          ],
+          "en": "Feature robustness was assessed using the intraclass correlation coefficient (1, 1) (ICC)16, based on the assumption that test-retest images, as well as perturbations, possess no consistent bias. The highest possible ICC value is 1.00, which indicates that feature values are fully repeatable between test-retest images or perturbations. Lower values denote an increasing measurement variance with respect to the intra-patient variance, and thus lower repeatability.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "Fig2",
+            "MOESM1"
+          ],
+          "en": "The test-retest ICC was determined between both CT images, see Fig. 2. Perturbation ICCs were first computed separately for the test and retest images. Subsequently, perturbation ICCs were averaged over test and retest images to facilitate comparison with the test-retest ICC, as no consistent bias toward higher ICC values for one image set could be established (see Supplementary Note 6). The boundary values of the 95% confidence interval for perturbations were likewise averaged between test and retest images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [
+            "CR17"
+          ],
+          "en": "The 95% confidence interval of the ICC was used to determine robustness by comparison with a threshold of 0.9017. Thus, a feature is robust if CI ≥ 0.90, non-robust if CI < 0.90, and has an indeterminate robustness if the CI overlaps with the threshold.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par41",
+          "reference_ids": [
+            "CR36",
+            "CR37"
+          ],
+          "en": "Feature robustness was assessed using R 3.4.236. ICCs and their confidence intervals were computed using code adapted from the psych R-package37.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-14",
+      "title": "Supplementary information",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec13",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-16",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-16-p1",
+          "reference_ids": [],
+          "en": "Publisher’s note: Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p2",
+          "reference_ids": [],
+          "en": "This work was partially supported by the German Federal Ministry of Education and Research (BMBF-0371N52).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p3",
+          "reference_ids": [],
+          "en": "A.Z. and S.L. conceived the study. L.A., K.P. and E.G.C.T. delineated the gross tumour volume in the CT images. A.Z. designed and implemented perturbation algorithms in the in-house radiomics framework. A.Z. conducted the experiments. A.Z. and S.L analysed the results. A.Z. prepared draft versions of the manuscript and the supplementary materials. C.R. and S.L. provided supervision. All authors reviewed the manuscript and supplement.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-16-p4",
+          "reference_ids": [],
+          "en": "Source images for the NSCLC cohort are available from the Cancer Imaging Archive (10.7937/K9/TCIA.2015.U1X8A5NR). Due to complete anonymisation requirements under the General Data Protection Regulation of the European Union and data protection laws of the Federal Republic of Germany, source images for the HNSCC cohort can not be made publicly available. These data are available from the corresponding author on reasonable request, and pending approval by the local ethics committee. Only requests for academic use will be considered, as the patients did not consent to use of their data for non-academic, e.g. commercial, purposes. An anonymous \\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$${\\mathtt{csv}}$$\\end{document}csv table containing the intraclass correlation coefficients for all features and perturbation methods is made available with the article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-17",
+      "title": "Electronic supplementary material",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-17-p1",
+          "reference_ids": [],
+          "en": "Supplementary information accompanies this paper at 10.1038/s41598-018-36938-4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Competing Interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "FPar1-p1",
+          "reference_ids": [],
+          "en": "The authors declare no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "List of perturbations, with their abbreviation and the number of different images generated by each perturbation.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "perturbation",
+          "abbreviation",
+          "number of perturbed images"
+        ],
+        [
+          "rotation",
+          "R",
+          "27"
+        ],
+        [
+          "noise addition",
+          "N",
+          "30"
+        ],
+        [
+          "translation",
+          "T",
+          "27"
+        ],
+        [
+          "volume adaptation",
+          "V",
+          "29"
+        ],
+        [
+          "contour randomisation",
+          "C",
+          "30"
+        ],
+        [
+          "rotation and translation",
+          "RT",
+          "32"
+        ],
+        [
+          "rotation, noise addition and translation",
+          "RNT",
+          "32"
+        ],
+        [
+          "rotation and volume adaptation",
+          "RV",
+          "30"
+        ],
+        [
+          "rotation and contour randomisation",
+          "RC",
+          "27"
+        ],
+        [
+          "translation and volume adaptation",
+          "TV",
+          "40"
+        ],
+        [
+          "translation and contour randomisation",
+          "TC",
+          "27"
+        ],
+        [
+          "rotation, translation and contour randomisation",
+          "RTC",
+          "32"
+        ],
+        [
+          "rotation, noise addition, translation and contour randomisation",
+          "RNTC",
+          "32"
+        ],
+        [
+          "volume adaptation and contour randomisation",
+          "VC",
+          "30"
+        ],
+        [
+          "rotation, volume adaptation and contour randomisation",
+          "RVC",
+          "30"
+        ],
+        [
+          "rotation, noise addition, volume adaptation and contour randomisation",
+          "RNVC",
+          "30"
+        ],
+        [
+          "translation, volume adaptation and contour randomisation",
+          "TVC",
+          "40"
+        ],
+        [
+          "noise addition, translation, volume adaptation and contour randomisation",
+          "NTVC",
+          "40"
+        ]
+      ],
+      "footnotes": "The settings used by each perturbation chain are listed in Supplementary Note 5.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>List of perturbations, with their abbreviation and the number of different images generated by each perturbation.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">perturbation</th><th colspan=\"1\" rowspan=\"1\">abbreviation</th><th colspan=\"1\" rowspan=\"1\">number of perturbed images</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">rotation</td><td colspan=\"1\" rowspan=\"1\">R</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">noise addition</td><td colspan=\"1\" rowspan=\"1\">N</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">translation</td><td colspan=\"1\" rowspan=\"1\">T</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">volume adaptation</td><td colspan=\"1\" rowspan=\"1\">V</td><td colspan=\"1\" rowspan=\"1\">29</td></tr><tr><td colspan=\"1\" rowspan=\"1\">contour randomisation</td><td colspan=\"1\" rowspan=\"1\">C</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation and translation</td><td colspan=\"1\" rowspan=\"1\">RT</td><td colspan=\"1\" rowspan=\"1\">32</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation, noise addition and translation</td><td colspan=\"1\" rowspan=\"1\">RNT</td><td colspan=\"1\" rowspan=\"1\">32</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation and volume adaptation</td><td colspan=\"1\" rowspan=\"1\">RV</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">RC</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">translation and volume adaptation</td><td colspan=\"1\" rowspan=\"1\">TV</td><td colspan=\"1\" rowspan=\"1\">40</td></tr><tr><td colspan=\"1\" rowspan=\"1\">translation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">TC</td><td colspan=\"1\" rowspan=\"1\">27</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation, translation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">RTC</td><td colspan=\"1\" rowspan=\"1\">32</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation, noise addition, translation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">RNTC</td><td colspan=\"1\" rowspan=\"1\">32</td></tr><tr><td colspan=\"1\" rowspan=\"1\">volume adaptation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">VC</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation, volume adaptation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">RVC</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">rotation, noise addition, volume adaptation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">RNVC</td><td colspan=\"1\" rowspan=\"1\">30</td></tr><tr><td colspan=\"1\" rowspan=\"1\">translation, volume adaptation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">TVC</td><td colspan=\"1\" rowspan=\"1\">40</td></tr><tr><td colspan=\"1\" rowspan=\"1\">noise addition, translation, volume adaptation and contour randomisation</td><td colspan=\"1\" rowspan=\"1\">NTVC</td><td colspan=\"1\" rowspan=\"1\">40</td></tr></tbody></table><table-wrap-foot><p>The settings used by each perturbation chain are listed in Supplementary Note <xref rid=\"MOESM1\" ref-type=\"media\">5</xref>.</p></table-wrap-foot></table-wrap>"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Image processing parameters for both NSCLC and HNSCC data sets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "parameter",
+          "NSCLC",
+          "HNSCC"
+        ],
+        [
+          "interpolated isotropic voxel spacing (mm)",
+          "1, 2, 3, 4",
+          "1, 2, 3, 4"
+        ],
+        [
+          "pre-interpolation filter",
+          "gaussian, β = 0.93",
+          "gaussian, β = 0.93"
+        ],
+        [
+          "image interpolation method",
+          "trilinear",
+          "trilinear"
+        ],
+        [
+          "image intensity rounding",
+          "to nearest HU",
+          "to nearest HU"
+        ],
+        [
+          "ROI interpolation method",
+          "trilinear",
+          "trilinear"
+        ],
+        [
+          "ROI mask partial volume threshold",
+          "0.5",
+          "0.5"
+        ],
+        [
+          "re-segmentation range (HU)",
+          "[−300, 200]",
+          "[−150, 180]"
+        ],
+        [
+          "re-segmentation outlier threshold",
+          "±3σ",
+          "±3σ"
+        ],
+        [
+          "discretisation"
+        ],
+        [
+          "fixed bin number (bins)",
+          "8, 16, 32, 64",
+          "8, 16, 32, 64"
+        ],
+        [
+          "fixed bin size (HU)",
+          "6, 12, 18, 24",
+          "6, 12, 18, 24"
+        ]
+      ],
+      "footnotes": "The isotropic voxel spacing is defined in three dimensions, i.e. a spacing of 2 mm corresponds to a voxel dimension of 2 × 2 × 2 mm. Discretisation was performed using two methods (fixed bin number and fixed bin size) with varying bin sizes. ROI: region of interest; HU: Hounsfield unit; σ: standard deviation of voxel intensities within the region of interest.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Image processing parameters for both NSCLC and HNSCC data sets.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">parameter</th><th colspan=\"1\" rowspan=\"1\">NSCLC</th><th colspan=\"1\" rowspan=\"1\">HNSCC</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">interpolated isotropic voxel spacing (mm)</td><td colspan=\"1\" rowspan=\"1\">1, 2, 3, 4</td><td colspan=\"1\" rowspan=\"1\">1, 2, 3, 4</td></tr><tr><td colspan=\"1\" rowspan=\"1\">pre-interpolation filter</td><td colspan=\"1\" rowspan=\"1\">gaussian, <italic toggle=\"yes\">β</italic> = 0.93</td><td colspan=\"1\" rowspan=\"1\">gaussian, <italic toggle=\"yes\">β</italic> = 0.93</td></tr><tr><td colspan=\"1\" rowspan=\"1\">image interpolation method</td><td colspan=\"1\" rowspan=\"1\">trilinear</td><td colspan=\"1\" rowspan=\"1\">trilinear</td></tr><tr><td colspan=\"1\" rowspan=\"1\">image intensity rounding</td><td colspan=\"1\" rowspan=\"1\">to nearest HU</td><td colspan=\"1\" rowspan=\"1\">to nearest HU</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ROI interpolation method</td><td colspan=\"1\" rowspan=\"1\">trilinear</td><td colspan=\"1\" rowspan=\"1\">trilinear</td></tr><tr><td colspan=\"1\" rowspan=\"1\">ROI mask partial volume threshold</td><td colspan=\"1\" rowspan=\"1\">0.5</td><td colspan=\"1\" rowspan=\"1\">0.5</td></tr><tr><td colspan=\"1\" rowspan=\"1\">re-segmentation range (HU)</td><td colspan=\"1\" rowspan=\"1\">[−300, 200]</td><td colspan=\"1\" rowspan=\"1\">[−150, 180]</td></tr><tr><td colspan=\"1\" rowspan=\"1\">re-segmentation outlier threshold</td><td colspan=\"1\" rowspan=\"1\">±3<italic toggle=\"yes\">σ</italic></td><td colspan=\"1\" rowspan=\"1\">±3<italic toggle=\"yes\">σ</italic></td></tr><tr><td colspan=\"3\" rowspan=\"1\">discretisation</td></tr><tr><td colspan=\"1\" rowspan=\"1\">fixed bin number (bins)</td><td colspan=\"1\" rowspan=\"1\">8, 16, 32, 64</td><td colspan=\"1\" rowspan=\"1\">8, 16, 32, 64</td></tr><tr><td colspan=\"1\" rowspan=\"1\">fixed bin size (HU)</td><td colspan=\"1\" rowspan=\"1\">6, 12, 18, 24</td><td colspan=\"1\" rowspan=\"1\">6, 12, 18, 24</td></tr></tbody></table><table-wrap-foot><p>The isotropic voxel spacing is defined in three dimensions, i.e. a spacing of 2 mm corresponds to a voxel dimension of 2 × 2 × 2 mm. Discretisation was performed using two methods (<italic toggle=\"yes\">fixed bin number</italic> and <italic toggle=\"yes\">fixed bin size</italic>) with varying bin sizes. <italic toggle=\"yes\">ROI</italic>: region of interest; <italic toggle=\"yes\">HU</italic>: Hounsfield unit; <italic toggle=\"yes\">σ</italic>: standard deviation of voxel intensities within the region of interest.</p></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Perturbation examples. To perturb an image (blue) and the region of interest mask (orange overlay), the original image is translated, rotated, noised, and has its mask adapted and randomised. Translation and rotation change both the image and its mask, whereas noise only distorts the image. Volume adaptation and contour randomisation change the mask by adding (green overlay) and removing voxels (red overlay). Note that translation and rotation require additional interpolation (not shown).",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2018_36938_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "Workflow to determine the test-retest and perturbation intraclass correlation coefficients (ICC) for each feature. The test-retest ICC was calculated directly between the same features in both images. To derive the perturbation ICC, an ICC was first calculated between feature values in perturbations of image 1 (ICC 1) and then again in perturbations of image 2 (ICC 2). The perturbation ICC is the average of ICC 1 and 2.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2018_36938_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "Overall robustness of features for test-retest and perturbation conditions. Robustness was determined using the 95% confidence interval (CI) of the intraclass correlation coefficient. Features with CI ≥ 0.90 were considered to be robust (+), CI < 0.90 non-robust (−), and indeterminate (0) otherwise. Perturbations are abbreviated, see Table 1: R: rotation; N: noise addition; T: translation; V: volume adaptation; C: contour randomisation.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2018_36938_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Feature-wise comparison of robustness under test-retest and perturbation conditions. Robustness was determined using the 95% confidence interval (CI) of the intraclass correlation coefficient. Features with CI ≥ 0.90 were considered to be robust (+), CI < 0.90 non-robust (−), and indeterminate (0) otherwise. By comparing robustness states between test-retest (T) and perturbation (P) conditions, a feature was either robust under both conditions (T+P+; true positive), non-robust under both conditions (T−P−; true negative), only robust under perturbations (T−P+; false positive), or only robust under test-retest conditions (T+P−; false negative). The state of the remaining features is either indeterminate due to overlap of the test-retest CI with the threshold (T0P−, T0P+), overlap of the perturbation CI with the threshold (T + P0, T − P0) or both (T0P0). Test-retest robustness was used as reference, and the corresponding column therefore only contains true positives and negatives, as well as indeterminate robustness. Perturbations are abbreviated, see Table 1: R: rotation; N: noise addition; T: translation; V: volume adaptation; C: contour randomisation.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2018_36938_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "Image processing scheme with perturbations. A computed tomography (CT) image and a segmented gross tumour volume (GTV) are used as the input image data and the region of interest (ROI) respectively. The CT and ROI are processed to compute image features. Rotation, translation, noise addition, volume adaptation and contour randomisation are optional perturbation steps. Other image processing steps are detailed in the documentation of the image biomarker standardisation initiative (IBSI)29. IH: intensity histogram; IVH: intensity-volume histogram; GLCM: grey level co-occurrence matrix; GLRLM: grey level run length matrix; GLSZM: grey level size zone matrix; GLDZM: grey level distance zone matrix; NGDTM: neighbourhood grey tone difference matrix; NGLDM: neighbouring grey level dependence matrix. This figure is based on the image processing scheme in the IBSI document.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2018_36938_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.KumarVRadiomics: the process and the challengesMagn. Reson. Imaging2012301234124810.1016/j.mri.2012.06.01022898692PMC3563280",
+      "doi": [
+        "10.1016/j.mri.2012.06.010"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.LambinPRadiomics: Extracting more information from medical images using advanced feature analysisEur. J. Cancer20124844144610.1016/j.ejca.2011.11.03622257792PMC4533986",
+      "doi": [
+        "10.1016/j.ejca.2011.11.036"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.MackinDMeasuring Computed Tomography Scanner Variability of Radiomics Features. Investigradiology2015507576510.1097/RLI.0000000000000180PMC459825126115366",
+      "doi": [
+        "10.1097/RLI.0000000000000180"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.YipSSFAertsHJWLApplications and limitations of radiomicsPhys. medicine biology201661R1506610.1088/0031-9155/61/13/R150PMC492732827269645",
+      "doi": [
+        "10.1088/0031-9155/61/13/R150"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.LambinPRadiomics: the bridge between medical imaging and personalized medicine. Nat. reviewsClin. oncology20171474976210.1038/nrclinonc.2017.14128975929",
+      "doi": [
+        "10.1038/nrclinonc.2017.141"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.TixierFReproducibility of tumor uptake heterogeneity characterization through textural feature analysis in 18F-FDG PETJ. nuclear medicine20125369370010.2967/jnumed.111.099127PMC377946422454484",
+      "doi": [
+        "10.2967/jnumed.111.099127"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.LeijenaarRTHStability of FDG-PET Radiomics features: An integrated analysis of test-retest and inter-observer variabilityActa Oncol.2013521391139710.3109/0284186X.2013.81279824047337PMC4533992",
+      "doi": [
+        "10.3109/0284186X.2013.812798"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.BalagurunathanYReproducibility and Prognosis of Quantitative Features Extracted from CT Images. Transloncology20147728710.1593/tlo.13844PMC399869024772210",
+      "doi": [
+        "10.1593/tlo.13844"
+      ]
+    },
+    {
+      "id": "CR9",
+      "text": "9.van VeldenFHPRepeatability of Radiomic Features in Non-Small-Cell Lung Cancer [(18)F]FDG-PET/CT Studies: Impact of Reconstruction and DelineationMol. imaging biology2016187889510.1007/s11307-016-0940-2PMC501060226920355",
+      "doi": [
+        "10.1007/s11307-016-0940-2"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.DesseroitM-CReliability of PET/CT Shape and Heterogeneity Features in Functional and Morphologic Components of Non-Small Cell Lung Cancer Tumors: A Repeatability Analysis in a Prospective Multicenter CohortJ. nuclear medicine20175840641110.2967/jnumed.116.180919PMC533193727765856",
+      "doi": [
+        "10.2967/jnumed.116.180919"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.van TimmerenJETest-retest data for radiomics feature stability analysis: generalizable or study specific?Tomogr.2016236136510.18383/j.tom.2016.00208PMC603793230042967",
+      "doi": [
+        "10.18383/j.tom.2016.00208"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.HattM18F-FDG PET uptake characterization through texture analysis: investigating the complementary nature of heterogeneity and functional tumor volume in a multi-cancer site patient cohortJ. nuclear medicine201556384410.2967/jnumed.114.14405525500829",
+      "doi": [
+        "10.2967/jnumed.114.144055"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.Shafiq-Ul-HassanMIntrinsic dependencies of CT radiomic features on voxel size and number of gray levelsMed. physics2017441050106210.1002/mp.12123PMC546246228112418",
+      "doi": [
+        "10.1002/mp.12123"
+      ]
+    },
+    {
+      "id": "CR14",
+      "text": "14.MackinDHarmonizing the pixel size in retrospective computed tomography radiomics studiesPLOS ONE201712e017852410.1371/journal.pone.017852428934225PMC5608195",
+      "doi": [
+        "10.1371/journal.pone.0178524"
+      ]
+    },
+    {
+      "id": "CR15",
+      "text": "15.ArelIRoseDCKarnowskiTPDeep Machine Learning - A New Frontier in Artificial Intelligence ResearchIEEE Comput. Intell. Mag.20105131810.1109/MCI.2010.938364",
+      "doi": [
+        "10.1109/MCI.2010.938364"
+      ]
+    },
+    {
+      "id": "CR16",
+      "text": "16.ShroutPEFleissJLIntraclass correlations: Uses in assessing rater reliabilityPsychol. Bull.19798642042810.1037/0033-2909.86.2.42018839484",
+      "doi": [
+        "10.1037/0033-2909.86.2.420"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.KooTKLiMYA Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability ResearchJ. chiropractic medicine2016151556310.1016/j.jcm.2016.02.012PMC491311827330520",
+      "doi": [
+        "10.1016/j.jcm.2016.02.012"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.Larue, R. T. H. M. et al. Influence of gray level discretization on radiomic feature stability for different CT scanners, tube currents and slice thicknesses: a comprehensive phantom study. Acta oncologica 1–10, 10.1080/0284186X.2017.1351624 (2017).10.1080/0284186X.2017.135162428885084",
+      "doi": [
+        "10.1080/0284186X.2017.1351624"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.MackinDEffect of tube current on computed tomography radiomic featuresSci. Reports20188235410.1038/s41598-018-20713-6PMC579938129403060",
+      "doi": [
+        "10.1038/s41598-018-20713-6"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.MidyaAChakrabortyJGönenMDoRKGSimpsonALInfluence of CT acquisition and reconstruction parameters on radiomic feature reproducibilityJ. Med. Imaging20185110.1117/1.JMI.5.1.011020PMC581298529487877",
+      "doi": [
+        "10.1117/1.JMI.5.1.011020"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.ZhaoBReproducibility of radiomics for deciphering tumor phenotype with imagingSci. Reports201662342810.1038/srep23428PMC480632527009765",
+      "doi": [
+        "10.1038/srep23428"
+      ]
+    },
+    {
+      "id": "CR22",
+      "text": "22.HeLEffects of contrast-enhancement, reconstruction slice thickness and convolution kernel on the diagnostic performance of radiomics signature in solitary pulmonary noduleSci. reports201663492110.1038/srep34921PMC505650727721474",
+      "doi": [
+        "10.1038/srep34921"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.Pavic, M. et al. Influence of inter-observer delineation variability on radiomics stability in different tumor sites. Acta Oncol. 1–5, 10.1080/0284186X.2018.1445283 (2018).10.1080/0284186X.2018.144528329513054",
+      "doi": [
+        "10.1080/0284186X.2018.1445283"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.TraversoAWeeLDekkerAGilliesRRepeatability and Reproducibility of Radiomic Features: A Systematic ReviewInt. journal radiation oncology, biology, physics20181021143115810.1016/j.ijrobp.2018.05.053PMC669020930170872",
+      "doi": [
+        "10.1016/j.ijrobp.2018.05.053"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.ZhaoBEvaluating variability in tumor measurements from same-day repeat CT scans of patients with non-small cell lung cancerRadiol.20092522637210.1148/radiol.2522081593PMC279768019561260",
+      "doi": [
+        "10.1148/radiol.2522081593"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.Zhao, B., Schwartz, L. H. & Kris, M. G. Data From RIDER Lung CT, 10.7937/K9/TCIA.2015.U1X8A5NR (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR27",
+      "text": "27.LöckSResidual tumour hypoxia in head-and-neck cancer patients undergoing primary radiochemotherapy, final results of a prospective trial on repeat FMISO-PET imaging. Radiotheroncology201712453354010.1016/j.radonc.2017.08.01028843726",
+      "doi": [
+        "10.1016/j.radonc.2017.08.010"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.ClarkKThe Cancer Imaging Archive (TCIA): maintaining and operating a public information repositoryJ. digital imaging20132610455710.1007/s10278-013-9622-7PMC382491523884657",
+      "doi": [
+        "10.1007/s10278-013-9622-7"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.Zwanenburg, A., Leger, S., Vallières, M. & Löck, S. Image biomarker standardisation initiative. eprint arXiv:1612.07003 [cs.CV] (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR30",
+      "text": "30.VallièresMResponsible Radiomics Research for Faster Clinical Translation. J. NuclMedicine20185918919310.2967/jnumed.117.200501PMC580753029175982",
+      "doi": [
+        "10.2967/jnumed.117.200501"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.AchantaRSLIC superpixels compared to state-of-the-art superpixel methodsIEEE transactions on pattern analysis machine intelligence20123422748210.1109/TPAMI.2012.12022641706",
+      "doi": [
+        "10.1109/TPAMI.2012.120"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.CollewetGStrzeleckiMMarietteFInfluence of MRI acquisition protocols and image intensity normalization methods on texture classificationMagn. resonance imaging200422819110.1016/j.mri.2003.09.00114972397",
+      "doi": [
+        "10.1016/j.mri.2003.09.001"
+      ]
+    },
+    {
+      "id": "CR33",
+      "text": "33.VallièresMFreemanCRSkameneSREl NaqaIA radiomics model from joint FDG-PET and MRI texture features for the prediction of lung metastases in soft-tissue sarcomas of the extremitiesPhys. medicine biology20156054719610.1088/0031-9155/60/14/547126119045",
+      "doi": [
+        "10.1088/0031-9155/60/14/5471"
+      ]
+    },
+    {
+      "id": "CR34",
+      "text": "34.VallièresMRadiomics strategies for risk assessment of tumour failure in head-and-neck cancerSci. reports201771011710.1038/s41598-017-10371-5PMC557927428860628",
+      "doi": [
+        "10.1038/s41598-017-10371-5"
+      ]
+    },
+    {
+      "id": "CR35",
+      "text": "35.LegerSA comparative study of machine learning methods for time-to-event survival data for radiomics risk modellingSci. Reports201771320610.1038/s41598-017-13448-3PMC564342929038455",
+      "doi": [
+        "10.1038/s41598-017-13448-3"
+      ]
+    },
+    {
+      "id": "CR36",
+      "text": "36.R Core Team. R: A Language and Environment for Statistical Computing. Tech. Rep., Vienna, Austria (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Revelle, W. psych: Procedures for Psychological, Psychometric, and Personality Research. Northwestern University, Evanston, Illinois R package version 1.7.8. (2017).",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Zwanenburg A, Leger S, Agolli L, Pilz K, Troost EGC, Richter C, Löck S.",
+  "journal": "Sci Rep",
+  "year": "2019",
+  "pmid": "30679599",
+  "pmcid": "PMC6345842",
+  "doi": "10.1038/s41598-018-36938-4",
+  "source": {
+    "retrieved_at": "2026-11-14T16:56:42.551468+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6345842/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6345842.xml"
+}

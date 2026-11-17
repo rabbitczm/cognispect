@@ -1,0 +1,2266 @@
+{
+  "key": "33385551",
+  "body_available": true,
+  "title": "Deep learning-based unlearning of dataset bias for MRI harmonisation and confound removal",
+  "source_url": "https://europepmc.org/articles/PMC7903160",
+  "license": {
+    "text": "This is an open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/).",
+    "urls": [],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Nicola K Dinsdale",
+    "Mark Jenkinson",
+    "Ana IL Namburete"
+  ],
+  "copyright": {
+    "statement": "© 2021 The Authors. Published by Elsevier Inc.",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2021",
+        "month": "3",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "sec0001",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0006",
+          "reference_ids": [
+            "bib0043",
+            "bib0011",
+            "bib0025",
+            "bib0053",
+            "bib0022",
+            "bib0046",
+            "bib0022",
+            "bib0045",
+            "bib0022",
+            "bib0027",
+            "bib0048",
+            "bib0020",
+            "bib0051"
+          ],
+          "en": "The ability to combine datasets in neuroimaging between scanners and protocols is vital to achieve higher statistical power and is especially important when studying neurological conditions where limited data is available. Although some large scale neuroimaging projects now exist, such as the UK Biobank (Sudlow et al., 2015), most studies remain small and many of the larger studies are multi-site, such as ABIDE (Di Martino et al., 2013) and ADNI (Jack et al., 2008). Pooling data across scanners and sites leads to an undesirable increase in non-biological variance, even when attempts have been made to harmonise acquisition protocols and use identical phantoms across imaging sites (Yu et al., 2018). Multiple studies have confirmed this variation caused by scanner and acquisition differences including scanner manufacturer (Han, Jovicich, Salat, Kouwe, Quinn, Czanner, Busa, Pacheco, Albert, Killiany, Maguire, Rosas, Makris, Dale, Dickerson, Fischl, 2006, Takao, Hayashi, Ohtomo, 2013), scanner upgrade (Han et al., 2006), scanner drift (Takao et al., 2011), scanner strength (Han et al., 2006), and gradient nonlinearities (Jovicich et al., 2006). The ability to identify the presence of this variability has been further confirmed by several works applying the ‘Name the Dataset’ game (Torralba and Efros, 2011) to neuroimaging datasets (Glocker, Robinson, Coelho de Castro, Dou, Konukoglu, 2019, Wachinger, Rieckmann, Polsterl, 2020).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0007",
+          "reference_ids": [
+            "bib0026",
+            "bib0013",
+            "bib0038",
+            "bib0051",
+            "bib0014",
+            "bib0053",
+            "bib0051",
+            "bib0008",
+            "bib0038",
+            "bib0003",
+            "bib0019",
+            "bib0052"
+          ],
+          "en": "The removal of this scanner-induced variance is therefore vital for many neuroimaging studies. Many existing methods are based on ComBat (Johnson et al., 2007), an empirical Bayes method originally developed to remove ‘batch effects’ in genetics, which has been applied for harmonising values derived from structural (Fortin, Cullen, Sheline, Taylor, Aselcioglu, Cook, Adams, Cooper, Fava, McGrath, Mcinnis, Phillips, Trivedi, Weissman, Shinohara, 2017, Pomponio, Erus, Habes, Doshi, Srinivasan, Mamourian, Bashyam, Nasrallah, Satterthwaite, Fan, Launer, Masters, Maruff, Zhuo, Valzke, Johnson, Fripp, Koutsouleris, Wolf, Davatzikos, 2019, Wachinger, Rieckmann, Polsterl, 2020), diffusion (Fortin et al., 2017b) and functional MRI (Yu et al., 2018), successfully removing non-biological variance while preserving biological associations. ComBat uses multivariate linear mixed effects regression to account for both the biological variables and the scanner, to allow the modelling of the imaging features. For each site, a site-specific scaling factor δ is calculated, yielding a model that adjusts for additive and multiplicative effects. Furthermore, ComBat uses empirical Bayes to learn the model parameters, which assumes that model parameters across features are drawn from the same distribution; this improves the estimation of the parameters where only small sample sizes are available. ComBat has been further developed to include a term explicitly to model for variables of interest to preserve after harmonisation (Wachinger et al., 2020), model covariances (Chen et al., 2020), the incorporation of a generalized additive model (GAM) into the model, extending it to include nonlinear variations (Pomponio et al., 2019), and longitudinal studies (Beer et al., 2020). ComBat, however, is usually applied to the harmonisation of image-derived values and defined associations. Random forests have also been used to approach the problem similarly, with the approach demonstrated for harmonising structural ROIs (Garcia-Dias et al., 2020). Other models also approach the harmonisation task through finding scaling factors for the raw image values, for instance MICA (Wrobel et al., 2019), which estimates nonlinear transformations of the voxel intensity values.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0008",
+          "reference_ids": [
+            "bib0005",
+            "bib0006",
+            "bib0007",
+            "bib0014",
+            "bib0024",
+            "bib0033",
+            "bib0034",
+            "bib0035",
+            "bib0036",
+            "bib0042",
+            "bib0033",
+            "bib0034",
+            "bib0035",
+            "bib0036",
+            "bib0042",
+            "bib0036"
+          ],
+          "en": "Harmonisation has been explored more for diffusion MRI than other modalities (Blumberg, Palombo, Khoo, Tax, Tanno, Alexander, 2019, Cetin Karayumak, Bouix, Ning, James, Crow, Shenton, Kubicki, Rathi, 2019, Cetin Karayumak, Kubicki, Rathi, 2018, Fortin, Parker, Tunc, Watanabe, Elliott, Ruparel, Roalf, Satterthwaite, Gur, Gur, Schultz, Verma, Shinohara, 2017, Huynh, Chen, Wu, Shen, Yap, 2019, Mirzaalian, Ning, Savadjiev, Pasternak, Bouix, Michailovich, Karmacharya, Grant, Marx, Morey, Flashman, George, Mcallister, Andaluz, Shutter, Coimbra, Zafonte, Coleman, Kubicki, Rathi, 2017, Mirzaalian, Ning, Savadjiev, Pasternak, Bouix, Michailovich, Kubicki, Westin, Shenton, Rathi, 2016, Mirzaalian, Pierrefeu, Savadjiev, Pasternak, Bouix, Kubicki, Westin, Shenton, Rathi, 2015, Moyer, Ver Steeg, Tax, Thompson, 2020, St-Jean, Viergever, Leemans, 2019) with many methods using spherical harmonics to harmonise the data (Mirzaalian, Ning, Savadjiev, Pasternak, Bouix, Michailovich, Karmacharya, Grant, Marx, Morey, Flashman, George, Mcallister, Andaluz, Shutter, Coimbra, Zafonte, Coleman, Kubicki, Rathi, 2017, Mirzaalian, Ning, Savadjiev, Pasternak, Bouix, Michailovich, Kubicki, Westin, Shenton, Rathi, 2016, Mirzaalian, Pierrefeu, Savadjiev, Pasternak, Bouix, Kubicki, Westin, Shenton, Rathi, 2015, Moyer, Ver Steeg, Tax, Thompson, 2020, St-Jean, Viergever, Leemans, 2019) which greatly limits the ability of these methods to be applied to other modalities. Moyer et al. (2020) adopt variational autoencoders to produce scanner-invariant representations of the data for diffusion MRI. These feature representations can then be used to reconstruct the input images so that they are minimally informative of their original collection site. This work shows that using deep learning techniques to create feature representations that are invariant to scanner presents a strong candidate for MRI data harmonisation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0009",
+          "reference_ids": [
+            "bib0036",
+            "bib0039",
+            "bib0010",
+            "bib0056",
+            "bib0055",
+            "bib0036",
+            "bib0010",
+            "bib0036",
+            "bib0029"
+          ],
+          "en": "In addition to the variational autoencoders used in Moyer et al. (2020), other generative models have been used to harmonise MRI, largely based on deep learning models including U-Net (Ronneberger et al., 2015) based models and cycleGAN (Dewey, Zhao, Reinhold, Carass, Fitzgerald, Sotirchos, Saidha, Oh, Pham, Calabresi, Zijl, Prince, 2019, Zhu, Park, Isola, Efros, 2017) based models (Zhao et al., 2019). These are limited by needing either paired or ‘travelling heads’ data for training for each site, which is expensive and infeasible to acquire in large numbers, but hard to evaluate without them (Moyer et al., 2020). With generative methods it is also very difficult to validate the generated ‘harmonised’ images and so there is a risk of unknown errors propagating through pipelines and affecting the results of any completed analysis; furthermore, there is very little exploration of this in the literature. In addition, these methods are data hungry and difficult to train, which leads to many of these methods being implemented in 2D (Dewey et al., 2019) or on a patchwise basis (Moyer et al., 2020). Such implementations prevent the CNN learning context from adjacent slices or patches and can lead to errors in the reconstructed images, so that optimal performance is usually only achieved when the whole image can be scanned in a single forward pass (Kamnitsas et al., 2016b).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0010",
+          "reference_ids": [
+            "bib0004",
+            "bib0050",
+            "bib0047"
+          ],
+          "en": "The key measure of success for harmonisation methods is to be discriminative for the biological variable of interest whilst being indistinguishable with respect to the scanner used to acquire the data. Following the framework introduced by Ben-David et al. (2010), domain adaptation routinely concerns the scenario where we have a source domain with a large set of labels and a target domain with either no labels or a low number of labels. For this work, we consider only the case where the task to be performed is identical across domains. We would expect that these two domains would be related but not identical: for instance, the source and target domains could indicate different scanners or different acquisition protocols. The difference between the two domains means that a neural network trained on the source data would have a reduced performance on the target domain (Wachinger and Reuter, 2016); this degree of difference is known as domain shift (Tan et al., 2018). The smaller the degree of the domain shift, the more likely the domain adaptation is to be successful. Domain adaptation techniques therefore attempt to find a feature space that performs a given main task whilst being invariant to the domain of the data. This is achieved by learning features using the source domain labels, but these features are transformed to a representation that should generalise to the target domain by simultaneously adapting the features to have the same distribution for both datasets. Therefore, domain adaptation should be applicable to the task of MRI data harmonisation, creating features that are indiscriminate with respect to scanner but discriminate with respect to the task of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0011",
+          "reference_ids": [
+            "bib0040",
+            "bib0044"
+          ],
+          "en": "There have been many methods proposed for domain adaptation, the simplest of which use a divergence-based approach that tries to minimise some divergence criterion between feature distributions for the source and target data distributions, which should provide a domain-invariant representation. This relies on a feature representation existing, where the classifier is able to perform approximately equally on both tasks. Frequently used divergence measures include maximum mean discrepancy (Rozantsev et al., 2016) that compares the means of two samples to determine if they are from the same distribution, and correlation alignment (Sun and Saenko, 2016) that tries to align second-order statistics of the two distributions using a linear transformation. These methods are limited by the assumption that all scanner information can be removed by satisfying a simply definable condition, which is unlikely when dealing with a highly non-linear system such as MRI.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0012",
+          "reference_ids": [
+            "bib0018",
+            "bib0017",
+            "bib0018",
+            "bib0004",
+            "bib0055"
+          ],
+          "en": "The similarity between domains is generalised further by using adversarial methods, where the features for each domain are forced to be identical for the family of possible nonlinear functions that can be produced by a given convolutional neural network. Adversarial domain adaptation was formalised with Domain Adversarial Neural Networks (DANNs) Ganin et al. (2015). Based on the premise that for effective domain transfer to be achieved, predictions must be based on features that cannot discriminate between domains, they propose a generic framework that jointly optimises the underlying features as well as two discriminative classifiers that operate on these features. The first is a label predictor that predicts the class labels and the second is a domain classifier that aims to predict the source of the data. The overall aim of the network is then to minimise the loss of the label predictor and to maximise the loss of the domain classifier, such that the learnt features are discriminative for the main task but are completely unable to discriminate between domains. They show that this behaviour can be achieved for feedforward neural networks simply through the addition of a domain classifier formed of standard convolutional layers and a gradient reversal layer Ganin and Lempitsky (2014). The gradient reversal layer allows the maximisation of the loss of the domain classifier whilst minimising the loss for the main task. Placed between the feature extractor and domain classifier, the gradient reversal layer acts as an identity function in the forward step, and during the backward pass, it multiplies the gradient function by −λ, where λ is a hyperparameter set empirically for a given experimental setup (Ganin et al., 2015). The extension of domain adaptation to N source domains – key to enable the harmonisation of more than two scanners – was formalised in Ben-David et al. (2010) and demonstrated for adversarial domain adaptation in Zhao et al. (2019).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0013",
+          "reference_ids": [
+            "bib0049",
+            "bib0049",
+            "bib0002",
+            "bib0002"
+          ],
+          "en": "Another method for adversarial domain adaptation was introduced in Tzeng et al. (2015) where, rather than using a gradient reversal layer to update the domain classifier in opposition to the task, they used an iterative training scheme. By alternating between learning the best domain classifier for a given feature representation, and then minimising a confusion loss which aims to force the domain predictions to be closer to a uniform distribution, they obtain a domain classifier that is maximally confused (Tzeng et al., 2015). Compared to DANN-style unlearning networks, it is better at ensuring a domain classifier that is equally uninformative across the domains (Alvi et al., 2018) because the confusion loss tries to force all softmax output values to be equal, which is vital for successful data harmonisation, especially as we extend to a larger number of source scanners. This work was then applied in (Alvi et al., 2018) to facial recognition, not for domain adaptation, but for the explicit removal of identified sources of bias in their data, showing that the framework can be extended to ‘unlearn’ multiple factors simultaneously.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0014",
+          "reference_ids": [
+            "bib0049"
+          ],
+          "en": "In this work we will show that the adversarial framework proposed in (Tzeng et al., 2015) can be adapted for use in harmonisation for deep learning tasks. By considering harmonisation to be a multiple source, joint domain adaptation task, we will show that we can produce shared feature representations that are invariant to the acquisition scanner while still completing the main task of interest across scanners and acquisition protocols with negligible performance compromise. Further, we will consider a range of likely data scenarios, such as the effect of having limited amounts of training data and the effect of having different distributions of data for different scanners, and show that the training framework is simply adapted to deal with these additional challenges. Finally, we will show that the framework can be used to remove other confounds in addition to harmonising for scanner. Whilst we demonstrate the network on age prediction and tissue segmentation, the framework is applicable to all feedforward networks and tasks and so should be applicable to the harmonisation of data across a wide variety of neuroimaging studies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0002",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0003",
+      "title": "Data inputs and outputs",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0015",
+          "reference_ids": [],
+          "en": "Before we explain the method, we will introduce some notation which will be used in the equations that follow. The network takes as input a set of MRI scans, X, and outputs the predicted labels y^, which can take the form of a vector of scalar values (for age regression) or class probability maps (for segmentation). We also have target labels y for the task of interest (regression or segmentation), which will be made available to the network during training. These data come from N distinct scanners or acquisition protocols, and for each scanner we have Sn subjects, where n∈{1..N}. Note that images acquired on the same physical scanner but using different acquisition parameters (eg. a change in T1 acquisition protocol) are treated as if they were acquired on different scanners.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0004",
+      "title": "Network architecture",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0016",
+          "reference_ids": [
+            "fig0001"
+          ],
+          "en": "We train a network formed of three parts, illustrated in Fig. 1: a feature extractor with parameters Θrepr, a label predictor with parameters Θp, and the domain classifier with parameters Θd. The first two jointly form the network needed to perform the main task: the feature extractor takes the input image X and outputs a fully connected layer. This fully connected layer is then passed to the label predictor and outputs the main task label, y. The domain classifier is also added to the output of the feature extractor to allow us to adversarially remove the scanner information. It therefore takes in the fully connected layer from the feature extractor and outputs softmax values where pn is the softmax value for the nth scanner. We assume that we are able to obtain the domain label (e.g. scanner or acquisition protocol) for all available samples, which will be true for nearly all cases. We may, however, not have main task labels y (e.g. image annotations or subject age) available for all samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0005",
+      "title": "Training procedure",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0017",
+          "reference_ids": [],
+          "en": "The train procedure consists of three stages:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0018",
+          "reference_ids": [],
+          "en": "Optimising the feature extractor and the label predictor for the main task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0019",
+          "reference_ids": [],
+          "en": "Optimising the domain classifier to identify the scanner information remaining.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0020",
+          "reference_ids": [],
+          "en": "Optimising the feature extractor to confuse the domain predictor and remove scanner information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0021",
+          "reference_ids": [],
+          "en": "For each stage we optimise a different loss function, leading to three consecutive steps (or iterations) in each training batch. These work together to create a feature representation Qrepr=f(X,Θrepr) – the activations at the final layer of the feature extractor – which we aim to make invariant to the scanner used for acquisition but discriminative for the main task of interest (e.g. segmentation or regression).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0022",
+          "reference_ids": [],
+          "en": "The first stage involves minimising the loss function pertaining to the primary task of interest. For instance, for segmentation it may take the form of the Dice loss, whereas for a classification task it may be categorical cross entropy. This loss function is evaluated separately for each scanner (or dataset acquired with a different protocol) such that the optimisation is not driven by the largest dataset:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0005-p7",
+          "reference_ids": [],
+          "en": "where Xp⊂X and p selects the subset of data for which main task labels are available, yp. Lp is the primary loss function being evaluated for the subjects acquired on scanner n∈{1..N} – Sn – and y^j,n is the predicted label for the main task for the jth subject from the nth scanner. The notation Lp(Xp,yp;Θrepr,Θp) means that we evaluate the loss function for the data {Xp,yp}, which are fixed, given the current values of the parameters Θrepr, and Θp found by the optimisation process (i.e. quantities after the semicolon are ones that can be changed). It can therefore be seen that the optimizer controlling the training relating to this loss function is given access to the parameters in the feature extractor and the label predictor, as these are the values which are indicated to vary. The domain classifier is not involved in this stage.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0023",
+          "reference_ids": [],
+          "en": "The scanner information is then ‘unlearned’ (i.e. removed from the internal representation) using two loss functions in combination. The first is the domain loss that assesses how much scanner information remains in Qrepr. It simply takes the form of categorical cross-entropy :",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0005-p9",
+          "reference_ids": [],
+          "en": "where ps,k is the softmax output of the domain classifier for the sth subject and kth possible scanner domain, Xu⊂X and du⊂d where u indicates the subset of data to be used for unlearning, and we calculate the mean over all the subjects used for the domain unlearning Su=|Xu|. Note the negative sign, following the standard definition of categorical cross entropy, as we wish to maximise the performance on the classification task so as to evaluate the scanner information remaining, and so need to minimise the categorical cross entropy. Although we assume that we are able to access domain labels for all of the data points, we do not necessarily use the full set for unlearning, depending on the scenario. This will be explored in the later experiments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0024",
+          "reference_ids": [],
+          "en": "For this stage, the optimiser has access only to the weights in the domain classifier and has no influence on Θrepr, which is fixed, as indicated by the loss function Ld(Xu,du,Θrepr;Θd). We therefore find the best domain classifier given the fixed feature representation and, hence, an indication of the amount of scanner information remaining.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0025",
+          "reference_ids": [],
+          "en": "The second loss function controlling the unlearning is the confusion loss. Minimising this loss function aims to tune the parameters in the feature extractor Θrepr such that all scanner information is removed from Qrepr, thus, making it scanner invariant. When this feature representation is entirely scanner invariant, even the best domain classifier will be unable to predict which scanner acquired the data, and so the softmax outputs of the domain classifier will all be equal, corresponding to random chance. The confusion loss therefore has the form:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0005-p12",
+          "reference_ids": [],
+          "en": "where Xu and du are the same subsets used in the previous loss function. This step only updates the parameters in Θrepr and depends on the fixed value of Θd as indicated by Lconf(Xu,du,Θd;Θrepr). Again, note the negative sign such that the loss is minimised when the softmax outputs are all equal in value.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0026",
+          "reference_ids": [
+            "eq0002",
+            "eq0003"
+          ],
+          "en": "Stages 2 and 3 should be considered to be a unit and therefore the order in which they are updated is fixed. The confusion loss is most effective at removing crucial information to confuse the domain classifier once it has been tuned to find and utilise any domain information. Hence it is best to update the domain classifier first, to enable it to learn the domain information, prior to using the confusion loss. To this end, we must update Eq. (2) before Eq. (3).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0027",
+          "reference_ids": [],
+          "en": "Therefore, the overall method minimises the total loss function:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0005-p15",
+          "reference_ids": [],
+          "en": "where α and β represent the weights of the relative contributions of the different loss functions and recalling that Ld and Lconf contain negative signs enabling the adversarial training.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0028",
+          "reference_ids": [
+            "eq0002",
+            "eq0003"
+          ],
+          "en": "Eqs. (2) and (3) cannot be optimised in a single step because they act in direct opposition to each other, hence the iterative update scheme and three forward/backward passes per stage for each batch. This is not too computationally expensive as in each stage we only update a subset of the total parameters.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0029",
+          "reference_ids": [],
+          "en": "The domain classifier can only be used to assess how well domain information is being removed if it is capable of accurately predicting the domain prior to unlearning. In order to ensure this, we pretrain the network using equations (1) and (2) until the primary task reaches convergence. Provided that the domain classifier is able to accurately predict the scanner label at this stage, optimising the confusion loss in equation (3) such that the domain classifier performs no better than random chance, corresponds to removing the scanner information in Qrepr. In addition, pretraining will decrease the number of epochs required for unlearning. As epochs with the unlearning steps are more computationally expensive, this serves to decrease the overall training time.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0030",
+          "reference_ids": [],
+          "en": "As shown by the loss functions, different sets of data can be used to evaluate the different loss functions. This not only means that we can unlearn scanner information for data samples for which we do not have main task labels, but also that we can unlearn scanner information using curated (or ‘matched’) subsets of data samples when potentially problematic biases exist in the data as a whole. These scenarios are explored in the experiments to follow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0006",
+      "title": "Age prediction task",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0031",
+          "reference_ids": [
+            "bib0009",
+            "bib0015",
+            "bib0016"
+          ],
+          "en": "We first consider the task of brain age prediction (Cole, Poudel, Tsagkrasoulis, Caan, Steves, Spector, Montana, 2016, Franke, Gaser, 2019, Franke, Ziegler, Klöppel, Gaser, 2010) as an example task to demonstrate the framework: X takes the form of the T1-weighted MRI images and y the true biological age values.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0032",
+          "reference_ids": [
+            "bib0041",
+            "eq0001",
+            "bib0037"
+          ],
+          "en": "For these experiments, an architecture similar to the VGG-16 (Simonyan and Zisserman, 2015) network was used. A batch size of 32 was used throughout, with each batch constrained to have at least one example from each dataset. This increases stability during training but requires oversampling of the smaller datasets. The main task loss (Eq. (1)) was the Mean Square Error (MSE) for each scanner. All experiments were completed on a V100 GPU and were implemented in Python (3.6) and Pytorch (1.0.1) (Paszke et al., 2019).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0007",
+      "title": "Datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0033",
+          "reference_ids": [
+            "bib0043",
+            "bib0001",
+            "bib0032",
+            "bib0012"
+          ],
+          "en": "We used three datasets for these experiments: UK Biobank (Sudlow et al., 2015) (Siemens Skyra 3T) preprocessed using the UK Biobank Pipeline (Alfaro-Almagro et al., 2017) (5508 training, 1377 testing); healthy subjects from the OASIS dataset (Marcus et al., 2007) (Siemens Telsa Vision 1.5T) at multiple longitudinal time points, split into training and testing sets at the subject levels (813 training, 217 testing), and healthy subjects from the Whitehall II study (Filippini et al., 2014) (Siemens Magnetom Verio 3T) (452 training, 51 testing). The model was trained using five-fold cross validation with the training data split as 80% training 20% validation; the results are reported for the hold out test set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0034",
+          "reference_ids": [],
+          "en": "The input images for all the three datasets were resampled, taking account of the original voxel size, to 128×128×128 voxels, each of size 1×1×1 mm using spline interpolation and then every fourth slice was retained, leaving 32 slices in the z direction (axial slices). This then maintains the physical size of the object and makes datasets comparable in this way, at the price of some interpolation-related changes to the intensities. Note that such resampling was necessary in order to enable us to use all the datasets within the same model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0035",
+          "reference_ids": [
+            "fig0002"
+          ],
+          "en": "Every fourth slice was selected so as to maximise coverage across the whole brain whilst minimising the redundancy and allowing us to use a larger batch size and number of filters. The inputs were also normalised to have zero mean and unit standard deviation. The distributions of the data can be seen in Fig. 2. The p-values from T-tests on the dataset pairs show that there is only a significant difference between the distribution of the UK Biobank and Whitehall data - UK Biobank and OASIS p=0.22, OASIS and Whitehall p=0.09, UK Biobank and Whitehall p=0.001.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0008",
+      "title": "Basic fully-supervised learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0036",
+          "reference_ids": [],
+          "en": "We first consider the simplest training scenario where we have main task training labels available for all datasets being used and that all the datasets have similar distributions for the main task label. This means that there is not a high degree of correlation between the age and the scanner and we should, therefore, be able to remove scanner information from the feature representation without removing information that is discriminative for the age prediction task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0037",
+          "reference_ids": [],
+          "en": "In this scenario, all three loss functions can be evaluated on a single combined dataset X where we have labels y for the full set and know the acquisition scanner for all data points d, meaning that the overall method minimises the total loss function:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0038",
+          "reference_ids": [
+            "eq0001"
+          ],
+          "en": "To allow comparison, we also train the network using normal training - training only the feature extractor and label predictor - on the different possible combinations of datasets, and compare to all combinations of datasets. As a form of ablation study, we also compare to standard training with the main task loss function evaluated as in Eq. (1). These comparisons are vital because we do not want the harmonisation process to significantly degrade the performance on the main task. We do not compare to existing harmonisation methods such as ComBat because these methods approach harmonisation differently to our method and so are not directly comparable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0009",
+      "title": "Biased domains",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0039",
+          "reference_ids": [],
+          "en": "When the distribution of the data for the main task is similar across all data points, unlearning can simply be completed on all of the data points. However, where there exists a large difference between the two domains, such that the main task label is highly indicative of the scanner, it is likely that the unlearning process will also remove information that is important for the main task. This latter scenario could, for instance, be where the age distributions for the two studies are only slightly overlapping or where nearly all subjects with a given condition are collected on one of the scanners.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0040",
+          "reference_ids": [
+            "eq0002",
+            "eq0003"
+          ],
+          "en": "To reduce this problem, we utilise the flexibility of the training framework, and, whilst evaluating the main task on the whole dataset, we perform the scanner unlearning (Eqs. (2) and (3)) on only a subset of the data. For the case of age prediction, we perform unlearning only on the overlapping section of the data distributions. If we were to consider the case where we had data from both subjects and healthy controls and, for instance, most of the subjects had been scanned on one of the two scanners, we could perform unlearning on only the healthy controls rather than the whole dataset. As we do not need main task labels for the data used for unlearning, unlearning could be performed on a separate dataset so long as the scanner and protocol remained identical.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0041",
+          "reference_ids": [
+            "fig0003"
+          ],
+          "en": "We subsample the Biobank and OASIS datasets so as to create three degrees of overlapping datasets: 5 years, 10 years and 15 years (Fig. 3) and test on the same test sets as before, spanning the whole age range. We compare three training options: i) training normally on the full combination of the biased datasets, ii) unlearning on the whole distribution, and iii) unlearning only on the overlapping section of the distributions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0010",
+      "title": "Extension to ABIDE data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0042",
+          "reference_ids": [
+            "bib0011",
+            "sec0008",
+            "sec0008"
+          ],
+          "en": "Having demonstrated the network on three scanners, we now demonstrate the network on a multi-site dataset, ABIDE Di Martino et al. (2013). We split the data into 90% training and 10% testing across each scanner and process as described in Section 2.4.2. We therefore have data from 16 scanners, including Philips, Siemens and GE scanners, each with between 27 and 165 scans per site, for training. This is representative of many neuroimaging studies, with relatively low numbers of scans available for each site. Following the same fully supervised framework, as demonstrated in Section 2.4.2, we compare training on the combination of data from all 16 sites, to the unlearning approach.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0043",
+          "reference_ids": [],
+          "en": "A batch size of 32 was used in training, with the batch constrained to have at least one example from each scanner. To achieve this, the smaller datasets were over sampled such that the number of batches was limited by the largest dataset. This was performed because it was found that having an example of each dataset in each batch led to higher stability during training. The over sampled data points were not augmented so that we could be sure improvement was not due to the augmentation, but, in practice, this would be a sensible step.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0011",
+      "title": "Removal of other categorical confounds",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0044",
+          "reference_ids": [
+            "fig0004"
+          ],
+          "en": "In addition to unlearning scanner information to harmonise the data, we can also adapt the framework to explicitly remove other confounds. As shown in Fig 4, an additional data pair is added to training and an additional two loss functions are added to the overall loss function per confound. For each confound we wish to remove, we add a confound classification loss, which, like the domain classification loss, identifies how much information relating to the confound remains in the feature space, and a confound confusion loss, which aims to modify the feature space so as to remove the confound information by penalising deviations from a uniform distribution for the softmax predictions for the given task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0045",
+          "reference_ids": [],
+          "en": "Therefore, the overall method will minimise the loss:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0011-p3",
+          "reference_ids": [
+            "bib0002"
+          ],
+          "en": "where we consider J different confounds we wish to remove, γj is the weighting for the classification loss Lcj for the jth confound, and similarly ϕj is the weighting of the confound confusion loss LCconfj for the jth confound. We demonstrate this with sex as the confound and so the classification loss can simply be the binary cross-entropy loss. If the confound to be unlearned took the form of a continuous variable, such as age, then following (Alvi et al., 2018) it would need to be split into discrete bins.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0046",
+          "reference_ids": [],
+          "en": "We consider three different scenarios for removing sex as a confound while completing the age prediction task. We first consider the simplest case, where sex is approximately equally distributed across age and scanner. In this case we can simply evaluate all the loss functions for the whole set of input images – assuming all labels are available for input images for all tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0047",
+          "reference_ids": [],
+          "en": "We also explore the scenarios of the confound being correlated with a) the scanner and b) the main task. For correlation with scanner, we create datasets where 80% of the subjects in the OASIS dataset are male and 80% of the subjects in the Biobank dataset are female. For correlation with age, we consider the case where 80% of the subjects under the median age across the two datasets (65) are female and 80% of the subjects over the median age are male. For both scenarios, we still test on the full test set, and we compare normal training, unlearning sex on the whole training set, and unlearning sex on a subset curated to be balanced with respect to the generated bias. In the last case, the loss functions for the main task and unlearning of scanner are evaluated across the whole datasets and only the equations controlling unlearning the sex confound are evaluated for the subsets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0012",
+      "title": "Removal of continuous confounds",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0048",
+          "reference_ids": [],
+          "en": "While the approach for the removal of categorical confounds, such as sex, is clear from the section above, the extension to continuous variables is less clear. If we reframe our network such that sex prediction is now the main task, we can consider the process of removing the age information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0049",
+          "reference_ids": [],
+          "en": "The continuous age labels could be approximately converted into categorical labels by binning the data into single-year bins spanning across the age range. This, however, would not encode the fact that a prediction of 65 for a true label of 66 encodes more true age information than a prediction of 20. We therefore convert the true age labels into a softmax label around the true age, normally distributed as a N(μ,σ2) where μ was the true age label and σ was set to 10 empirically, allowing us to maintain relative information between bins. The value of 10 was chosen as, when used in normal training, this minimised the mean absolute error (MAE) on the test set. The loss function for the main task then becomes the Kullback-Leibler (KL) divergence between the true softmax distribution and the predicted softmax outputs. Unlearning can then be achieved as before, with the aim still being to make all the softmax outputs equal, so that no information about the age of the subject remains.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0013",
+      "title": "Segmentation task",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0050",
+          "reference_ids": [
+            "bib0039",
+            "bib0054",
+            "bib0043",
+            "bib0032"
+          ],
+          "en": "Having demonstrated the unlearning process on the age prediction task, we now consider the task of segmentation. We specifically consider the case where our network architecture takes the form of a U-Net (Ronneberger et al., 2015), the most popular network for biomedical image segmentation, where the skip-connections, which form a crucial part of the architecture, have the possibility of increasing the complexity of unlearning. Again, the input images X are T1-weighted input images but the labels take the form of tissue segmentations (grey matter/white matter/CSF) produced using FSL FAST (Zhang et al., 2001) as a proxy to manual segmentations, which were converted to one-hot labels for the segmentation. We consider examples from the UK Biobank (Sudlow et al., 2015) (2095 training, 937 testing) and healthy subjects from the OASIS dataset (Marcus et al., 2007) (813 training, 217 testing). As before, these were resized to 128×128×128 voxels (each of which is 1×1×1 mm in size) using spline interpolation and the intensity values normalised, but then they were split into 2D slices so that we trained a 2D network. The labels were interpolated using trilinear interpolation and then thresholded at 0.5 to create categorical labels. Multi-class Dice Loss was used as the primary task loss function. All experiments were completed on a V100 GPU and were implemented in Python (3.6) and Pytorch (1.0.1).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0014",
+      "title": "Basic fully supervised learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0051",
+          "reference_ids": [
+            "fig0005"
+          ],
+          "en": "As can be seen in Fig. 5, the general structure is identical to that used for age prediction, apart from the location of the domain classifier. In the case of the age prediction task, the unlearning was performed at the first fully connected layer, chosen as it was both a reduced representation of the data and because it was at the end of the network so there were few weights afterwards for the network to re-learn how to exploit any remaining scanner information were it not fully removed by the unlearning process. In the case of the U-Net architecture, the most compressed representation of the information is at the bottleneck (B) but there are both several upsampling layers and skip-connections after this point. Therefore, if we were to only complete unlearning at the bottleneck, all scanner information would most likely be re-learned by the subsequent layers in the upsampling branch and so might still influence the output segmentations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0052",
+          "reference_ids": [
+            "eq0005"
+          ],
+          "en": "We therefore consider unlearning from both the end of the network before the label predictor (A), the bottleneck (B) and the combination of the two, formed by concatenating the first fully-connected layers to form a single domain prediction. We also compare to standard training as a benchmark. We utilise the simplest training regime, where we have segmentation labels available for all the data from all scanners and that we have identical segmentation tasks. Therefore the overall loss function takes the same form as Eq. (5) and all of the loss functions are evaluated on all of the data points.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0015",
+      "title": "Semi-supervised learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0053",
+          "reference_ids": [],
+          "en": "Finally, we consider the scenario where we have very few or no labels available for one of the scanners – this is a very likely scenario for segmentation where manual labels are time consuming and difficult to obtain. We therefore assume access to one fully labelled dataset (UK Biobank) - and another dataset for which we do not have many labels. While the unlabelled data points cannot be used to evaluate the main task, they can be used for scanner unlearning.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0054",
+          "reference_ids": [],
+          "en": "No changes to the architecture are required; rather, we simply evaluate the main task for those data points for which we have main task labels and use all data points for unlearning such that the overall method minimises:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec0015-p3",
+          "reference_ids": [],
+          "en": "where Xp is the subset of X for which we have main task labels yp available and the full dataset X is used in unlearning scanner information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0055",
+          "reference_ids": [],
+          "en": "We explore the effect of increasing numbers of data points on the final segmentation, comparing to normal training on the combination of the full UK Biobank dataset and OASIS with available segmentations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0016",
+      "title": "Ethics statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0056",
+          "reference_ids": [],
+          "en": "UK Biobank: has approval from the North West Multi-centre Research Ethics Committee (MREC) to obtain and disseminate data and samples from the participants, and these ethical regulations cover the work in this study. Written informed consent was obtained from all participants. Details can be found at www.ukbiobank.ac.uk/ethics.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0057",
+          "reference_ids": [],
+          "en": "Whitehall dataset: ethical approval was granted generically for the “Protocol for non-invasive magnetic resonance investigations in healthy volunteers” (MSD/IDREC/2010/P17.2) by the University of Oxford Central University / Medical Science Division Interdisciplinary Research Ethics Committee (CUREC/MSD-IDREC), who also approved the specific protocol: “Predicting MRI abnormalities with longitudinal data of the Whitehall II sub-study” (MSD-IDREC-C1-2011-71).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0058",
+          "reference_ids": [
+            "bib0032"
+          ],
+          "en": "OASIS dataset: was previously collected under several study protocols at Washington University. All studies were approved by the University’s Institutional Review Board (IRB). All subjects gave written informed consent at the time of study participation. The University’s IRB also provided explicit approval for open sharing of the anonymized data. More information relating to this can be found in Marcus et al. (2007).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0059",
+          "reference_ids": [
+            "bib0011"
+          ],
+          "en": "ABIDE dataset: prior to data contribution, sites are required to confirm that their local Institutional Review Board (IRB) or ethics committee have approved both the initial data collection and the retrospective sharing of a fully de-identified version of the datasets (i.e., after removal of the 18 protected health information identifiers including facial information from structural images as identified by the Health Insurance Portable and Accountability Act [HIPAA]). More details can be found in Di Martino et al. (2013).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0017",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0018",
+      "title": "Age prediction task",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0019",
+      "title": "Basic fully-supervised learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0060",
+          "reference_ids": [
+            "tbl0001"
+          ],
+          "en": "The results from training with all three datasets separately and the different combinations can be seen in Table 1. The scanner classification accuracy is achieved by taking the frozen feature representation Qrepr from training, and training a classifier based on this. For the unlearning method, this is the domain classifier that was used during training but fine tuned to convergence. For normal training, an identical domain classifier is trained using the frozen feature representation as input until convergence. Therefore, the closer the value is to random chance, the less informative the feature representation is about scanner, thus meaning the influence of the scanner on the prediction is reduced. The results from training on all combinations of datasets both with standard training, and standard training using our loss function for the main task conditioned on each scanner, are shown for comparison.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0061",
+          "reference_ids": [
+            "fig0006",
+            "bib0031"
+          ],
+          "en": "In Fig. 6, a T-SNE plot van der Maaten and Hinton (2008) can be seen, allowing visualisation of the activations at the output of the feature extractor, Qrepr. It can be seen that, before unlearning, the features produced are entirely separable by scanner, but after unlearning the scanner features become jointly embedded and so the feature embedding is not informative of scanner.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0062",
+          "reference_ids": [],
+          "en": "The T-SNE demonstrates that without unlearning, not only are there identifiable scanner effects but that they also affect the age predictions. On the other hand, it can be seen that we are able to remove scanner information using our unlearning technique, such that the data points for all three scanners share the same embedding. This is confirmed by the scanner classification accuracy being almost random chance after unlearning has been completed.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0063",
+          "reference_ids": [
+            "tbl0001"
+          ],
+          "en": "It can also be seen that unlearning does not decrease substantially the performance on the main task. Graphs showing the different loss functions with training can be found in the supplementary material. If we consider the case of training on all three datasets, we actually achieve an overall improvement in performance using unlearning across the three datasets (comparing lines 7 and 15 in Table 1) with the performance on the OASIS and Whitehall datasets substantially improving. The performance on the UK Biobank dataset decreases, but this is as would be expected because the UK Biobank dataset has a much larger size and so, with normal training, the network is driven by this dataset whereas, with unlearning, all of the datasets drive the performance. Comparing to line 11, where the same loss function was used for the main task, evaluated separately for each dataset, but unlearning was not performed, we can see that there was an improved performance when the unlearning was added and so the unlearning itself provides actual improvement on the main task. It can also be seen that the scanner classification accuracy is almost perfect when using normal training (96%), or the loss function evaluated on the datasets separately (98%), and is random chance after unlearning (34%), clearly demonstrating that the unlearning process removes scanner information from the feature space.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0064",
+          "reference_ids": [],
+          "en": "It can also be seen that the unlearning process creates a feature space that generalises better to the third unseen dataset. If, for instance, we compare lines 5 and 13 we can see that not only is there an improved performance on the OASIS and Whitehall datasets used for training, but there is also a significant improvement in the performance on the UK Biobank dataset, which was unseen by the network. This, therefore, suggests that the unlearning process not only creates features that are invariant to the scanners that were present in the training set, but also that these features are more generalisable and so can be more effectively applied to other scanners. It can again be seen there is an improvement between normal training with our loss function evaluated on each scanner separately and the performance with unlearning (lines 9 and 13), showing that the increase in generalisability of the features is due to the unlearning process. The same pattern can be seen for training on the other possible pairs of datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0065",
+          "reference_ids": [],
+          "en": "The generalisability of the features between datasets and the reduction of the scanner classification accuracy together demonstrate that the unlearning process successfully harmonises the differences between scanners and protocols.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0066",
+          "reference_ids": [],
+          "en": "The results were also found to be robust to the choice of hyperparameters. An exploration of this can be found in the supplementary materials.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0067",
+          "reference_ids": [
+            "tbl0002"
+          ],
+          "en": "We considered if it were better to use the full imbalanced datasets to maintain the number of data points or if this hindered the unlearning process. Therefore, we randomly downsampled the Biobank and OASIS datasets to have the same number of examples as the Whitehall dataset (452 subjects). Testing was evaluated on the same test dataset as in the previous experiments. The results can be seen in Table 2. For both normal training and unlearning, there was a large decrease in performance using the balanced datasets, but the decrease was less pronounced when using unlearning than when using normal training. Using balanced datasets made no difference to the ability to classify scanner: with normal training the classifier was still able fully to distinguish between scanners; with unlearning, the classification was almost random chance. Therefore, any advantage gained from having balanced datasets is outweighed by the reduction in performance from having reduced numbers of training examples and so we are better off training on the whole dataset. Given that the method is able to remove nearly all information with significant imbalance in this case (Biobank 5508 training data points compared to Whitehall’s 452) it is likely that unlearning would be sufficient in most cases.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0020",
+      "title": "Biased datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0068",
+          "reference_ids": [],
+          "en": "We assessed the performance of the network training with biased datasets curated from subsets of the Biobank and OASIS datasets. We considered the cases of 5-year, 10-year and 15-year overlaps where the smaller the overlap, the harder the task. The trained networks are tested on the same test sets used above, with subjects across the whole age range included.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0069",
+          "reference_ids": [
+            "tbl0003",
+            "fig0007"
+          ],
+          "en": "The results can be seen in Table 3 where we compare normal training, naïve unlearning on the whole dataset, and unlearning on only the overlapping age range. It can be seen that for all three degrees of overlap, standard training leads to much larger errors than unlearning and that unlearning on only the overlap gives a lower error than unlearning on all data points. Plots of the MAEs with age can be seen in Fig. 7 for the 10-year overlap case. It can be seen that the overall lowest MAEs are achieved across the age range when unlearning is performed only on the overlapping subjects.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0070",
+          "reference_ids": [],
+          "en": "As expected, it can be seen that the normal training regime produces large errors, especially outside of the range of the Biobank training data, as the learnt weights are very largely driven by the much larger size of the Biobank training data. With naïve unlearning, the network is not able to correct for both scanners and the results for the OASIS data are poor, whereas by unlearning on just the overlapping subjects, the error is reduced on both of the datasets during testing. The only area where we see a reduction in performance is the lower end of the OASIS dataset, possibly because when the network was being driven by the Biobank data, the network generalised well to the OASIS subjects from the same range. Naïve unlearning also performs slightly less well at removing scanner information on the testing data, probably indicating that the features removed also encode some age information and so generalise less well across the whole age range.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0021",
+      "title": "Extension to ABIDE data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0071",
+          "reference_ids": [
+            "fig0008"
+          ],
+          "en": "Fig. 8 shows the results of applying the unlearning process to the ABIDE data, comparing normal training to unlearning. It can be seen that unlearning improves the MAE across all sites apart from MPG, which contains significantly older subjects compared to the other sites. The scanner classification accuracy before unlearning was 55.9% and after unlearning was reduced to 6.42%, where random chance was 6.25%. Therefore, we can see that scanner information is present in the feature embeddings, even when harmonised protocols are used.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0072",
+          "reference_ids": [],
+          "en": "These results therefore show that the framework can be applied to many sites with no changes needed. It also shows that the framework is applicable to lower numbers of subjects, with some of the sites having as few as 27 subjects for training. We thus foresee that the framework should be applicable to many studies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0022",
+      "title": "Removal of other categorical confounds",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0073",
+          "reference_ids": [
+            "fig0009"
+          ],
+          "en": "The effect of removing sex information as an additional confound in addition to harmonising for scanner was investigated. In Fig. 9 it can be seen that there is no significant effect on the MAE results when removing sex information in addition to scanner information. Unlearning sex information had no substantive effect on the ability to remove scanner information with the scanner classification accuracy being 48% and 49%, respectively. The sex classification accuracy was 96% before unlearning and 54% after unlearning. Therefore, we can remove multiple pieces of information simultaneously and, so long as the information we wish to unlearn does not correlate with the main task, we can do so without significantly reducing the performance on the main task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0074",
+          "reference_ids": [
+            "tbl0004"
+          ],
+          "en": "We then considered the case where sex information was correlated with the acquisition scanner given that 80% of the subjects in the OASIS dataset are male and 80% of the subjects in the Biobank dataset are female. Table 4 shows the comparison of normal training on these datasets compared to unlearning sex on all data points and unlearning sex on a subset with balanced numbers of each sex for each scanner. The full testing set was still used.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0075",
+          "reference_ids": [],
+          "en": "It can be seen that there is little difference between unlearning on all, or just a balanced subset, compared to the normal training baseline. It can also be seen that neither method affects the network’s ability to unlearn scanner or sex information and so there is no need to change the unlearning training from the standard case.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0076",
+          "reference_ids": [],
+          "en": "Finally, we considered the case where sex – the confound we wish to unlearn – is highly correlated with age – the main task – such that 80% of the subjects below the median age are female and 80% of the subjects over the median age are male. Again, normal training was compared to unlearning on the whole dataset and to unlearning on a curated subset, with uniform distributions of sex with age for each scanner. Testing was again performed on the full testing datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0077",
+          "reference_ids": [
+            "tbl0005",
+            "fig0010",
+            "bib0031"
+          ],
+          "en": "It was found that it was not possible to unlearn on the whole distribution as it caused the training to become unstable almost immediately (after approximately 5 epochs), with the training and validation loss exploding before we were able to unlearn sex and scanner information. The results from unlearning scanner can be seen in Table 5 where it can be seen that by unlearning only on a subset of data points with equal sample numbers we can almost entirely unlearn both scanner and sex information. Fig. 10 shows a T-SNE (van der Maaten and Hinton, 2008) of Qrepr where it can be seen that, before unlearning, the data was largely separable by scanner and sex, and that, after unlearning, these are indistinguishable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0023",
+      "title": "Removal of continuous confounds",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0078",
+          "reference_ids": [
+            "fig0011"
+          ],
+          "en": "For the removal of age as a confound, we used sex prediction as the main task. We achieved an average of 96.3% on the sex prediction task before unlearning and 95.9% after unlearning. As before, we were able to unlearn scanner information, reducing the scanner classification accuracy from 100% to 53%. Fig. 11 a) shows the averaged softmax labels from the age prediction task with normal training, where it can be seen that there is a large degree of agreement between the true labels and the predicted labels, showing that we are able to learn age using the continuous labels and KL divergence as the loss function. We achieved MAE values of 3.26±2.47 for Biobank and 4.09±3.46 for OASIS with normal training in this manner.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0079",
+          "reference_ids": [
+            "fig0011"
+          ],
+          "en": "Fig. 11 b) shows the softmax labels after unlearning. It can be seen that the predicted labels no longer follow the same distribution as the true labels and that they are distributed around the random chance value indicated by the dotted line. It can also be seen that there is no trend towards the true age value, indicating that a large amount of the age information has been removed. After unlearning, the MAEs for the age prediction task were 17.54±7.65 for Biobank and 22.86±9.40 for OASIS. The average KL divergence has increased from 0.0022 with standard learning to 0.251 after unlearning. This therefore demonstrates that, by adapting the labels, we can also use the same training regime to remove continuous information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0024",
+      "title": "Segmentation task",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec0025",
+      "title": "Supervised learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0080",
+          "reference_ids": [
+            "tbl0006"
+          ],
+          "en": "The results from comparing the location of the domain classifier can be seen in Table 6. We compare the Dice scores and consider the scanner classification accuracy. It can be seen that the best results for both Dice and the scanner classification accuracy were achieved with the domain classifier simply connected at the final convolution. Training with the domain classifier attached to the bottleneck was also much less stable. Given this result, the location of the domain classifier is fixed to the final convolutional layer for the rest of the experiments that follow.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0081",
+          "reference_ids": [
+            "bib0028"
+          ],
+          "en": "This finding goes against the expectation from the literature (Kamnitsas et al., 2016a) which suggests a mixture of locations are best for domain adaptation. We suspect this is due to our prioritisation of the removal of the scanner information to ensure harmonisation through unlearning: at the bottleneck (B) we have the most compressed representation of the data and it is probable that by unlearning at that location we constrain these features too highly and they are unable to find as successful a representation of the data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0082",
+          "reference_ids": [
+            "tbl0007",
+            "fig0012"
+          ],
+          "en": "The results for training on the combination of datasets with normal training and unlearning can be seen in Table 7, averaged across tissue type, and in Fig. 12 by tissue type for each scanner. It can be seen that the unlearning process does not reduce the Dice score achieved across tissue types and that we are able to almost entirely unlearn scanner information.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0026",
+      "title": "Semi-supervised segmentation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0083",
+          "reference_ids": [
+            "fig0013"
+          ],
+          "en": "To allow us to explore the effect of training the network with low numbers of labelled training points for one of the scanners, we trained the network with both normal learning and with unlearning for different numbers of OASIS data points with labels. Only the examples with labels were used for evaluating the main task but all of the data points were still used for unlearning scanner as these loss functions do not require main task labels to be evaluated. The results can be seen in Fig. 13: for all cases, the scanner classification accuracy for normal training was 100% and between 50% and 55% for unlearning. It can be seen that unlearning gives a large improvement in the segmentations with low numbers of data points, not only in terms of the mean value but also the consistency of the segmentations, including when the network is unsupervised with regards to the OASIS dataset and so has no training labels. Even with large numbers of training examples, there is never a disadvantage to using unlearning.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0027",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0084",
+          "reference_ids": [],
+          "en": "In this work, we have shown how a domain adaptation technique can be adapted to harmonise MRI data for a given task using CNNs, by creating a feature space that is invariant to the acquisition scanner. Removal of scanner information from the feature space prevents the information driving the prediction. The cost of the harmonisation is an approximately two fold increase in training time (from 0.88 s per batch to 1.53 s) but there is no increase in prediction time, and so, once the model is trained, there is no disadvantage to having unlearned scanner information. The duration of a batch increase is not the three times that might be expected, with the increase from one-forward and backward pass to three forward and backward passes per epoch, because the second two loss functions only update subsets of the parameters, reducing the number of calculations that must be completed.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0085",
+          "reference_ids": [
+            "bib0018",
+            "bib0021",
+            "bib0030"
+          ],
+          "en": "We have demonstrated our technique for both regression and segmentation and so it should be applicable to nearly all medical imaging problems. The applicability to a wide range of networks, even those with skip connections such as the U-Net, provides a high level of flexibility. It does, however, only harmonise the features for a given task and therefore a separate network must be trained for each task. Consequently, an area for future research would be to harmonise across both scanners and tasks. As a comparison, a DANN-style network (Ganin et al., 2015), with the same architecture as our network but an additional gradient reversal layer inserted for the domain classifier branch, was also trained, but it was found that when training with only two datasets, the domain classifier was unstable and predicted the domains with 7.2% accuracy (results can be seen in the supplementary material). This was a local minimum but clearly meant that the scanner information was not successfully removed. This instability in adversarial tasks posed as a minmax optimisation has also been experienced for other applications across the literature (Gulrajani, Ahmed, Arjovsky, Dumoulin, Courville, 2017, Lezama, 2019). By contrast, the confusion loss used in our iterative approach forces the logits towards random chance and we experience much more stability in the domain unlearning branch. We have not been able to compare to existing harmonisation methods, such as ComBat, because the different approaches are not easily compared, especially for the segmentation task, and focus on different stages of the pipeline.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0086",
+          "reference_ids": [
+            "bib0023"
+          ],
+          "en": "A potential limitation of our work is that the framework is not generative and therefore cannot be easily used in conjunction with tools such as VBM or Freesurfer, although could be added into deep learning equivalents such as Fastsurfer (Henschel et al., 2020), especially as more tools gain CNN-based equivalents. The decision to not make the framework generative was due to generative CNN methods needing large amounts of data to train or, even in some examples, paired data, meaning that they are not applicable to most real life neuroimage studies, whereas we have shown that our framework is applicable even on highly multi-site datasets with limited examples from each site, such as the ABIDE data. Furthermore, due to the data-hungry nature of generative CNNs, most of these methods reduce 3D volumes to 2D slices or even patches. This then leads to errors when reconstructing the outputs, such as inconsistencies between slices. Were these images then to be used in further downstream analysis, it is very hard to anticipate how these errors might impact on obtained results and to know how to account for them. Although we do not produce harmonized images, the image-derived values can be used in downstream analysis, for instance tissue volumes or segmentation maps can be used with a GLM to explore group differences. Our approach, therefore, is limited to within CNNs but this is a rapidly growing area of study within neuroimaging and the flexible nature of the framework means it should be applicable across feedfoward architectures and different neuroimaging tasks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0087",
+          "reference_ids": [],
+          "en": "The ablation study on the age prediction task shows that not only are we able to unlearn the scanner information but that there is an increase in performance that is not just due to the main task loss function. This indicates that the learned features generalise better across datasets, which is confirmed by the performance on the third dataset when only training on two. This corroborates the scanner classification accuracy and T-SNE plots, showing that scanner information has largely been removed and that the features that remain encode age information that transfers across datasets. Even for the segmentation task, where there is no significant improvement in the performance on the segmentation task, including the unlearning gives us the assurance that the output values are not being driven by scanner. This could be important for downstream analysis, for instance comparing white matter volumes, allowing the data to be pooled across sites. This result is also robust to the choice of the weighting factors and so the unlearning is not sensitive to the hyper-parameters.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0088",
+          "reference_ids": [],
+          "en": "The results also show that we can use the unlearning scheme even when there is a strong relationship between the main task label and the acquisition scanner. This could be especially useful when combining data between studies with different designs and with very different numbers of subjects from each group. As we can perform unlearning on a different dataset to the main task, we have the flexibility to apply the method to a range of scenarios.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0089",
+          "reference_ids": [],
+          "en": "At the limit where there exists no overlap between the datasets’ distributions, unlearning scanner information would be highly likely to remove information relating to the main task. This would then only be able to be solved by having an additional dataset for each scanner, acquired with the same protocol, and so represents a potential limitation of the method. The extension to the ABIDE dataset, however, shows the applicability of the method to many small datasets, and therefore this may be solvable using a set of small datasets which together span the whole distribution. It also shows that the framework is able to harmonise across scanner manufacturers as the data was collected on a range of GE, Siemens and Philips scanners.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0090",
+          "reference_ids": [],
+          "en": "We have also shown that the approach can be extended to allow us to remove additional confounds, and have demonstrated a way that this could also be extended to allow us to remove continuous confounds such as age. For each confound to be removed, we require two additional loss functions and two additional forward and backward passes. Therefore, the training time will increase with each additional confound, presenting a potential limitation. Were many confounds to be removed, we might also need to increase the number of times the passes for the main task are performed to prevent the performance on the main task suffering too much degradation due to the feature space being optimised for multiple tasks. We have, however, also shown how confounds can be removed even when they correlate with the main task. By carefully selecting a subset of the data with which to unlearn the scanner, we can remove the confounds, including, for instance, where sex is correlated with age, which is a case where both the main task and confound to be removed are associated with structural changes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0091",
+          "reference_ids": [],
+          "en": "The approach can also be applied when no labels are available for one or more of the domains. We have demonstrated for the segmentation task that we are able to use this technique effectively when we only have labels for one domain and we would expect that this should extend to multiple unlabelled datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0028",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0092",
+          "reference_ids": [],
+          "en": "We have presented a method for MRI harmonisation and confound removal that should be applicable across many tasks for neuroimaging and data scenarios. We have shown that it can be easily applied to segmentation, classification and regression tasks and with the highly flexible nature of the framework it should be applicable to any feedforward network. The ability to remove scanner bias influencing the predictions of CNNs should enable to the combination of small datasets and the exploration of problems for which there are no single-scanner datasets of adequate size to consider.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0029",
+      "title": "Data and code availability statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0093",
+          "reference_ids": [],
+          "en": "The data used in these experiments are available on application to the relevant studies. The code used is available at www.github.com/nkdinsdale/Unlearning_for_MRI_harmonisation and weights from training are available on request through emailing the corresponding author.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0029a",
+      "title": "CRediT authorship contribution statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0093a",
+          "reference_ids": [],
+          "en": "Nicola K. Dinsdale: Conceptualization, Methodology, Software, Formal analysis, Investigation, Writing - original draft, Writing - review & editing, Visualization. Mark Jenkinson: Writing - review & editing, Supervision, Conceptualization, Methodology, Formal analysis. Ana I.L. Namburete: Writing - review & editing, Supervision, Conceptualization, Methodology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "ack0001",
+      "title": "Acknowledgments",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0094",
+          "reference_ids": [],
+          "en": "ND is supported by the Engineering and Physical Sciences Research Council (EPSRC) and Medical Research Council (MRC) [grant number EP/L016052/1]. MJ is supported by the National Institute for Health Research (NIHR), Oxford Biomedical Research Centre (BRC), and this research was funded by the Wellcome Trust [215573/Z/19/Z]. The Wellcome Centre for Integrative Neuroimaging is supported by core funding from the Wellcome Trust [203139/Z/16/Z]. AN is grateful for support from the UK Royal Academy of Engineering under the Engineering for Development Research Fellowships scheme.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0095",
+          "reference_ids": [],
+          "en": "This research has been conducted in part using the UK Biobank Resource under Application Number 8107. We are grateful to UK Biobank for making the data available, and to all UK Biobank study participants, who generously donated their time to make this resource possible. Analysis was carried out on the clusters at the Oxford Biomedical Research Computing (BMRC) facility and FMRIB (part of the Wellcome Centre for Integrative Neuroimaging). BMRC is a joint development between the Wellcome Centre for Human Genetics and the Big Data Institute, supported by Health Data Research UK and the NIHR Oxford Biomedical Research Centre.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0096",
+          "reference_ids": [],
+          "en": "The computational aspects of this research were supported by the Wellcome Trust Core Award [Grant Number 203141/Z/16/Z] and the NIHR Oxford BRC. The views expressed are those of the author(s) and not necessarily those of the NHS, the NIHR or the Department of Health.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0097",
+          "reference_ids": [],
+          "en": "The primary support for the ABIDE dataset by Adriana Di Martino was provided by the (NIMH K23MH087770) and the Leon Levy Foundation. Primary support for the work by Michael P. Milham and the INDI team was provided by gifts from Joseph P. Healy and the Stavros Niarchos Foundation to the Child Mind Institute, as well as by an NIMH award to MPM ( NIMH R03MH096321).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "p0098",
+          "reference_ids": [],
+          "en": "Data were provided in part by OASIS: Principal Investigators: T. Benzinger, D. Marcus, J. Morris; NIH P50AG00561, P30NS09857781, P01AG026276, P01AG003991, R01AG043434, UL1TR000448, R01EB009352. AV-45 doses were provided by Avid Radiopharmaceuticals, a wholly owned subsidiary of Eli Lilly.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "fn-group1",
+      "title": "Footnotes",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "p0099",
+          "reference_ids": [],
+          "en": "Supplementary material associated with this article can be found, in the online version, at 10.1016/j.neuroimage.2020.117689",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0030",
+      "title": "Supplementary materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "bib001",
+      "title": "References",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "bib001_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_ad93_",
+      "title": "Associated Data",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adsm93_",
+      "title": "Supplementary Materials",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "_adda93_",
+      "title": "Data Availability Statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "_adda93_-p1",
+          "reference_ids": [],
+          "en": "The data used in these experiments are available on application to the relevant studies. The code used is available at www.github.com/nkdinsdale/Unlearning_for_MRI_harmonisation and weights from training are available on request through emailing the corresponding author.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "tbl0001",
+      "label": "Table 1",
+      "caption": "Results comparing unlearning to training the network in different combinations on the datasets. Mean absolute error is reported in years. Scanner accuracy is the accuracy achieved by a domain classifier given the fixed feature representation at convergence, evaluating only for the datasets the network was trained on. Number in brackets indicates random chance. B = Biobank, O = OASIS, W = Whitehall. p values can be found in the supplementary material. Bold indicates the experiment with the best average across the datasets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training Data",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "B",
+          "O",
+          "W",
+          "Biobank MAE",
+          "OASIS MAE",
+          "Whitehall MAE",
+          "Scanner Classification Accuracy %"
+        ],
+        [
+          "Normal Training",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1.",
+          "✓",
+          "×",
+          "×",
+          "3.25 ± 2.36",
+          "16.50 ± 6.77",
+          "13.81 ± 5.42",
+          "-"
+        ],
+        [
+          "2.",
+          "×",
+          "✓",
+          "×",
+          "5.61 ± 3.52",
+          "4.27 ± 3.79",
+          "6.73 ± 4.82",
+          "-"
+        ],
+        [
+          "3.",
+          "×",
+          "×",
+          "✓",
+          "5.61 ± 3.65",
+          "5.22 ± 4.83",
+          "3.15 ± 2.81",
+          "-"
+        ],
+        [
+          "4.",
+          "✓",
+          "✓",
+          "×",
+          "3.30 ± 2.50",
+          "4.00 ± 2.78",
+          "4.71 ± 3.42",
+          "98 (50)"
+        ],
+        [
+          "5.",
+          "✓",
+          "×",
+          "✓",
+          "3.31 ± 2.49",
+          "4.45 ± 3.53",
+          "3.05 ± 2.84",
+          "100 (50)"
+        ],
+        [
+          "6.",
+          "×",
+          "✓",
+          "✓",
+          "5.71 ± 3.59",
+          "4.05 ± 3.71",
+          "3.21 ± 2.94",
+          "100 (50)"
+        ],
+        [
+          "7.",
+          "✓",
+          "✓",
+          "✓",
+          "3.24 ± 2.47",
+          "4.19 ± 3.50",
+          "2.89 ± 2.70",
+          "96 (33)"
+        ],
+        [
+          "Normal Training - Eq(1)",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "8.",
+          "✓",
+          "✓",
+          "×",
+          "3.45 ± 2.63",
+          "3.99 ± 2.85",
+          "4.56 ± 3.38",
+          "100 (50)"
+        ],
+        [
+          "9.",
+          "✓",
+          "×",
+          "✓",
+          "3.42 ± 2.60",
+          "4.19 ± 4.01",
+          "2.99 ± 2.69",
+          "100 (50)"
+        ],
+        [
+          "10.",
+          "×",
+          "✓",
+          "✓",
+          "4.56 ± 3.05",
+          "4.08 ± 3.73",
+          "3.18 ± 2.93",
+          "100 (50)"
+        ],
+        [
+          "11.",
+          "✓",
+          "✓",
+          "✓",
+          "3.55 ± 2.68",
+          "3.90 ± 3.53",
+          "2.62 ± 2.65",
+          "98 (33)"
+        ],
+        [
+          "Unlearning",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "12.",
+          "✓",
+          "✓",
+          "×",
+          "3.41 ± 2.04",
+          "3.79 ± 2.99",
+          "4.60 ± 3.47",
+          "48 (50)"
+        ],
+        [
+          "13.",
+          "✓",
+          "×",
+          "✓",
+          "3.41 ± 2.58",
+          "4.07 ± 4.12",
+          "2.81 ± 2.57",
+          "52 (50)"
+        ],
+        [
+          "14.",
+          "×",
+          "✓",
+          "✓",
+          "3.38 ± 2.64",
+          "3.91 ± 3.53",
+          "2.82 ± 2.65",
+          "50 (50)"
+        ],
+        [
+          "15.",
+          "✓",
+          "✓",
+          "✓",
+          "3.38±2.64",
+          "3.90±3.53",
+          "2.56±2.47",
+          "34 (33)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0001\" position=\"float\"><label>Table 1</label><caption><p>Results comparing unlearning to training the network in different combinations on the datasets. Mean absolute error is reported in years. Scanner accuracy is the accuracy achieved by a domain classifier given the fixed feature representation at convergence, evaluating only for the datasets the network was trained on. Number in brackets indicates random chance. B = Biobank, O = OASIS, W = Whitehall. p values can be found in the supplementary material. Bold indicates the experiment with the best average across the datasets.</p></caption><alt-text>Table 1</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"4\" align=\"left\" rowspan=\"1\">Training Data<hr /></th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /></tr><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">B</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">O</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">W</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Whitehall MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy <inline-formula><ns0:math id=\"M108\" altimg=\"si14.svg\"><ns0:mo>%</ns0:mo></ns0:math></inline-formula></th></tr></thead><tbody><tr><td colspan=\"4\" align=\"center\" valign=\"top\" rowspan=\"1\"><bold>Normal Training</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">1.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M109\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M110\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M111\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.25 <inline-formula><ns0:math id=\"M112\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.36</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">16.50 <inline-formula><ns0:math id=\"M113\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 6.77</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">13.81 <inline-formula><ns0:math id=\"M114\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 5.42</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">-</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M115\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M116\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M117\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.61 <inline-formula><ns0:math id=\"M118\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.52</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.27 <inline-formula><ns0:math id=\"M119\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.79</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">6.73 <inline-formula><ns0:math id=\"M120\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.82</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">-</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M121\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M122\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M123\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.61 <inline-formula><ns0:math id=\"M124\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.65</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.22 <inline-formula><ns0:math id=\"M125\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.83</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.15 <inline-formula><ns0:math id=\"M126\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.81</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">-</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M127\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M128\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M129\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.30 <inline-formula><ns0:math id=\"M130\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.50</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.00 <inline-formula><ns0:math id=\"M131\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.78</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.71 <inline-formula><ns0:math id=\"M132\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.42</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">98 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M133\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M134\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M135\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.31 <inline-formula><ns0:math id=\"M136\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.49</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.45 <inline-formula><ns0:math id=\"M137\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.53</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.05 <inline-formula><ns0:math id=\"M138\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.84</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">6.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M139\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M140\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M141\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.71 <inline-formula><ns0:math id=\"M142\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.59</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.05 <inline-formula><ns0:math id=\"M143\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.71</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.21 <inline-formula><ns0:math id=\"M144\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.94</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">7.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M145\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M146\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M147\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.24 <inline-formula><ns0:math id=\"M148\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.47</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.19 <inline-formula><ns0:math id=\"M149\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.50</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.89 <inline-formula><ns0:math id=\"M150\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.70</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">96 (33)</td></tr><tr><td colspan=\"4\" align=\"center\" valign=\"top\" rowspan=\"1\"><bold>Normal Training - Eq</bold><xref rid=\"eq0001\" ref-type=\"disp-formula\">(1)</xref></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">8.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M151\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M152\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M153\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.45 <inline-formula><ns0:math id=\"M154\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.63</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.99 <inline-formula><ns0:math id=\"M155\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.85</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.56 <inline-formula><ns0:math id=\"M156\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.38</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M157\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M158\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M159\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.42 <inline-formula><ns0:math id=\"M160\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.60</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.19 <inline-formula><ns0:math id=\"M161\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.01</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.99 <inline-formula><ns0:math id=\"M162\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.69</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">10.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M163\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M164\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M165\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.56 <inline-formula><ns0:math id=\"M166\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.05</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.08 <inline-formula><ns0:math id=\"M167\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.73</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.18 <inline-formula><ns0:math id=\"M168\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.93</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">11.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M169\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M170\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M171\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.55 <inline-formula><ns0:math id=\"M172\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.68</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.90 <inline-formula><ns0:math id=\"M173\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.53</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.62 <inline-formula><ns0:math id=\"M174\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.65</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">98 (33)</td></tr><tr><td colspan=\"4\" align=\"center\" valign=\"top\" rowspan=\"1\"><bold>Unlearning</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">12.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M175\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M176\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M177\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.41 <inline-formula><ns0:math id=\"M178\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.04</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.79 <inline-formula><ns0:math id=\"M179\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.99</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.60 <inline-formula><ns0:math id=\"M180\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.47</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">48 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">13.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M181\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M182\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M183\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.41 <inline-formula><ns0:math id=\"M184\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.58</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.07 <inline-formula><ns0:math id=\"M185\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.12</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.81 <inline-formula><ns0:math id=\"M186\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.57</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">52 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">14.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M187\" altimg=\"si16.svg\"><ns0:mo>×</ns0:mo></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M188\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M189\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.38 <inline-formula><ns0:math id=\"M190\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.64</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.91 <inline-formula><ns0:math id=\"M191\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.53</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.82 <inline-formula><ns0:math id=\"M192\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.65</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">50 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">15.</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M193\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M194\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><inline-formula><ns0:math id=\"M195\" altimg=\"si15.svg\"><ns0:mi>✓</ns0:mi></ns0:math></inline-formula></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.38</bold><inline-formula><ns0:math id=\"M196\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.64</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.90</bold><inline-formula><ns0:math id=\"M197\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>3.53</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>2.56</bold><inline-formula><ns0:math id=\"M198\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.47</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">34 (33)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0002",
+      "label": "Table 2",
+      "caption": "Comparison of the effect of training with the full datasets with imbalanced numbers from each scanner versus training with balanced numbers of subjects from each scanner (452 per scanner, randomly selected compared to 5508 Biobank, 813 OASIS and 452 Whitehall), comparing both normal training and unlearning. The method giving the best average across datasets is highlighted.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training Method",
+          "Testing Dataset (MAEs)"
+        ],
+        [
+          "",
+          "Biobank",
+          "OASIS",
+          "Whitehall",
+          "Scanner Classification Accuracy"
+        ],
+        [
+          "Full Dataset",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Normal Training",
+          "3.24 ± 2.47",
+          "4.19 ± 3.50",
+          "2.89 ± 2.70",
+          "100 (33)"
+        ],
+        [
+          "Unlearning",
+          "3.38±2.64",
+          "3.90±3.53",
+          "2.56±2.47",
+          "34 (33)"
+        ],
+        [
+          "Balanced Dataset",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Normal Training",
+          "5.31 ± 3.82",
+          "5.80 ± 3.93",
+          "3.50 ± 3.09",
+          "98 (33)"
+        ],
+        [
+          "Unlearning",
+          "4.11 ± 3.23",
+          "4.10 ± 3.68",
+          "3.11 ± 2.99",
+          "34 (33)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0002\" position=\"float\"><label>Table 2</label><caption><p>Comparison of the effect of training with the full datasets with imbalanced numbers from each scanner versus training with balanced numbers of subjects from each scanner (452 per scanner, randomly selected compared to 5508 Biobank, 813 OASIS and 452 Whitehall), comparing both normal training and unlearning. The method giving the best average across datasets is highlighted.</p></caption><alt-text>Table 2</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Training Method</th><th colspan=\"4\" align=\"left\" rowspan=\"1\">Testing Dataset (MAEs)<hr /></th></tr><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\" /><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Whitehall</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Full Dataset</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Normal Training</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.24 <inline-formula><ns0:math id=\"M205\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.47</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.19 <inline-formula><ns0:math id=\"M206\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.50</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2.89 <inline-formula><ns0:math id=\"M207\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.70</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (33)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.38</bold><inline-formula><ns0:math id=\"M208\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.64</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.90</bold><inline-formula><ns0:math id=\"M209\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>3.53</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>2.56</bold><inline-formula><ns0:math id=\"M210\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.47</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">34 (33)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Balanced Dataset</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Normal Training</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.31 <inline-formula><ns0:math id=\"M211\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.82</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.80 <inline-formula><ns0:math id=\"M212\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.93</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.50 <inline-formula><ns0:math id=\"M213\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.09</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">98 (33)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.11 <inline-formula><ns0:math id=\"M214\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.23</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.10 <inline-formula><ns0:math id=\"M215\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.68</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.11 <inline-formula><ns0:math id=\"M216\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.99</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">34 (33)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0003",
+      "label": "Table 3",
+      "caption": "MAE results for Biobank and OASIS data from training with datasets with varying degrees of overlap as shown in Fig. 3. Standard refers to training normally and naïve unlearning refers to unlearning on the whole of the datasets. Scanner accuracy is calculated by training a domain classifier on the fixed feature representation. Random chance is given in brackets. The method with the best average across the datasets for each degree of overlap is highlighted.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Method",
+          "Biobank MAE",
+          "OASIS MAE",
+          "Scanner Classification Accuracy (%)"
+        ],
+        [
+          "5 Years Overlap",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1. Standard",
+          "16.5 ± 5.94",
+          "15.5 ± 6.95",
+          "100 (50)"
+        ],
+        [
+          "2. Naïve Unlearning",
+          "6.11 ± 3.99",
+          "4.44 ± 4.20",
+          "58 (50)"
+        ],
+        [
+          "3. Unlearning on Overlap",
+          "5.49±3.67",
+          "4.37±4.05",
+          "53 (50)"
+        ],
+        [
+          "10 Years Overlap",
+          "",
+          "",
+          ""
+        ],
+        [
+          "4. Standard",
+          "9.66 ± 5.83",
+          "13.6 ± 6.58",
+          "100 (50)"
+        ],
+        [
+          "5. Naïve Unlearning",
+          "4.20 ± 2.90",
+          "4.29 ± 4.01",
+          "56 (50)"
+        ],
+        [
+          "6. Unlearning on Overlap",
+          "3.93±2.81",
+          "4.04±3.86",
+          "52 (50)"
+        ],
+        [
+          "15 Years Overlap",
+          "",
+          "",
+          ""
+        ],
+        [
+          "7. Standard",
+          "8.91 ± 5.31",
+          "10.4 ± 5.55",
+          "100 (50)"
+        ],
+        [
+          "8. Naïve Unlearning",
+          "3.82 ± 2.84",
+          "4.39 ± 4.07",
+          "57(50)"
+        ],
+        [
+          "9. Unlearning on Overlap",
+          "3.75±2.78",
+          "3.99±3.52",
+          "50 (50)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0003\" position=\"float\"><label>Table 3</label><caption><p>MAE results for Biobank and OASIS data from training with datasets with varying degrees of overlap as shown in <xref rid=\"fig0003\" ref-type=\"fig\">Fig. 3</xref>. Standard refers to training normally and naïve unlearning refers to unlearning on the whole of the datasets. Scanner accuracy is calculated by training a domain classifier on the fixed feature representation. Random chance is given in brackets. The method with the best average across the datasets for each degree of overlap is highlighted.</p></caption><alt-text>Table 3</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Method</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy (<inline-formula><ns0:math id=\"M217\" altimg=\"si14.svg\"><ns0:mo>%</ns0:mo></ns0:math></inline-formula>)</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>5 Years Overlap</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">1. Standard</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">16.5 <inline-formula><ns0:math id=\"M218\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 5.94</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">15.5 <inline-formula><ns0:math id=\"M219\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 6.95</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2. Naïve Unlearning</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">6.11 <inline-formula><ns0:math id=\"M220\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.99</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.44 <inline-formula><ns0:math id=\"M221\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.20</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">58 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3. Unlearning on Overlap</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>5.49</bold><inline-formula><ns0:math id=\"M222\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>3.67</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>4.37</bold><inline-formula><ns0:math id=\"M223\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>4.05</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">53 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>10 Years Overlap</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4. Standard</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9.66 <inline-formula><ns0:math id=\"M224\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 5.83</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">13.6 <inline-formula><ns0:math id=\"M225\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 6.58</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5. Naïve Unlearning</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.20 <inline-formula><ns0:math id=\"M226\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.90</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.29 <inline-formula><ns0:math id=\"M227\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.01</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">56 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">6. Unlearning on Overlap</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.93</bold><inline-formula><ns0:math id=\"M228\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.81</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>4.04</bold><inline-formula><ns0:math id=\"M229\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>3.86</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">52 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>15 Years Overlap</bold></td><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">7. Standard</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">8.91 <inline-formula><ns0:math id=\"M230\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 5.31</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">10.4 <inline-formula><ns0:math id=\"M231\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 5.55</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">8. Naïve Unlearning</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.82 <inline-formula><ns0:math id=\"M232\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.84</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.39 <inline-formula><ns0:math id=\"M233\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.07</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">57(50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9. Unlearning on Overlap</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.75</bold><inline-formula><ns0:math id=\"M234\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>2.78</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3.99</bold><inline-formula><ns0:math id=\"M235\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula><bold>3.52</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">50 (50)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0004",
+      "label": "Table 4",
+      "caption": "MAE results for unlearning scanner and sex when sex is highly correlated with scanner.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training Method",
+          "Biobank MAE",
+          "OASIS MAE",
+          "Scanner Classification Accuracy",
+          "Sex Classification Accuracy"
+        ],
+        [
+          "Normal Training",
+          "3.44 ± 2.56",
+          "3.98 ± 3.33",
+          "100 (50)",
+          "98 (50)"
+        ],
+        [
+          "Unlearning All",
+          "3.41 ± 2.60",
+          "4.05 ± 3.66",
+          "52 (50)",
+          "57(50)"
+        ],
+        [
+          "Unlearning Balanced",
+          "3.43 ± 2.60",
+          "4.04 ± 3.60",
+          "49 (50)",
+          "56 (50)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0004\" position=\"float\"><label>Table 4</label><caption><p>MAE results for unlearning scanner and sex when sex is highly correlated with scanner.</p></caption><alt-text>Table 4</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Training Method</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Sex Classification Accuracy</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Normal Training</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.44 <inline-formula><ns0:math id=\"M245\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.56</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.98 <inline-formula><ns0:math id=\"M246\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.33</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">98 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning All</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.41 <inline-formula><ns0:math id=\"M247\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.60</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.05 <inline-formula><ns0:math id=\"M248\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.66</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">52 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">57(50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning Balanced</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.43 <inline-formula><ns0:math id=\"M249\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.60</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.04 <inline-formula><ns0:math id=\"M250\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.60</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">49 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">56 (50)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0005",
+      "label": "Table 5",
+      "caption": "MAE results for unlearning scanner and sex when sex is highly correlated with age.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training Method",
+          "Biobank MAE",
+          "OASIS MAE",
+          "Scanner Classification Accuracy",
+          "Sex Classification Accuracy %"
+        ],
+        [
+          "Normal Training",
+          "3.45 ± 2.60",
+          "4.85 ± 3.73",
+          "100 (50)",
+          "95 (50)"
+        ],
+        [
+          "Unlearning All",
+          "5.25 ± 3.70",
+          "5.62 ± 4.07",
+          "100 (50)",
+          "65 (50)"
+        ],
+        [
+          "Unlearning Balanced",
+          "3.53 ± 2.61",
+          "4.53 ± 3.52",
+          "52 (50)",
+          "54 (50)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0005\" position=\"float\"><label>Table 5</label><caption><p>MAE results for unlearning scanner and sex when sex is highly correlated with age.</p></caption><alt-text>Table 5</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Training Method</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS MAE</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Sex Classification Accuracy <inline-formula><ns0:math id=\"M254\" altimg=\"si14.svg\"><ns0:mo>%</ns0:mo></ns0:math></inline-formula></th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Normal Training</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.45 <inline-formula><ns0:math id=\"M255\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.60</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.85 <inline-formula><ns0:math id=\"M256\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.73</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">95 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning All</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.25 <inline-formula><ns0:math id=\"M257\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.70</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5.62 <inline-formula><ns0:math id=\"M258\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 4.07</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">65 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unlearning Balanced</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3.53 <inline-formula><ns0:math id=\"M259\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 2.61</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.53 <inline-formula><ns0:math id=\"M260\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 3.52</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">52 (50)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">54 (50)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0006",
+      "label": "Table 6",
+      "caption": "Dice scores comparing different locations for attaching the domain classifier in the network (as indicated in Fig. 5) A) at the final convolutional layer, B) at the bottleneck, and A+B) the combination of the two locations. The scanner classification accuracy was the accuracy achieved by a separate domain classifier using the fixed feature representation at the final convolutional layer. Random chance is given in brackets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Location of Domain Classifier",
+          "Biobank Dice",
+          "OASIS Dice",
+          "Scanner Classification Accuracy"
+        ],
+        [
+          "Final Convolution (A)",
+          "0.910 ± 0.023",
+          "0.916 ± 0.021",
+          "51 (50)"
+        ],
+        [
+          "Bottleneck (B)",
+          "0.871 ± 0.046",
+          "0.882 ± 0.030",
+          "100 (50)"
+        ],
+        [
+          "Both (A+B)",
+          "0.903 ± 0.025",
+          "0.912 ± 0.021",
+          "55 (50)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0006\" position=\"float\"><label>Table 6</label><caption><p>Dice scores comparing different locations for attaching the domain classifier in the network (as indicated in <xref rid=\"fig0005\" ref-type=\"fig\">Fig. 5</xref>) A) at the final convolutional layer, B) at the bottleneck, and A+B) the combination of the two locations. The scanner classification accuracy was the accuracy achieved by a separate domain classifier using the fixed feature representation at the final convolutional layer. Random chance is given in brackets.</p></caption><alt-text>Table 6</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Location of Domain Classifier</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank Dice</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS Dice</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Final Convolution (A)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.910 <inline-formula><ns0:math id=\"M271\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.023</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.916 <inline-formula><ns0:math id=\"M272\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.021</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">51 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Bottleneck (B)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.871 <inline-formula><ns0:math id=\"M273\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.046</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.882 <inline-formula><ns0:math id=\"M274\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.030</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Both (A+B)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.903 <inline-formula><ns0:math id=\"M275\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.025</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.912 <inline-formula><ns0:math id=\"M276\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.021</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">55 (50)</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0007",
+      "label": "Table 7",
+      "caption": "Dice scores comparing unlearning to training the network on different combinations of the datasets, averaged across the tissues types. Scanner accuracy is the accuracy achieved by a domain classifier given the fixed feature representation, with random chance given in brackets.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training Data",
+          "Biobank Dice",
+          "OASIS Dice",
+          "Scanner Classification Accuracy (%)"
+        ],
+        [
+          "Biobank Only",
+          "0.910 ± 0.022",
+          "0.836 ± 0.043",
+          "-"
+        ],
+        [
+          "OASIS Only",
+          "0.874 ± 0.032",
+          "0.917 ± 0.020",
+          "-"
+        ],
+        [
+          "Both (Normal Training)",
+          "0.906 ± 0.024",
+          "0.915 ± 0.020",
+          "100 (50)"
+        ],
+        [
+          "Both (Unlearning)",
+          "0.910 ± 0.023",
+          "0.916 ± 0.021",
+          "51 (50)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"tbl0007\" position=\"float\"><label>Table 7</label><caption><p>Dice scores comparing unlearning to training the network on different combinations of the datasets, averaged across the tissues types. Scanner accuracy is the accuracy achieved by a domain classifier given the fixed feature representation, with random chance given in brackets.</p></caption><alt-text>Table 7</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Training Data</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank Dice</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS Dice</th><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Scanner Classification Accuracy (<inline-formula><ns0:math id=\"M277\" altimg=\"si14.svg\"><ns0:mo>%</ns0:mo></ns0:math></inline-formula>)</th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Biobank Only</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.910 <inline-formula><ns0:math id=\"M278\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.022</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.836 <inline-formula><ns0:math id=\"M279\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.043</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">-</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">OASIS Only</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.874 <inline-formula><ns0:math id=\"M280\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.032</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.917 <inline-formula><ns0:math id=\"M281\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.020</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">-</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Both (Normal Training)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.906 <inline-formula><ns0:math id=\"M282\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.024</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.915 <inline-formula><ns0:math id=\"M283\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.020</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">100 (50)</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Both (Unlearning)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.910 <inline-formula><ns0:math id=\"M284\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.023</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.916 <inline-formula><ns0:math id=\"M285\" altimg=\"si17.svg\"><ns0:mo>±</ns0:mo></ns0:math></inline-formula> 0.021</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">51 (50)</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "fig0001",
+      "label": "Fig. 1",
+      "caption": "General network architecture. The network is formed of three sections: the feature extractor with parameters Θrepr, the label predictor with parameters Θp, and the domain classifier with parameters Θd. Xp represents the input data used to train the main task with labels yp, and Xu represents the input data used to train the steps involved in unlearning scanner with labels d.",
+      "caption_zh": "",
+      "graphics": [
+        "gr1.jpg",
+        "gr1.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0002",
+      "label": "Fig. 2",
+      "caption": "Normalised age distributions for the three datasets: Biobank, OASIS and Whitehall. The dashed line indicates the mean age of the three datasets.",
+      "caption_zh": "",
+      "graphics": [
+        "gr2.jpg",
+        "gr2.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0003",
+      "label": "Fig. 3",
+      "caption": "The three biased datasets used in this experiment with 5 years, 10 years and 15 years overlap. Only the shaded overlap region is used for unlearning scanner information; all the data points are used to evaluate the main loss function.",
+      "caption_zh": "",
+      "graphics": [
+        "gr3.jpg",
+        "gr3.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0004",
+      "label": "Fig. 4",
+      "caption": "The general network architecture can be adapted to allow us to also remove other confounds from the data. In addition to the datasets used for the main task and the scanner unlearning, we add a data pair where Xc are the input images used for deconfounding and yc are the confound labels.",
+      "caption_zh": "",
+      "graphics": [
+        "gr4.jpg",
+        "gr4.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0005",
+      "label": "Fig. 5",
+      "caption": "Network architecture used for unlearning with segmentation. Xp represents the input images used to evaluate the primary task with y being the main task label segmentations. Xu are the input images used for unlearning scanner information with domain labels du. The domain discriminator for unlearning can be attached from A, B or the two in combination. If it is attached from A and B together, the first fully connected layers (the output of the two downsampling branches D) are concatenated together to produce a single feature representation.",
+      "caption_zh": "",
+      "graphics": [
+        "gr5.jpg",
+        "gr5.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0006",
+      "label": "Fig. 6",
+      "caption": "a) T-SNE plot of the activations of the fully connected layer, Qrepr, before unlearning. It can be seen that the domains can be almost entirely separated, except for two data points grouped incorrectly, showing that data from each scanner has its own distinct distribution. b) T-SNE plot of the activations of the fully connected layer, Qrepr, after unlearning. It can be seen that, through the unlearning, the distributions become entirely jointly embedded.",
+      "caption_zh": "",
+      "graphics": [
+        "gr6.jpg",
+        "gr6.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0007",
+      "label": "Fig. 7",
+      "caption": "Density plots showing the absolute errors for the three different training regimes: standard training, naïve unlearning and unlearning only on the overlap data for 10-year overlap. It can be seen that unlearning only on the overlap dataset leads to substantially lower losses across both datasets.",
+      "caption_zh": "",
+      "graphics": [
+        "gr7.jpg",
+        "gr7.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0008",
+      "label": "Fig. 8",
+      "caption": "MAE results broken down by site for the ABIDE data, comparing normal training to unlearning.",
+      "caption_zh": "",
+      "graphics": [
+        "gr8.jpg",
+        "gr8.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0009",
+      "label": "Fig. 9",
+      "caption": "Results comparing unlearning scanner only to unlearning scanner and sex information.",
+      "caption_zh": "",
+      "graphics": [
+        "gr9.jpg",
+        "gr9.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0010",
+      "label": "Fig. 10",
+      "caption": "a) T-SNE plot of Qrepr from training without unlearning, having trained on a dataset where sex correlates highly with age. It can be seen that the scanners can still be almost entirely separated, except for two data points grouped incorrectly (located within the cluster of light blue data points), showing that data from each scanner has its own distinct distribution and that the data points can also be entirely split by sex for the Biobank data. b) T-SNE plot of Qrepr after unlearning. It can be seen that, through the unlearning, the distributions become entirely jointly embedded in terms of both scanner and sex.",
+      "caption_zh": "",
+      "graphics": [
+        "gr10.jpg",
+        "gr10.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0011",
+      "label": "Fig. 11",
+      "caption": "Softmax labels for the age prediction task, averaged across all examples for the Biobank dataset showing both the true values converted into Gaussian distributions and the predicted values. The dashed line corresponds to the value if all the softmax values were equal. a) Predictions with standard learning b) Predictions after unlearning. It can be seen that after unlearning the softmax values are much closer to the dashed line and there is no trend towards the true maximum.",
+      "caption_zh": "",
+      "graphics": [
+        "gr11.jpg",
+        "gr11.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0012",
+      "label": "Fig. 12",
+      "caption": "Dice scores for the two datasets for each method broken down by tissue type. CSF = Cerebrospinal fluid Fluid, WM = White Matter, GM = Grey Matter",
+      "caption_zh": "",
+      "graphics": [
+        "gr12.jpg",
+        "gr12.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0013",
+      "label": "Fig. 13",
+      "caption": "Dice scores for the three different tissue types for the OASIS data with increasing numbers of OASIS training slices, comparing both normal training and unlearning with the full Biobank dataset used throughout. For clarity, the x axis is not plotted to scale.",
+      "caption_zh": "",
+      "graphics": [
+        "gr13.jpg",
+        "gr13.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "eq0001",
+      "text": "(1)Lp(Xp,yp;Θrepr,Θp)=∑n=1N1Sn∑j=1SnLp(yj,n,y^j,n)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0001\"><label>(1)</label><ns0:math id=\"M27\" display=\"block\" altimg=\"si33.svg\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>n</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub></ns0:mfrac><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>n</ns0:mi></ns0:msub></ns0:munderover><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>n</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mover accent=\"true\"><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mo>^</ns0:mo></ns0:mover></ns0:mrow><ns0:mrow><ns0:mi>j</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>n</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0002",
+      "text": "(2)Ld(Xu,du,Θrepr;Θd)=−1Su∑s=1Su∑k=1N1[ds=k]log(ps,k)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0002\"><label>(2)</label><ns0:math id=\"M42\" display=\"block\" altimg=\"si43.svg\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>d</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mo>−</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub></ns0:mfrac><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>s</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub></ns0:munderover><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mn mathvariant=\"double-struck\">1</ns0:mn><ns0:mrow><ns0:mo>[</ns0:mo><ns0:msub><ns0:mi>d</ns0:mi><ns0:mi>s</ns0:mi></ns0:msub><ns0:mo linebreak=\"badbreak\">=</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>]</ns0:mo></ns0:mrow><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mrow><ns0:mi>s</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0003",
+      "text": "(3)Lconf(Xu,du,Θd;Θrepr)=−1Su∑s=1Su∑k=1N1Nlog(ps,k)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0003\"><label>(3)</label><ns0:math id=\"M54\" display=\"block\" altimg=\"si53.svg\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:mi>f</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mo>−</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub></ns0:mfrac><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>s</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:msub><ns0:mi>S</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub></ns0:munderover><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>N</ns0:mi></ns0:mfrac><ns0:mi>l</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>g</ns0:mi><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mrow><ns0:mi>s</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>k</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0004",
+      "text": "(4)L(Xp,Xu,yp,du,Θrepr,Θp,Θd)=Lp(Xp,yp;Θrepr,Θp)+αLd(Xu,du,Θrepr;Θd)+βLconf(Xu,du,Θd;Θrepr)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0004\"><label>(4)</label><ns0:math id=\"M60\" display=\"block\" altimg=\"si56.svg\"><ns0:mtable displaystyle=\"true\"><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>L</ns0:mi><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd><ns0:mo>=</ns0:mo></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>α</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>d</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>β</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:mi>f</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0005",
+      "text": "(5)L(X,y,d,Θrepr,Θp,Θd)=Lp(X,y;Θrepr,Θp)+αLd(X,d,Θrepr;Θd)+βLconf(X,d,Θd;Θrepr)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0005\"><label>(5)</label><ns0:math id=\"M75\" display=\"block\" altimg=\"si66.svg\"><ns0:mtable displaystyle=\"true\"><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>L</ns0:mi><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd><ns0:mo>=</ns0:mo></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>α</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>d</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>β</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:mi>f</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0006",
+      "text": "(6)L(Xp,Xu,Xc,yp,du,yc,Θrepr,Θp,Θd,Θc)=Lp(Xp,yp;Θrepr,Θp)+αLd(Xu,du,Θrepr;Θd)+βLconf(Xu,du,Θd;Θrepr)+∑jJ(γjLcj(Xcj,ycj,Θrepr;Θcj)+ϕjLCconfj(Xcj,ycj,Θcj;Θrepr))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0006\"><label>(6)</label><ns0:math id=\"M80\" display=\"block\" altimg=\"si69.svg\"><ns0:mtable><ns0:mtr><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mspace width=\"0.16em\" /><ns0:mi>α</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>d</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mspace width=\"0.16em\" /><ns0:mi>β</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:mi>f</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mi>u</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mspace width=\"0.222222em\" /><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mspace width=\"0.16em\" /><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>j</ns0:mi></ns0:mrow><ns0:mi>J</ns0:mi></ns0:munderover><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi>γ</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:msub><ns0:mi>L</ns0:mi><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo linebreak=\"badbreak\">+</ns0:mo><ns0:msub><ns0:mi>ϕ</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>C</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:msub><ns0:mi>f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:msub><ns0:mi>c</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:math></disp-formula>"
+    },
+    {
+      "id": "eq0007",
+      "text": "(7)L(X,yp,d,Θrepr,Θp,Θd)=Lp(Xp,yp;Θrepr,Θp)+αLd(X,d,Θrepr;Θd)+βLconf(X,d,Θd;Θrepr)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eq0007\"><label>(7)</label><ns0:math id=\"M102\" display=\"block\" altimg=\"si78.svg\"><ns0:mtable displaystyle=\"true\"><ns0:mtr><ns0:mtd columnalign=\"right\"><ns0:mrow><ns0:mi>L</ns0:mi><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mtd><ns0:mtd><ns0:mo>=</ns0:mo></ns0:mtd><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"bold-italic\">y</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>α</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mi>d</ns0:mi></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr><ns0:mtr><ns0:mtd /><ns0:mtd /><ns0:mtd columnalign=\"left\"><ns0:mrow><ns0:mo>+</ns0:mo><ns0:mspace width=\"0.33em\" /><ns0:mi>β</ns0:mi><ns0:msub><ns0:mi>L</ns0:mi><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>n</ns0:mi><ns0:mi>f</ns0:mi></ns0:mrow></ns0:msub><ns0:mrow><ns0:mo>(</ns0:mo><ns0:mi mathvariant=\"bold-italic\">X</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi mathvariant=\"bold-italic\">d</ns0:mi><ns0:mo>,</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mi>d</ns0:mi></ns0:msub><ns0:mo>;</ns0:mo><ns0:msub><ns0:mrow><ns0:mi mathvariant=\"bold\">Θ</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>p</ns0:mi><ns0:mi>r</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mtd></ns0:mtr></ns0:mtable></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "bib0001",
+      "text": "Alfaro-Almagro F., Jenkinson M., Bangerter N., Andersson J., Griffanti L., Douaud G., Sotiropoulos S., Jbabdi S., Hernandez Fernandez M., Vallee E., Vidaurre D., Webster M., McCarthy P., Rorden C., Daducci A., Alexander D., Zhang H., Dragonu I., Matthews P., Smith S. Image processing and quality control for the first 10,000 brain imaging datasets from uk biobank. Neuroimage. 2017;166:130385. doi: 10.1016/j.neuroimage.2017.10.034.",
+      "doi": []
+    },
+    {
+      "id": "bib0002",
+      "text": "Alvi, M., Zisserman, A., Nellåker, C., 2018. Turning a blind eye: explicit removal of biases and variation from deep neural network embeddings. Workshop on Bias Estimation in Face Analytics, ECCV.",
+      "doi": []
+    },
+    {
+      "id": "bib0003",
+      "text": "Beer J.C., Tustison N.J., Cook P.A., Davatzikos C., Sheline Y.I., Shinohara R.T., Linn K.A. Longitudinal combat: a method for harmonizing longitudinal multi-scanner imaging data. bioRxiv. 2020 doi: 10.1101/868810.",
+      "doi": []
+    },
+    {
+      "id": "bib0004",
+      "text": "Ben-David S., Blitzer J., Crammer K., Kulesza A., Pereira F., Vaughan J. A theory of learning from different domains. Mach. Learn. 2010;79:151–175.",
+      "doi": []
+    },
+    {
+      "id": "bib0005",
+      "text": "Blumberg S., Palombo M., Khoo C., Tax C., Tanno R., Alexander D. Medical Image Computing and Computer Assisted Intervention - Conference Proceedings. 2019. Multi-stage prediction networks for data harmonization; pp. 411–419.",
+      "doi": []
+    },
+    {
+      "id": "bib0006",
+      "text": "Cetin Karayumak S., Bouix S., Ning L., James A., Crow T., Shenton M., Kubicki M., Rathi Y. Retrospective harmonization of multi-site diffusion mri data acquired with different acquisition parameters. NeuroImage. 2019;184:180–200. doi: 10.1016/j.neuroimage.2018.08.073.",
+      "doi": []
+    },
+    {
+      "id": "bib0007",
+      "text": "Cetin Karayumak S., Kubicki M., Rathi Y. Medical Image Computing and Computer Assisted Intervention - Conference Proceedings. 2018. Harmonizing diffusion mri data across magnetic field strengths; pp. 116–124.",
+      "doi": []
+    },
+    {
+      "id": "bib0008",
+      "text": "Chen A.A., Beer J.C., Tustison N.J., Cook P.A., Shinohara R.T., Shou H. Removal of scanner effects in covariance improves multivariate pattern analysis in neuroimaging data. bioRxiv. 2020 doi: 10.1101/858415.",
+      "doi": []
+    },
+    {
+      "id": "bib0009",
+      "text": "Cole J., Poudel R., Tsagkrasoulis D., Caan M., Steves C., Spector T., Montana G. Predicting brain age with deep learning from raw imaging data results in a reliable and heritable biomarker. NeuroImage. 2016;163 doi: 10.1016/j.neuroimage.2017.07.059.",
+      "doi": []
+    },
+    {
+      "id": "bib0010",
+      "text": "Dewey B., Zhao C., Reinhold J., Carass A., Fitzgerald K., Sotirchos E., Saidha S., Oh J., Pham D., Calabresi P., Zijl P., Prince J. Deepharmony: a deep learning approach to contrast harmonization across scanner changes. Magn. Reson. Imaging. 2019;64 doi: 10.1016/j.mri.2019.05.041.",
+      "doi": []
+    },
+    {
+      "id": "bib0011",
+      "text": "Di Martino A., Yan C.-G., Li Q., Denio E., Castellanos F., Alaerts K., Anderson J., Assaf M., Bookheimer S., Dapretto M., Deen B., Delmonte S., Dinstein I., Birgit E.-W., Fair D., Gallagher L., Kennedy D., Keown C., Keysers C., Milham M. The autism brain imaging data exchange: towards large-scale evaluation of the intrinsic brain architecture in autism. Mol. Psychiatry. 2013;19 doi: 10.1038/mp.2013.78.",
+      "doi": []
+    },
+    {
+      "id": "bib0012",
+      "text": "Filippini N., Zsoldos E., Haapakoski R., Sexton C., Mahmood A., Allan C., Topiwala A., Valkanova V., Brunner E., Shipley M., Auerbach E., Moeller S., Urbil K., Xu J., Yacoub E., Andersson J., Bijsterbosch J., Clare S., Griffanti L., Ebmeier K. Study protocol: the whitehall ii imaging sub-study. BMC Psychiatry. 2014;14:159. doi: 10.1186/1471-244X-14-159.",
+      "doi": []
+    },
+    {
+      "id": "bib0013",
+      "text": "Fortin J.-P., Cullen N., Sheline Y., Taylor W., Aselcioglu I., Cook P., Adams P., Cooper C., Fava M., McGrath P., Mcinnis M., Phillips M., Trivedi M., Weissman M., Shinohara R. Harmonization of cortical thickness measurements across scanners and sites. NeuroImage. 2017;167 doi: 10.1016/j.neuroimage.2017.11.024.",
+      "doi": []
+    },
+    {
+      "id": "bib0014",
+      "text": "Fortin J.-P., Parker D., Tunc B., Watanabe T., Elliott M., Ruparel K., Roalf D., Satterthwaite T., Gur R., Gur R., Schultz R., Verma R., Shinohara R. Harmonization of multi-site diffusion tensor imaging data. NeuroImage. 2017;161 doi: 10.1016/j.neuroimage.2017.08.047.",
+      "doi": []
+    },
+    {
+      "id": "bib0015",
+      "text": "Franke K., Gaser C. Ten years of brainage as a neuroimaging biomarker of brain aging: what insights have we gained? Front. Neurol. 2019;10 doi: 10.3389/fneur.2019.00789.",
+      "doi": []
+    },
+    {
+      "id": "bib0016",
+      "text": "Franke K., Ziegler G., Klöppel S., Gaser C. Estimating the age of healthy subjects from t1-weighted mri scans using kernel methods: Exploring the influence of various parameters. NeuroImage. 2010;50:883–892. doi: 10.1016/j.neuroimage.2010.01.005.",
+      "doi": []
+    },
+    {
+      "id": "bib0017",
+      "text": "Ganin Y., Lempitsky V. International Conference on Machine Learning. 2014. Unsupervised domain adaptation by backpropagation.",
+      "doi": []
+    },
+    {
+      "id": "bib0018",
+      "text": "Ganin Y., Ustinova E., Ajakan H., Germain P., Larochelle H., Laviolette F., Marchand M., Lempitsky V. Domain-adversarial training of neural networks. J. Mach. Learn. Res. 2015",
+      "doi": []
+    },
+    {
+      "id": "bib0019",
+      "text": "Garcia-Dias R., Scarpazza C., Baecker L., Vieira S., Pinaya W., Corvin A., Redolfi A., Nelson B., Crespo-Facorro B., Mcdonald C., Tordesillas-Gutiérrez D., Cannon D., Mothersill D., Hernaus D., Morris D., Setién-Suero E., Donohoe G., Frisoni G., Tronchin G., Mechelli A. Neuroharmony: a new tool for harmonizing volumetric MRI data from unseen scanners. NeuroImage. 2020:117127. doi: 10.1016/j.neuroimage.2020.117127.",
+      "doi": []
+    },
+    {
+      "id": "bib0020",
+      "text": "Glocker B., Robinson R., Coelho de Castro D., Dou Q., Konukoglu E. 2019. Machine learning with multi-site imaging data: an empirical study on the impact of scanner effects.",
+      "doi": []
+    },
+    {
+      "id": "bib0021",
+      "text": "Gulrajani I., Ahmed F., Arjovsky M., Dumoulin V., Courville A.C. 2017. Improved training of wasserstein gans.",
+      "doi": []
+    },
+    {
+      "id": "bib0022",
+      "text": "Han X., Jovicich J., Salat D., Kouwe A., Quinn B., Czanner S., Busa E., Pacheco J., Albert M., Killiany R., Maguire R., Rosas H., Makris N., Dale A., Dickerson B., Fischl B. Reliability of mri-derived measurements of human cerebral cortical thickness: the effects of field strength, scanner upgrade and manufacturer. NeuroImage. 2006;32:180–194. doi: 10.1016/j.neuroimage.2006.02.051.",
+      "doi": []
+    },
+    {
+      "id": "bib0023",
+      "text": "Henschel L., Conjetia S., Estrada S., Diers K., Fischl B., Reuter M. Fastsurfer - a fast and accurate deep learning based neuroimaging pipeline. Neuroimage. 2020;219 doi: 10.1016/j.neuroimage.2020.117012.",
+      "doi": []
+    },
+    {
+      "id": "bib0024",
+      "text": "Huynh K.M., Chen G., Wu Y., Shen D., Yap P.-T. Multi-site harmonization of diffusion MRI data via method of moments. IEEE Trans. Med. Imaging. 2019;38(7):1599–1609. doi: 10.1109/TMI.2019.2895020.",
+      "doi": []
+    },
+    {
+      "id": "bib0025",
+      "text": "Jack C., Bernstein M., Fox N., Thompson P., Alexander G., Harvey D., Borowski B., Britson P., Whitwell J., Ward C., Dale A., Felmlee J., Gunter J., Hill D., Killiany R., Schuff N., Fox-Bosetti S., Lin C., Studholme C., Weiner M. The alzheimer’s disease neuroimaging initiative (adni): MRI methods. J. Magn. Reson. Imaging : JMRI. 2008;27:685–691. doi: 10.1002/jmri.21049.",
+      "doi": []
+    },
+    {
+      "id": "bib0026",
+      "text": "Johnson W., Li C., Rabinovic A. Adjusting batch effects in microarray expression data using empirical bayes methods. Biostatistics. 2007;8:118–127. doi: 10.1093/biostatistics/kxj037.",
+      "doi": []
+    },
+    {
+      "id": "bib0027",
+      "text": "Jovicich J., Czanner S., Greve D., Haley E., Kouwe A., Gollub R., Kennedy D., Schmitt F., Brown G., Macfall J., Fischl B., Dale A. Reliability in multi-site structural MRI studies: effects of gradient non-linearity correction on phantom and human data. NeuroImage. 2006;30:436–443. doi: 10.1016/j.neuroimage.2005.09.046.",
+      "doi": []
+    },
+    {
+      "id": "bib0028",
+      "text": "Kamnitsas, K., Baumgartner, C., Ledig, C., Newcombe, V., Simpson, J., Kane, A., Menon, D., Nori, A., Criminisi, A., Rueckert, D., Glocker, B., 2016a. Unsupervised domain adaptation in brain lesion segmentation with adversarial networks.",
+      "doi": []
+    },
+    {
+      "id": "bib0029",
+      "text": "Kamnitsas K., Ledig C., Newcombe V., Simpson J., Kane A., Menon D., Rueckert D., Glocker B. Efficient multi-scale 3d cnn with fully connected crf for accurate brain lesion segmentation. Med. Image Anal. 2016;36 doi: 10.1016/j.media.2016.10.004.",
+      "doi": []
+    },
+    {
+      "id": "bib0030",
+      "text": "Lezama J. International Conference on Learning Representations. 2019. Overcoming the disentanglement vs reconstruction trade-off via jacobian supervision.",
+      "doi": []
+    },
+    {
+      "id": "bib0031",
+      "text": "van der Maaten L., Hinton G. Viualizing data using t-sne. J. Mach. Learn. Res. 2008;9:2579–2605.",
+      "doi": []
+    },
+    {
+      "id": "bib0032",
+      "text": "Marcus D., Wang T., Parker J., Csernansky J., Morris J., Buckner R. Open access series of imaging studies (oasis): cross-sectional mri data in young, middle aged, nondemented, and demented older adults. J. Cognit. Neurosci. 2007;19:1498–1507. doi: 10.1162/jocn.2007.19.9.1498.",
+      "doi": []
+    },
+    {
+      "id": "bib0033",
+      "text": "Mirzaalian H., Ning L., Savadjiev P., Pasternak O., Bouix S., Michailovich O., Karmacharya S., Grant G., Marx C., Morey R., Flashman L., George M., Mcallister T., Andaluz N., Shutter L., Coimbra R., Zafonte R., Coleman M., Kubicki M., Rathi Y. Multi-site harmonization of diffusion MRI data in a registration framework. Brain Imaging Behav. 2017;12 doi: 10.1007/s11682-016-9670-y.",
+      "doi": []
+    },
+    {
+      "id": "bib0034",
+      "text": "Mirzaalian H., Ning L., Savadjiev P., Pasternak O., Bouix S., Michailovich O., Kubicki M., Westin C.-F., Shenton M., Rathi Y. Inter-site and inter-scanner diffusion mri data harmonization. NeuroImage. 2016;135 doi: 10.1016/j.neuroimage.2016.04.041.",
+      "doi": []
+    },
+    {
+      "id": "bib0035",
+      "text": "Mirzaalian H., Pierrefeu A., Savadjiev P., Pasternak O., Bouix S., Kubicki M., Westin C.-F., Shenton M., Rathi Y. Medical Image Computing and Computer Assisted Intervention - Conference Proceedings. Vol. 9349. 2015. Harmonizing diffusion mri data across multiple sites and scanners; pp. 12–19.",
+      "doi": []
+    },
+    {
+      "id": "bib0036",
+      "text": "Moyer D., Ver Steeg G., Tax C., Thompson P. Scanner invariant representations for diffusion mri harmonization. Magn. Reson. Med. 2020 doi: 10.1002/mrm.28243.",
+      "doi": []
+    },
+    {
+      "id": "bib0037",
+      "text": "Paszke A., Gross S., Massa F., Lerer A., Bradbury J., Chanan G., Killeen T., Lin Z., Gimelshein N., Antiga L., Desmaison A., Köpf A., Yang E., DeVito Z., Raison M., Tejani A., Chilamkurthy S., Steiner B., Fang L., Bai J., Chintala S. Advances in Neural Information Processing Systems 32 (NIPS 2019) 2019. Pytorch: an imperative style, high-performance deep learning library.",
+      "doi": []
+    },
+    {
+      "id": "bib0038",
+      "text": "Pomponio R., Erus G., Habes M., Doshi J., Srinivasan D., Mamourian E., Bashyam V., Nasrallah I., Satterthwaite T., Fan Y., Launer L., Masters C., Maruff P., Zhuo C., Valzke H., Johnson S., Fripp J., Koutsouleris N., Wolf D., Davatzikos C. Harmonization of large mri datasets for the analysis of brain imaging patterns throughout the lifespan. NeuroImage. 2019;208:116450. doi: 10.1016/j.neuroimage.2019.116450.",
+      "doi": []
+    },
+    {
+      "id": "bib0039",
+      "text": "Ronneberger O., Fischer P., Brox T. Medical Image Computing and Computer-Assisted Intervention (MICCAI) Springer; 2015. U-net: convolutional networks for biomedical image segmentation; pp. 234–241.",
+      "doi": []
+    },
+    {
+      "id": "bib0040",
+      "text": "Rozantsev A., Salzmann M., Fua P. Beyond sharing weights for deep domain adaptation. IEEE Trans. Pattern Anal. Mach. Intell. 2016;PP doi: 10.1109/TPAMI.2018.2814042.",
+      "doi": []
+    },
+    {
+      "id": "bib0041",
+      "text": "Simonyan K., Zisserman A. International Conference on Learning Representations. 2015. Very deep convolutional networks for large-scale image recognition.",
+      "doi": []
+    },
+    {
+      "id": "bib0042",
+      "text": "St-Jean S., Viergever M., Leemans A. Harmonization of diffusion mri datasets with adaptive dictionary learning. bioRXiv. 2019 doi: 10.1101/824706.",
+      "doi": []
+    },
+    {
+      "id": "bib0043",
+      "text": "Sudlow C., Gallacher J., Allen N., Beral V., Burton P., Danesh J., Downey P., Elliott P., Green J., Landray M., Liu B., Matthews P., Ong G., Pell J., Silman A., Young A., Sprosen T., Peakman T., Collins R. Uk biobank: An open access resource for identifying the causes of a wide range of complex diseases of middle and old age. 2015;12:e1001779. doi: 10.1371/journal.pmed.1001779.",
+      "doi": []
+    },
+    {
+      "id": "bib0044",
+      "text": "Sun B., Saenko K. European Conference on Computer Vision. 2016. Deep coral: Correlation alignment for deep domain adaptation.",
+      "doi": []
+    },
+    {
+      "id": "bib0045",
+      "text": "Takao H., Hayashi N., Ohtomo K. Effect of scanner in longitudinal studies of brain volume changes. J. Magn. Reson. Imaging : JMRI. 2011;34:438–444. doi: 10.1002/jmri.22636.",
+      "doi": []
+    },
+    {
+      "id": "bib0046",
+      "text": "Takao H., Hayashi N., Ohtomo K. Effects of study design in multi-scanner voxel-based morphometry studies. NeuroImage. 2013;84 doi: 10.1016/j.neuroimage.2013.08.046.",
+      "doi": []
+    },
+    {
+      "id": "bib0047",
+      "text": "Tan C., Sun F., Kong T., Zhang W., Yang C., Liu C. 27th International Conference on Artificial Neural Networks. 2018. A survey on deep transfer learning.",
+      "doi": []
+    },
+    {
+      "id": "bib0048",
+      "text": "Torralba A., Efros A. 2011. Unbiased look at dataset bias; pp. 1521–1528.",
+      "doi": []
+    },
+    {
+      "id": "bib0049",
+      "text": "Tzeng E., Hoffman J., Darrell T., Saenko K. International Conference on Computer Vision. 2015. Simultaneous deep transfer across domains and tasks; pp. 4068–4076.",
+      "doi": []
+    },
+    {
+      "id": "bib0050",
+      "text": "Wachinger C., Reuter M. Domain adaptation for alzheimer’s disease diagnostics. NeuroImage. 2016;139 doi: 10.1016/j.neuroimage.2016.05.053.",
+      "doi": []
+    },
+    {
+      "id": "bib0051",
+      "text": "Wachinger C., Rieckmann A., Polsterl S. Detect and correct bias in multi-site neuroimaging datasets. ArXiv. 2020 doi: 10.1016/j.media.2020.101879.",
+      "doi": []
+    },
+    {
+      "id": "bib0052",
+      "text": "Wrobel J., Martin M., Shinohara R., Goldsmith J. Intensity warping for multisite mri harmonization. bioRXiv. 2019 doi: 10.1101/679357.",
+      "doi": []
+    },
+    {
+      "id": "bib0053",
+      "text": "Yu M., Linn K., Cook P., Phillips M., McInnis M., Fava M., Trivedi M., Weissman M., Shinohara R., Sheline Y. Statistical harmonization corrects site effects in functional connectivity measurements from multisite fmri data. Hum. Brain Mapp. 2018;39 doi: 10.1002/hbm.24241.",
+      "doi": []
+    },
+    {
+      "id": "bib0054",
+      "text": "Zhang Y., Brady M., Smith S. Segmentation of brain mr images through a hidden markov random field model and the expectation maximization algorithm. IEEE Trans. Med. Imaging. 2001;20:45–57. doi: 10.1109/42.906424.",
+      "doi": []
+    },
+    {
+      "id": "bib0055",
+      "text": "Zhao F., Wu Z., Wang L., Lin W., Xia S., Li G. Medical Image Computing and Computer Assisted Intervention - Conference Proceedings. 2019. Harmonization of infant cortical thickness using surface-to-surface cycle-consistent adversarial networks; pp. 475–483.",
+      "doi": []
+    },
+    {
+      "id": "bib0056",
+      "text": "Zhu J.-Y., Park T., Isola P., Efros A.A. 2017 IEEE International Conference on Computer Vision (ICCV) 2017. Unpaired image-to-image translation using cycle-consistent adversarial networks; pp. 2242–2251.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Dinsdale NK, Jenkinson M, Namburete AIL.",
+  "journal": "Neuroimage",
+  "year": "2021",
+  "pmid": "33385551",
+  "pmcid": "PMC7903160",
+  "doi": "10.1016/j.neuroimage.2020.117689",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:33.518334+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7903160/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC7903160.xml"
+}

@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS catalog_revision (id INTEGER PRIMARY KEY CHECK(id=1), revision INTEGER NOT NULL DEFAULT 1);
+INSERT OR IGNORE INTO catalog_revision(id,revision) VALUES(1,1);
+CREATE TRIGGER IF NOT EXISTS catalog_articles_insert AFTER INSERT ON articles BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_articles_update AFTER UPDATE ON articles BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_articles_delete AFTER DELETE ON articles BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_visibility_insert AFTER INSERT ON visibility BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_visibility_update AFTER UPDATE ON visibility BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_visibility_delete AFTER DELETE ON visibility BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_submissions_insert AFTER INSERT ON submissions BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_submissions_update AFTER UPDATE ON submissions BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_submissions_delete AFTER DELETE ON submissions BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_settings_insert AFTER INSERT ON site_settings BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;
+CREATE TRIGGER IF NOT EXISTS catalog_settings_update AFTER UPDATE ON site_settings BEGIN UPDATE catalog_revision SET revision=revision+1 WHERE id=1; END;

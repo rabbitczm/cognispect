@@ -1,0 +1,870 @@
+{
+  "key": "34564303",
+  "body_available": true,
+  "title": "Radiomics for Everyone: A New Tool Simplifies Creating Parametric Maps for the Visualization and Quantification of Radiomics Features",
+  "source_url": "https://europepmc.org/articles/PMC8482265",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (https://creativecommons.org/licenses/by/4.0/).",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Damon Kim",
+    "Laura J. Jensen",
+    "Thomas Elgeti",
+    "Ingo G. Steffen",
+    "Bernd Hamm",
+    "Sebastian N. Nagel"
+  ],
+  "copyright": {
+    "statement": "© 2021 by the authors.",
+    "year": "2021",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2021",
+        "month": "9",
+        "day": "17"
+      },
+      {
+        "type": "collection",
+        "year": "2021",
+        "month": "9",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "sec1-tomography-07-00041",
+      "title": "1. Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec1-tomography-07-00041-p1",
+          "reference_ids": [
+            "B1-tomography-07-00041",
+            "B2-tomography-07-00041",
+            "B3-tomography-07-00041",
+            "B4-tomography-07-00041",
+            "B5-tomography-07-00041",
+            "B5-tomography-07-00041",
+            "B6-tomography-07-00041",
+            "B7-tomography-07-00041",
+            "B8-tomography-07-00041",
+            "B9-tomography-07-00041",
+            "B10-tomography-07-00041",
+            "B11-tomography-07-00041",
+            "B12-tomography-07-00041"
+          ],
+          "en": "Radiomics are an emerging means in image analysis [1,2,3,4] that allow quantitative image assessment beyond morphologic and macroscopic characteristics [5]. For this, statistics of the grey level composition in a region of interest (ROI) are calculated, resulting in many different quantitative texture features that can be statistically analyzed and linked to an outcome [5]. Numerous studies have shown the potential of radiomics in the differentiation of various pathological entities [6,7,8,9]. Thus, the spectrum of possible applications is huge. A very specific application, for example, is the differentiation of pulmonary lymphoma manifestations and non-lymphoma infiltrates in suspected fungal pneumonia in hematooncologic patients [10]. In this collective, the first-order feature Variance has shown to be a useful parameter [11]. However, regardless of the application, all approaches so far typically require image segmentation before feature extraction, and often, basic programming skills can be of help [12]. Finally, the process usually results in exclusively abstract numerical values.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec1-tomography-07-00041-p2",
+          "reference_ids": [
+            "B13-tomography-07-00041"
+          ],
+          "en": "A recent article by Pinto dos Santos et al. discussed the translational gap of radiomics into clinical routine and saw the lack of reliable and reproducible results from high-evidence studies as one of the main reasons [13]. We believe that the usability of the method should also be simplified. Beyond that, a graphical representation of features in parametric maps and fusion images would visualize features in a comprehensible way, which could help to easier understand the information they convey and, thus, to draw immediate conclusions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec1-tomography-07-00041-p3",
+          "reference_ids": [],
+          "en": "The aim of this project, therefore, was to develop a straightforward, user-friendly method for creating parametric maps. For the proof of concept, feature values retrieved from the maps were compared to those from conventional extractions. Potential clinical applications were tested on CT and MR images for the differentiation of pulmonary lesions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2-tomography-07-00041",
+      "title": "2. Materials and Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "sec2dot1-tomography-07-00041",
+      "title": "2.1. Concept of the Parametric Map Creation Tool",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec2dot1-tomography-07-00041-p1",
+          "reference_ids": [
+            "B14-tomography-07-00041"
+          ],
+          "en": "Creating the parametric maps should be as simple as possible. The basic idea was that the user chooses a folder containing an examination in DICOM-format, adjusts the extraction settings, clicks “start” and receives the desired parametric map(s) in DICOM-format. We chose Python as the programming language, because it is platform-independent, and since the feature extraction should be done with PyRadiomics [14], no cross-language interfaces would be required.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot1-tomography-07-00041-p2",
+          "reference_ids": [
+            "tomography-07-00041-f001",
+            "B15-tomography-07-00041",
+            "tomography-07-00041-f002"
+          ],
+          "en": "Figure 1 summarizes the workflow of the program up to the final parametric map. After import, the examination image data are converted to the NRRD-format (“nearly raw raster data”) using simpleITK [15]. A second NRRD-file of the same dimensions is created to contain a grid of volumes of interest (VOI), i.e., a grid that divides the image into small blocks. These VOIs, in turn, are produced by three cascaded loops, each for each spatial dimension (x-, y-, z-axis). The VOI size, and thus the resolution of the resulting parametric map, can be defined by the user either pixel- or voxel-wise. Each VOI is assigned a unique, incremental ID. Figure 2 shows the graphical user interface with settings for the feature extraction and the resolution of the parametric map. After the grid is generated, the image-NRRD and the grid-NRRD are parsed to PyRadiomics for the actual feature calculation for each VOI. The results are stored in a CSV-file with each row representing a single VOI and each column displaying a different feature value. In the next step, the parametric map is created by filling the grid-NRRD with the data from the CSV-file by matching the VOI-ID. The resulting feature map is then reconverted to the DICOM file format by again using simpleITK and is now readable by standard image viewers. If supported by the viewer, parametric maps can also be used as an overlay to anatomic images in fusion images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2dot2-tomography-07-00041",
+      "title": "2.2. Settings for PyRadiomics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec2dot2-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "Configuring PyRadiomics for the feature extraction allows adjustment of a vast number of parameters. As the intention was to design a tool for the easy creation of parametric maps, we provide options to adjust basic settings. However, a future version of the tool could include a section for advanced settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2dot3-tomography-07-00041",
+      "title": "2.3. Proof of Concept Examples",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec2dot3-tomography-07-00041-p1",
+          "reference_ids": [
+            "app1-tomography-07-00041"
+          ],
+          "en": "To demonstrate the concept, sample maps for all features available in PyRadiomics were created. For CT images, these samples included a ROI in segments VII/VIII in an otherwise unremarkable liver, where parametric maps were created with two different resolutions. Another CT was considered of a bronchial carcinoma. For MR images, a glioblastoma and a hepatocellular carcinoma (HCC) were included. Details of the feature extraction and image acquisition are given in electronic Tables S1–S4. The same settings and ROIs for both the conventional extraction and the parametric maps were used for corresponding images. Values obtained from the maps and the conventional extraction were then compared feature by feature in tables, and features with a deviation between −20% to +20% from the conventional extraction were highlighted and considered concordant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec2dot4-tomography-07-00041",
+      "title": "2.4. Evaluation of Clinical Application",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec2dot4-tomography-07-00041-p1",
+          "reference_ids": [
+            "B16-tomography-07-00041"
+          ],
+          "en": "Two potential clinical applications were investigated. For CT images, the differentiation of non-malignant lesions and non-small cell lung carcinoma (NSCLC) manifestations was evaluated on 12 patients from the Lung Image Database Consortium (LIDC) and Image Database Resource Initiative (IDRI) dataset [16] (Patient IDs non-malignant: 0162, 0183, 0221, 0257, 0277, 0510; NSCLC: 0163, 0203, 0242, 0267, 0454, 0470).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot4-tomography-07-00041-p2",
+          "reference_ids": [
+            "app1-tomography-07-00041",
+            "B17-tomography-07-00041",
+            "B18-tomography-07-00041"
+          ],
+          "en": "For MR images, the differentiation of pulmonary lymphoma manifestations and non-lymphoma infiltrates in suspected fungal pneumonia in T1-weighted thoracic MR images was evaluated in 12 hematooncologic patients (six lymphoma manifestations and six non-lymphoma infiltrates in suspected fungal pneumonia; characteristics shown in electronic Table S5). The images were acquired on a clinical scanner (Magnetom Skyra, Siemens Healthineers, Erlangen, Germany; Volumetric interpolated breath-hold examination [VIBE], slice 3 mm, TR 5.4 ms, TE 2.0 ms, Flip 9°, matrix 320 × 195, individual field of view). Standard of reference was histopathologic workup or clinical diagnosis including criteria according to the European Organization for Research and Treatment of Cancer/Invasive Fungal Infections Cooperative Group and the National Institute of Allergy and Infectious Diseases Mycoses Study Group (EORTC/MSG) [17]. The patients were part of a collective reported before [18].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot4-tomography-07-00041-p3",
+          "reference_ids": [
+            "B19-tomography-07-00041"
+          ],
+          "en": "To identify relevant features, first a conventional segmentation and feature extraction was performed. The results were used to define cutoff values in a ROC analysis using Youden’s index [19]. For simplicity, only the best-performing feature was considered.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot4-tomography-07-00041-p4",
+          "reference_ids": [],
+          "en": "During the actual reading, the lesions were first rated based on morphologic criteria (CT: non-malignant, NSCLC, unclear; MR: non-lymphoma, lymphoma, unclear). Afterwards, the mean value of the previously determined feature was retrieved from the corresponding map with a manually drawn ROI and the lesion was rated only by considering the cutoff value. Time to diagnosis during the reading was assessed. The primary reading was done by an experienced, board-certified radiologist (S.N.N., with 10 years of experience) and repeated after 6 weeks to assess intrarater reliability. To test for interrater reliability, two additional readings were done by two experienced radiology residents (D.K., with 5 years of experience, and L.J.J., with 4 years of experience).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot4-tomography-07-00041-p5",
+          "reference_ids": [
+            "B20-tomography-07-00041"
+          ],
+          "en": "To assess the inter- and intrarater reliability of the qualitative ratings based on morphologic criteria, Fleiss’ and Cohen’s Kappa were calculated and rated according to Landis and Koch (0.00–0.20 slight, 0.21–0.40 fair, 0.41–0.60 moderate, 0.61–0.80 substantial, 0.81–1.00 almost perfect) [20].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec2dot4-tomography-07-00041-p6",
+          "reference_ids": [
+            "B21-tomography-07-00041"
+          ],
+          "en": "To assess interrater agreement of the quantitative feature values, intraclass correlation coefficient (ICC) estimates and their 95% confidence intervals were calculated based on a mean-rating (k = 3), absolute-agreement, two-way random-effects model. For assessment of intrarater agreement, ICC estimates and their 95% confidence intervals were calculated based on a mean-rating (k = 2), absolute-agreement, two-way mixed-effects model. Intra- and interrater reliability was rated according to Koo et al. (ICC < 0.5, poor; 0.5–0.75, moderate; 0.75–0.9, good; >0.9, excellent) [21].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec3-tomography-07-00041",
+      "title": "3. Results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec3-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "A tool with a graphical user interface was designed and works as desired: the user can select a DICOM-folder, adjust settings, and receive a parametric map in DICOM format.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec3dot1-tomography-07-00041",
+      "title": "3.1. Proof of Concept Examples",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec3dot1-tomography-07-00041-p1",
+          "reference_ids": [
+            "tomography-07-00041-f003",
+            "app1-tomography-07-00041"
+          ],
+          "en": "All parametric maps were successfully created. The first-order feature Root Mean Squared is shown in Figure 3 for the ROI in liver segments VII/VIII. To see a full list of all values, please review electronic Table S5. Considering the feature class, first-order and GLCM, and considering the map resolution, 10 × 10 × 10 px (i.e., the lower resolution) revealed more concordant feature values in relation to the conventional extraction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot1-tomography-07-00041-p2",
+          "reference_ids": [
+            "tomography-07-00041-f004",
+            "tomography-07-00041-f005",
+            "tomography-07-00041-f006"
+          ],
+          "en": "As further examples, the first-order feature Mean is exemplary shown in Figure 4 for the CT of a bronchial carcinoma, the first-order feature Robust Mean Absolute Deviation for the MRI of a glioblastoma in Figure 5, and the first-order feature Variance for the MRI of an HCC in Figure 6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot1-tomography-07-00041-p3",
+          "reference_ids": [
+            "app1-tomography-07-00041"
+          ],
+          "en": "For the CT of a bronchial carcinoma, the feature class first-order and GLCM again revealed the highest number of concordant feature values, although the total number of features with a deviation between −20% and +20% was lower than for the example considering liver segments VII/VIII. For the MR images, concordant feature values tended to include more higher-order features. Considering all CT and MR images, eight features still pertained concordant values. The stability of all features is summarized in electronic Table S6.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec3dot2-tomography-07-00041",
+      "title": "3.2. Clinical Application",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec3dot2-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "For the CT images, the feature Skewness was identified, and the cutoff value was set at −0.11 (area under the curve (AUC) 0.83, p < 0.05; positive test result: NSCLC), where NSCLC manifestations showed lower and benign lesions higher values.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot2-tomography-07-00041-p2",
+          "reference_ids": [],
+          "en": "For the MR images, the feature Variance was identified and the cutoff value was set at 1363 (AUC 0.89, p < 0.001; positive test result: lymphoma), where lymphoma manifestations showed lower and non-lymphoma infiltrates showed higher values.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot2-tomography-07-00041-p3",
+          "reference_ids": [],
+          "en": "For the CT images, the diagnosis based on morphological criteria was correct in six cases, wrong in three cases and remained unclear in three cases. Using the cutoff value on parametric maps led to 10 correct and two false diagnoses (two benign lesions showed lower values of Skewness, i.e., they were falsely positive classified as malignant). Time to diagnosis using the maps was only dependent on the time drawing the ROI (mean: 5 s), while the morphologic interpretation took longer on average (mean: 17 s) and did not always lead to a decision.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot2-tomography-07-00041-p4",
+          "reference_ids": [
+            "tomography-07-00041-f007"
+          ],
+          "en": "For the MR images, the diagnosis based on morphological criteria was correct in eight cases, wrong in two cases, and remained unclear in two cases. Using the cutoff value on parametric maps led to 10 correct and two false diagnoses (one non-lymphoma infiltrate showed lower values of Variance, i.e., was falsely positive classified as lymphoma, and one pulmonary lymphoma manifestation showed higher values, i.e., was falsely negative classified as non-lymphoma infiltrate). Time to diagnosis using the maps was only dependent on the time drawing the ROI (mean: 5 s), while the morphologic interpretation took longer on average (mean: 14 s) and did not always lead to a decision. Examples are shown in Figure 7.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot2-tomography-07-00041-p5",
+          "reference_ids": [],
+          "en": "For the CT images, intrarater reliability was substantial (kappa 0.67) and interrater variability was moderate (kappa 0.59) considering morphological criteria only. Considering the extracted values of Skewness, both intra- and interrater reliability were excellent (ICC 0.99 each; p < 0.001).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec3dot2-tomography-07-00041-p6",
+          "reference_ids": [],
+          "en": "For the MR images, intrarater and interrater reliability was substantial (kappa 0.67 and 0.79, respectively) considering morphological criteria only. Considering the extracted values of Variance, both intra- and interrater reliability were excellent (ICC 0.98 and 0.99, respectively; p < 0.001).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4-tomography-07-00041",
+      "title": "4. Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "A simplified and user-friendly method to create parametric maps for the visualization and quantification of radiomics features was developed. This approach is suitable for everyday use and does not require programming skills. If overlay maps are used in fusion images, they allow the simultaneous assessment of texture features and morphological criteria, provide a more comprehensive perception, and allow for an immediate quantification. For example, as shown above, fusion images can improve the differentiation of non-malignant pulmonary lesions and NSCLC manifestations on CT images or of pulmonary lymphoma manifestations and non-lymphoma infiltrates in suspected fungal pneumomia on MR images, while also shortening the time to diagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4-tomography-07-00041-p2",
+          "reference_ids": [],
+          "en": "We consider a visual presentation and immediate assessment of radiomics features important for their inclusion in the diagnostic workflow. If radiologists had parametric maps for radiomics features directly at hand when reporting and if standard values or cutoffs to different entities or conditions were known, simply placing a ROI could be very helpful in making a diagnosis. Until now, a radiomics analysis usually requires several steps from image segmentation to feature extraction and ultimately provides only numeric data without a visual representation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4dot1-tomography-07-00041",
+      "title": "4.1. Parameter Selection",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4dot1-tomography-07-00041-p1",
+          "reference_ids": [
+            "B11-tomography-07-00041",
+            "B22-tomography-07-00041"
+          ],
+          "en": "The concept of radiomics consists of a large number of features, which also means that simply applying all of them will not be expedient. Rather, the selection must be made based on the question, e.g., the differentiation of pulmonary lymphoma manifestations and non-lymphoma infiltrates was chosen as an example, because a recent study required only the feature Variance [11]. Our approach would also allow to combine features in a radiomic signature [22], which in turn could be visualized in another, specific parametric map: since the numerical values for each VOI are stored, calculations could be made and results represented in an additional map.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot1-tomography-07-00041-p2",
+          "reference_ids": [
+            "B23-tomography-07-00041",
+            "B13-tomography-07-00041"
+          ],
+          "en": "A general downside of radiomics studies is outlined in a literature review by Chetan and Gleeson, in which “the same radiomic feature was rarely identified as being predictive of treatment response in NSCLC by more than one study. This is partly explained by the extensive heterogeneity between individual studies” [23] and is furthermore in line with concerns raised by Pinto dos Santos et al., as outlined in the introduction [13]. Thus, if parametric maps were to be used in clinical routine, further studies would be needed to identify reproducible features suitable for specific settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot1-tomography-07-00041-p3",
+          "reference_ids": [],
+          "en": "Our results, however, revealed concordant feature values both within the imaging modalities, but also even across all CT and MR images. Interestingly, four GLCM features (ID, IDM, IDMN, Inverse Variance) and one GLSZM feature (Small Area Emphasis) were among them aside from three first-order features (Mean, Median, Root Mean Squared). Against this background, these features may be particularly suitable for parametric maps. Yet, any change in the combination of scanners, settings, images, etc. can lead to different results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4dot2-tomography-07-00041",
+      "title": "4.2. Parametric Map Resolution/VOI Size",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4dot2-tomography-07-00041-p1",
+          "reference_ids": [
+            "B24-tomography-07-00041"
+          ],
+          "en": "The VOI size can be arbitrarily chosen by the user resulting in varying resolutions of the map. While a higher resolution can be desirable, this is associated with higher computing time. A lower resolution, on the other hand, might fail to reasonably assess smaller lesions. One future approach in this regard might be real-time adjustment of the resolution, e.g., with lower resolutions used for the detection of lesions and higher resolutions for their evaluation. In addition to this, the VOI size might directly affect specific parameters known to be confounded by volume (e.g., Energy) [24].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot2-tomography-07-00041-p2",
+          "reference_ids": [
+            "B25-tomography-07-00041"
+          ],
+          "en": "Of course, the extracted features do not represent a single structure or lesion, because the VOIs are solely defined by the grid. Hence, most VOIs will comprise parts of different structures while not including the whole lesion. It is known that features already vary when the edge or core region of a lesion is considered [25]. Against this background, values represented within the parametric maps, even when attributable to a single lesion, are unlikely to be identical to those from a dedicated ROI of the same lesion. Nevertheless, especially values for first-order features from the parametric maps and from the conventional extractions were concordant. Beyond that, the mere correlation of anatomic information with a visual representation of radiomics features could already be considered a key advantage of this approach.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot2-tomography-07-00041-p3",
+          "reference_ids": [],
+          "en": "The use of a cutoff values led to two incorrect diagnoses in each of our small studies of potential clinical applications. Reviewing those cases showed that one of the misdiagnosed lesions on the CT images was subsolid, what may have relevantly influenced Skewness, and the other, defined as “unknown”, was very large, and thus, may not even be falsely classified by the cutoff. On the MR images, the misdiagnosed lymphoma manifestation was located centrally and adjacent to many different structures (i.e., blood vessels, bronchi, fat, bone) and also showed slight motion artifacts, which likely increased the level of Variance. On the other hand, the misdiagnosed non-lymphoma infiltrate was located peripherally, and the patient already received treatment for over a week, which made the lesion already appear very homogenous to the naked eye. Nevertheless, we would like to point out that we still consider the results with AUCs of 0.83 and 0.89 very promising, as they were achieved in this very first approach without any prior experience and without any finetuning of the settings. Values retrieved from the parametric maps furthermore showed excellent intra- and interrater for both CT and MR images as opposed to only substantial intra- and moderate interrater reliability for CT and substantial intra- and good interrater reliability for MR images for assessment based on morphologic criteria.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot2-tomography-07-00041-p4",
+          "reference_ids": [
+            "B26-tomography-07-00041"
+          ],
+          "en": "Although no direct comparison to the results of other studies is possible, a study by Baeßler et al. also showed an improvement in diagnosis of chronic vs. acute heart failure-like myocarditis, by applying texture analysis to myocardial T1 and T2 maps vs. applying the maps alone (AUC up to 0.85 vs. 0.51) [26].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4dot3-tomography-07-00041",
+      "title": "4.3. Computing Time",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4dot3-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "Since the computing time depends on many parameters, it is not possible to make a general statement. As a rule of thumb, the calculation time can be estimated by multiplying the total number of voxels in the grid with the time required for a conventional extraction from a single region of interest. However, since the number of voxels, e.g., in a segmented tumor, is likely larger than that in a grid-voxel, one can expect the true calculation time to be slightly shorter.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot3-tomography-07-00041-p2",
+          "reference_ids": [],
+          "en": "Basically, of course, the higher the resolution of the grid and underlying image, the higher the computing time. For example, the maps for MR images were calculated faster than those for CT images, which can be explained by their different intrinsic resolutions, especially slice thickness. The complexity of the features is also different, which again results in different computing requirements. In order to reduce the computing time, only relevant blocks of slices from the original images were used in our examples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec4dot4-tomography-07-00041",
+      "title": "4.4. Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec4dot4-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "Without a doubt, the process of creating the parametric maps can be further simplified for the clinical application, e.g., by pre-processing images in the background to provide maps once a study is opened for reporting. This way, no third-party software would be necessary for the radiologist at all.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot4-tomography-07-00041-p2",
+          "reference_ids": [],
+          "en": "In addition, involving young residents in the evaluation of a new method may relevantly influence the results of inter- and intrarater reliability. In this study, however, both residents were advanced, so no overall influence from different experience levels is to be expected.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot4-tomography-07-00041-p3",
+          "reference_ids": [],
+          "en": "We would also like to underline that while the program used here was written with the greatest possible care and tested for different settings, we cannot rule out bugs. Rather, the program must be considered an early alpha version.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "sec4dot4-tomography-07-00041-p4",
+          "reference_ids": [],
+          "en": "Furthermore, various fields of application, various radiomics features, and various ways to display the parametric maps exist; thus, any change in the setup can affect the output of this method. In consequence, standards would have to be evaluated and defined for specific diagnoses and differential diagnoses, specific imaging modalities, and technical and vendor-specific parameters as well as the reconstruction algorithm.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec5-tomography-07-00041",
+      "title": "5. Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "sec5-tomography-07-00041-p1",
+          "reference_ids": [],
+          "en": "We developed a new tool that provides a simple method for creating parametric maps that makes radiomics features visually perceivable and immediately quantifiable. This approach can improve the assessment of radiological images and, furthermore, increase the use of radiomics in clinical routine.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-17",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-17-p1",
+          "reference_ids": [],
+          "en": "Publisher’s Note: MDPI stays neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p2",
+          "reference_ids": [],
+          "en": "The following are available online at https://www.mdpi.com/article/10.3390/tomography7030041/s1, Table S1: CT of unremarkable liver, Table S2: CT of bronchial carcinoma, Table S3: MR of glioblastoma, Table S4: MR of hepatocellular carcinoma, Table S5: Characteristics of the patients considered to test a clinical application for MR images (pulmonary lymphoma manifestations vs. non-lymphoma infiltrates in suspected fungal pneumonia), Table S6: list of concordant features across all examples, Program: Radiomics for Everyone.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p3",
+          "reference_ids": [],
+          "en": "Conceptualization, S.N.N.; methodology, D.K. and S.N.N.; software, D.K. and S.N.N.; validation, D.K., L.J.J. and S.N.N.; formal analysis, S.N.N.; investigation, D.K. and S.N.N.; resources, B.H.; data curation, S.N.N.; writing—original draft preparation, D.K. and S.N.N.; writing—review and editing, D.K., L.J.J., T.E., I.G.S., B.H. and S.N.N.; visualization, D.K. and S.N.N.; supervision, S.N.N. and T.E.; project administration, S.N.N. All authors have read and agreed to the published version of the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p4",
+          "reference_ids": [],
+          "en": "This research received no external funding.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p5",
+          "reference_ids": [],
+          "en": "The study was conducted according to the guidelines of the Declaration of Helsinki, and approved by the Institutional Review Board of the Charité—Universitätsmedizin Berlin (EA1/104/19; 26.08.2019).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p6",
+          "reference_ids": [],
+          "en": "Patient consent was waived because of retrospective data analysis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p7",
+          "reference_ids": [
+            "B16-tomography-07-00041"
+          ],
+          "en": "Part of a publicly available dataset was analyzed in this study. This data can be found in the Lung Image Database Consortium (LIDC) and Image Database Resource Initiative (IDRI) dataset [16].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-17-p8",
+          "reference_ids": [],
+          "en": "Bernd Hamm is a Grant Recipient of the Department of Radiology, Charité, and has further received funding from Abbott, AbbVie, Ablative Solutions, Accovion, Achaogen lnc., Actelion Pharmaceuticals, ADIR, Aesculap, AGO, AIF Arbeitsgemeinschaft industrieller Forschungsvereinigungen, AIO Arbeitsgemeinschaft lnternistische Onkologie, Alexion Pharmaceuticals, Amgen, AO Foundation, Arena Pharmaceuticals, art photonics GmbH Berlin, ASR Advanced sleep research, Astellas, AstraZeneca, BARD, Bayer Healthcare, Bayer Schering Pharma, Bayer Vital, BBraun, Berlin-Brandenburger Centrum für Regenerative Therapien (BCRT), Berliner Krebsgesellschaft, Biotronik, Bioven, BMBF Bundesministerium für Bildung und Forschung, Boehring Ingelheimer, Boston Biomedical Inc., BRACCO Group, Brainsgate, Bristol-Myers Squibb, Cascadian Therapeutics, lnc., Celgene, CELLACT Pharma, Celldex Therapeutics, CeIoNova BioSciences, Charité research organisation GmbH, Chiltern, CCovance, CUBIST, Curis, Daiichi, DC Devices, lnc. USA, Delcath Systems, Dermira lnc., Deutsche Krebshilfe, Deutsche Rheuma Liga, DFG, DSM Nutritional Products AG, Dt. Stiftung für Herzforschung, Dynavax, Eisai Ltd.‚ European Knowledge Centre, Mosquito Way, Hatfield, Eli Lilly and Company Ltd., EORTC, Epizyme, Inc., Essex Pharma, EU Programmes, Euroscreen S.A., Fibrex Medical Inc., Focused Ultrasound Surgery Foundation, Fraunhofer Gesellschaft, Galena Biopharma, Galmed Research and Development Ltd., Ganymed, GE, Genentech. Inc., GETNE (Grupo Español de Tumores Neuroendocrinos), Gilead Sciences, Inc., Glaxo Smith Kline, Glycotope GmbH, Berlin, Goethe Uni Frankfurt, Guerbet, Guidant Europe NV, Halozyme, Holaira Inc., ICON (CRO), Immunomedics Inc., Immunocore, Incyte, INC Research, Innate Pharma, InSightec Ltd., Inspiremd, inVentiv Health Clinical UK Ltd., Inventivhealth, IOMEDICO, IONIS, IPSEN Pharma, ISA Therapeutics, lsis Pharmaceuticals Inc., ITM Solution GmbH, Jansen, Kantar Health GmbH (CRO), Karyopharm Therapeutics, Inc., Kendle/MorphoSys AG, Kite Pharma, La Roche, Land Berlin, Lilly GmbH, Lion Biotechnology, Lombard Medical, Loxo Oncology, lnc, LSK BioPartners; USA, Lundbeck GmbH, LUX Biosciences, LYSARC, MacroGenics, MagForce, Medlmmune lnc., Medlmmune Limited, Medpace, Medpace Germany GmbH (CRO), MedPass (CRO), Medro-nic, Merck, Merrimack Pharmaceuticals lnc, MeVis Medical Solutions AG, Millennium Phar-maceuticals Inc., Mologen, MSD Sharp, NeoVacs SA, Nexus Oncology, Novartis, novocure, Nuvisan, Ockham oncology, Orion Corporation Orion Pharma, Parexel CRO Service, Perceptive, Pfizer GmbH, Pharma Mar, Pharmaceutical Research Associates GmbH (PRA), Pharmacyclics Inc., Philipps, PIQUR Therapeutics Ltd., Pluristem, Portola Pharmaceuticals, PPD (CRO), PRAint, Premier-research, Provectus Biopharmaceuticals, Inc., psicro, Pulmonx International Sàrl, Quintiles Gmbh, Respicardia, Roche, Samsung, Sanofi, sanofis-aventis S.A, Schumacher GmbH, Seattle Genetics, Servier (CRO), SGS Life Science Services (CRO), Siemens, Silena Therapeutics, Spectranetics GmbH, Spectrum Pharmaceuticals, St. Jude Medical, Stiftung Wolfgang Schulze, Symphogen, Taiho Pharmaceutical Co., Taqu Therapeutics Ltd., Terumo Medical Corporation, Tesaro, TETEC AG, TEVA, Theorem, Theradex, Threshold Pharmaceuticals Inc., TNS Healthcare GmbH, Toshiba, UCB Pharma, Uni München, VDI/VDE, Winicker Norimed, Wyeth Pharma, Xcovery Holding Company, and Zukunftsfond Berlin (TSB). The remaining authors declare no conflict of interest.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [],
+  "figures": [
+    {
+      "id": "tomography-07-00041-f001",
+      "label": "Figure 1",
+      "caption": "Summarized workflow of the program up to the final parametric map.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g001.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f002",
+      "label": "Figure 2",
+      "caption": "Graphical user interface. After importing the original images, the user can adjust settings for the feature extraction and define the resolution of the parametric map. Once the features are calculated, parametric maps can be exported in the DICOM format by choosing the feature from a list.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g002.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f003",
+      "label": "Figure 3",
+      "caption": "Samples of an abdominal CT (A) with corresponding maps for the feature Root Mean Squared (RMS), with a resolution of 5 × 5 × 5 mm in (B) and 10 × 10 × 10 px in (C). Scale indicates 2 cm. The value for RMS in the liver parenchyma from the conventional extraction and for both maps was 1060. Details of the scan and feature extraction as well as a full list of all values is available in electronic Table S1.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g003.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f004",
+      "label": "Figure 4",
+      "caption": "CT of a bronchial carcinoma (A) with a corresponding map for the feature Mean with a resolution of 5 × 5 × 5 mm in (B). Scale indicates 2 cm. The value for Mean from the conventional extraction was 24.9 and 22.2 for the map. Details are available in electronic Table S2.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g004.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f005",
+      "label": "Figure 5",
+      "caption": "MRI of a glioblastoma (A) with a corresponding map for the feature Robust Mean Absolute Deviation (RMAD) with a resolution of 3 × 3 × 3 mm in (B). Scale indicates 2 cm. The value for RMAD from the conventional extraction was 42.3 and 18.0 for the map. Details are available in electronic Table S3.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g005.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f006",
+      "label": "Figure 6",
+      "caption": "MRI of a hepatocellular carcinoma (A) with a corresponding map for the feature Variance with a resolution of 3 × 3 × 3 mm in (B). Scale indicates 2 cm. The value for Variance from the conventional extraction was 882 and 108 for the map. Details are available in electronic Table S4.",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g006.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "tomography-07-00041-f007",
+      "label": "Figure 7",
+      "caption": "The upper row shows a pulmonary lymphoma manifestation in the right upper lobe with the T1-weighted (T1w) image in (A) and the corresponding map of Variance in (B). In (C), an overlay was created, also showing a ROI to retrieve Variance within the lesion. The lower row shows a non-lymphoma infiltrate in suspected fungal pneumonia in the left upper lobe with the T1w image in (D), the corresponding map of Variance in (C), and the overlay in (F). In (A,D), the lesions are shown in a magnified section in the upper right corner. The scale indicates 1 cm. (E) is the corresponding map of Variance of (D). The VISAGE Viewer was used to create the overlay map and to perform the measurements (Visage Imaging Client 7.1.15; Visage Imaging GmbH, Berlin, Germany).",
+      "caption_zh": "",
+      "graphics": [
+        "tomography-07-00041-g007.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "B1-tomography-07-00041",
+      "text": "1. CoppolaF. MottolaM. Lo MonacoS. CattabrigaA. CocozzaM.A. YuanJ.C. De BenedittisC. CuicchiD. GuidoA. Rojas LlimpeF.L. The Heterogeneity of Skewness in T2W-Based Radiomics Predicts the Response to Neoadjuvant Chemoradiotherapy in Locally Advanced Rectal CancerDiagnostics20211179510.3390/diagnostics1105079533924854PMC8146691",
+      "doi": [
+        "10.3390/diagnostics11050795"
+      ]
+    },
+    {
+      "id": "B2-tomography-07-00041",
+      "text": "2. BevilacquaA. MottolaM. FerroniF. RossiA. GavelliG. BaroneD. The Primacy of High B-Value 3T-DWI Radiomics in the Prediction of Clinically Significant Prostate CancerDiagnostics20211173910.3390/diagnostics1105073933919299PMC8143289",
+      "doi": [
+        "10.3390/diagnostics11050739"
+      ]
+    },
+    {
+      "id": "B3-tomography-07-00041",
+      "text": "3. Piñeiro-FielM. MoscosoA. PubulV. RuibalÁ. Silva-RodríguezJ. AguiarP. A Systematic Review of PET Textural Analysis and Radiomics in CancerDiagnostics20211138010.3390/diagnostics1102038033672285PMC7926413",
+      "doi": [
+        "10.3390/diagnostics11020380"
+      ]
+    },
+    {
+      "id": "B4-tomography-07-00041",
+      "text": "4. ZhangM.H. CaoD. GinatD.T. Radiomic Model Predicts Lymph Node Response to Induction Chemotherapy in Locally Advanced Head and Neck CancerDiagnostics20211158810.3390/diagnostics1104058833806029PMC8064478",
+      "doi": [
+        "10.3390/diagnostics11040588"
+      ]
+    },
+    {
+      "id": "B5-tomography-07-00041",
+      "text": "5. RizzoS. BottaF. RaimondiS. OriggiD. FanciulloC. MorgantiA.G. BellomiM. Radiomics: The facts and the challenges of image analysisEur. Radiol. Exp.201823610.1186/s41747-018-0068-z30426318PMC6234198",
+      "doi": [
+        "10.1186/s41747-018-0068-z"
+      ]
+    },
+    {
+      "id": "B6-tomography-07-00041",
+      "text": "6. WangY. LiuW. YuY. HanW. LiuJ.-J. XueH.-D. LeiJ. JinZ.-Y. YuJ.-C. Potential value of CT radiomics in the distinction of intestinal-type gastric adenocarcinomasEur. Radiol.2020302934294410.1007/s00330-019-06629-332020404",
+      "doi": [
+        "10.1007/s00330-019-06629-3"
+      ]
+    },
+    {
+      "id": "B7-tomography-07-00041",
+      "text": "7. CaruanaG. PessiniL.M. CannellaR. SalvaggioG. de BarrosA. SalernoA. AugerC. RoviraÀ. Texture analysis in susceptibility-weighted imaging may be useful to differentiate acute from chronic multiple sclerosis lesionsEur. Radiol.2020306348635610.1007/s00330-020-06995-332535736",
+      "doi": [
+        "10.1007/s00330-020-06995-3"
+      ]
+    },
+    {
+      "id": "B8-tomography-07-00041",
+      "text": "8. HouY. XieX. ChenJ. LvP. JiangS. HeX. YangL. ZhaoF. Bag-of-features-based radiomics for differentiation of ocular adnexal lymphoma and idiopathic orbital inflammation from contrast-enhanced MRIEur. Radiol.202131243310.1007/s00330-020-07110-232789530",
+      "doi": [
+        "10.1007/s00330-020-07110-2"
+      ]
+    },
+    {
+      "id": "B9-tomography-07-00041",
+      "text": "9. SariogluF.C. SariogluO. GuleryuzH. OzerE. InceD. OlgunH.N. MRI-based texture analysis for differentiating pediatric craniofacial rhabdomyosarcoma from infantile hemangiomaEur. Radiol.2020305227523610.1007/s00330-020-06908-432382846",
+      "doi": [
+        "10.1007/s00330-020-06908-4"
+      ]
+    },
+    {
+      "id": "B10-tomography-07-00041",
+      "text": "10. AhujaJ. KanneJ.P. Thoracic infections in immunocompromised patientsRadiol. Clin. N. Am.20145212113610.1016/j.rcl.2013.08.01024267714",
+      "doi": [
+        "10.1016/j.rcl.2013.08.010"
+      ]
+    },
+    {
+      "id": "B11-tomography-07-00041",
+      "text": "11. JensenL.J. KimD. ElgetiT. SteffenI.G. HammB. NagelS.N. Differentiation of Pulmonary Lymphoma Manifestations and Nonlymphoma Infiltrates in Possible Invasive Fungal Disease Using Fast T1-weighted Magnetic Resonance Imaging at 3 T Comparison of Texture Analysis, Mapping, and Signal Intensity QuotientsJ. Thorac. Imaging202110.1097/RTI.000000000000060634269753",
+      "doi": [
+        "10.1097/RTI.0000000000000606"
+      ]
+    },
+    {
+      "id": "B12-tomography-07-00041",
+      "text": "12. CoppolaF. GianniniV. GabelloniM. PanicJ. DefeudisA. Lo MonacoS. CattabrigaA. CocozzaM.A. PastoreL.V. PoliciM. Radiomics and Magnetic Resonance Imaging of Rectal Cancer: From Engineering to Clinical PracticeDiagnostics20211175610.3390/diagnostics1105075633922483PMC8146913",
+      "doi": [
+        "10.3390/diagnostics11050756"
+      ]
+    },
+    {
+      "id": "B13-tomography-07-00041",
+      "text": "13. Pinto dos SantosD. DietzelM. BaesslerB. A decade of radiomics research: Are images really data or just patterns in the noise?Eur. Radiol.2021314908491710.1007/s00330-020-07108-w32767103PMC7755615",
+      "doi": [
+        "10.1007/s00330-020-07108-w"
+      ]
+    },
+    {
+      "id": "B14-tomography-07-00041",
+      "text": "14. Van GriethuysenJ.J.M. FedorovA. ParmarC. HosnyA. AucoinN. NarayanV. Beets-TanR.G.H. Fillion-RobinJ.-C. PieperS. AertsH.J.W.L. Computational Radiomics System to Decode the Radiographic PhenotypeCancer Res.201777e104e10710.1158/0008-5472.CAN-17-033929092951PMC5672828",
+      "doi": [
+        "10.1158/0008-5472.CAN-17-0339"
+      ]
+    },
+    {
+      "id": "B15-tomography-07-00041",
+      "text": "15. LowekampB. ChenD. IbanezL. BlezekD. The Design of SimpleITKFront. Neuroinform.201374510.3389/fninf.2013.0004524416015PMC3874546",
+      "doi": [
+        "10.3389/fninf.2013.00045"
+      ]
+    },
+    {
+      "id": "B16-tomography-07-00041",
+      "text": "16. ArmatoS.G.3rd McLennanG. BidautL. McNitt-GrayM.F. MeyerC.R. ReevesA.P. ZhaoB. AberleD.R. HenschkeC.I. HoffmanE.A. The Lung Image Database Consortium (LIDC) and Image Database Resource Initiative (IDRI): A completed reference database of lung nodules on CT scansMed. Phys.20113891593110.1118/1.352820421452728PMC3041807",
+      "doi": [
+        "10.1118/1.3528204"
+      ]
+    },
+    {
+      "id": "B17-tomography-07-00041",
+      "text": "17. De PauwB. WalshT.J. DonnellyJ.P. StevensD.A. EdwardsJ.E. CalandraT. PappasP.G. MaertensJ. LortholaryO. KauffmanC.A. Revised definitions of invasive fungal disease from the European Organization for Research and Treatment of Cancer/Invasive Fungal Infections Cooperative Group and the National Institute of Allergy and Infectious Diseases Mycoses Study Group (EORTC/MSG) Consensus GroupClin. Infect. Dis.2008461813182110.1086/58866018462102PMC2671227",
+      "doi": [
+        "10.1086/588660"
+      ]
+    },
+    {
+      "id": "B18-tomography-07-00041",
+      "text": "18. KimD. ElgetiT. PenzkoferT. SteffenI.G. JensenL.J. SchwartzS. HammB. NagelS.N. Enhancing the differentiation of pulmonary lymphoma and fungal pneumonia in hematological patients using texture analysis in 3-T MRIEur. Radiol.20203169570510.1007/s00330-020-07137-532822054PMC7813714",
+      "doi": [
+        "10.1007/s00330-020-07137-5"
+      ]
+    },
+    {
+      "id": "B19-tomography-07-00041",
+      "text": "19. YoudenW.J. Index for rating diagnostic testsCancer19503323510.1002/1097-0142(1950)3:1<32::AID-CNCR2820030106>3.0.CO;2-315405679",
+      "doi": [
+        "10.1002/1097-0142(1950)3:1<32::AID-CNCR2820030106>3.0.CO;2-3"
+      ]
+    },
+    {
+      "id": "B20-tomography-07-00041",
+      "text": "20. LandisJ.R. KochG.G. The Measurement of Observer Agreement for Categorical DataBiometrics19773315917410.2307/2529310843571",
+      "doi": [
+        "10.2307/2529310"
+      ]
+    },
+    {
+      "id": "B21-tomography-07-00041",
+      "text": "21. KooT.K. LiM.Y. A Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability ResearchJ. Chiropr. Med.20161515516310.1016/j.jcm.2016.02.01227330520PMC4913118",
+      "doi": [
+        "10.1016/j.jcm.2016.02.012"
+      ]
+    },
+    {
+      "id": "B22-tomography-07-00041",
+      "text": "22. AertsH.J.W.L. VelazquezE.R. LeijenaarR.T.H. ParmarC. GrossmannP. CarvalhoS. BussinkJ. MonshouwerR. Haibe-KainsB. RietveldD. Decoding tumour phenotype by noninvasive imaging using a quantitative radiomics approachNat. Commun.20145400610.1038/ncomms500624892406PMC4059926",
+      "doi": [
+        "10.1038/ncomms5006"
+      ]
+    },
+    {
+      "id": "B23-tomography-07-00041",
+      "text": "23. ChetanM.R. GleesonF.V. Radiomics in predicting treatment response in non-small-cell lung cancer: Current status, challenges and future perspectivesEur. Radiol.2020311049105810.1007/s00330-020-07141-932809167PMC7813733",
+      "doi": [
+        "10.1007/s00330-020-07141-9"
+      ]
+    },
+    {
+      "id": "B24-tomography-07-00041",
+      "text": "24.PyRadiomics DocumentationAvailable online: https://pyradiomics.readthedocs.io/en/latest/features.html#module-radiomics.firstorder(accessed on 18 January 2021)",
+      "doi": []
+    },
+    {
+      "id": "B25-tomography-07-00041",
+      "text": "25. SuoS. ChengJ. CaoM. LuQ. YinY. XuJ. WuH. Assessment of Heterogeneity Difference between Edge and Core by Using Texture Analysis: Differentiation of Malignant from Inflammatory Pulmonary Nodules and MassesAcad. Radiol.2016231115112210.1016/j.acra.2016.04.00927298058",
+      "doi": [
+        "10.1016/j.acra.2016.04.009"
+      ]
+    },
+    {
+      "id": "B26-tomography-07-00041",
+      "text": "26. BaesslerB. LueckeC. LurzJ. KlingelK. DasA. von RoederM. de Waha-ThieleS. BeslerC. RommelK.P. MaintzD. Cardiac MRI and Texture Analysis of Myocardial T1 and T2 Maps in Myocarditis with Acute versus Chronic Symptoms of Heart FailureRadiology201929260861710.1148/radiol.201919010131361205",
+      "doi": [
+        "10.1148/radiol.2019190101"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Kim D, Jensen LJ, Elgeti T, Steffen IG, Hamm B, Nagel SN.",
+  "journal": "Tomography",
+  "year": "2021",
+  "pmid": "34564303",
+  "pmcid": "PMC8482265",
+  "doi": "10.3390/tomography7030041",
+  "source": {
+    "retrieved_at": "2026-11-14T17:05:05.742807+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8482265/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC8482265.xml"
+}

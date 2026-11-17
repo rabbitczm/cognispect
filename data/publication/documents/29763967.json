@@ -1,0 +1,1404 @@
+{
+  "key": "29763967",
+  "body_available": true,
+  "title": "Machine learning algorithms for outcome prediction in (chemo)radiotherapy: An empirical comparison of classifiers",
+  "source_url": "https://europepmc.org/articles/PMC6095141",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/This is an open access article under the terms of the http://creativecommons.org/licenses/by/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Timo M. Deist",
+    "Frank J. W. M. Dankers",
+    "Gilmer Valdes",
+    "Robin Wijsman",
+    "I‐Chow Hsu",
+    "Cary Oberije",
+    "Tim Lustberg",
+    "Johan van Soest",
+    "Frank Hoebers",
+    "Arthur Jochems",
+    "Issam El Naqa",
+    "Leonard Wee",
+    "Olivier Morin",
+    "David R. Raleigh",
+    "Wouter Bots",
+    "Johannes H. Kaanders",
+    "José Belderbos",
+    "Margriet Kwint",
+    "Timothy Solberg",
+    "René Monshouwer",
+    "Johan Bussink",
+    "Andre Dekker",
+    "Philippe Lambin"
+  ],
+  "copyright": {
+    "statement": "© 2018 The Authors. Medical Physics published by Wiley Periodicals, Inc. on behalf of American Association of Physicists in Medicine.",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "2",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2018",
+        "month": "6",
+        "day": "13"
+      },
+      {
+        "type": "ppub",
+        "year": "2018",
+        "month": "7",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "mp12967-sec-0005",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0005-p1",
+          "reference_ids": [
+            "mp12967-bib-0001",
+            "mp12967-bib-0002"
+          ],
+          "en": "Machine learning algorithms for predicting (chemo)radiotherapy outcomes (e.g., survival, treatment failure, toxicity) are receiving much attention in literature, for example, in decision support systems for precision medicine.1, 2 Currently, there is no consensus on an optimal classification algorithm. Investigators select algorithms for various reasons: the investigator's experience, usage in literature, data characteristics and quality, hypothesized feature dependencies, availability of simple implementations, and model interpretability. One objective criterion for selecting a classifier is to maximize a chosen performance metric, for example, discrimination (expressed by the area under the receiver operating characteristic curve, AUC). Here, we discuss the performance of binary classifiers in (chemo)radiotherapy outcome prediction, that is, algorithms that predict whether or not a patient has a certain outcome. We empirically study the behavior of existing simple implementations of classifiers on a range of (chemo)radiotherapy outcome datasets to possibly identify a classifier with overall maximal discriminative performance. This is a relevant question for investigators who search for a rational basis to support their choice of a classifier or who would like to compare their own modeling results to established algorithms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p2",
+          "reference_ids": [
+            "mp12967-bib-0003",
+            "mp12967-bib-0004"
+          ],
+          "en": "We employ various open‐source R packages interfaced with the R package caret 3 (version 6.0‐73) that is readily available for investigators and has shown to produce competitive results.4 With our results, we also wish to provide guidance in the current trend to delegate modeling decisions to Machine learning algorithms.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p3",
+          "reference_ids": [
+            "mp12967-bib-0004",
+            "mp12967-bib-0005",
+            "mp12967-bib-0006"
+          ],
+          "en": "Large‐scale studies in the general Machine learning literature4, 5, 6 provide evidence in favor of some classifier families [random forest (rf), support vector machine (svm), gradient boosting machine (gbm)] in terms of classification performance. In our study, we investigate how these results translate to (chemo)radiotherapy datasets for treatment outcome prediction/prognosis. To the best of our knowledge, this is the first study to investigate classifier performance on a wide range of such datasets. The studied features are clinical, dosimetric, and blood biomarkers.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p4",
+          "reference_ids": [],
+          "en": "Within the framework of existing classifier implementations, we attempt to answer three research questions: Is there a superior classifier for predictive modeling in (chemo)radiotherapy?How dataset dependent is the choice of a classifier?Is there a benefit of choosing a classifier based on empirical evidence from similar datasets (preselection)?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p5",
+          "reference_ids": [],
+          "en": "Is there a superior classifier for predictive modeling in (chemo)radiotherapy?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p6",
+          "reference_ids": [],
+          "en": "How dataset dependent is the choice of a classifier?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p7",
+          "reference_ids": [],
+          "en": "Is there a benefit of choosing a classifier based on empirical evidence from similar datasets (preselection)?",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0005-p8",
+          "reference_ids": [
+            "mp12967-bib-0007"
+          ],
+          "en": "Parmar et al.7 compared multiple classifiers and feature selection methods (i.e., filter‐based feature selection) on radiomics data using the caret package. We build upon this work and extend the analysis to 12 datasets outside the radiomics domain. We omit filter methods because all classifiers in our study comprise built‐in feature selection methods (i.e., embedded feature selection) and the main advantage of filter methods, i.e. low computational cost per feature, is not relevant for our datasets with only modest numbers of features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0006",
+      "title": "Materials and methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "mp12967-sec-0007",
+      "title": "Data collection",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0007-p1",
+          "reference_ids": [
+            "mp12967-tbl-0001",
+            "mp12967-tbl-0001",
+            "mp12967-bib-0020",
+            "mp12967-bib-0021"
+          ],
+          "en": "Twelve datasets (3496 patients) with treatment outcomes described in previous studies were collected from public repositories (www.cancerdata.org) or provided by collaborators. Table 1 characterizes these datasets. Given availability, some datasets consist of subsamples of or contain fewer/more patients and/or features than the cohorts described in the original studies. Two datasets were excluded after a preliminary analysis (these datasets are also not mentioned in Table 1) where none of the studied classifiers resulted in an average AUC above 0.51, which is evidence that they contain no discriminative power. Datasets without discriminative power are not suitable for this analysis as we would be unable to determine differences in discriminative performance across classifiers. The patient cohorts of 2 datasets, Wijsman et al.20, 21, partially overlap but each dataset lists a different outcome (esophagitis and pneumonitis). Datasets were anonymized in the analysis because their identity is not relevant for interpreting the results and to encourage investigators to share their datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0007-p2",
+          "reference_ids": [
+            "mp12967-bib-0010",
+            "mp12967-sec-0009",
+            "mp12967-tbl-0002",
+            "mp12967-fig-0001"
+          ],
+          "en": "Nonbinary outcomes were dichotomized, for example, overall survival was translated into 2‐yr overall survival in the dataset of Carvalho et al.10. Missing data were imputed for training and test sets (the splitting of datasets into training and test sets is described in Section 2.C) by medians for continuous features and modes for categorical features based on the training set. Basing the imputation on the training set avoids information leakage from test to training sets. Categorical features in training and test sets were dummy coded, that is, representing categorical features as a combination of binary features, based on the combined set for classifiers that cannot handle categorical features (Table 2). Dummy coding on the combined set ensures that the coding represents all values observed in a dataset. Features with zero variance in training sets were deleted in the training set and in the corresponding test set. In addition, we removed near‐zero variance features for glmnet to avoid the classifier implementation from crashing during the fitting process. Features in training sets were rescaled to the interval [0,1] and the same transformation was applied to the corresponding test sets. Rescaling is needed for certain classifiers, e.g., svmRadial. All these operations (imputation, dummy coding, deleting (near‐)zero variance features, rescaling) were performed independently for each pair of training and test sets (step 2 in Fig. 1).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0008",
+      "title": "Classifiers",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0008-p1",
+          "reference_ids": [],
+          "en": "Six common classifiers were selected and their implementations were used via their interfacing with the open‐source R package caret. The selection includes classifiers frequently used in medical data analysis and advanced classifiers such as random forests or neural networks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p2",
+          "reference_ids": [],
+          "en": "□Elastic net logistic regression is a regularized form of logistic regression, which models additive linear effects. The added shrinkage regularization (i.e., feature selection) makes it is suitable for datasets with many features while maintaining the interpretability of a standard logistic regression.□Random forests generate a large number of decision trees based on random subsamples of the training set while also randomly varying the features used in the trees. Random forests allow modeling nonlinear effects. A random forest model is an ensemble of many decision tree models and is, therefore, difficult to interpret.□Single‐hidden‐layer neural networks are simple versions of multilayer perceptron neural network models, which are currently popularized by deep neural network applications in machine learning. In the hidden layer, auxiliary features are generated from the input features which are then used for classification. The weights used to generate auxiliary features are derived from the training set. The high number of weights requires more training data than other simpler algorithms and reduces interpretability. However, if sufficient data are available, complex relationships between features can be modeled.□Support vector machines with a radial basis function (RBF) kernel transform the original feature space to attain a better separation between classes. This transformation, however, is less intuitive than linear SVMs where a separating hyperplane is in the original feature space.□LogitBoost (if used with decision stumps as in this paper) learns a linear combination of multiple single feature classifiers. Training samples that are misclassified in early iterations of the algorithm are given a higher weight when determining further classifiers. The final model is a weighted sum of single feature classifiers. Similar to random forests, it builds an ensemble of models which is difficult to interpret.□A decision tree iteratively subdivides the training set by selecting feature cutoffs. Decision trees can model nonlinear effects and are easily interpretable as long as the tree depth is low.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p3",
+          "reference_ids": [],
+          "en": "Elastic net logistic regression is a regularized form of logistic regression, which models additive linear effects. The added shrinkage regularization (i.e., feature selection) makes it is suitable for datasets with many features while maintaining the interpretability of a standard logistic regression.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p4",
+          "reference_ids": [],
+          "en": "Random forests generate a large number of decision trees based on random subsamples of the training set while also randomly varying the features used in the trees. Random forests allow modeling nonlinear effects. A random forest model is an ensemble of many decision tree models and is, therefore, difficult to interpret.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p5",
+          "reference_ids": [],
+          "en": "Single‐hidden‐layer neural networks are simple versions of multilayer perceptron neural network models, which are currently popularized by deep neural network applications in machine learning. In the hidden layer, auxiliary features are generated from the input features which are then used for classification. The weights used to generate auxiliary features are derived from the training set. The high number of weights requires more training data than other simpler algorithms and reduces interpretability. However, if sufficient data are available, complex relationships between features can be modeled.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p6",
+          "reference_ids": [],
+          "en": "Support vector machines with a radial basis function (RBF) kernel transform the original feature space to attain a better separation between classes. This transformation, however, is less intuitive than linear SVMs where a separating hyperplane is in the original feature space.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p7",
+          "reference_ids": [],
+          "en": "LogitBoost (if used with decision stumps as in this paper) learns a linear combination of multiple single feature classifiers. Training samples that are misclassified in early iterations of the algorithm are given a higher weight when determining further classifiers. The final model is a weighted sum of single feature classifiers. Similar to random forests, it builds an ensemble of models which is difficult to interpret.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p8",
+          "reference_ids": [],
+          "en": "A decision tree iteratively subdivides the training set by selecting feature cutoffs. Decision trees can model nonlinear effects and are easily interpretable as long as the tree depth is low.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0008-p9",
+          "reference_ids": [
+            "mp12967-bib-0022",
+            "mp12967-bib-0023",
+            "mp12967-tbl-0002"
+          ],
+          "en": "Classifier details can be found in general Machine learning textbooks.22, 23 Table 2 further characterizes these classifiers. We use the option in caret to return class probabilities for all classifiers, including nonprobabilistic classifiers like svmRadial. Classifier hyperparameters, that is, model‐intrinsic parameters that need to be adjusted to the studied data prior to modeling, were tuned for each classifier using a random search: 25 randomly chosen points in the hyperparameter space are evaluated and the point with the best performance metric (we chose the AUC in this study) is selected. The boundaries of the hyperparameter space are given in caret.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0009",
+      "title": "Experimental design",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0009-p1",
+          "reference_ids": [],
+          "en": "For each classifier, test set (or out‐of‐sample) performance metrics (AUC, Brier score, accuracy, and Cohen's kappa) were estimated for each of the 12 datasets. The performance metric estimator was the average performance metric computed from the outer test folds in a nested and stratified fivefold cross‐validation (CV). The experiment was repeated 100 times. The 100 times repeated nested cross‐validation yields a better estimate of the true test set performance by randomly simulating many scenarios with varying training and test set compositions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p2",
+          "reference_ids": [
+            "mp12967-fig-0001",
+            "mp12967-fig-0001",
+            "mp12967-bib-0023"
+          ],
+          "en": "The experimental design is depicted in Fig. 1: Each dataset was split into five random subsamples stratified for outcome classes (step 1 in Fig. 1), each of them acting once as a test set and four times as a part of a training set. The number of inner and outer folds was set to 5 following standard practice23(p 242). Data preprocessing is done per pair of training and test sets (step 2; see details in section Datasets). The models were trained on the training set (step 6) and applied on the test set (step 7) to compute the performance metrics for the test set (step 8) resulting in five estimates per performance metric (i.e., 1 per outer fold). During the training in each outer fold, the best tuning parameters were selected from the random search (see section Classifiers) according to the maximum AUC of an inner fivefold CV. In the inner CV, the training set was again split into five subsamples and models with different tuning parameters were compared (steps 3–5). The nested fivefold CV was repeated 100 times with different randomization seeds which are used, for example, for generating the outer folds in step 1. Note that the performance metrics computed on the outer test folds of any two classifiers can be analyzed by pairwise comparison because the classifiers were trained (step 6) and tested (step 7) on the same training and test sets for a specific dataset within each of the 100 repetitions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p3",
+          "reference_ids": [
+            "mp12967-bib-0030"
+          ],
+          "en": "The mean AUC, Brier score, accuracy, and Cohen's kappa were computed from the five estimates of the fivefolds in the outer CV. Calibration intercept and slope were computed from a linear regression of outcomes and predicted outcome probabilities for each of the five outer folds. To attain aggregated calibration metrics over the five outer folds of the CV, the mean absolute differences from 0 and 1 were computed for the calibration intercept and slope, respectively. Classifier rankings were computed per dataset and repetition by ordering the classifiers’ CV‐mean AUC (i.e., the average AUC for five test sets) in descending order and then assigning the ranks from 1 to 6. Using CV‐mean AUCs and CV‐mean AUC ranks, we answer research questions 1 and 2. We chose AUC for the analysis following Steyerberg et al.30 They emphasize the importance of discrimination and calibration metrics when assessing prediction models. For the simplicity, we restricted the extended analysis to discrimination (AUC) but also report results for calibration and other metrics in appendix A.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p4",
+          "reference_ids": [],
+          "en": "To address the question of preselection (research question 3), we assess the advantage of choosing a classifier based on performance metrics from similar datasets, which we call preselection below. To estimate the benefit of our classifier preselection for a new dataset and to compare it to alternative strategies, the results of the experiment above were used as input for a simulation. For each outer fold of the 1200 fivefold CVs (12 datasets × 100 repetitions × 5‐folds = 6000‐folds), three classifier selections were made and tested on the test set that belongs to the specific outer fold: □preselecting the classifier according to the average AUC rank in all other datasets (excluding all folds from the current dataset),□selecting the classifier that performed best in the inner CV on the training set,□randomly selecting a classifier.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p5",
+          "reference_ids": [],
+          "en": "preselecting the classifier according to the average AUC rank in all other datasets (excluding all folds from the current dataset),",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p6",
+          "reference_ids": [],
+          "en": "selecting the classifier that performed best in the inner CV on the training set,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p7",
+          "reference_ids": [],
+          "en": "randomly selecting a classifier.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p8",
+          "reference_ids": [],
+          "en": "Preselecting the classifier for one dataset that had the best average AUC rank in the other datasets simulates the scenario in which an investigator bases their classifier choice on empirical evidence as is reported in this manuscript. Randomly selecting a classifier represents the case where an investigator chooses a classifier without any prior knowledge about the dataset that (s)he is about to analyze. Selecting the tuned classifier with best inner CV performance corresponds to evaluating multiple classifiers on the training dataset and thus including dataset‐specific information in the classifier selection. The performance metrics are averaged over all 500 outer folds (5‐folds × 100 repetitions) for each of the 12 datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0009-p9",
+          "reference_ids": [
+            "mp12967-bib-0031"
+          ],
+          "en": "The documented R code used for the analysis is available online.31",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0010",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0010-p1",
+          "reference_ids": [],
+          "en": "Running 1 nested fivefold cross‐validation and computing the metrics on one dataset for all six classifiers allows one comparison of classifiers. This was applied on 12 different datasets, with each run repeated 100 times for a total of 1200 comparisons. The total computation time was approximately 6 days on an Intel Core i5‐6200U CPU (or 15 s per classifier per dataset per outer fold, on average).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0010-p2",
+          "reference_ids": [],
+          "en": "The results are presented and discussed threefold: results aggregated over all datasets and repetitions to determine the presence of a superior classifier,separate results for each dataset but aggregated over repetitions to determine dataset dependency,a simulation of classifier selection methods in new datasets to estimate the relative effect of classifier preselection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0010-p3",
+          "reference_ids": [],
+          "en": "results aggregated over all datasets and repetitions to determine the presence of a superior classifier,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0010-p4",
+          "reference_ids": [],
+          "en": "separate results for each dataset but aggregated over repetitions to determine dataset dependency,",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0010-p5",
+          "reference_ids": [],
+          "en": "a simulation of classifier selection methods in new datasets to estimate the relative effect of classifier preselection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0010-p6",
+          "reference_ids": [],
+          "en": "The detailed analysis is restricted to the classifiers’ discriminative performance according to the AUC. Results for the remaining metrics (Brier score, calibration intercept/slope, accuracy, and Cohen's kappa) are reported in Appendix A.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0011",
+      "title": "Results aggregated over all datasets",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0011-p1",
+          "reference_ids": [
+            "mp12967-fig-0002",
+            "mp12967-fig-0003"
+          ],
+          "en": "Figure 2 shows the distribution of classifier rankings based on the average AUC (12 datasets × 100 repetitions = 1200 data points per classifier). Figure 3 depicts pairwise comparisons for each classifier pair (1200 comparisons per pair). The numbers in the plot indicate how often classifier A (y‐axis) achieved an AUC greater than classifier B (x‐axis). Coloring indicates whether the increased AUCs of classifier A are statistically significant (violet) or not (light violet). Untested pairs are colored gray. The significance cutoff was set to the 0.05 level (one‐sided Wilcoxon signed‐rank test, Holm–Bonferroni correction for 15 tests).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0011-p2",
+          "reference_ids": [
+            "mp12967-fig-0002",
+            "mp12967-fig-0003"
+          ],
+          "en": "rf and glmnet showed the best median AUC rank, followed by nnet, svmRadial, LogitBoost, and rpart (Fig. 2). At the low end of the ranking, rpart showed poor discriminative performance. Manual inspection of the rpart models showed that rpart frequently returns empty decision trees for particular sets (for 34%, 19%, 68%, 35%, 58% of all outer folds for sets D, E, G, K, L, respectively). In pairwise comparisons, rf and glmnet significantly outperformed all other classifiers (Fig. 3). rf exhibited a small but statistically insignificant better AUC rank than glmnet.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0011-p3",
+          "reference_ids": [
+            "mp12967-fig-0002",
+            "mp12967-fig-0003",
+            "mp12967-fig-0002",
+            "mp12967-fig-0003"
+          ],
+          "en": "The results in Figs. 2 and 3 indicate the existence of a significant classifier ranking for these datasets. However, the considerable spread per classifier in Fig. 2 and the low pairwise comparison percentages (between 57% and 91% in Fig. 3) also suggest a yet unobserved dependency for classifier performance. To this end, the relationship between datasets and varying classifier performance is investigated.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0012",
+      "title": "Results separate for each dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0012-p1",
+          "reference_ids": [
+            "mp12967-fig-0004",
+            "mp12967-fig-0005"
+          ],
+          "en": "Figure 4 shows the average AUC for each pair of classifier and dataset (100 repetitions = 100 data points per pair). Figure 5 depicts the average rank derived from the AUC (100 data points per pair).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0012-p2",
+          "reference_ids": [
+            "mp12967-fig-0004",
+            "mp12967-fig-0005"
+          ],
+          "en": "rf and glmnet generally yielded higher AUC values and AUC ranks per dataset (Figs. 4 and 5). However, this observation is not consistent over all datasets: e.g., nnet outperforms rf in sets H, J, and K, and svmRadial outperformed glmnet in sets A and C.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0012-p3",
+          "reference_ids": [
+            "mp12967-fig-0004",
+            "mp12967-fig-0005"
+          ],
+          "en": "The results in the Figs. 4 and 5 indicate that dataset‐specific properties impact the discriminative performance of classifiers. These results challenge our proposition that one can preselect classifiers for predictive modeling in (chemo)radiotherapy based on representative datasets from the same field.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0013",
+      "title": "Effects of empirical classifier preselection on discriminative performance",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0013-p1",
+          "reference_ids": [
+            "mp12967-tbl-0003"
+          ],
+          "en": "Table 3 lists, for each dataset, the name and average AUCs, that is, averaged over all 100 repetitions, for random classifier selection, classifier preselection, and set‐specific classifier selection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0013-p2",
+          "reference_ids": [],
+          "en": "The preselection procedure always results in rf or glmnet. The mean benefit of empirically preselecting a classifier is small: the AUC improvement ranges between −0.02 and 0.06 with a mean of 0.02. In a pairwise comparison over all datasets (P < 0.05, one‐sided Wilcoxon signed‐rank test), the AUC values by preselection were significantly larger than the AUC values by random selection. The AUC rank improves by 0.42 on average. Including dataset‐specific information by inner CV yields a mean AUC improvement of 0.02 and improves the rank, on average, by 0.66. In a pairwise comparison of set‐specific and random classifier selection over all datasets (P < 0.05, one‐sided Wilcoxon signed‐rank test), the AUC increase was also statistically significant.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0013-p3",
+          "reference_ids": [],
+          "en": "Given this simulation, the expected benefit of preselecting a classifier for a new dataset based on results from (chemo)radiotherapy‐specific numerical studies is limited with an average increase in AUC of 0.02.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0014",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0014-p1",
+          "reference_ids": [],
+          "en": "Our results suggest that there is indeed an overall ranking of classifiers in (chemo)radiotherapy datasets, with rf and glmnet leading the ranking. However, we also observe that the performance of a classifier depends on the specific dataset. Preselecting classifiers based on evidence from related datasets would, on average, provides a benefit for investigators because it increases discriminative performance. An increase in average discriminative performance is desirable in that an investigator would be less likely to discard their data because of a perceived absence of predictive or prognostic value. The estimated 0.02 mean AUC improvement might appear small, but it comes “for free” with classifier selection based on empirical evidence from multiple radiotherapy datasets. Furthermore, the 0.02 AUC improvement is relative to random classifier selection. If an investigator had initially chosen rpart, which is the overall worst performing classifier in our study, switching to the preselected classifier would result in an average AUC increase of 0.07. Switching from LogitBoost, which is the second worst performing classifier in our study, to the preselected classifier would result in an average AUC increase of 0.04.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p2",
+          "reference_ids": [
+            "mp12967-tbl-0003",
+            "mp12967-bib-0031"
+          ],
+          "en": "The results in Table 3 show that classifier preselection and set‐specific classifier selection, on average, yield the same AUC increase. We think that the usefulness of set‐specific classifier selection is dependent on the size of the training set: classifier preselection is preferable for small datasets, set‐specific classifier selection is better for larger datasets. Classifier preselection represents choosing classifiers using evidence from a large collection of similar datasets from the general radiotherapy outcome domain. Set‐specific classifier selection represents choosing classifiers based on the training set, which is a considerably smaller evidence base but comes from the patient group under investigation. If the training dataset is too small, selecting classifiers based on results from other datasets might be less‐error prone. On the contrary, if an investigator has collected a large dataset, they have the option to conduct set‐specific classifier selection (with all six classifiers) for their training data using our documented R code.31",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p3",
+          "reference_ids": [
+            "mp12967-tbl-0003",
+            "mp12967-fig-0005"
+          ],
+          "en": "In Table 3, one can observe that the preselected classifier is mostly rf and sometimes glmnet. To understand this behavior, consider dataset A: glmnet was preselected for set A by selecting the classifier with the best average AUC rank in all other sets (excluding set A). Note that, for all 12 datasets together, the average AUC rank for rf is only slightly better than for glmnet (2.28 for rf and 2.43 for glmnet; the average of the rows in Fig. 5). Since glmnet performs badly while rf performs best in set A, excluding this information leads to a better average AUC rank for glmnet and a worse average AUC rank for rf in the remaining 11 datasets. As a consequence, glmnet becomes the preselected classifier for this dataset. A similar behavior is observed for sets C and E but not in sets D, F, I, where glmnet also performs worse than rf but the difference between both classifiers is smaller and does not induce a switch in the preselected classifier.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p4",
+          "reference_ids": [],
+          "en": "The result that classifier preselection is as good as set‐specific selection in the studied datasets does not imply that one cannot determine a better classifier for a new dataset. Our implementation of set‐specific classifier selection only evaluates the performance of various classifiers but does not directly take into account properties of the dataset itself. For example, if an investigator collected a dataset in which the outcome has a quadratic dependency on a feature, glmnet would not be able to capture this relation (since it models only linear effects) but rf would. However, preselecting a classifier based on results from other (chemo)radiotherapy datasets works well on average. Furthermore, including set‐specific classifier selection complicates the modeling process and, therefore, might not be desirable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p5",
+          "reference_ids": [
+            "mp12967-bib-0004"
+          ],
+          "en": "In this study, we collected 12 datasets for different treatment sites, that is, (non‐)small‐cell lung cancer, head and neck cancer, meningioma with different outcomes, that is, survival, pneumonitis, esophagitis, odynophagia, and regional control. However, this collection is certainly not a complete representation of treatment outcome datasets analyzed in the field of radiotherapy. Furthermore, we only studied one implementation of classifiers, while classifier performance may vary between implementations. Past studies, however, indicate that classifier implementations in R interfaced with caret are competitive.4 Given the apparent lack of comparative classifier studies in radiotherapy, our intention has been to provide numerical evidence for classifier selection to investigators even though our analysis is not exhaustive.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p6",
+          "reference_ids": [
+            "mp12967-bib-0032"
+          ],
+          "en": "We intentionally limited the analysis to classifier selection while ignoring factors such as the investigator's experience, usage in literature, hypothetical feature dependencies, and model interpretability. This restriction imitates the current trend to delegate modeling decisions to Machine learning algorithms and/or nondomain experts. Nonetheless, we feel the need to emphasize that including these factors has merit. Furthermore, expertise on a specific classifier could warrant its selection: Lavesson and Davidsson32 observed in a study on eight datasets from different research domains that the impact of hyperparameter tuning exceeds that of classifier selection. Therefore, the investigator could tune a classifier for better performance by also tuning the hyperparameters outside the subset of hyperparameters tuneable inside caret. Even in those cases, however, we suggest comparing these results to simpler implementations of rf and glmnet as these classifiers on average have the best discriminative performance according to this study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "mp12967-sec-0014-p7",
+          "reference_ids": [
+            "mp12967-bib-0033",
+            "mp12967-bib-0034"
+          ],
+          "en": "Finally, for the clinical implementation of classifiers, model interpretability is arguably a major requirement33: this view is also convincingly motivated by Caruana et al.34 Fortunately, our study shows that glmnet, which is an intuitive classifier, is also one of the best performing classifiers.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0015",
+      "title": "Conclusion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0015-p1",
+          "reference_ids": [],
+          "en": "We have modeled treatment outcomes in 12 datasets using six different classifier implementations in the popular open‐source software R interfaced with the package caret. Our results provide evidence that the easily interpretable elastic net logistic regression and the complex random forest classifiers generally yield higher discriminative performance in (chemo)radiotherapy outcome and toxicity prediction than the other classifiers. Thus, one of these two classifiers should be the first choice for investigators to build classification models or to compare one's own modeling results. Our results also show that an informed preselection of classifiers based on existing datasets improves discrimination over random selection.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0017",
+      "title": "Conflicts of Interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0017-p1",
+          "reference_ids": [],
+          "en": "Andre Dekker, Johan van Soest, and Tim Lustberg are founders and shareholders of Medical Data Works B.V., which provides consulting on medical data collection and analysis projects. Cary Oberije is CEO of ptTheragnostic B.V. Philippe Lambin is member of the advisory board of ptTheragnostic B.V.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-14",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-14-p1",
+          "reference_ids": [],
+          "en": "Authors acknowledge financial support from ERC advanced grant (ERC‐ADG‐2015, no. 694812 — Hypoximmuno) and the QuIC‐ConCePT project, which is partly funded by EFPIa companies and the Innovative Medicine Initiative Joint Undertaking (IMI JU) under grant agreement no. 115151. This research is also supported by the Dutch Technology Foundation STW (grant no. 10696 DuCAT & no. P14‐19 Radiomics STRaTegy), which is the applied science division of NWO, and the Technology Programme of the Ministry of Economic Affairs. Authors also acknowledge financial support from the EU 7th Framework Program (ARTFORCE ‐ no. 257144, REQUITE ‐ no. 601826), SME Phase 2 (RAIL ‐ no. 673780), EUROSTARS (SeDI, CloudAtlas, DART, DECIDE), the European Program H2020 (BD2Decide ‐ PHC30‐689715, ImmunoSABR ‐ no. 733008, PREDICT ‐ ITN ‐ no. 766276, CLEARLY ‐ TRANSCAN‐FP‐045), Interreg V‐A Euregio Meuse‐Rhine (“Euradiomics”), Kankeronderzoekfonds Limburg from the Health Foundation Limburg, Alpe d'HuZes‐KWF (DESIGN), the Zuyderland‐MAASTRO grant and the Dutch Cancer Society, KWF‐ TraIT2HealthRI, Province Limburg‐LIME‐Personal Health Train, NFU‐Data4LifeSciences, Varian Medical Systems‐SAGE & ROO.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "mp12967-sec-0018",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "mp12967-sec-0018-p1",
+          "reference_ids": [
+            "mp12967-tbl-0004"
+          ],
+          "en": "Table AI lists performance metrics per classifier. These values are averaged over all repetitions and datasets (100 repetitions × 12 datasets = 1200 data points each). Accuracy and Cohen's kappa were computed at the 0.5 cutoff. Calibration fails in some outer folds for every classifier resulting in either large or undefined values for intercept and/or slope. This failure occurs frequently with nnet and rpart. Undefined (NaN) values are excluded when calculating the median.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "mp12967-tbl-0001",
+      "label": "Table 1",
+      "caption": "Dataset characteristics. The number of features is determined before preprocessing",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Disease",
+          "Outcome",
+          "Prevalence (in %)",
+          "Patients",
+          "Features",
+          "Feature types",
+          "Source"
+        ],
+        [
+          "Belderbos et al. (2005)8",
+          "Non‐small‐cell lung cancer",
+          "Grade ≥ 2 acute esophagitis",
+          "27",
+          "156",
+          "22",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ],
+        [
+          "Bots et al. (2017)9",
+          "Head and neck cancer",
+          "2‐yr overall survival",
+          "42",
+          "137",
+          "10",
+          "Clinical, dosimetric",
+          "Private"
+        ],
+        [
+          "Carvalho et al. (2016)10",
+          "Non‐small‐cell lung cancer",
+          "2‐yr overall survival",
+          "40",
+          "363",
+          "18",
+          "Clinical, dosimetric, blood",
+          "Public11"
+        ],
+        [
+          "Janssens et al. (2012)12",
+          "Laryngeal cancer",
+          "5‐yr regional control",
+          "89",
+          "179",
+          "48",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ],
+        [
+          "Jochems et al. (2016)13",
+          "Non‐small‐cell lung cancer",
+          "2‐yr overall survival",
+          "36",
+          "327",
+          "9",
+          "Clinical, dosimetric",
+          "Private"
+        ],
+        [
+          "Kwint et al. (2012)14",
+          "Non‐small‐cell lung cancer",
+          "Grade ≥ 2 acute esophagitis",
+          "61",
+          "139",
+          "83",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ],
+        [
+          "Lustberg et al. (2016)15, 16",
+          "Laryngeal cancer",
+          "2‐yr overall survival",
+          "83",
+          "922",
+          "7",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ],
+        [
+          "Morin et al. (forthcoming)",
+          "Meningioma",
+          "Local failure",
+          "36",
+          "257",
+          "18",
+          "Clinical",
+          "Private"
+        ],
+        [
+          "Oberije et al. (2015)17",
+          "Non‐small‐cell lung cancer",
+          "2‐yr overall survival",
+          "17",
+          "548",
+          "20",
+          "Clinical, dosimetric",
+          "Public18"
+        ],
+        [
+          "Olling et al. (2017)19",
+          "Small and non‐small‐cell lung cancer",
+          "Odynophagia prescription medication",
+          "67",
+          "131",
+          "47",
+          "Clinical, dosimetric",
+          "Private"
+        ],
+        [
+          "Wijsman et al. (2015)20",
+          "Non‐small‐cell lung cancer",
+          "Grade ≥ 2 acute esophagitis",
+          "36",
+          "149",
+          "11",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ],
+        [
+          "Wijsman et al. (2017)21",
+          "Non‐small‐cell lung cancer",
+          "Grade ≥ 3 radiation pneumonitis",
+          "14",
+          "188",
+          "18",
+          "Clinical, dosimetric, blood",
+          "Private"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"mp12967-tbl-0001\" orientation=\"portrait\"><label>Table 1</label><caption><p>Dataset characteristics. The number of features is determined before preprocessing</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Dataset</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Disease</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Outcome</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Prevalence (in %)</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Patients</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Features</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Feature types</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Source</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Belderbos et al. (2005)<xref rid=\"mp12967-bib-0008\" ref-type=\"bibr\">8</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Grade ≥ 2 acute esophagitis</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">27</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">156</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">22</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Bots et al. (2017)<xref rid=\"mp12967-bib-0009\" ref-type=\"bibr\">9</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Head and neck cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2‐yr overall survival</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">42</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">137</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">10</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Carvalho et al. (2016)<xref rid=\"mp12967-bib-0010\" ref-type=\"bibr\">10</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2‐yr overall survival</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">40</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">363</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Public<xref rid=\"mp12967-bib-0011\" ref-type=\"bibr\">11</xref>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Janssens et al. (2012)<xref rid=\"mp12967-bib-0012\" ref-type=\"bibr\">12</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Laryngeal cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">5‐yr regional control</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">89</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">179</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">48</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Jochems et al. (2016)<xref rid=\"mp12967-bib-0013\" ref-type=\"bibr\">13</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2‐yr overall survival</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">36</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">327</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">9</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Kwint et al. (2012)<xref rid=\"mp12967-bib-0014\" ref-type=\"bibr\">14</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Grade ≥ 2 acute esophagitis</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">61</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">139</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">83</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Lustberg et al. (2016)<xref rid=\"mp12967-bib-0015\" ref-type=\"bibr\">15</xref>, <xref rid=\"mp12967-bib-0016\" ref-type=\"bibr\">16</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Laryngeal cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2‐yr overall survival</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">83</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">922</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">7</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Morin et al. (forthcoming)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Meningioma</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Local failure</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">36</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">257</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Oberije et al. (2015)<xref rid=\"mp12967-bib-0017\" ref-type=\"bibr\">17</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2‐yr overall survival</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">17</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">548</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">20</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Public<xref rid=\"mp12967-bib-0018\" ref-type=\"bibr\">18</xref>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Olling et al. (2017)<xref rid=\"mp12967-bib-0019\" ref-type=\"bibr\">19</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Small and non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Odynophagia prescription medication</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">67</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">131</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">47</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wijsman et al. (2015)<xref rid=\"mp12967-bib-0020\" ref-type=\"bibr\">20</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Grade ≥ 2 acute esophagitis</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">36</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">149</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">11</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wijsman et al. (2017)<xref rid=\"mp12967-bib-0021\" ref-type=\"bibr\">21</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Non‐small‐cell lung cancer</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Grade ≥ 3 radiation pneumonitis</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">14</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">188</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Clinical, dosimetric, blood</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Private</td></tr></tbody></table><permissions><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder></permissions></table-wrap>"
+    },
+    {
+      "id": "mp12967-tbl-0002",
+      "label": "Table 2",
+      "caption": "Classifier characteristics",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Classifier",
+          "caret 3 label",
+          "R package",
+          "Requires dummy coding",
+          "Tuned hyperparameters"
+        ],
+        [
+          "Elastic net logistic regression",
+          "glmnet",
+          "glmnet 24",
+          "Yes",
+          "α, λ"
+        ],
+        [
+          "Random forest",
+          "rf",
+          "randomForest 25",
+          "No",
+          "mtry"
+        ],
+        [
+          "Single‐hidden‐layer neural network",
+          "nnet",
+          "nnet 26",
+          "No",
+          "size, decay"
+        ],
+        [
+          "Support vector machine with radial basis function (RBF) kernel",
+          "svmRadial",
+          "kernlab 27",
+          "Yes",
+          "σ, C"
+        ],
+        [
+          "LogitBoost",
+          "LogitBoost",
+          "caTools 28",
+          "Yes",
+          "nlter"
+        ],
+        [
+          "Decision tree",
+          "rpart",
+          "rpart 29",
+          "No",
+          "cp"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"mp12967-tbl-0002\" orientation=\"portrait\"><label>Table 2</label><caption><p>Classifier characteristics</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Classifier</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">caret</italic>\n<xref rid=\"mp12967-bib-0003\" ref-type=\"bibr\">3</xref> label</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">R</italic> package</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Requires dummy coding</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Tuned hyperparameters</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Elastic net logistic regression</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n<xref rid=\"mp12967-bib-0024\" ref-type=\"bibr\">24</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Yes</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">α</italic>,<italic toggle=\"yes\"> λ</italic>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Random forest</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">randomForest</italic>\n<xref rid=\"mp12967-bib-0025\" ref-type=\"bibr\">25</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">No</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">mtry</italic>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Single‐hidden‐layer neural network</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">nnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">nnet</italic>\n<xref rid=\"mp12967-bib-0026\" ref-type=\"bibr\">26</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">No</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">size</italic>,<italic toggle=\"yes\"> decay</italic>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Support vector machine with radial basis function (RBF) kernel</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">svmRadial</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">kernlab</italic>\n<xref rid=\"mp12967-bib-0027\" ref-type=\"bibr\">27</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Yes</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">σ</italic>,<italic toggle=\"yes\"> C</italic>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">LogitBoost</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">LogitBoost</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">caTools</italic>\n<xref rid=\"mp12967-bib-0028\" ref-type=\"bibr\">28</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Yes</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">nlter</italic>\n</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Decision tree</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rpart</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rpart</italic>\n<xref rid=\"mp12967-bib-0029\" ref-type=\"bibr\">29</xref>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">No</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">cp</italic>\n</td></tr></tbody></table><permissions><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder></permissions></table-wrap>"
+    },
+    {
+      "id": "mp12967-tbl-0003",
+      "label": "Table 3",
+      "caption": "For each dataset, the AUC rank averaged over all repetitions when (a) randomly selecting a classifier (Random classifier), (b) preselecting the classifier with the average best AUC rank in all other datasets, that is, without any information about the current dataset (Preselected classifier), (c) selecting the classifier that yielded the highest AUC in the inner CV (Set‐specific classifier). Improvements in average AUC and average AUC rank compared to (a) are reported. The average AUC improvements by preselection and set‐specific selection were tested for statistical significance (P < 0.05, one‐sided Wilcoxon signed‐rank test) and found to be statistically significant (*). No other statistical tests besides the two aforementioned tests were conducted",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Random classifier",
+          "Preselected classifier",
+          "Set‐specific classifier"
+        ],
+        [
+          "Rank",
+          "Name",
+          "Rank",
+          "AUC",
+          "Rank",
+          "AUC"
+        ],
+        [
+          "Mean",
+          "Mean",
+          "Increase",
+          "Increase",
+          "Mean",
+          "Increase",
+          "Increase"
+        ],
+        [
+          "Set A",
+          "3.59",
+          "glmnet",
+          "3.64",
+          "−0.05",
+          "0.00",
+          "3.10",
+          "0.49",
+          "0.02"
+        ],
+        [
+          "Set B",
+          "3.48",
+          "rf",
+          "2.92",
+          "0.56",
+          "0.02",
+          "3.31",
+          "0.17",
+          "0.01"
+        ],
+        [
+          "Set C",
+          "3.50",
+          "glmnet",
+          "3.12",
+          "0.37",
+          "0.03",
+          "2.78",
+          "0.72",
+          "0.03"
+        ],
+        [
+          "Set D",
+          "3.57",
+          "rf",
+          "2.60",
+          "0.97",
+          "0.04",
+          "3.31",
+          "0.26",
+          "0.02"
+        ],
+        [
+          "Set E",
+          "3.53",
+          "glmnet",
+          "3.35",
+          "0.18",
+          "0.01",
+          "1.75",
+          "1.78",
+          "0.05"
+        ],
+        [
+          "Set F",
+          "3.39",
+          "rf",
+          "1.89",
+          "1.50",
+          "0.04",
+          "2.58",
+          "0.81",
+          "0.03"
+        ],
+        [
+          "Set G",
+          "3.47",
+          "rf",
+          "2.99",
+          "0.47",
+          "0.04",
+          "3.52",
+          "−0.06",
+          "0.01"
+        ],
+        [
+          "Set H",
+          "3.44",
+          "rf",
+          "3.81",
+          "−0.37",
+          "0.00",
+          "1.70",
+          "1.74",
+          "0.05"
+        ],
+        [
+          "Set I",
+          "3.45",
+          "rf",
+          "1.59",
+          "1.86",
+          "0.06",
+          "1.72",
+          "1.73",
+          "0.05"
+        ],
+        [
+          "Set J",
+          "3.52",
+          "rf",
+          "4.18",
+          "−0.66",
+          "−0.02",
+          "3.41",
+          "0.11",
+          "0.00"
+        ],
+        [
+          "Set K",
+          "3.50",
+          "rf",
+          "3.33",
+          "0.16",
+          "0.01",
+          "3.20",
+          "0.30",
+          "0.01"
+        ],
+        [
+          "Set L",
+          "3.58",
+          "rf",
+          "3.50",
+          "0.08",
+          "0.01",
+          "3.66",
+          "−0.08",
+          "0.00"
+        ],
+        [
+          "Mean",
+          "3.50",
+          "",
+          "3.08",
+          "0.42",
+          "0.02 *",
+          "2.84",
+          "0.66",
+          "0.02 *"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"mp12967-tbl-0003\" orientation=\"portrait\"><label>Table 3</label><caption><p>For each dataset, the AUC <italic toggle=\"yes\">rank</italic> averaged over all repetitions when (a) randomly selecting a classifier (Random classifier), (b) preselecting the classifier with the average best AUC <italic toggle=\"yes\">rank</italic> in all other datasets, that is, without any information about the current dataset (Preselected classifier), (c) selecting the classifier that yielded the highest AUC in the inner CV (Set‐specific classifier). Improvements in average AUC and average AUC <italic toggle=\"yes\">rank</italic> compared to (a) are reported. The average AUC improvements by preselection and set‐specific selection were tested for statistical significance (<italic toggle=\"yes\">P</italic> &lt; 0.05, one‐sided Wilcoxon signed‐rank test) and found to be statistically significant (*). No other statistical tests besides the two aforementioned tests were conducted</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" rowspan=\"3\" valign=\"top\" colspan=\"1\">Dataset</th><th align=\"left\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Random classifier</th><th align=\"left\" colspan=\"4\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">Preselected classifier</th><th align=\"left\" colspan=\"3\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">Set‐specific classifier</th></tr><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Rank</th><th align=\"left\" rowspan=\"2\" valign=\"top\" colspan=\"1\">Name</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">Rank</th><th align=\"left\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\" colspan=\"1\">AUC</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">Rank</th><th align=\"left\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\" colspan=\"1\">AUC</th></tr><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Mean</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Mean</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Increase</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Increase</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Mean</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Increase</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Increase</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set A</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.59</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.64</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.05</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.00</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.10</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.49</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.02</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set B</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.48</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2.92</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.56</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.02</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.31</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.17</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set C</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.12</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.37</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.03</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2.78</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.03</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set D</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.57</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2.60</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.97</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.04</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.31</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.26</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.02</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set E</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.53</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.35</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.75</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.78</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.05</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set F</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.39</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.89</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.04</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2.58</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.81</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.03</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set G</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.47</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2.99</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.47</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.04</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.52</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.06</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set H</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.44</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">rf</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.81</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.37</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.00</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.70</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.74</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.05</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set I</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.45</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">rf</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.59</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.86</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.06</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.73</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.05</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set J</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.52</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">4.18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.66</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.02</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.41</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.11</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.00</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set K</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.33</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.16</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.20</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.30</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Set L</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.58</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.08</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.01</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3.66</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">−0.08</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.00</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>Mean</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>3.50</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\" /><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>3.08</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>0.42</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>0.02</bold>\n<sup>\n<bold>*</bold>\n</sup>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>2.84</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>0.66</bold>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<bold>0.02</bold>\n<sup>\n<bold>*</bold>\n</sup>\n</td></tr></tbody></table><permissions><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder></permissions></table-wrap>"
+    },
+    {
+      "id": "mp12967-tbl-0004",
+      "label": "Table AI",
+      "caption": "Median performance metrics per classifier aggregated over repetitions and datasets (1200 data points each). Undefined (NaN) values are excluded when calculating the median",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Classifier",
+          "AUC",
+          "Brier score",
+          "Accuracy",
+          "Cohen's kappa",
+          "Calibration intercept error",
+          "Calibration slope error"
+        ],
+        [
+          "rf",
+          "0.72",
+          "0.17",
+          "0.72",
+          "0.10",
+          "0.12",
+          "0.37"
+        ],
+        [
+          "glmnet",
+          "0.72",
+          "0.18",
+          "0.72",
+          "0.14",
+          "0.26",
+          "0.68"
+        ],
+        [
+          "nnet",
+          "0.71",
+          "0.21",
+          "0.69",
+          "0.11",
+          "0.36",
+          "0.96"
+        ],
+        [
+          "svmRadial",
+          "0.69",
+          "0.18",
+          "0.72",
+          "0.06",
+          "0.26",
+          "0.86"
+        ],
+        [
+          "LogitBoost",
+          "0.66",
+          "0.23",
+          "0.68",
+          "0.18",
+          "0.22",
+          "0.60"
+        ],
+        [
+          "rpart",
+          "0.63",
+          "0.20",
+          "0.71",
+          "0.16",
+          "0.21",
+          "0.56"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"anchor\" id=\"mp12967-tbl-0004\" orientation=\"portrait\"><label>Table AI</label><caption><p>Median performance metrics per classifier aggregated over repetitions and datasets (1200 data points each). Undefined (NaN) values are excluded when calculating the median</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Classifier</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">AUC</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Brier score</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Accuracy</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Cohen's kappa</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Calibration intercept error</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Calibration slope error</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rf</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.17</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.10</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.12</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.37</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">glmnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.14</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.26</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.68</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">nnet</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.71</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.21</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.69</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.11</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.36</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.96</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">svmRadial</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.69</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.06</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.26</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.86</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">LogitBoost</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.66</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.23</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.68</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.18</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.22</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.60</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic toggle=\"yes\">rpart</italic>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.63</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.20</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.71</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.16</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.21</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.56</td></tr></tbody></table><permissions><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder><copyright-holder>John Wiley &amp; Sons, Ltd</copyright-holder></permissions></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "mp12967-fig-0001",
+      "label": "Figure 1",
+      "caption": "Experimental design: each dataset is split into five stratified outer folds (step 1). For each of the folds, the data are preprocessed (imputation, dummy coding, deleting zero variance features, rescaling) (step 2). The hyperparameters are tuned in the training set via a fivefold inner CV (steps 3–5). Based on the selected hyperparameters, a model is learned on the training set (step 6) and applied on the test set (step 7). Performance metrics are calculated on the test set (step 8) and stored for all outer folds. This process is repeated 100 times for each classifier. Randomization seeds are stable across classifiers within a repetition to allow pairwise comparison. [Color figure can be viewed at wileyonlinelibrary.com]",
+      "caption_zh": "",
+      "graphics": [
+        "MP-45-3449-g004.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "mp12967-fig-0002",
+      "label": "Figure 2",
+      "caption": "Box and scatterplot of the AUC rank (lower being better) per outer fivefold CV aggregated over all datasets and repetitions (12 datasets × 100 repetitions = 1200 data points per classifier). [Color figure can be viewed at wileyonlinelibrary.com]",
+      "caption_zh": "",
+      "graphics": [
+        "MP-45-3449-g002.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "mp12967-fig-0003",
+      "label": "Figure 3",
+      "caption": "Pairwise comparisons of each classifier pair (12 datasets × 100 repetitions = 1200 comparisons per pair). The numbers in the plot indicate how often classifier A (y‐axis) achieved an AUC greater than classifier B (x‐axis). The color indicates whether the increased AUCs by classifier A are statistically significant (violet), insignificant (light violet), or have not been tested (gray). The significance cutoff was set to the 0.05‐level (one‐sided Wilcoxon signed‐rank test, Holm–Bonferroni correction for 15 tests). [Color figure can be viewed at wileyonlinelibrary.com]",
+      "caption_zh": "",
+      "graphics": [
+        "MP-45-3449-g001.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "mp12967-fig-0004",
+      "label": "Figure 4",
+      "caption": "The mean AUC for each pair of classifier and dataset (100 repetitions = 100 data points per pair). [Color figure can be viewed at wileyonlinelibrary.com]",
+      "caption_zh": "",
+      "graphics": [
+        "MP-45-3449-g005.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "mp12967-fig-0005",
+      "label": "Figure 5",
+      "caption": "The mean rank derived from the AUC (100 repetitions = 100 data points per pair). [Color figure can be viewed at wileyonlinelibrary.com]",
+      "caption_zh": "",
+      "graphics": [
+        "MP-45-3449-g003.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "mp12967-bib-0001",
+      "text": "1 Lambin P , van Stiphout RGPM , Starmans MHW , et al. Predicting outcomes in radiation oncology–multifactorial decision support systems. Nat Rev Clin Oncol. 2013;10:27–40.2316512310.1038/nrclinonc.2012.196PMC4555846",
+      "doi": [
+        "10.1038/nrclinonc.2012.196"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0002",
+      "text": "2 Lambin P , Roelofs E , Reymen B , et al. Rapid learning health care in oncology’ – An approach towards decision support systems enabling customised radiotherapy. Radiother Oncol. 2013;109:159–164.2399339910.1016/j.radonc.2013.07.007",
+      "doi": [
+        "10.1016/j.radonc.2013.07.007"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0003",
+      "text": "3 Kuhn M , Wing J , Weston S , et al. Caret: Classification and Regression Training; 2016. https://CRAN.R-project.org/package=caret.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0004",
+      "text": "4 Fernández‐Delgado M , Cernadas E , Barro S , Amorim D . Do we need hundreds of classifiers to solve real world classification problems? J Mach Learn Res. 2014;15:3133–3181.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0005",
+      "text": "5 Wainer J . Comparison of 14 different families of classification algorithms on 115 binary datasets. ArXiv160600930 Cs. June 2016. http://arxiv.org/abs/1606.00930. Accessed April 8, 2017.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0006",
+      "text": "6 Olson RS , Cava WL , Mustahsan Z , Varik A , Moore JH . Data‐driven advice for applying machine learning to bioinformatics problems. In: Biocomputing 2018. WORLD SCIENTIFIC; 2017:192‐203. 10.1142/9789813235533_0018 PMC589091229218881",
+      "doi": [
+        "10.1142/9789813235533_0018"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0007",
+      "text": "7 Parmar C , Grossmann P , Bussink J , Lambin P , Aerts HJWL . Machine learning methods for quantitative radiomic biomarkers. Sci Rep. 2015;5:13087.2627846610.1038/srep13087PMC4538374",
+      "doi": [
+        "10.1038/srep13087"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0008",
+      "text": "8 Belderbos J , Heemsbergen W , Hoogeman M , Pengel K , Rossi M , Lebesque J . Acute esophageal toxicity in non‐small cell lung cancer patients after high dose conformal radiotherapy. Radiother Oncol. 2005;75:157–164.1589042110.1016/j.radonc.2005.03.021",
+      "doi": [
+        "10.1016/j.radonc.2005.03.021"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0009",
+      "text": "9 Bots WTC , van den Bosch S , Zwijnenburg EM , et al. Reirradiation of head and neck cancer: long‐term disease control and toxicity. Head Neck. 2017;39:1122–1130.2826344610.1002/hed.24733PMC5485062",
+      "doi": [
+        "10.1002/hed.24733"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0010",
+      "text": "10 Carvalho S , Troost EGC , Bons J , Menheere P , Lambin P , Oberije C . Prognostic value of blood‐biomarkers related to hypoxia, inflammation, immune response and tumour load in non‐small cell lung cancer – a survival model with external validation. Radiother Oncol. 2016;119:487–494.2713912610.1016/j.radonc.2016.04.024",
+      "doi": [
+        "10.1016/j.radonc.2016.04.024"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0011",
+      "text": "11 Carvalho S , Troost E , Bons J , Menheere P , Lambin P , Oberije C . Data from: Prognostic value of blood‐biomarkers related to hypoxia, inflammation, immune response and tumour load in non‐small cell lung cancer – a survival model with external validation. 10.17195/candat.2016.04.1. Published 2016.27139126",
+      "doi": [
+        "10.17195/candat.2016.04.1"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0012",
+      "text": "12 Janssens GO , Rademakers SE , Terhaard CH , et al. Accelerated radiotherapy with carbogen and nicotinamide for laryngeal cancer: results of a phase III randomized trial. J Clin Oncol. 2012;30:1777–1783.2250881410.1200/JCO.2011.35.9315",
+      "doi": [
+        "10.1200/JCO.2011.35.9315"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0013",
+      "text": "13 Jochems A , Deist TM , El Naqa I , et al. Developing and validating a survival prediction model for NSCLC patients through distributed learning across 3 countries. Int J Radiat Oncol. 2017;99:344–352.10.1016/j.ijrobp.2017.04.021PMC557536028871984",
+      "doi": [
+        "10.1016/j.ijrobp.2017.04.021"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0014",
+      "text": "14 Kwint M , Uyterlinde W , Nijkamp J , et al. Acute esophagus toxicity in lung cancer patients after intensity modulated radiation therapy and concurrent chemotherapy. Int J Radiat Oncol Biol Phys. 2012;84:e223–e228.2256055110.1016/j.ijrobp.2012.03.027",
+      "doi": [
+        "10.1016/j.ijrobp.2012.03.027"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0015",
+      "text": "15 Egelmeer AGTM , Velazquez ER , de Jong JMA , et al. Development and validation of a nomogram for prediction of survival and local control in laryngeal carcinoma patients treated with radiotherapy alone: a cohort study based on 994 patients. Radiother Oncol. 2011;100:108–115.2178454410.1016/j.radonc.2011.06.023",
+      "doi": [
+        "10.1016/j.radonc.2011.06.023"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0016",
+      "text": "16 Lustberg T , Bailey M , Thwaites DI , et al. Implementation of a rapid learning platform: predicting 2‐year survival in laryngeal carcinoma patients in a clinical setting. Oncotarget. 2016;7:37288–37296.2709557810.18632/oncotarget.8755PMC5095076",
+      "doi": [
+        "10.18632/oncotarget.8755"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0017",
+      "text": "17 Oberije C , De Ruysscher D , Houben R , et al. A validated prediction model for overall survival from stage III non‐small cell lung cancer: toward survival prediction for individual patients. Int J Radiat Oncol Biol Phys. 2015;92:935–944.2593659910.1016/j.ijrobp.2015.02.048PMC4786012",
+      "doi": [
+        "10.1016/j.ijrobp.2015.02.048"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0018",
+      "text": "18 Oberije C , De Ruysscher D , Houben R , et al. Data from: A validated prediction model for overall survival from Stage III Non Small Cell Lung Cancer: towards survival prediction for individual patients; 2015. https://www.cancerdata.org/id/10.5072/candat.2015.02.10.1016/j.ijrobp.2015.02.048PMC478601225936599",
+      "doi": [
+        "10.1016/j.ijrobp.2015.02.048"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0019",
+      "text": "19 Olling K , Nyeng DW , Wee L . Predicting acute odynophagia during lung cancer radiotherapy using observations derived from patient‐centred nursing care. Tech Innov Patient Support Radiat Oncol. 2018;5:16–20.3209557010.1016/j.tipsro.2018.01.002PMC7033763",
+      "doi": [
+        "10.1016/j.tipsro.2018.01.002"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0020",
+      "text": "20 Wijsman R , Dankers F , Troost EGC , et al. Multivariable normal‐tissue complication modeling of acute esophageal toxicity in advanced stage non‐small cell lung cancer patients treated with intensity‐modulated (chemo‐)radiotherapy. Radiother Oncol. 2015;117:49–54.2634160810.1016/j.radonc.2015.08.010",
+      "doi": [
+        "10.1016/j.radonc.2015.08.010"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0021",
+      "text": "21 Wijsman R , Dankers F , Troost EGC , et al. Inclusion of incidental radiation dose to the cardiac atria and ventricles does not improve the prediction of radiation pneumonitis in advanced stage non‐small cell lung cancer patients treated with intensity‐modulated radiation therapy. Int J Radiat Oncol. 2017;99:434–441.10.1016/j.ijrobp.2017.04.01128871994",
+      "doi": [
+        "10.1016/j.ijrobp.2017.04.011"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0022",
+      "text": "22 James G , Witten D , Hastie T , Tibshirani R . An Introduction to Statistical Learning: With Applications in R. New York: Springer‐Verlag; 2013. //www.springer.com/gp/book/9781461471370. Accessed March 4, 2018.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0023",
+      "text": "23 Hastie T , Tibshirani R , Friedman J . The Elements of Statistical Learning: Data Mining, Inference, and Prediction, 2nd ed. New York: Springer‐Verlag; 2009. //www.springer.com/gp/book/9780387848570. Accessed March 4, 2018.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0024",
+      "text": "24 Friedman J , Hastie T , Tibshirani R . Regularization paths for generalized linear models via coordinate descent. J Stat Softw. 2010;33:1–22.20808728PMC2929880",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0025",
+      "text": "25 Liaw A , Wiener M . Classification and regression by randomForest. R News. 2002;2:18–22.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0026",
+      "text": "26 Venables WN , Ripley BD . Modern Applied Statistics with S, 4th ed. New York: Springer; 2002. http://www.stats.ox.ac.uk/pub/MASS4.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0027",
+      "text": "27 Karatzoglou A , Smola A , Hornik K , Zeileis A . kernlab – an S4 package for Kernel methods in R. J Stat Softw. 2004;11:1–20.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0028",
+      "text": "28 Tuszynski J . CaTools: Tools: Moving Window Statistics, GIF, Base64, ROC AUC, Etc; 2014. https://CRAN.R-project.org/package=caTools.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0029",
+      "text": "29 Therneau T , Atkinson B , Ripley B . Rpart: Recursive Partitioning and Regression Trees; 2017. https://CRAN.R-project.org/package=rpart.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0030",
+      "text": "30 Steyerberg EW , Vickers AJ , Cook NR , et al. Assessing the performance of prediction models: a framework for traditional and novel measures. Epidemiol Camb Mass. 2010;21:128–138.10.1097/EDE.0b013e3181c30fb2PMC357518420010215",
+      "doi": [
+        "10.1097/EDE.0b013e3181c30fb2"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0031",
+      "text": "31 Deist TM , Dankers FJWM , Valdes G , et al. Code for: Machine learning algorithms for outcome prediction in (chemo)radiotherapy: an empirical comparison of classifiers. https://github.com/timodeist/classifier_selection_code.10.1002/mp.12967PMC609514129763967",
+      "doi": [
+        "10.1002/mp.12967"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0032",
+      "text": "32 Lavesson N , Davidsson P . Quantifying the impact of learning algorithm parameter tuning. In: Proceedings of the 21st National Conference on Artificial Intelligence ‐ Volume 1. Boston, MA: AAAI Press; 2006:395–400.",
+      "doi": []
+    },
+    {
+      "id": "mp12967-bib-0033",
+      "text": "33 Valdes G , Luna JM , Eaton E , Ii CBS , Ungar LH , Solberg TD . MediBoost: a patient stratification tool for interpretable decision making in the era of precision medicine. Sci Rep. 2016;6:37854.2790105510.1038/srep37854PMC5129017",
+      "doi": [
+        "10.1038/srep37854"
+      ]
+    },
+    {
+      "id": "mp12967-bib-0034",
+      "text": "34 Caruana R , Lou Y , Gehrke J , Koch P , Sturm M , Elhadad N . Intelligible models for healthcare: predicting pneumonia risk and hospital 30‐day readmission. In: Proceedings of the 21th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. KDD ‘15. New York, NY, USA: ACM; 2015:1721–1730.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Deist TM, Dankers FJWM, Valdes G, Wijsman R, Hsu IC, Oberije C, Lustberg T, van Soest J, Hoebers F, Jochems A, El Naqa I, Wee L, Morin O, Raleigh DR, Bots W, Kaanders JH, Belderbos J, Kwint M, Solberg T, Monshouwer R, Bussink J, Dekker A, Lambin P.",
+  "journal": "Med Phys",
+  "year": "2018",
+  "pmid": "29763967",
+  "pmcid": "PMC6095141",
+  "doi": "10.1002/mp.12967",
+  "source": {
+    "retrieved_at": "2026-11-14T17:23:01.186348+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6095141/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6095141.xml"
+}

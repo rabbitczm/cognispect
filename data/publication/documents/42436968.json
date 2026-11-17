@@ -1,0 +1,1705 @@
+{
+  "key": "42436968",
+  "body_available": true,
+  "title": "A hybrid CNN-GNN and multitask learning pipeline for improving mild diabetic retinopathy sensitivity",
+  "source_url": "https://europepmc.org/articles/PMC13355226",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/This is an open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/).",
+    "urls": [],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Salsabila Amalia Harjanto",
+    "Rizka Wakhidatus Sholikah",
+    "Irzal Ahmad Sabilla",
+    "Gagatsatya Adiatmaja"
+  ],
+  "copyright": {
+    "statement": "© 2026 The Authors",
+    "year": "2026",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "collection",
+        "year": "2026",
+        "month": "12",
+        "day": ""
+      },
+      {
+        "type": "epub",
+        "year": "2026",
+        "month": "6",
+        "day": "29"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Body",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0005",
+          "reference_ids": [],
+          "en": "Specifications table",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0001",
+      "title": "Background",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0006",
+          "reference_ids": [
+            "bib0001",
+            "bib0002",
+            "bib0003",
+            "bib0004",
+            "bib0005"
+          ],
+          "en": "Diabetic retinopathy (DR) is the most prevalent retinal vascular disease, resulting from the chronic effects of diabetes mellitus (DM) [1,2]. It is caused by elevated sugar levels that damage the retina and can lead to blindness if not diagnosed and treated promptly [3]. Detecting early-stage DR is challenging because retinal changes, such as microaneurysms, are extremely small, low-contrast, and often resemble normal retinal variations [4]. At this stage, patients are usually asymptomatic, leading to infrequent screenings and a lack of clinical expectation for lesions. Consequently, diagnosis heavily depends on subtle visual cues and expert judgment, which can result in higher variability and missed cases [5].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0007",
+          "reference_ids": [
+            "bib0006",
+            "bib0007",
+            "bib0008",
+            "bib0009"
+          ],
+          "en": "Deep learning approaches, especially CNN, have been widely adopted for automated DR detection from retinal fundus images [6,7]. However, CNN-based models often fail to capture spatial relationships between retinal lesions, leading to reduced sensitivity toward mild DR under class imbalance [8]. As a result, models with high accuracy may be inadequate for early-stage screening. Moreover, deep learning approaches reviewed by Tsiknakis et al. [9] reported that misclassification occurs more frequently for mild DR than other severity levels. The sensitivity for mild DR was extremely low at 7%. However, the evaluation found that the use of image preprocessing can increase mild DR sensitivity to 30%, but decrease the performance by 10%.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0008",
+          "reference_ids": [
+            "bib0010",
+            "bib0011"
+          ],
+          "en": "In contrast, graph-based learning has recently emerged as a complementary strategy to address these limitations. Wang et al. [10] showed that organizing CNN-extracted features into graph structures enables explicit modelling of spatial dependencies between retinal regions, improving structural representation for DR grading tasks. Furthermore, Graph Neural Networks (GNNs) can refine CNN feature embeddings and enhance robustness across datasets with varying image quality and acquisition conditions [11]. However, these approaches primarily focus on overall classification accuracy rather than sensitivity-oriented detection of minority classes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0009",
+          "reference_ids": [
+            "bib0012",
+            "bib0013"
+          ],
+          "en": "In parallel, Multitask Learning (MTL) offers a principled solution by jointly optimizing related tasks within a shared representation space. Yu et al. [12] provided a comprehensive review of MTL, demonstrating that simultaneous optimization of related tasks improves robustness and performance under data imbalance. Moreover, Xie et al. [13] also proposed a multi-task supervised progressive learning network that jointly performs DR identification (binary) and grading (multiclass), showing improved performance compared to single-task approaches.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0010",
+          "reference_ids": [],
+          "en": "Despite these advances, current methods tend to explore graph-based modelling and multitask supervision separately, lacking a unified, reproducible pipeline that systematically integrates both strategies to specifically enhance Mild DR sensitivity. Moreover, most prior research evaluates performance exclusively on in-domain datasets, neglecting the vital aspect of cross-domain generalization, which is crucial for real-world application.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0011",
+          "reference_ids": [],
+          "en": "This work presents a hybrid CNN-GNN architecture with multitask learning specifically designed to enhance sensitivity in detecting Mild Diabetic Retinopathy while maintaining overall classification accuracy. The proposed method integrates graph-based spatial modelling with dual-task supervision to address the challenge of capturing subtle microlesions under severe class imbalance. The method is systematically validated through both in-domain evaluation and cross-domain testing on an unseen dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0002",
+      "title": "Method details",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0012",
+          "reference_ids": [
+            "fig0001"
+          ],
+          "en": "This section describes the complete implementation of the hybrid CNN-GNN multitask pipeline, organized into eight subsections covering data handling, preprocessing, feature extraction, graph construction, neural network architectures, training strategies, multitask formulation, and validation protocols. All experiments are conducted using PyTorch 2.0.1, PyTorch Geometric 2.3.0, and timm 0.9.2 on NVIDIA A100 GPUs via Google Colab Pro. The proposed methodology is structured as an end-to-end hybrid pipeline, as shown in Fig. 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0003",
+      "title": "Data preparation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0013",
+          "reference_ids": [
+            "tbl0001"
+          ],
+          "en": "The proposed method is evaluated under two experimental settings: in-domain and cross-domain. For the in-domain setting, the APTOS 2019 Blindness Detection dataset is used for training and validation, with Diabetic Retinopathy severity annotated into five classes: No DR (0), Mild (1), Moderate (2), Severe (3), and Proliferative DR (4). Data are partitioned using stratified 5-fold cross-validation to preserve the class distribution across folds. For cross-domain evaluation, the model is trained using a combination of DDR and IDRiD datasets and then evaluated on an unseen target dataset, Messidor-2. This dataset presents different imaging characteristics and acquisition conditions, and no domain-specific fine-tuning is applied to the target data. Identical data preparation and splitting strategies are employed across both settings to ensure consistency and to enable reliable assessment of model robustness under domain shift. Table 1 summarizes the dataset distribution for both experimental settings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0004",
+      "title": "Data preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0014",
+          "reference_ids": [
+            "bib0014"
+          ],
+          "en": "All fundus images undergo a standardized preprocessing pipeline designed to remove non-informative regions and enhance subtle retinal lesions associated with early-stage Diabetic Retinopathy. The first step is automatic cropping to eliminate peripheral black backgrounds commonly present in fundus photographs [14]. This is achieved by converting the image to grayscale, applying a binary threshold at intensity level 7, and computing a tight bounding box around all pixels exceeding this threshold, ensuring that subsequent processing focuses exclusively on diagnostically relevant content.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0015",
+          "reference_ids": [
+            "bib0015",
+            "fig0002"
+          ],
+          "en": "Following cropping, contrast enhancement is applied using Contrast Limited Adaptive Histogram Equalization (CLAHE) on the green channel of the RGB image. The green channel is selected due to its higher contrast sensitivity to microvascular abnormalities such as microaneurysms compared to the red and blue channels [15]. CLAHE is applied with a tile size of 8 × 8 pixels and a clip limit of 2.0 to enhance local contrast while preventing noise amplification in homogeneous regions. The enhanced green channel is replicated across three channels to maintain compatibility with the convolutional backbone. Fig. 2 shows the result of the preprocessing process.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0016",
+          "reference_ids": [
+            "bib0016"
+          ],
+          "en": "All images are then resized to a uniform spatial resolution of 512 × 512 pixels using bilinear interpolation to match the input requirements of the CNN backbone. Lightweight data augmentation is applied during training to improve robustness against variations in orientation and illumination, including horizontal flipping (probability 0.5), small-angle rotations (range ±15°), and brightness-contrast adjustments (variation range ±0.2). These transformations are intentionally constrained to preserve the anatomical structure of the retina. Augmentation is implemented using the Albumentations library (version 1.3.1) [16].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0005",
+      "title": "CNN feature extraction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0017",
+          "reference_ids": [
+            "bib0017",
+            "bib0018"
+          ],
+          "en": "Convolutional feature extraction is performed using EfficientNet-B0 as the backbone network, selected for its balanced trade-off between representational capacity and computational efficiency [17]. EfficientNet-B0 has demonstrated superior performance in medical image classification tasks, including diabetic retinopathy detection, while maintaining lower computational requirements compared to larger architectures [18]. Pre-processed fundus images are provided as RGB inputs with a fixed resolution of 512 × 512 and forwarded through the convolutional layers of EfficientNet-B0. High-level feature maps are extracted from the final convolutional block prior to global pooling and classification, preserving spatial resolution and encoding localized texture, intensity, and structural information relevant to retinal pathology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0018",
+          "reference_ids": [],
+          "en": "The CNN is trained using Cross Entropy Loss and optimized with the Adam optimizer at an initial learning rate of 1 × 10⁻⁴. Training stability is maintained using a ReduceLROnPlateau scheduler with a patience of 2 epochs and a reduction factor of 0.5, while early stopping is applied if no validation improvement is observed for 5 consecutive epochs. Instead of collapsing features into a global descriptor, the resulting spatial feature maps are retained and used as node representations for subsequent graph construction, enabling localized retinal regions to be explicitly modeled in later stages.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0006",
+      "title": "Graph construction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0019",
+          "reference_ids": [],
+          "en": "Graph construction is a central component of the proposed pipeline, enabling explicit modeling of spatial relationships between retinal regions that are not directly captured by convolutional feature extraction alone. Graphs are constructed from the spatial feature maps produced by the CNN backbone, where each spatial location corresponds to a node representing a localized retinal region.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0007",
+      "title": "Node definition",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0020",
+          "reference_ids": [],
+          "en": "Each node is defined by the feature vector extracted from a single spatial position in the CNN feature map. Given a feature map of spatial dimensions H×Wand channel depth C, the image is represented as a graph with N=H×W nodes, where each node carries a C-dimensional feature embedding. This representation preserves localized texture and intensity information while enabling relational modelling across the retina.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0008",
+      "title": "Edge construction strategies",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0021",
+          "reference_ids": [],
+          "en": "To model spatial relationships between nodes, two complementary graph construction strategies are employed: grid-based graphs and adaptive k-nearest neighbor (KNN) graphs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0022",
+          "reference_ids": [],
+          "en": "In grid-based graphs, connectivity is defined directly according to the two-dimensional layout of the feature map. Two variants are considered. In the Grid-4 configuration, each node is connected to its four immediate neighbors (up, down, left, and right), while the Grid-8 configuration additionally includes diagonal neighbors, resulting in denser local connectivity. Edge relationships in grid-based graphs are implicitly governed by Euclidean distance on the feature map grid, enforcing locality and preserving anatomical continuity of retinal structures.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0023",
+          "reference_ids": [
+            "eqn0001",
+            "fig0003"
+          ],
+          "en": "Adaptive KNN graphs are designed to capture more flexible, data-driven relationships between retinal regions. In this approach, each node is connected to its kmost relevant neighbors based on a combined similarity score that integrates feature similarity and spatial proximity. Feature similarity is computed using cosine similarity between CNN-derived feature vectors, while spatial proximity is computed using Euclidean distance between normalized spatial coordinates on the feature map. The two components are linearly combined using a weighting parameter α∈[0,1], defined in Eq. (1).A fixed value of α=0.7is used across all experiments to ensure consistent graph topology construction. Multiple neighborhood sizes are evaluated to control graph density, including KNN-6, KNN-8, and KNN-12, enabling analysis of different local and global connectivity trade-offs. This adaptive strategy allows visually similar lesion regions to form meaningful connections even when they are not immediate spatial neighbors. The structural differences between grid-based and adaptive KNN graph construction strategies are visualized in Fig. 3, demonstrating how grid connectivity preserves strict spatial locality while KNN-based approaches enable feature-driven connections.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0009",
+      "title": "GNN architecture",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0024",
+          "reference_ids": [
+            "bib0019",
+            "bib0020"
+          ],
+          "en": "Graph-based learning in the proposed pipeline is implemented using a Graph Convolutional Network (GCN), which is well suited for propagating information across structured graph representations derived from retinal feature maps. The GCN operates on the constructed graphs to refine node-level representations by aggregating information from neighboring nodes through message passing [19,20].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0025",
+          "reference_ids": [],
+          "en": "The GNN architecture consists of two stacked graph convolution layers. The first GCN layer maps the input node features of dimension C(corresponding to the CNN feature channels) to a 256-dimensional hidden representation, followed by batch normalization and ReLU activation to stabilize training and introduce non-linearity. The second GCN layer further reduces the feature dimensionality to 128 dimensions, again followed by batch normalization and ReLU activation. This hierarchical design enables progressive refinement of node embeddings while controlling model complexity.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0026",
+          "reference_ids": [],
+          "en": "Message passing is performed according to the standard GCN formulation, where each node updates its representation by aggregating normalized features from its immediate neighbors as defined by the graph topology. This mechanism allows information from spatially or feature-related retinal regions to be integrated, enhancing contextual awareness for subtle lesion patterns.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0027",
+          "reference_ids": [],
+          "en": "After message passing, node-level embeddings are aggregated into a graph-level representation using global mean pooling, producing a fixed-length embedding vector for each retinal image regardless of graph size. This pooled embedding is then forwarded to a multilayer perceptron (MLP) classifier head, composed of a 128-to-64 fully connected layer with ReLU activation, followed by a final linear layer that maps to the target number of output classes.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0028",
+          "reference_ids": [
+            "fig0004"
+          ],
+          "en": "The graph-based components are optimized using the same training configuration as the CNN backbone, including CrossEntropyLoss, Adam optimizer with a learning rate of 1 × 10⁻⁴, ReduceLROnPlateau scheduling, and early stopping. This shared configuration ensures stable joint optimization across the pipeline. The complete GNN architecture is illustrated in Fig. 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0010",
+      "title": "Training strategy",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0029",
+          "reference_ids": [],
+          "en": "Training of the proposed hybrid CNN-GNN pipeline is conducted in two sequential stages to ensure stable optimization and effective coupling between convolutional feature extraction and graph-based relational modelling.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0030",
+          "reference_ids": [],
+          "en": "In the first stage, the CNN backbone is optimized independently while all graph-based components are excluded from training. This stage allows the convolutional network to learn robust low and mid-level retinal representations without interference from graph message passing. The resulting spatial feature maps are treated as fixed inputs for subsequent graph construction.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0031",
+          "reference_ids": [],
+          "en": "In the second stage, joint fine-tuning is performed by unfreezing selected layers of the CNN backbone and optimizing the full CNN-GNN architecture end-to-end. Specifically, Block 5, Block 6, and the convolutional head of EfficientNet-B0 are unfrozen, while earlier layers remain frozen to preserve low-level feature representations. This partial unfreezing strategy balances adaptability to graph-based feedback with training stability. During joint fine-tuning, graph structures constructed using Grid-4, Grid-8, KNN-6, KNN-8, and KNN-12 configurations are used to propagate relational information across retinal regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0011",
+      "title": "Multitask learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0032",
+          "reference_ids": [],
+          "en": "The final stage of the proposed methodology employs a multitask learning (MTL) strategy to explicitly improve sensitivity toward Mild Diabetic Retinopathy (DR) while maintaining robust multiclass grading performance. The multitask formulation extends the CNN-GNN architecture obtained from the joint fine-tuning stage.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0033",
+          "reference_ids": [],
+          "en": "Multitask learning is implemented using a graph-based classifier with two task-specific output heads built on top of a shared GNN encoder. The pooled graph embedding is projected into a lower-dimensional latent space using a lightweight multilayer perceptron, reducing the feature dimensionality by half. This latent representation is shared by both tasks and subsequently branched into two independent output heads:1.Multiclass head, which outputs logits for five DR severity classes: No DR (0), Mild (1), Moderate (2), Severe (3), and Proliferative DR (4).2.Binary head, which outputs a single logit representing the probability of Mild DR versus Non-Mild DR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0034",
+          "reference_ids": [],
+          "en": "Multiclass head, which outputs logits for five DR severity classes: No DR (0), Mild (1), Moderate (2), Severe (3), and Proliferative DR (4).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0035",
+          "reference_ids": [],
+          "en": "Binary head, which outputs a single logit representing the probability of Mild DR versus Non-Mild DR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0036",
+          "reference_ids": [],
+          "en": "This shared-branching design enables gradients from both tasks to jointly shape the latent representation, encouraging sensitivity to subtle pathological patterns associated with Mild DR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0012",
+      "title": "Label formulation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0037",
+          "reference_ids": [],
+          "en": "The multitask framework does not require additional annotations beyond the original DR severity labels. Binary labels for the Mild-versus-Non-Mild task are derived directly from the multiclass labels using a deterministic mapping: samples labelled as Mild DR are assigned a binary label of 1, while all other severity levels are assigned a label of 0. This strategy preserves label consistency across tasks and avoids reliance on auxiliary datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0013",
+      "title": "Loss formulation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0038",
+          "reference_ids": [
+            "bib0021",
+            "bib0022",
+            "eqn0002",
+            "fig0005"
+          ],
+          "en": "Training is supervised using a weighted combination of two loss functions corresponding to the two tasks. The multiclass loss is defined using categorical cross-entropy [21] and the binary loss is defined using weighted binary cross-entropy with logits [22] to compensate for class imbalance. The overall multitask objective is defined as a weighted sum of the two losses as shown Eq. (2).where fixed task weights WCE=1.0and WBCE=2.5are used throughout training to prioritize sensitivity toward Mild DR while preserving global classification performance. The multitask architecture with dual output heads is shown in Fig. 5.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0014",
+      "title": "Training configuration",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0039",
+          "reference_ids": [],
+          "en": "Multitask training is initialized from the best-performing CNN backbone obtained in the previous stage, selected based on Mild DR recall. During multitask optimization, Block 5, Block 6, and the convolutional head of EfficientNet-B0 are unfrozen, while earlier layers remain frozen to prevent catastrophic forgetting of general retinal features using the exact same configuration as CNN-GNN joint fine-tune stage. Due to the memory demands of graph-based representations, training is conducted with a batch size of 6 for a maximum of 10 epochs per fold. Graph structures and edge indices are loaded from cached files generated during earlier stages to ensure consistent graph topology across folds and training epochs. Training is performed using stratified 5-fold cross-validation, and for each fold, two model checkpoints are retained: one corresponding to the lowest validation loss and another corresponding to the highest Mild DR recall.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0015",
+      "title": "Method validation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0040",
+          "reference_ids": [],
+          "en": "Method validation is performed by comparing the proposed hybrid CNN-GNN multitask pipeline against a CNN-only baseline using identical data splits and evaluation protocols. Method validation is performed under two evaluation settings:1.In-domain validation, where training and testing are conducted on the same dataset distribution using stratified 5-fold cross-validation.2.Cross-domain validation, where the model is trained on source datasets and evaluated on an unseen target dataset to assess robustness under domain shift.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0041",
+          "reference_ids": [],
+          "en": "In-domain validation, where training and testing are conducted on the same dataset distribution using stratified 5-fold cross-validation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0042",
+          "reference_ids": [],
+          "en": "Cross-domain validation, where the model is trained on source datasets and evaluated on an unseen target dataset to assess robustness under domain shift.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0043",
+          "reference_ids": [],
+          "en": "All validation results are reported as averages across five folds to reduce variance caused by data partitioning and to ensure reproducibility.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0016",
+      "title": "Evaluation metrics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0044",
+          "reference_ids": [],
+          "en": "The proposed method is validated using a set of evaluation metrics selected to reflect both sensitivity toward early-stage Diabetic Retinopathy and stability of overall classification performance.•Mild DR recall.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0045",
+          "reference_ids": [],
+          "en": "Mild DR recall.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0046",
+          "reference_ids": [
+            "bib0023"
+          ],
+          "en": "Used as the primary validation metric to quantify the proportion of Mild DR cases correctly identified by the model. This metric directly reflects the method’s ability to detect early-stage disease, where false negatives are clinically critical [23].•Global accuracy.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0047",
+          "reference_ids": [],
+          "en": "Global accuracy.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0048",
+          "reference_ids": [
+            "bib0023"
+          ],
+          "en": "Reported as a secondary metric to assess overall classification stability across five DR severity levels and to ensure that improvements in Mild sensitivity are not achieved at the expense of excessive degradation in global performance [23].•Area Under the ROC Curve (AUC).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0049",
+          "reference_ids": [],
+          "en": "Area Under the ROC Curve (AUC).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0050",
+          "reference_ids": [
+            "bib0024"
+          ],
+          "en": "Used in cross-domain evaluation to assess class separability under severe class imbalance. AUC provides a threshold-independent measure of model discrimination capability across datasets with heterogeneous distributions [24].•Quadratic Weighted Kappa (QWK).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0051",
+          "reference_ids": [],
+          "en": "Quadratic Weighted Kappa (QWK).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0052",
+          "reference_ids": [
+            "bib0025"
+          ],
+          "en": "Employed to evaluate agreement between predicted and ground-truth DR severity labels in an ordinal classification setting. QWK accounts for the relative severity of misclassifications, assigning lower penalties to predictions that deviate by fewer severity levels [25].",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0017",
+      "title": "In-domain validation results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0053",
+          "reference_ids": [],
+          "en": "In-domain validation was performed on the APTOS 2019 dataset to assess the effectiveness and generalizability of the proposed framework. The experiments included three evaluation scenarios. First, we compared the proposed method with CNN-based baselines using EfficientNet-B0 trained with both standard Cross-Entropy (CE) loss and weighted Cross-Entropy (WCE) loss. This comparison aimed to evaluate how effective class weighting is in alleviating class imbalance, particularly for the minority Mild DR class. Second, we conducted an ablation study to quantify the contribution of each component within the proposed framework. This was achieved by progressively incorporating the GNN and MTL. Third, we explored the impact of different graph construction strategies by comparing the Grid method and k-Nearest Neighbours (k-NN). The Grid approach utilizes a fixed neighbourhood structure, making it well-suited for modelling uniform spatial dependencies. In contrast, the k-NN approach dynamically constructs graph edges based on feature similarity and spatial proximity, allowing for more adaptive neighbourhood representations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0054",
+          "reference_ids": [
+            "tbl0002"
+          ],
+          "en": "All experiments were conducted using 5-fold cross-validation to evaluate the robustness of the proposed method across different data splits. Since model selection can impact the reported performance, we considered two selection criteria. The first criterion involves selecting the model with the lowest validation loss in each fold, while the second focuses on choosing the model that achieves the highest validation recall for the Mild DR class, the primary objective of this study. The experimental results are summarized in Table 2, divided into two sections corresponding to these selection criteria. For each model, the table presents the mean accuracy and Mild DR recall, along with their standard deviations across the five folds.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0055",
+          "reference_ids": [
+            "tbl0002"
+          ],
+          "en": "The results presented in Table 2 show that using WCE consistently enhances the recall of the Mild DR class within the CNN baseline, based on both model selection criteria. However, this improvement is achieved at the cost of overall classification accuracy. When the model is selected based on the lowest validation loss, WCE increases the recall for Mild DR by 0.119, but this comes with a decrease in overall accuracy of 0.036. Similarly, when using the Mild DR recall as the selection criterion, WCE improves recall by 0.071 while reducing accuracy by 0.020. These findings illustrate the effectiveness of class weighting in addressing class imbalance, although they highlight a trade-off in overall performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0056",
+          "reference_ids": [],
+          "en": "In contrast, incorporating MTL into the CNN significantly reduces the trade-off between recall and overall accuracy. While MTL preserves the recall improvements achieved by WCE, the decrease in overall accuracy becomes negligible. Additionally, when models are selected based on the highest validation recall for the Mild DR class, the CNN-MTL model not only improves Mild DR recall but also increases overall accuracy by 0.010 points compared to the CNN baseline. This suggests that MTL helps the model learn more discriminative representations that benefit both the main multiclass task and the auxiliary binary task.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0057",
+          "reference_ids": [],
+          "en": "The ablation study further highlights the GNN's contribution. When GNN is integrated into the CNN on its own, performance declines slightly compared to the CNN-MTL model. However, when both GNN and MTL are combined in the proposed CNN-GNN-MTL framework, the model achieves the best overall performance. Specifically, this integrated model achieves the highest Mild DR recall while maintaining competitive overall accuracy, outperforming the CNN, CNN-GNN, and CNN-MTL variants. These results indicate that the complementary strengths of GNN and MTL enable the model to better identify the minority Mild DR class without significantly compromising overall classification performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0058",
+          "reference_ids": [
+            "fig0006",
+            "fig0006",
+            "fig0006"
+          ],
+          "en": "Figs. 6(a) and 6(b) compare the performance of the proposed CNN-GNN-MTL model using various graph construction strategies across five cross-validation folds. As seen in Fig. 6(a), the Grid-8 strategy consistently demonstrates a strong and stable recall for Mild DR throughout the training process across nearly all folds. In contrast, Fig. 6(b) indicates that the k-NN-12 strategy provides the most stable overall accuracy, showing fewer performance fluctuations across epochs compared to the other graph construction methods. These results suggest that the choice of graph construction strategy impacts different aspects of model performance: the Grid-based graph is more effective at enhancing the recall of the minority Mild DR class, while the k-NN-based graph offers greater stability in overall classification accuracy.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0059",
+          "reference_ids": [
+            "tbl0003",
+            "tbl0003"
+          ],
+          "en": "The proposed MTL employs fixed task weights of WCE=1.0for the multiclass classification task and WBCE=2.5for the auxiliary binary classification task. These weights were selected empirically based on preliminary experiments. Several combinations of fixed task weights, together with a dynamic weighting strategy, were evaluated to investigate their influence on model performance, as summarized in Table 3. Among the evaluated configurations, the combination of WCE=1.0and WBCE=2.5achieved the most favourable balance between overall accuracy and Mild DR recall. A higher weight was assigned to the auxiliary binary classification loss because the primary objective of this study is to enhance the detection of the minority Mild DR class. This binary task distinguishes Mild DR from all other categories, providing a more direct supervisory for identifying features that separate Mild DR from the remaining classes. Table 3 presents the performance comparison under both model selection criteria: the lowest validation loss and the highest validation recall for Mild DR.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0060",
+          "reference_ids": [
+            "tbl0004",
+            "bib0026",
+            "bib0027",
+            "bib0028",
+            "bib0029",
+            "bib0026",
+            "bib0027",
+            "bib0028",
+            "bib0029"
+          ],
+          "en": "The final in-domain validation experiment compares the proposed CNN-GNN-MTL pipeline with several representative state-of-the-art architectures, including the baseline EfficientNet-B0, ResNet34, DenseNet121, and Vision Transformer (ViT). The comparison aims to assess the effectiveness of the proposed pipeline relative to widely used CNN- and transformer-based approaches. The results are summarized in Table 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0061",
+          "reference_ids": [],
+          "en": "Among the evaluated models, the Vision Transformer achieves the highest Mild DR recall under both model selection criteria (lowest validation loss and highest validation Mild DR recall). The proposed CNN-GNN-MTL pipeline achieves a comparable Mild DR recall, with a difference of 0.027 relative to the Vision Transformer. In addition, the proposed pipeline requires substantially less training time than the Vision Transformer. Although the Vision Transformer provides the highest recall, the results indicate that the proposed pipeline offers a favourable trade-off between detection performance and computational efficiency. This balance may be particularly beneficial in situations where computational resources or model development time are limited.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0062",
+          "reference_ids": [
+            "tbl0005",
+            "tbl0005",
+            "bib0026",
+            "bib0027",
+            "bib0028",
+            "bib0029"
+          ],
+          "en": "An additional comparison of inference time, the number of trainable parameters, and model size is presented in Table 5 to evaluate the deployment characteristics of the proposed and baseline models. The number of trainable parameters provides an indication of model complexity, where models with a larger number of parameters generally require greater computational resources during training and inference. Similarly, model size reflects the storage requirement of the trained model, which is an important consideration for deployment, particularly in scenarios involving mobile devices, or resource-constrained environments. In addition, inference time is a practical indicator of runtime efficiency and is relevant for applications requiring timely responses, such as computer-aided clinical screening. To ensure a fair comparison, the inference time for all models was measured under the same experimental environment using Google Colab Pro equipped with an NVIDIA Tesla T4 GPU, with a batch size of one after a warm-up phase to simulate a practical deployment scenario. Table 5 shows that the proposed CNN-GNN-MTL model achieves competitive deployment characteristics by maintaining a relatively small model size while providing enhanced classification performance compared to the other evaluated methods, making it a promising candidate for practical applications in diabetic retinopathy screening.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0018",
+      "title": "Cross-domain validation results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0063",
+          "reference_ids": [
+            "tbl0006"
+          ],
+          "en": "Cross-domain validation is conducted by training models on DDR- IDRiD and evaluating them on the unseen Messidor-2 test-set using best CNN-GNN-MTL model from in-domain training. This experiment assesses the robustness of the proposed method under domain shift. Table 6 summarizes the cross-domain validation performance on the Messidor-2 dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "para0064",
+          "reference_ids": [
+            "fig0007"
+          ],
+          "en": "Cross-domain validation indicates an overall performance degradation when models trained on the source domain are evaluated on unseen data, which is expected under domain shift conditions. Despite this global decline, the proposed CNN-GNN-MTL pipeline consistently maintains higher performance than the CNN-only baseline. The CNN-GNN-MTL model with KNN-8 graph construction yields a 64.4% relative improvement in Mild DR recall compared to the CNN baseline. Notably, this improvement is accompanied by a slight increase in overall accuracy (+1.38%), indicating enhanced robustness. The best-performing fold reaches a Mild DR recall of 0.76, substantially exceeding the maximum baseline recall of 0.52, further supporting the effectiveness of the proposed method. Fig. 7 presents normalized confusion matrices for cross-domain evaluation, comparing the baseline and the proposed model. The CNN baseline exhibits a high rate of false negatives for Mild DR, with frequent misclassification into No DR and Moderate DR classes. In contrast, the CNN-GNN-MTL model reduces these misclassifications, indicating improved sensitivity toward Mild DR under domain shift.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0019",
+      "title": "Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0065",
+          "reference_ids": [],
+          "en": "The proposed hybrid CNN-GNN multitask pipeline demonstrates improved sensitivity toward Mild Diabetic Retinopathy detection, but several limitations should be acknowledged. First, the method relies on high-quality fundus images with sufficient resolution and contrast to construct meaningful graph representations. Images with severe degradation, excessive noise, or significant artifacts may lead to suboptimal feature extraction and graph construction, potentially reducing classification performance. Second, the graph construction process, particularly the adaptive k-nearest neighbor strategy, introduces computational overhead compared to standard CNN-only approaches. This may limit real-time deployment in resource-constrained clinical environments, although the inference time remains acceptable for batch processing applications. Third, while the method improves Mild DR recall, this improvement comes with a modest trade-off in overall accuracy, particularly when evaluated on cross-domain datasets. The degree of this trade-off may vary depending on dataset characteristics, imaging protocols, and class distribution. Fourth, the multitask learning framework requires careful tuning of task weights to balance sensitivity and specificity. The fixed weight configuration used in this study may not generalize optimally across all datasets or clinical scenarios, and domain-specific weight adjustment may be necessary. Finally, the method has been validated primarily on publicly available datasets with specific imaging conditions and annotation protocols. Performance may vary when applied to datasets acquired using different fundus camera models, lighting conditions, or field-of-view settings. Despite these limitations, the proposed method provides a systematic and reproducible framework for enhancing Mild DR detection while maintaining competitive overall classification performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0020",
+      "title": "Ethics statements",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0066",
+          "reference_ids": [],
+          "en": "None.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0021",
+      "title": "CRediT author statement",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0067",
+          "reference_ids": [],
+          "en": "Salsabila Amalia Harjanto: Conceptualization, Methodology, Validation, Formal analysis, Investigation, Data curation, Writing - Original draft, Visualization. Rizka Wakhidatus Sholikah: Validation, Funding acquisition, Writing - Review, Supervision, Project administration. Irzal Ahmad Sabilla: Supervision. Gagatsatya Adiatmaja: Writing - Review.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "sec0022",
+      "title": "Declaration of generative AI and AI-assisted technologies in the manuscript preparation process",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0071",
+          "reference_ids": [],
+          "en": "During the preparation of this work, the author(s) used Grammarly and Editage-paperpal in order to improve the fluency and structure of the paragraphs. After using this tool/service, the author(s) reviewed and edited the content as needed and take(s) full responsibility for the content of the published article.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "coi0001",
+      "title": "Declaration of competing interest",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0072",
+          "reference_ids": [],
+          "en": "The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-25",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para0073",
+          "reference_ids": [],
+          "en": "The authors gratefully acknowledge the financial support provided by Institut Teknologi Sepuluh Nopember (ITS) through the Strategic Research Grant Scheme under Contract No 1405/PKS/ITS/2026.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "refdata001",
+      "title": "Data availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "para9001",
+          "reference_ids": [],
+          "en": "The dataset used is open access and already inform inside the Resource availability table in the manuscript",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "utbl0001",
+      "label": "",
+      "caption": "",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Subject area",
+          "Computer Science"
+        ],
+        [
+          "More specific subject area",
+          "Medical Image Analysis-Diabetic Retinopathy Screening"
+        ],
+        [
+          "Name of your method",
+          "Hybrid CNN-GNN and Multitask Learning Pipeline for Mild Diabetic Retinopathy Detection"
+        ],
+        [
+          "Name and reference of original method",
+          "N/A"
+        ],
+        [
+          "Resource availability",
+          "Dataset Links -APTOS 2019: https://www.kaggle.com/c/aptos2019-blindness-detectionMessidor-2: https://www.kaggle.com/datasets/mariaherrerot/messidor2preprocessIDRiD: https://www.kaggle.com/datasets/mariaherrerot/idrid-datasetDDR: https://www.kaggle.com/datasets/mariaherrerot/ddrdataset"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap xmlns:ns0=\"http://www.w3.org/1999/xlink\" position=\"float\" id=\"utbl0001\" orientation=\"portrait\"><table frame=\"hsides\" rules=\"groups\"><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Subject area</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Computer Science</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>More specific subject area</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Medical Image Analysis-Diabetic Retinopathy Screening</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Name of your method</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Hybrid CNN-GNN and Multitask Learning Pipeline for Mild Diabetic Retinopathy Detection</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Name and reference of original method</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">N/A</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Resource availability</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Dataset Links -<break />APTOS 2019: <ext-link ext-link-type=\"uri\" ns0:href=\"https://www.kaggle.com/c/aptos2019-blindness-detection\" id=\"interref0001\">https://www.kaggle.com/c/aptos2019-blindness-detection</ext-link><break />Messidor-2: <ext-link ext-link-type=\"uri\" ns0:href=\"https://www.kaggle.com/datasets/mariaherrerot/messidor2preprocess\" id=\"interref0002\">https://www.kaggle.com/datasets/mariaherrerot/messidor2preprocess</ext-link><break />IDRiD: <ext-link ext-link-type=\"uri\" ns0:href=\"https://www.kaggle.com/datasets/mariaherrerot/idrid-dataset\" id=\"interref0003\">https://www.kaggle.com/datasets/mariaherrerot/idrid-dataset</ext-link><break />DDR: <ext-link ext-link-type=\"uri\" ns0:href=\"https://www.kaggle.com/datasets/mariaherrerot/ddrdataset\" id=\"interref0004\">https://www.kaggle.com/datasets/mariaherrerot/ddrdataset</ext-link></td></tr></tbody></table></table-wrap>\n"
+    },
+    {
+      "id": "tbl0001",
+      "label": "Table 1",
+      "caption": "Dataset distribution for in-domain and cross-domain experimental settings.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Setting",
+          "Split",
+          "Total",
+          "Class 0",
+          "Class 1",
+          "Class 2",
+          "Class 3",
+          "Class 4"
+        ],
+        [
+          "In-domain (APTOS 2019)",
+          "Train (80%)",
+          "2929",
+          "1444",
+          "296",
+          "799",
+          "154",
+          "236"
+        ],
+        [
+          "Validation (20%)",
+          "733",
+          "361",
+          "74",
+          "200",
+          "39",
+          "59"
+        ],
+        [
+          "Total",
+          "3662",
+          "1805",
+          "370",
+          "999",
+          "193",
+          "295"
+        ],
+        [
+          "Cross-domain (DDR + IDRiD)",
+          "Train (80%)",
+          "10,381",
+          "5116",
+          "522",
+          "3706",
+          "256",
+          "781"
+        ],
+        [
+          "Validation (20%)",
+          "2596",
+          "1297",
+          "130",
+          "927",
+          "64",
+          "196"
+        ],
+        [
+          "Total",
+          "12,977",
+          "6395",
+          "652",
+          "4633",
+          "320",
+          "977"
+        ],
+        [
+          "External test (Messidor-2)",
+          "Test (n_max=100)",
+          "100",
+          "100",
+          "27",
+          "100",
+          "75",
+          "35"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0001\" orientation=\"portrait\"><label>Table 1</label><caption><p>Dataset distribution for in-domain and cross-domain experimental settings.</p></caption><alt-text id=\"alt0001\">Table 1 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\">Setting</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Split</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Total</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Class 0</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Class 1</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Class 2</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Class 3</th><th valign=\"top\" colspan=\"1\" rowspan=\"1\">Class 4</th></tr></thead><tbody><tr><td rowspan=\"3\" align=\"left\" valign=\"top\" colspan=\"1\"><bold>In-domain (APTOS 2019)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Train (80%)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2929</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">1444</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">296</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">799</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">154</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">236</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Validation (20%)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">733</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">361</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">74</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">200</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">39</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">59</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Total</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>3662</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>1805</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>370</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>999</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>193</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>295</bold></td></tr><tr><td rowspan=\"3\" align=\"left\" valign=\"top\" colspan=\"1\"><bold>Cross-domain (DDR + IDRiD)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Train (80%)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">10,381</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">5116</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">522</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">3706</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">256</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">781</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Validation (20%)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">2596</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">1297</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">130</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">927</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">64</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">196</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Total</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>12,977</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>6395</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>652</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>4633</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>320</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>977</bold></td></tr><tr><td align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>External test (Messidor-2)</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Test</bold> (n_max=100)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>100</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>100</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>27</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>100</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>75</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>35</bold></td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0002",
+      "label": "Table 2",
+      "caption": "In-domain validation results on APTOS 2019 dataset comparing CNN baseline, CNN-MTL, CNN-GNN, and CNN-GNN-MTL across different graph construction strategies for best validation loss checkpoint and best recall Mild checkpoint.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Checkpoint by Best Validation Loss"
+        ],
+        [
+          "Model",
+          "Type",
+          "Mild DR Recall",
+          "Accuracy"
+        ],
+        [
+          "CNN baseline",
+          "Unweighted CE",
+          "0.535 ± 0.067",
+          "0.819 ± 0.008"
+        ],
+        [
+          "Weighted CE",
+          "0.654 ± 0.090",
+          "0.783 ± 0.022"
+        ],
+        [
+          "CNN-MTL",
+          "Unweighted CE",
+          "0.635 ± 0.076",
+          "0.800 ± 0.018"
+        ],
+        [
+          "Weighted CE",
+          "0.654 ± 0.146",
+          "0.798 ± 0.018"
+        ],
+        [
+          "CNN-GNN",
+          "Grid-4",
+          "0.622 ± 0.090",
+          "0.813 ± 0.011"
+        ],
+        [
+          "Grid-8",
+          "0.584 ± 0.107",
+          "0.817 ± 0.005"
+        ],
+        [
+          "KNN-6",
+          "0.626 ± 0.128",
+          "0.822 ± 0.004"
+        ],
+        [
+          "KNN-8",
+          "0.578 ± 0.064",
+          "0.818 ± 0.014"
+        ],
+        [
+          "KNN-12",
+          "0.632 ± 0.053",
+          "0.809 ± 0.012"
+        ],
+        [
+          "CNN-GNN-MTL",
+          "Grid-4",
+          "0.746 ± 0.109",
+          "0.806 ± 0.013"
+        ],
+        [
+          "Grid-8",
+          "0.727 ± 0.079",
+          "0.806 ± 0.014"
+        ],
+        [
+          "KNN-6",
+          "0.729 ± 0.074",
+          "0.795 ± 0.012"
+        ],
+        [
+          "KNN-8",
+          "0.738 ± 0.051",
+          "0.807 ± 0.017"
+        ],
+        [
+          "KNN-12",
+          "0.765 ± 0.077",
+          "0.809 ± 0.006"
+        ],
+        [
+          "Checkpoint by Best Recall Mild"
+        ],
+        [
+          "Model",
+          "Type",
+          "Mild DR Recall",
+          "Accuracy"
+        ],
+        [
+          "CNN baseline",
+          "Unweighted CE",
+          "0.651 ± 0.048",
+          "0.823 ± 0.011"
+        ],
+        [
+          "Weighted CE",
+          "0.722 ± 0.080",
+          "0.803 ± 0.034"
+        ],
+        [
+          "CNN-MTL",
+          "Unweighted CE",
+          "0.641 ± 0.076",
+          "0.801 ± 0.022"
+        ],
+        [
+          "Weighted CE",
+          "0.665 ± 0.146",
+          "0.811 ± 0.023"
+        ],
+        [
+          "CNN-GNN",
+          "Grid-4",
+          "0.672 ± 0.103",
+          "0.812 ± 0.016"
+        ],
+        [
+          "Grid-8",
+          "0.692 ± 0.039",
+          "0.812 ± 0.017"
+        ],
+        [
+          "KNN-6",
+          "0.668 ± 0.076",
+          "0.807 ± 0.015"
+        ],
+        [
+          "KNN-8",
+          "0.665 ± 0.097",
+          "0.811 ± 0.016"
+        ],
+        [
+          "KNN-12",
+          "0.678 ± 0.065",
+          "0.799 ± 0.011"
+        ],
+        [
+          "CNN-GNN-MTL",
+          "Grid-4",
+          "0.795 ± 0.054",
+          "0.796 ± 0.017"
+        ],
+        [
+          "Grid-8",
+          "0.875 ± 0.029",
+          "0.782 ± 0.011"
+        ],
+        [
+          "KNN-6",
+          "0.773 ± 0.087",
+          "0.799 ± 0.023"
+        ],
+        [
+          "KNN-8",
+          "0.808 ± 0.075",
+          "0.793 ± 0.029"
+        ],
+        [
+          "KNN-12",
+          "0.800 ± 0.074",
+          "0.803 ± 0.013"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0002\" orientation=\"portrait\"><label>Table 2</label><caption><p>In-domain validation results on APTOS 2019 dataset comparing CNN baseline, CNN-MTL, CNN-GNN, and CNN-GNN-MTL across different graph construction strategies for best validation loss checkpoint and best recall Mild checkpoint.</p></caption><alt-text id=\"alt0002\">Table 2 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"4\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Validation Loss</bold><hr /></th></tr><tr><th align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Model</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Type</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR Recall</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></th></tr></thead><tbody><tr><td rowspan=\"2\" align=\"left\" valign=\"top\" colspan=\"1\">CNN baseline</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unweighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.535 ± 0.067</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.819 ± 0.008</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Weighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.654 ± 0.090</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.783 ± 0.022</td></tr><tr><td rowspan=\"2\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unweighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.635 ± 0.076</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.018</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Weighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.654 ± 0.146</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.798 ± 0.018</td></tr><tr><td rowspan=\"5\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-GNN</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.622 ± 0.090</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.813 ± 0.011</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.584 ± 0.107</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.817 ± 0.005</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-6</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.626 ± 0.128</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.822</bold> <bold>±</bold> <bold>0.004</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.578 ± 0.064</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.818 ± 0.014</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-12</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.632 ± 0.053</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.809 ± 0.012</td></tr><tr><td rowspan=\"5\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-GNN-MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.746 ± 0.109</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.806 ± 0.013</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.727 ± 0.079</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.806 ± 0.014</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-6</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.729 ± 0.074</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.795 ± 0.012</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.738 ± 0.051</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.807 ± 0.017</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-12</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.765</bold> <bold>±</bold> <bold>0.077</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.809 ± 0.006</td></tr><tr><td colspan=\"4\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Recall Mild</bold></td></tr><tr><td align=\"left\" valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Model</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Type</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR Recall</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></td></tr><tr><td rowspan=\"2\" align=\"left\" valign=\"top\" colspan=\"1\">CNN baseline</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unweighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.651 ± 0.048</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.823</bold> <bold>±</bold> <bold>0.011</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Weighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.722 ± 0.080</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.803 ± 0.034</td></tr><tr><td rowspan=\"2\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Unweighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.641 ± 0.076</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.801 ± 0.022</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Weighted CE</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.665 ± 0.146</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.811 ± 0.023</td></tr><tr><td rowspan=\"5\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-GNN</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.672 ± 0.103</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.812 ± 0.016</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.692 ± 0.039</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.812 ± 0.017</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-6</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.668 ± 0.076</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.807 ± 0.015</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.665 ± 0.097</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.811 ± 0.016</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-12</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.678 ± 0.065</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.799 ± 0.011</td></tr><tr><td rowspan=\"5\" align=\"left\" valign=\"top\" colspan=\"1\">CNN-GNN-MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.795 ± 0.054</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.796 ± 0.017</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Grid-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.875</bold> <bold>±</bold> <bold>0.029</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.782 ± 0.011</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-6</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.773 ± 0.087</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.799 ± 0.023</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.808 ± 0.075</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.793 ± 0.029</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">KNN-12</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.074</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.803 ± 0.013</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0003",
+      "label": "Table 3",
+      "caption": "Performance of the CNN-MTL model under different multiclass and binary loss weight configurations.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Checkpoint by Best Validation Loss"
+        ],
+        [
+          "Method",
+          "Mild DR recall",
+          "Accuracy"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 2.5)",
+          "0.654 ± 0.146",
+          "0.798 ± 0.018"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 2.0)",
+          "0.586 ± 0.125",
+          "0.798 ± 0.020"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 1.5)",
+          "0.595 ± 0.121",
+          "0.794 ± 0.022"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 1.0)",
+          "0.465 ± 0.103",
+          "0.800 ± 0.021"
+        ],
+        [
+          "CNN-MTL - dynamic weight",
+          "0.619 ± 0.099",
+          "0.802 ± 0.017"
+        ],
+        [
+          "Checkpoint by Best Recall Mild"
+        ],
+        [
+          "Method",
+          "Mild DR recall",
+          "Accuracy"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 2.5)",
+          "0.665 ± 0.147",
+          "0.811 ± 0.023"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 2.0)",
+          "0.593 ± 0.125",
+          "0.800 ± 0.020"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 1.5)",
+          "0.592 ± 0.123",
+          "0.798 ± 0.020"
+        ],
+        [
+          "CNN-MTL - weighted (1.0 - 1.0)",
+          "0.465 ± 0.103",
+          "0.800 ± 0.021"
+        ],
+        [
+          "CNN-MTL - dynamic weight",
+          "0.657 ± 0.112",
+          "0.800 ± 0.017"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0003\" orientation=\"portrait\"><label>Table 3</label><caption><p>Performance of the CNN-MTL model under different multiclass and binary loss weight configurations.</p></caption><alt-text id=\"alt0003\">Table 3 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Validation Loss</bold><hr /></th></tr><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Method</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR recall</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 2.5)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.654</bold> <bold>±</bold> <bold>0.146</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.798 ± 0.018</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 2.0)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.586 ± 0.125</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.798 ± 0.020</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 1.5)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.595 ± 0.121</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.794 ± 0.022</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 1.0)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.465 ± 0.103</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.021</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - dynamic weight</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.619 ± 0.099</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.802</bold> <bold>±</bold> <bold>0.017</bold></td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Recall Mild</bold></td></tr><tr><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Method</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR recall</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 2.5)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.665</bold> <bold>±</bold> <bold>0.147</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.811</bold> <bold>±</bold> <bold>0.023</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 2.0)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.593 ± 0.125</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.020</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 1.5)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.592 ± 0.123</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.798 ± 0.020</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - weighted (1.0 - 1.0)</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.465 ± 0.103</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.021</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-MTL - dynamic weight</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.657 ± 0.112</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.017</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0004",
+      "label": "Table 4",
+      "caption": "Performance comparison with the state-of-the-art method.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Checkpoint by Best Validation Loss"
+        ],
+        [
+          "Method",
+          "Mild DR recall",
+          "Accuracy"
+        ],
+        [
+          "CNN (EfficientNet) [26]",
+          "0.654 ± 0.090",
+          "0.783 ± 0.022"
+        ],
+        [
+          "CNN (ResNet34) [27]",
+          "0.738 ± 0.056",
+          "0.799 ± 0.025"
+        ],
+        [
+          "CNN (DenseNet121) [28]",
+          "0.724 ± 0.089",
+          "0.793 ± 0.022"
+        ],
+        [
+          "Vision Transformer [29]",
+          "0.832 ± 0.108",
+          "0.786 ± 0.030"
+        ],
+        [
+          "CNN - MTL - fix weighted",
+          "0.654 ± 0.146",
+          "0.798 ± 0.018"
+        ],
+        [
+          "CNN - MTL - dynamic weighted",
+          "0.619 ± 0.099",
+          "0.802 ± 0.017"
+        ],
+        [
+          "CNN - GNN",
+          "0.584 ± 0.107",
+          "0.817 ± 0.005"
+        ],
+        [
+          "CNN - GNN - MTL",
+          "0.727 ± 0.079",
+          "0.806 ± 0.014"
+        ],
+        [
+          "Checkpoint by Best Recall Mild"
+        ],
+        [
+          "Method",
+          "Mild DR recall",
+          "Accuracy"
+        ],
+        [
+          "CNN (EfficientNet) [26]",
+          "0.722 ± 0.080",
+          "0.803 ± 0.034"
+        ],
+        [
+          "CNN (ResNet34) [27]",
+          "0.819 ± 0.055",
+          "0.718 ± 0.060"
+        ],
+        [
+          "CNN (DenseNet121) [28]",
+          "0.832 ± 0.065",
+          "0.776 ± 0.038"
+        ],
+        [
+          "Vision Transformer [29]",
+          "0.902 ± 0.028",
+          "0.756 ± 0.038"
+        ],
+        [
+          "CNN - MTL - fix weighted",
+          "0.665 ± 0.146",
+          "0.811 ± 0.023"
+        ],
+        [
+          "CNN - MTL - dynamic weighted",
+          "0.657 ± 0.112",
+          "0.800 ± 0.017"
+        ],
+        [
+          "CNN - GNN",
+          "0.692 ± 0.039",
+          "0.812 ± 0.017"
+        ],
+        [
+          "CNN - GNN - MTL",
+          "0.875 ± 0.029",
+          "0.782 ± 0.011"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0004\" orientation=\"portrait\"><label>Table 4</label><caption><p>Performance comparison with the state-of-the-art method.</p></caption><alt-text id=\"alt0004\">Table 4 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Validation Loss</bold><hr /></th></tr><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Method</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR recall</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (EfficientNet) [<xref rid=\"bib0026\" ref-type=\"bibr\">26</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.654 ± 0.090</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.783 ± 0.022</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (ResNet34) [<xref rid=\"bib0027\" ref-type=\"bibr\">27</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.738 ± 0.056</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.799 ± 0.025</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (DenseNet121) [<xref rid=\"bib0028\" ref-type=\"bibr\">28</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.724 ± 0.089</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.793 ± 0.022</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Vision Transformer [<xref rid=\"bib0029\" ref-type=\"bibr\">29</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.832</bold> <bold>±</bold> <bold>0.108</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.786 ± 0.030</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - MTL - fix weighted</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.654 ± 0.146</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.798 ± 0.018</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - MTL - dynamic weighted</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.619 ± 0.099</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.802 ± 0.017</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.584 ± 0.107</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.817</bold> <bold>±</bold> <bold>0.005</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN - MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.727 ± 0.079</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.806 ± 0.014</td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\"><bold>Checkpoint by Best Recall Mild</bold></td></tr><tr><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Method</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Mild DR recall</bold></td><td valign=\"top\" align=\"left\" colspan=\"1\" rowspan=\"1\"><bold>Accuracy</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (EfficientNet) [<xref rid=\"bib0026\" ref-type=\"bibr\">26</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.722 ± 0.080</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.803 ± 0.034</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (ResNet34) [<xref rid=\"bib0027\" ref-type=\"bibr\">27</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.819 ± 0.055</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.718 ± 0.060</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (DenseNet121) [<xref rid=\"bib0028\" ref-type=\"bibr\">28</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.832 ± 0.065</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.776 ± 0.038</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Vision Transformer [<xref rid=\"bib0029\" ref-type=\"bibr\">29</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.902</bold> <bold>±</bold> <bold>0.028</bold></td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.756 ± 0.038</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - MTL - fix weighted</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.665 ± 0.146</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.811 ± 0.023</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - MTL - dynamic weighted</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.657 ± 0.112</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.800 ± 0.017</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.692 ± 0.039</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>0.812</bold> <bold>±</bold> <bold>0.017</bold></td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN - MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.875 ± 0.029</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.782 ± 0.011</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0005",
+      "label": "Table 5",
+      "caption": "The comparison of the number of trainable parameters, model size, and inference time for the evaluated models.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Method",
+          "Total Param (M)",
+          "Model Size (MB)",
+          "Inference Time (ms)"
+        ],
+        [
+          "CNN (EfficientNet) [26]",
+          "4.01",
+          "15.6",
+          "9.182 ± 1.562"
+        ],
+        [
+          "CNN (ResNet34) [27]",
+          "21.29",
+          "81.3",
+          "9.027 ± 0.516"
+        ],
+        [
+          "CNN (DenseNet121) [28]",
+          "6.96",
+          "27.1",
+          "17.197 ± 2.205"
+        ],
+        [
+          "Vision Transformer [29]",
+          "119.11",
+          "455.4",
+          "134.883 ± 4.440"
+        ],
+        [
+          "CNN - MTL",
+          "4.34",
+          "16.8",
+          "9.449 ± 1.678"
+        ],
+        [
+          "CNN - GNN",
+          "4.44",
+          "17.2",
+          "16.011 ± 0.565"
+        ],
+        [
+          "CNN - GNN - MTL",
+          "4.44",
+          "17.2",
+          "16.474 ± 0.651"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0005\" orientation=\"portrait\"><label>Table 5</label><caption><p>The comparison of the number of trainable parameters, model size, and inference time for the evaluated models.</p></caption><alt-text id=\"alt0005\">Table 5 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Method</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Total Param (M)</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Model Size (MB)</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Inference Time (ms)</bold></th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (EfficientNet) [<xref rid=\"bib0026\" ref-type=\"bibr\">26</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.01</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">15.6</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9.182 ± 1.562</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (ResNet34) [<xref rid=\"bib0027\" ref-type=\"bibr\">27</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">21.29</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">81.3</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9.027 ± 0.516</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN (DenseNet121) [<xref rid=\"bib0028\" ref-type=\"bibr\">28</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">6.96</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">27.1</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">17.197 ± 2.205</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">Vision Transformer [<xref rid=\"bib0029\" ref-type=\"bibr\">29</xref>]</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">119.11</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">455.4</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">134.883 ± 4.440</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.34</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">16.8</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">9.449 ± 1.678</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.44</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">17.2</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">16.011 ± 0.565</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN - GNN - MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">4.44</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">17.2</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">16.474 ± 0.651</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "tbl0006",
+      "label": "Table 6",
+      "caption": "Cross-domain validation results on Messidor-2 test set comparing CNN baseline and CNN-GNN-MTL.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Model",
+          "Mean Accuracy",
+          "Mean AUC",
+          "Mean QWK",
+          "Highest Mild DR Recall"
+        ],
+        [
+          "CNN baseline",
+          "0.5668 ± 0.0154",
+          "0.8753 ± 0.0117",
+          "0.6893 ± 0.0324",
+          "0.52"
+        ],
+        [
+          "CNN-GNN-MTL",
+          "0.5746 ± 0.0329",
+          "0.8617 ± 0.0156",
+          "0.6623 ± 0.0611",
+          "0.76"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap position=\"float\" id=\"tbl0006\" orientation=\"portrait\"><label>Table 6</label><caption><p>Cross-domain validation results on Messidor-2 test set comparing CNN baseline and CNN-GNN-MTL.</p></caption><alt-text id=\"alt0006\">Table 6 dummy alt text</alt-text><table frame=\"hsides\" rules=\"groups\"><thead><tr><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Model</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mean Accuracy</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mean AUC</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Mean QWK</bold></th><th valign=\"top\" colspan=\"1\" rowspan=\"1\"><bold>Highest Mild DR Recall</bold></th></tr></thead><tbody><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN baseline</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.5668 ± 0.0154</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.8753 ± 0.0117</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.6893 ± 0.0324</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.52</td></tr><tr><td valign=\"top\" colspan=\"1\" rowspan=\"1\">CNN-GNN-MTL</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.5746 ± 0.0329</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.8617 ± 0.0156</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.6623 ± 0.0611</td><td valign=\"top\" colspan=\"1\" rowspan=\"1\">0.76</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "fig0008",
+      "label": "",
+      "caption": "",
+      "caption_zh": "",
+      "graphics": [
+        "ga1.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0001",
+      "label": "Fig. 1",
+      "caption": "End-to-end hybrid CNN-GNN multitask pipeline for Mild DR detection.",
+      "caption_zh": "",
+      "graphics": [
+        "gr1.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0002",
+      "label": "Fig. 2",
+      "caption": "Before and after preprocessing of fundus image.",
+      "caption_zh": "",
+      "graphics": [
+        "gr2.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0003",
+      "label": "Fig. 3",
+      "caption": "Comparison of graph construction strategies: Grid-4, Grid-8, KNN adaptive k = 6, k = 8, k = 12.",
+      "caption_zh": "",
+      "graphics": [
+        "gr3.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0004",
+      "label": "Fig. 4",
+      "caption": "Graph Neural Network architecture with two-layer GCN and pooling.",
+      "caption_zh": "",
+      "graphics": [
+        "gr4.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0005",
+      "label": "Fig. 5",
+      "caption": "Multitask learning architecture with shared GNN encoder and dual prediction heads.",
+      "caption_zh": "",
+      "graphics": [
+        "gr5.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0006",
+      "label": "Fig. 6",
+      "caption": "The performance of various graph construction strategies: (a) The result of Mild DR recall for each epoch; (b) The result of overall accuracy for each epoch.",
+      "caption_zh": "",
+      "graphics": [
+        "gr6.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "fig0007",
+      "label": "Fig. 7",
+      "caption": "Normalized confusion matrices for cross-domain evaluation on Messidor-2: CNN baseline and CNN-GNN-MTL model showing improved Mild DR detection.",
+      "caption_zh": "",
+      "graphics": [
+        "gr7.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "eqn0001",
+      "text": "(1)Similaritycombined=α·Similarityfeature+(1−α)·Similarityspatial",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eqn0001\"><label>(1)</label><ns0:math id=\"M7\" altimg=\"si6.svg\"><ns0:mrow><ns0:mtext>Similarit</ns0:mtext><ns0:msub><ns0:mi mathvariant=\"normal\">y</ns0:mi><ns0:mtext>combined</ns0:mtext></ns0:msub><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:mi>α</ns0:mi><ns0:mo>·</ns0:mo><ns0:mtext>Similarit</ns0:mtext><ns0:msub><ns0:mi mathvariant=\"normal\">y</ns0:mi><ns0:mtext>feature</ns0:mtext></ns0:msub><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:mrow><ns0:mo stretchy=\"true\">(</ns0:mo><ns0:mrow><ns0:mn>1</ns0:mn><ns0:mo linebreak=\"badbreak\">−</ns0:mo><ns0:mi>α</ns0:mi></ns0:mrow><ns0:mo stretchy=\"true\">)</ns0:mo></ns0:mrow><ns0:mo>·</ns0:mo><ns0:mtext>Similarit</ns0:mtext><ns0:msub><ns0:mi mathvariant=\"normal\">y</ns0:mi><ns0:mtext>spatial</ns0:mtext></ns0:msub></ns0:mrow></ns0:math></disp-formula>A fixed value of "
+    },
+    {
+      "id": "eqn0002",
+      "text": "(2)LMTL=WCE·LCE+WBCE·LBCE",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"eqn0002\"><label>(2)</label><ns0:math id=\"M10\" altimg=\"si8.svg\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mtext>MTL</ns0:mtext></ns0:msub><ns0:mo linebreak=\"goodbreak\">=</ns0:mo><ns0:msub><ns0:mi>W</ns0:mi><ns0:mtext>CE</ns0:mtext></ns0:msub><ns0:mo>·</ns0:mo><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mtext>CE</ns0:mtext></ns0:msub><ns0:mo linebreak=\"goodbreak\">+</ns0:mo><ns0:msub><ns0:mi>W</ns0:mi><ns0:mtext>BCE</ns0:mtext></ns0:msub><ns0:mo>·</ns0:mo><ns0:msub><ns0:mi mathvariant=\"script\">L</ns0:mi><ns0:mtext>BCE</ns0:mtext></ns0:msub></ns0:mrow></ns0:math></disp-formula>where fixed task weights "
+    }
+  ],
+  "references": [
+    {
+      "id": "bib0001",
+      "text": "1FungT.H.PatelB.WilmotE.G.AmoakuW.M.Diabetic retinopathy for the non-ophthalmologistClin. Med. L222202211211610.7861/clinmed.2021-0792PMC896682535304370",
+      "doi": [
+        "10.7861/clinmed.2021-0792"
+      ]
+    },
+    {
+      "id": "bib0002",
+      "text": "2SeoH.ParkS.J.SongM.Diabetic retinopathy (DR): mechanisms, current therapies, and emerging strategiesCells14520253764007210410.3390/cells14050376PMC11898816",
+      "doi": [
+        "10.3390/cells14050376"
+      ]
+    },
+    {
+      "id": "bib0003",
+      "text": "3SivaprasadS.SenS.VazJ.C.Perspectives of diabetic retinopathy—challenges and opportunitiesEye372023218321913649443110.1038/s41433-022-02335-5PMC10366207",
+      "doi": [
+        "10.1038/s41433-022-02335-5"
+      ]
+    },
+    {
+      "id": "bib0004",
+      "text": "4SzumigrajW.KowalskiM.Early diabetic retinopathy detection through segmentation of microaneurysms with transformer using sliding window predictions and object-wise confidence thresholdingComput. Methods Biomech. Biomed. Eng.: Imaging Vis.1312025",
+      "doi": []
+    },
+    {
+      "id": "bib0005",
+      "text": "5KumarS.A.KumarJ.S.NeranikiP.YadavK.A.BashaS.S.A review of deep learning techniques on fundus images for detecting diabetic retinopathy on public datasetsJ. Innov. Image Process.442022226236",
+      "doi": []
+    },
+    {
+      "id": "bib0006",
+      "text": "6DubeyS.DixitM.Recent developments on computer aided systems for diagnosis of diabetic retinopathy: a reviewMultimed. Tools. Appl.8210202314471145253618532210.1007/s11042-022-13841-9PMC9510498",
+      "doi": [
+        "10.1007/s11042-022-13841-9"
+      ]
+    },
+    {
+      "id": "bib0007",
+      "text": "7AbbasiR.AminF.AlabrahA.ChoiG.S.KhanS.HeyatB.B.IqbalM.S.ChenH.Diabetic retinopathy detection using adaptive deep convolutional neural networks on fundus imagesSci. Rep.15202510.1038/s41598-025-09394-0PMC1224145740634513",
+      "doi": [
+        "10.1038/s41598-025-09394-0"
+      ]
+    },
+    {
+      "id": "bib0008",
+      "text": "8Mungloo-DilmohamudZ.KhanM.H.-M.JhumkaK.BeedassyB.N.MunglooN.Z.Pena-ReyesC.Balancing data through data augmentation improves the generality of transfer learning for diabetic retinopathy classificationAppl. Sci.121120225363",
+      "doi": []
+    },
+    {
+      "id": "bib0009",
+      "text": "9TsiknakisN.ManikisG.KtistakisE.BoutsoraO.BertoA.ScarpaF.ScarpaA.FotiadisD.I.MariasK.Deep learning for diabetic retinopathy detection and classification based on fundus images: a reviewComput. Biol. Med.135202110459910.1016/j.compbiomed.2021.10459934247130",
+      "doi": [
+        "10.1016/j.compbiomed.2021.104599"
+      ]
+    },
+    {
+      "id": "bib0010",
+      "text": "10WangY.WangL.GuoZ.SongS.LiY.A graph convolutional network with dynamic weight fusion of multi-scale local features for diabetic retinopathy gradingSci. Rep.14202410.1038/s41598-024-56389-4PMC1092496238461342",
+      "doi": [
+        "10.1038/s41598-024-56389-4"
+      ]
+    },
+    {
+      "id": "bib0011",
+      "text": "11AkterZ.AhadJ.I.FarhanM.M.KhanR.Graph-enhanced deep learning for diabetic retinopathy diagnosis: a quality-aware and uncertainty-driven approachPLoS Comput. Biol.21122025e101374510.1371/journal.pcbi.1013745PMC1268036541348927",
+      "doi": [
+        "10.1371/journal.pcbi.1013745"
+      ]
+    },
+    {
+      "id": "bib0012",
+      "text": "12YuJ.LiuX.LuoC.HuangJ.ZhouR.LiuY.HuJ.ChenJ.ZhangK.ZhangD.ShenY.AdhikarlaE.DaiY.ZhangK.KongZ.YeW.YinY.NamboodiriV.DavisonB.MooreJ.ChenY.Multitask Learning 1997–2024: part I fundamentalsHarv. Data Sci. Rev.2025",
+      "doi": []
+    },
+    {
+      "id": "bib0013",
+      "text": "13XieY.ZhangY.LongJ.QueN.ChenY.MPLNet: multi-task supervised progressive learning network for diabetic retinopathy gradingComput. Electr. Eng.1202024109746",
+      "doi": []
+    },
+    {
+      "id": "bib0014",
+      "text": "14AftabS.AkhtarS.Diabetic retinopathy severity classification using data fusion and ensemble transfer learningJ. Softw. Eng. Appl.1812025123",
+      "doi": []
+    },
+    {
+      "id": "bib0015",
+      "text": "15VanajaC.B.PrakasamP.Convolutional block attention gate-based Unet framework for microaneurysm segmentation using retinal fundus imagesBMC Med. ImAging25202510.1186/s12880-025-01625-0PMC1189524840065294",
+      "doi": [
+        "10.1186/s12880-025-01625-0"
+      ]
+    },
+    {
+      "id": "bib0016",
+      "text": "16BuslaevA.IglovikovV.KhvedchenyaE.ParinovA.DruzhininM.KalininA.A.Albumentations: fast and flexible image augmentationsInformation1122020125",
+      "doi": []
+    },
+    {
+      "id": "bib0017",
+      "text": "17M. Tan and Q. Le, \"EfficientNet: rethinking model scaling for convolutional neural networks,\" in Proceedings of the thirty-sixth International Conference on Machine Learning.",
+      "doi": []
+    },
+    {
+      "id": "bib0018",
+      "text": "18F. Ahmed, \"Addressing high class imbalance in multi-class diabetic retinopathy severity grading with augmentation and transfer learning,\" https://arxiv.org/pdf/2507.17121.",
+      "doi": []
+    },
+    {
+      "id": "bib0019",
+      "text": "19KhemaniB.PatilS.KotechaK.TanwarS.A review of graph neural networks: concepts, architectures, techniques, challenges, datasets, applications, and future directionsJ. Big. Data11182024",
+      "doi": []
+    },
+    {
+      "id": "bib0020",
+      "text": "20FengM.WangJ.WenK.SunJ.Grading of diabetic retinopathy images based on graph neural networkIEEE Access.1120239839198401",
+      "doi": []
+    },
+    {
+      "id": "bib0021",
+      "text": "21Z. Zhang and M.R. Sabuncu, \"Generalized cross entropy loss for training deep neural networks with noisy labels,\" in NIPS'18: Proceedings of the thirty-second International Conference on Neural Information Processing Systems.PMC1174775539839708",
+      "doi": []
+    },
+    {
+      "id": "bib0022",
+      "text": "22RubyA.U.TheerthagiriP.JacobI.J.YamshidarY.Binary cross entropy with deep learning technique for image classificationInt. J. Adv. Trends Comput. Sci. Eng.942020",
+      "doi": []
+    },
+    {
+      "id": "bib0023",
+      "text": "23HicksS.A.StrümkeI.ThambawitaV.HammouM.RieglerM.A.HalvorsenP.ParasaS.On evaluation metrics for medical applications of artificial intelligenceSci. Rep.12202210.1038/s41598-022-09954-8PMC899382635395867",
+      "doi": [
+        "10.1038/s41598-022-09954-8"
+      ]
+    },
+    {
+      "id": "bib0024",
+      "text": "24RichardsonE.TrevizaniR.GreenbaumJ.A.CarterH.NielsenM.PetersB.The receiver operating characteristic curve accurately assesses imbalanced datasetsPatterns56202410099410.1016/j.patter.2024.100994PMC1124017639005487",
+      "doi": [
+        "10.1016/j.patter.2024.100994"
+      ]
+    },
+    {
+      "id": "bib0025",
+      "text": "25ChilukotiS.V.ShanL.TidaV.S.MaidaA.S.HeiX.A reliable diabetic retinopathy grading via transfer learning and ensemble learning with quadratic weighted kappa metricBMC Med. Inf. Decis. Mak.2437202410.1186/s12911-024-02446-xPMC1132361638321416",
+      "doi": [
+        "10.1186/s12911-024-02446-x"
+      ]
+    },
+    {
+      "id": "bib0026",
+      "text": "26AroraL.SinghS.K.KumarS.GuptaH.AlhalabiW.AryaV.BansalS.ChuiK.T.GuptaB.B.Ensemble deep learning and EfficientNet for accurate diagnosis of diabetic retinopathySci. Rep.14202410.1038/s41598-024-81132-4PMC1165564039695310",
+      "doi": [
+        "10.1038/s41598-024-81132-4"
+      ]
+    },
+    {
+      "id": "bib0027",
+      "text": "27KA.RL.R.S.Deep learning-based diabetic retinopathy detection using ResNet34 ModelInternational Conference on Circuit Power and Computing Technologies (ICCPCT)2023",
+      "doi": []
+    },
+    {
+      "id": "bib0028",
+      "text": "28MohantyC.MahapatraS.AcharyaB.KokkorasF.GeorgiannisV.C.KaramitsosI.KanavosA.Using deep learning architectures for detection and classification of diabetic retinopathySensors23202357263742089110.3390/s23125726PMC10301863",
+      "doi": [
+        "10.3390/s23125726"
+      ]
+    },
+    {
+      "id": "bib0029",
+      "text": "29NazihW.AseeriA.O.AtallahO.Y.El-SappS.Vision transformer model for predicting the severity of diabetic retinopathy in fundus photography-based retina imagesIEEE Access.112023117546117561",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Harjanto SA, Sholikah RW, Sabilla IA, Adiatmaja G.",
+  "journal": "MethodsX",
+  "year": "2026",
+  "pmid": "42436968",
+  "pmcid": "PMC13355226",
+  "doi": "10.1016/j.mex.2026.104023",
+  "source": {
+    "retrieved_at": "2026-11-14T17:06:30.547884+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13355226/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC13355226.xml"
+}

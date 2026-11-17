@@ -1,0 +1,1640 @@
+{
+  "key": "31793212",
+  "body_available": true,
+  "title": "Liver tumor segmentation based on 3D convolutional neural network with dual scale",
+  "source_url": "https://europepmc.org/articles/PMC6964770",
+  "license": {
+    "text": "This is an open access article under the terms of the http://creativecommons.org/licenses/by/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Lu Meng",
+    "Yaoyu Tian",
+    "Sihang Bu"
+  ],
+  "copyright": {
+    "statement": "© 2019 The Authors. Journal of Applied Clinical Medical Physics published by Wiley Periodicals, Inc. on behalf of American Association of Physicists in Medicine.",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2019",
+        "month": "12",
+        "day": "2"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "acm212784-sec-0005",
+      "title": "INTRODUCTION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0005-p1",
+          "reference_ids": [
+            "acm212784-bib-0001"
+          ],
+          "en": "Liver is one of the largest and most important organs in the human body, and the liver is also one of the organs with a high incidence of malignant tumors. Liver cancer is a major threat to human health, whose incidence is increasing every year worldwide.1 Accurate measurement of liver tumor size from abdominal computed tomography (CT) images, segmentation, and localization of tumor areas are helpful for clinicians to make an accurate evaluation of liver tumors. Currently, liver tumor segmentation is manually performed by radiologists on hundreds of CT images slice by slice, which is very tedious and time‐consuming, and the segmentation results depend on the clinical knowledge and experience of the radiologists. Therefore, automatic liver and liver tumor segmentation algorithm is essential and helpful for computer‐aided diagnosis. The main difficulties of automatic liver and liver tumor segmentation algorithm are: (a) liver is very close to adjacent organs and their CT values are similar to each other; (b) the CT contrast between the liver tumor and healthy tissue is low, and the boundaries around liver tumor are blurring; (c) the shape, size, and location of liver tumors are complex and variable.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0005-p2",
+          "reference_ids": [
+            "acm212784-bib-0002",
+            "acm212784-bib-0003",
+            "acm212784-bib-0004",
+            "acm212784-bib-0005",
+            "acm212784-bib-0006",
+            "acm212784-bib-0007",
+            "acm212784-bib-0008",
+            "acm212784-bib-0009",
+            "acm212784-bib-0010",
+            "acm212784-bib-0011",
+            "acm212784-bib-0012",
+            "acm212784-bib-0013",
+            "acm212784-bib-0014",
+            "acm212784-bib-0015",
+            "acm212784-bib-0015",
+            "acm212784-bib-0014",
+            "acm212784-bib-0010",
+            "acm212784-bib-0012",
+            "acm212784-bib-0013",
+            "acm212784-bib-0011"
+          ],
+          "en": "The segmentation algorithms for liver and liver tumors were mainly divided into four categories: regional growth,2, 3 graph cut,4, 5, 6 level set,7, 8 and deep learning.9, 10, 11, 12, 13, 14, 15 The segmentation algorithm in this paper was based on deep learning, so we mainly reviewed several classic liver and liver tumor segmentation algorithms based on deep learning. Ben‐Cohen et al.15 used the VGG16 architecture of the fully convolutional network (FCN) for liver segmentation and liver lesion detection. They discarded the final classifier layer of VGG16 and converted all fully connected layers into convolutional layers. A two‐channel convolution was added to predict the probability of lesions or the liver at each output location, and then the output is up‐sampled to the original pixel for end‐to‐end learning using a deconvolution layer. Sun et al.14 designed a multichannel FCN to segment liver tumors from enhanced CT images. Because each stage of the enhanced CT data provided unique information about the pathological features, the method trained a network for each stage and then fused their high‐level features. In the research of Qi et al.,10 a three‐dimensional (3D) depth supervision network based on FCN was proposed. The network had a full convolution architecture, which was an end‐to‐end approach to learn and predict. The most important innovation structure of this network was the depth supervision of hidden layer, which can accelerate the speed of optimization convergence and improve the prediction accuracy. Finally, based on the high‐quality score map generated by the 3D depth monitoring network, the contours were refined using the fully connected conditional random field to obtain fine segmentation results. Based on FCN, Ronneberger et al.12 proposed a U‐Net network model. The entire neural network consisted of two main components, namely the contraction path and the extension path. The contraction path was mainly used to capture the context information in the picture, and the extension path was to accurately locate the part of the image that needed to be segmented. Ronneberger et al. also proposed the data enhancement method for training some data with small samples, especially the data related to medicine, and proved that U‐Net was very helpful for deep learning in medical images with small samples. Therefore, the structure of U‐Net was widely used in the research of medical image segmentation. Han et al.13 combined U‐Net's long‐distance cascade connection with ResNet's short‐range residual connection. The model had 32 layers, the input of the model was composed of several adjacent axial CT image slices, and the output was a two‐dimensional (2D) segmentation map corresponding to the input center slice. Patrick et al.11 proposed a segmentation algorithm using two cascaded U‐Net networks on CT slices. The first network was only used to segment the liver, and the mask map of the liver region generated by the first step was taken as the input of the second network to train the second U‐Net network, and the second network was only used to segment the tumor. Finally, the conditional random field was applied to the full dataset to obtain the relationship between the slices.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0005-p3",
+          "reference_ids": [
+            "acm212784-tbl-0006",
+            "acm212784-tbl-0007"
+          ],
+          "en": "In MICCAI 2017 competition of liver and liver tumor, 20 liver segmentation algorithms and 24 liver tumor segmentation algorithms were proposed, and the ranking of these algorithms is shown in Tables 6 and 7. Almost all the ranking top algorithms used U‐Net or VGG‐Net, and the best one obtained 0.961 Dice for liver segmentation and 0.686 Dice for liver tumor segmentation. However, none of these algorithms directly used 3D CT images in the whole neural network, because training 3D image data in a complicated convolutional neural network was time‐consuming and required high computational resources.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0005-p4",
+          "reference_ids": [],
+          "en": "To solve the above‐mentioned problems, this paper proposed a TDP‐CNN, which can fuse the local features with the global contextual information from the background, and directly processed 3D medical image data to obtain the 3D spatial information, and greatly speed up the training procedure. Furthermore, a conditional random field was combined in our algorithm to fine‐segment the results from TDP‐CNN.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0006",
+      "title": "MATERIALS AND METHODS",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm212784-sec-0007",
+      "title": "Algorithm overall flow",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0007-p1",
+          "reference_ids": [
+            "acm212784-fig-0001"
+          ],
+          "en": "The algorithm proposed in this paper was mainly based on a 3D convolutional neural network with the dual scale from two paths. Shown in Fig. 1, the overall scheme of the algorithm was as follows:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0007-p2",
+          "reference_ids": [],
+          "en": "Filtered and normalized the original CT images;",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0007-p3",
+          "reference_ids": [
+            "acm212784-fig-0002"
+          ],
+          "en": "Segmented the 3D CT images into several sub‐image blocks, which were used as the input of TDP‐CNN. The architecture of TDP‐CNN was shown in Fig. 2. There were two paths in the TDP‐CNN, and each path was composed of eight blocks, and all the blocks had the same architecture, which included one convolutional layer, one batch normalization layer, and one activation layer. The feature maps of two paths were fused, and input into the fully connected layer, and then classified in the softmax layer.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0007-p4",
+          "reference_ids": [],
+          "en": "The trained TDP‐CNN was used to segment the liver and liver tumor, and generate probability maps of the segmentation results;",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0007-p5",
+          "reference_ids": [],
+          "en": "Finally, the probability maps were post‐processed by a fully connected conditional random field algorithm to obtain the final segmentation results of liver and liver tumors.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0008",
+      "title": "Data preprocessing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0008-p1",
+          "reference_ids": [],
+          "en": "Before liver tumor segmentation, we used Gaussian smoothing to filter the CT images to remove the noise caused by the equipment and environment.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0008-p2",
+          "reference_ids": [],
+          "en": "where k denotes the dimensional filtering kernel width and σ denotes the standard deviation, and in this paper σ = 1. Then, the filtered CT images were further normalized; each pixel was normalized to the mean and standard deviation of the whole image, so that the pixel values of all CT images meet the standard normal distribution. Besides, due to the computation limits of our workstation, the CT images were subsampled from 512 × 512 to 256 × 256 to reduce the amount of computation. Finally, data augmentation was used to deal with the small dataset size, and we geometrically rotated, flipped, cropped, and scaled the original CT images so that we can obtain more variant liver and liver tumor types and enlarge our training dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0009",
+      "title": "TDP‐CNN architecture",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0009-p1",
+          "reference_ids": [
+            "acm212784-fig-0003"
+          ],
+          "en": "As it is known that there are limited computational resources in computer system, such as CPU power, GPU power, memory size, data transferring speed et al., and 3D medical image data take much more memory than 2D image data, and all the 3D convolutional network’s operations, such as convolution, pooling, activation et al. also take much more computational time than 2D operations. Therefore, complicated CNN, like U‐Net or VGG‐Net, always has a heavy computational burden and maybe trained for weeks or even months, if the 3D medical image data were directly loaded into CNN. But CNN with simple architecture cannott have good performance of liver and liver tumor segmentation results. To balance the computational performance and the requirements of computational resources, three improvements were made: (a) We did not load the whole 3D medical image data from one subject into our CNN in one time, instead, we segmented the whole 3D medical image data into small segments, and only several segments were input into our CNN each time; (b) To capture the 3D spatial features, we used multiscale small segments. Here, “multiscale” refers to two segments with the same center, but one segment has a bigger image size and higher image resolution, the other segment has a smaller image size and lower image resolution. (c) To compute the multiscale segments together in our CNN, we specially designed a dual path neural network architecture. Here, “dual path” refers to a local path and global path, respectively, shown in Fig. 3. In the local path, segments with smaller image sizes but higher image resolution were loaded, processed, and trained to capture the image features of local details, such as contour, texture, and so on. Similarly, in the global path, segments with bigger size but lower image resolution were loaded, processed, and trained to capture the image global features, such as background and contextual information. Then the features maps from two paths were fused at the end of the local and the global path, and transferred to the fully connected layer and a softmax layer.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p2",
+          "reference_ids": [],
+          "en": "According to the network architecture of our method, several important parameters had to be determined first, such as the kernel size of the 3D convolutional operations and the 3D size of the small segments. To determine the optimal combination of these parameters, we needed to repeat the experiments of selection many times. In this selection process, we only needed to know which combination was the best. And this best combination of parameters always remained the best one no matter in single‐path or two‐path convolutional neural networks. Therefore, we only needed a simple one‐path convolutional neural network to perform the experiments of parameter combination selection, and the simple network structure can save us a lot of time and resources. We referred AlexNet as this simple one‐path convolutional neural network, which contained five convolutional layers, three down‐sampling layers, and three fully connected layers. We did not use pooling layers, because the pooling operation will result in the loss of the exact location of the voxels, which may harm the accuracy of the segmentation results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p3",
+          "reference_ids": [],
+          "en": "For a 3D convolutional neural network, the calculation of 3D convolutional operations costs much more computational resources than 2D convolutional operations. Therefore, only the kernel sizes of 3 × 3 × 3 and 5 × 5 × 5 were under consideration, but 5 × 5 × 5 kernel had about 4.6 times more parameters than 3 × 3 × 3 kernel. To build a deeper convolutional neural network, in this paper, we chose 3 × 3 × 3 as the kernel size of our convolutional operations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p4",
+          "reference_ids": [],
+          "en": "The size of the 3D image segment was another important parameter, and we can obtain it based on the size of the receptive field.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p5",
+          "reference_ids": [],
+          "en": "Rl, kl, si were 3D vectors of {x, y, z}, Rl represented the size of the receptive field in the l‐th layer, kl represented the size of the convolution kernel, si indicated the stride size of the i‐th layer, and the size of receptive field in the first layer was 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p6",
+          "reference_ids": [
+            "acm212784-disp-0002",
+            "acm212784-fig-0004",
+            "acm212784-fig-0003",
+            "acm212784-fig-0003"
+          ],
+          "en": "In our simple one‐path CNN, which was used to testify the combination of parameters, l = {1,2,…,7,8}, i = {1,2,…,l‐1}, R0 = 1, kl = 3, si = 1, according to formula (2), R8 = 17, and the size of the receptive field of the last layer was 17 × 17 × 17. This result meant that one voxel in the last layer represented the features of 17 × 17 × 17 voxels in the original 3D image, which indicated that the minimal size of the 3D image segment was 17 × 17 × 17. We selected four different sizes to train the simple one‐path CNN, which were 34 × 34 × 34, 37 × 37 × 37, 40 × 40 × 40, and 43 × 43 × 43, and the segmentation results of these four trained model were compared based on Dice and sensitivity, shown in Fig. 4. We found that as the size of 3D image segments grew bigger, Dice and sensitivity also increased, which meant that 3D CNN could benefit from the bigger size of 3D image segments no matter one‐path or dual path architecture. Therefore, we selected 43 × 43 × 43 as the size of 3D image segments. More specifically, in the local path, we used 43 × 43 × 43 image segments as the input to the CNN (shown as the red rectangle in Fig. 3), and in the global path, we cut 129 × 129 × 129 image segment from original 3D image whose center was the same as the 43 × 43 × 43 segments (shown as the blue rectangle in Fig. 3), then subsampled it to 43 × 43 × 43, and input it to the CNN.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p7",
+          "reference_ids": [
+            "acm212784-fig-0005"
+          ],
+          "en": "We can learn more context information by processing large‐scale image segments from the global path. Due to the high computational cost of 3D networks, we subsampled the large‐scale image segments from 129 × 129 × 129 to 43 × 43 × 43, shown as Fig. 5. Although the input 3D image segments of the two paths had the same size, they contained different 3D image information and features, more details in the local path and more context information in the global path.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p8",
+          "reference_ids": [
+            "acm212784-fig-0002"
+          ],
+          "en": "After we determined the size of 3D kernel and the size of 3D image segments, we needed to analyze the architecture of the 3D CNN, shown as Fig. 2. There were two paths in the TDP‐CNN, one was the local path, the other was the global path, and these two paths had the same architecture. There were eight blocks in each path, and every block was composed of one 3D convolutional layer with kernel size 3 × 3 × 3, one batch normalization layer, and one PReLu layer. Batch normalization was a technique for improving the performance and stability of 2D CNN, and can also be used in 3D CNN to normalize the input layer by adjusting and scaling the activations and mitigate the problem of internal covariate shift. In TDP‐CNN, we used residual connections between block 2 and block 4, block 4 and block 6, block 6 and block 8, to further illustrate the residual connections, we took the residual connection between blocks 2 and 4; for example, the outputs of block 2 were directly transferred to the end of block 4, and the outputs of blocks 2 and 4 were added together. The residual connections can give later layers direct access to feature maps of previous layers, which can improve gradient propagation resulting in faster convergence during training and better neural network performance. At the end of both paths, the outputs from the local path and global path were added together, to obtain the feature maps about the images' local details and global spatial information. Then these feature maps were transferred to 3D fully connected layers and considering that the number of feature maps was Q, the size of 3D feature maps was M × N × P. In regular CNN, the operations of fully connected layers consisted of two steps; firstly, the Q feature maps were convolved with a kernel, whose size was also M × N × P, in order to transform one feature map from 3D matrix to one element, so the number of parameters can be greatly reduced, but the spatial information was lost, and secondly, the Q elements were connected to every neuron in the fully connected layer. However, in our TDP‐CNN, the first step of fully connected layer operation was different, that is, the Q feature maps were convolved with a kernel, whose size was 1 × 1 × 1, in order to keep the size of the feature maps unchanged, so our model had more parameters in this layer, but it can maintain the 3D spatial information, which was very important for 3D liver and liver tumor segmentation. Finally, the outputs of fully connected layers were input to softmax classifier to obtain the probability maps of liver and liver tumor segmentation results. Until now, the whole architecture of TDP‐CNN was depicted.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0009-p9",
+          "reference_ids": [
+            "acm212784-tbl-0002",
+            "acm212784-tbl-0003"
+          ],
+          "en": "More specifically, the neural network parameters of each layer are shown in Table 2, and other parameters in the training of TDP‐CNN are shown in Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0010",
+      "title": "Data post‐processing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0010-p1",
+          "reference_ids": [
+            "acm212784-bib-0016",
+            "acm212784-bib-0017"
+          ],
+          "en": "To remove the mis‐segmentation points, this paper used fully connected CRFs (FC‐CRF).16, 17 Considering that there were N pixels in a CT image, each pixel corresponded to a CT value set I = {I1,I2,…,IN} and a category label set L={l1,l2,…,lk}, k = 3 in this paper, because there were three categories (liver, liver tumor, and background), and the set of category labels was X=X1,...,XN. Then the conditional random field (I, X) can be represented by the Gibbs distribution:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p2",
+          "reference_ids": [],
+          "en": "Z(I) was a constant, and E(X |I) represented the label distribution of the CT image and the Gibbs energy function when the pixel points were distributed as X and I. The conditional random field assigned a label to each pixel by solving the maximum posterior probability of the label x∈LN:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p3",
+          "reference_ids": [
+            "acm212784-disp-0005"
+          ],
+          "en": "Therefore, the process of solving conditional random fields (CRF) was the process of minimizing the Gibbs energy function. E(X|I) was defined as shown in Eq. (7), where i and j took values from 1 to N:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p4",
+          "reference_ids": [],
+          "en": "Ψμ(xi) was a one‐dimensional potential function, which was calculated by the classifier independently for each pixel, indicating that the pixel i was divided into the energy of the label xi. In our method, the one‐potential function was calculated by the probability map of the liver and liver tumor generated by the TDP‐CNN model. The binary potential function Ψp(xi,xj) indicated that the pixels i, j were simultaneously divided into the energy of the label xi and xj, and its expression was:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p5",
+          "reference_ids": [],
+          "en": "k(m) was a Gaussian kernel:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p6",
+          "reference_ids": [],
+          "en": "fi and fj were the eigenvectors of pixels i and j in the feature space, respectively, ω(m) were linear combination weights, and μ was a label compatibility function that satisfied the Potts model. Each kernel function k(m) had a symmetric, positive definite precision matrix Λ(m). For multiclass image segmentation, the potential function was defined by the color Ii, Ij of the pixel i, j and the position Pi and Pj of pixel i, j:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0010-p7",
+          "reference_ids": [
+            "acm212784-disp-0004",
+            "acm212784-disp-0005",
+            "acm212784-disp-0008"
+          ],
+          "en": "Based on Eqs. (4), (5), and (8), our method used FC‐CRF to give the same category labels to the pixels with large similarities, and give different category label to the pixels with small similarities.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0011",
+      "title": "EXPERIMENT",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm212784-sec-0012",
+      "title": "Experimental dataset and experimental platform",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0012-p1",
+          "reference_ids": [
+            "acm212784-bib-0021",
+            "acm212784-tbl-0001"
+          ],
+          "en": "All liver CT images used in this experiment were from liver tumor segmentation (LiTS), which were from the MICCAI 2017 competition. LiTS was obtained from six different clinical sites, with pixel distance from 0.55 to 1.0 mm and slice spacing from 0.45 to 6.0 mm. LiTS consisted of 131 enhanced CT image sequences. Each CT sequence covered the entire abdomen and part of the chest cavity, and the file format was Nifti. The number of axial slices was not fixed, which ranged from 74 to 987, and the resolution of each CT slice was 512 × 512. The dataset also provided the ground truth of liver and liver tumors segmentation results, which were manually labeled by medical clinicians. To train and test our method, we used 81 CT sequences as the training dataset, 25 CT sequences as the testing dataset, and 25 CT sequences as the verification dataset. In the LiTS dataset, the patients have different types of liver tumor diseases, such as hepatocellular carcinoma and metastasis from other organs (lung, breast, and so on). Hyper or hypo‐dense contrast is used to enhance the image contrast. The number of tumors varies between 0 and 75, and the size of tumors varies between 38 and 349 mm3, and the HU value differences between tumor and liver vary between 0 and 98, whose mean is 31.94 and the standard deviation is 20.21 Software and hardware configuration in our experiments are shown in Table 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0013",
+      "title": "Segmentation performance quantitative evaluation index",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0013-p1",
+          "reference_ids": [
+            "acm212784-bib-0018",
+            "acm212784-bib-0019",
+            "acm212784-bib-0020"
+          ],
+          "en": "In medical image segmentation, true positive (TP) measures the proportion of actual positives that are correctly identified, true negative (TN) measures the proportion of actual negatives that are correctly identified, false positive (FP) is an error in which a test result improperly indicates presence of a condition, false negative (FN) is an error in which a test result improperly indicates no presence of a condition. And we can obtain more indicators using TP, TN, FP, FN18, 19, 20:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p2",
+          "reference_ids": [],
+          "en": "Dice",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p3",
+          "reference_ids": [],
+          "en": "Dice is a commonly used indicator for evaluating the results of medical image segmentation. Dice is 100% when the prediction result is completely consistent with the real result.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p4",
+          "reference_ids": [],
+          "en": "Sensitivity",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p5",
+          "reference_ids": [],
+          "en": "Sensitivity, also known as true‐positive rate or recall rate, is used to measure the ability of the algorithm to identify positive data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p6",
+          "reference_ids": [],
+          "en": "Specificity",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p7",
+          "reference_ids": [],
+          "en": "Specificity is used to reflect the ability of the algorithm to identify negative data. Besides, the experiments in this paper also use two distances between pixels to evaluate the segmentation results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p8",
+          "reference_ids": [],
+          "en": "Hausdorff distance",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p9",
+          "reference_ids": [],
+          "en": "Considering that all the voxels in ground truth images are represented by sg, and all the voxels in the predicted images are represented by sp, the Hausdorff distance can be given:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p10",
+          "reference_ids": [],
+          "en": "In the formula, h(sg,sp) is called the one‐way Hausdorff distance and is given by:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p11",
+          "reference_ids": [],
+          "en": "where ||·|| denotes the Euclidean distance. The Hausdorff distance is sensitive to outliers and is used to find the largest distance between the ground image and the predicted image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p12",
+          "reference_ids": [],
+          "en": "Average distance",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p13",
+          "reference_ids": [],
+          "en": "The average distance, also known as the average symmetric surface distance (ASSD), is given by:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p14",
+          "reference_ids": [],
+          "en": "where N1 and N2 represent the number of voxels in sg and sp, respectively, d(sg,sp) denotes the average shortest distance between voxels from sg to sp, and d(sg,sp) can be calculated by:",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0013-p15",
+          "reference_ids": [],
+          "en": "ASSD is used to represent the overall difference between two sets. For a completely correct segmentation result, ASSD value is 0, which means that the predicted image completely coincides with the real image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0014",
+      "title": "TDP‐CNN parameter settings",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0014-p1",
+          "reference_ids": [],
+          "en": "conv represented the convolutional layer, the kernel represented the size of convolution kernels in each layer, and the FMs represented the number of feature maps in each layer.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0014-p2",
+          "reference_ids": [
+            "acm212784-tbl-0002",
+            "acm212784-tbl-0003"
+          ],
+          "en": "In this experiment, the local path and global path of TDP‐CNN had the same network architecture, as shown in Table 2. In the training of TDP‐CNN, the initializing setting and parameters are shown in Table 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0015",
+      "title": "TDP‐CNN training and testing results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0015-p1",
+          "reference_ids": [
+            "acm212784-fig-0006"
+          ],
+          "en": "During the training of TDP‐CNN, the ground truth of both liver and liver tumors was loaded into the network, so TDP‐CNN can simultaneously segment liver and liver tumors. The final classifier layer of the network divided the 3D CT images into three categories: liver, liver tumor, and background. In the experiment, we used the cross‐entropy as a loss function and used the random gradient descent algorithm to optimize the model. The loss function changed with the number of epochs, shown in Fig. 6, which was stable after 2000 epochs. And we had to point out that it took about 96 h to train the TDP‐CNN model for 2000 epochs.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0015-p2",
+          "reference_ids": [
+            "acm212784-tbl-0004"
+          ],
+          "en": "During the testing, we evaluated three quantitative metrics, including Dice, Hausdorff distance, and an average distance of the algorithm's segmentation results on 25 samples from the test dataset. Table 4 shows the mean value of quantitative metrics of liver and liver tumor segmentation results about the 25 samples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0015-p3",
+          "reference_ids": [
+            "acm212784-fig-0007",
+            "acm212784-fig-0008",
+            "acm212784-fig-0007",
+            "acm212784-fig-0007",
+            "acm212784-fig-0007"
+          ],
+          "en": "Liver and liver tumor segmentation results ares shown in Fig7. Based on the size of liver tumor, it can be divided into three types: (a) the size of liver tumors were small; (b) the liver tumors were relatively large and connected; (c) the liver tumors medium and not connected. As shown in Fig. 8, the size of liver tumors was extremely different from each other. In Fig. 7, from the left column to the right column, there were CT original images, the ground truth, the TDP‐CNN segmentation result, the liver probability map, and the liver tumor probability map, respectively. Comparing the TDP‐CNN segmentation results with ground truth, we can see that our method can successfully detect small liver tumor regions, except the ones near the lower part of the liver. It can be observed from Figs. 7(b) and 7(c) that our method performed well in the segmentation of relatively large liver tumor no matter the tumor was connected or unconnected.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0015-p4",
+          "reference_ids": [
+            "acm212784-tbl-0005",
+            "acm212784-tbl-0004"
+          ],
+          "en": "However, we found that Hausdorff distances for liver and liver tumor segmentation were large, which meant that there were some false‐segmentation voxels. Therefore, we used FC‐CRF to refine the segmentation results to improve the segmentation accuracy. Table 5 shows the mean value of quantitative metrics of liver and liver tumor segmentation results about the 25 samples after using FC‐CRF. Comparing with Table 4, the Hausdorff distance of the liver segmentation result was reduced from 89.257 to 29.162, and the Hausdorff distance of the liver tumor segmentation result was reduced from 65.384 to 7.69.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0015-p5",
+          "reference_ids": [
+            "acm212784-fig-0009",
+            "acm212784-fig-0010",
+            "acm212784-fig-0007"
+          ],
+          "en": "To more clearly show the optimization effect of FC‐CRF on TDP‐CNN, we compared Hausdorff distance for 25 samples in the test dataset. As shown in Fig. 9, the black blocks represented the Hausdorff distance of the liver and liver tumor segmentation result using only TDP‐CNN, and the red blocks represented the Hausdorff distance of the liver and liver tumor segmentation result using TDP‐CNN and FC‐CRF. We can conclude that the segmentation results of the liver and liver tumors were improved by FC‐CRF. The liver and liver tumor segmentation results using TDP‐CNN and FC‐CRF are shown in Fig. 10, and the image data were the same as the one in Fig. 7. It can be seen that the application of FC‐CRF can effectively remove false segmentation of liver and liver tumor. Finally, we had to point out that the average time taken by our method for each 3D CT image data was 13.3 min.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0016",
+      "title": "Comparison between our method and others",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0016-p1",
+          "reference_ids": [
+            "acm212784-tbl-0006",
+            "acm212784-tbl-0007",
+            "acm212784-bib-0021",
+            "acm212784-bib-0021"
+          ],
+          "en": "Finally, we compared our method with all the submitted methods of MICCAI 2017, including 20 liver segmentation methods and 24 liver tumor segmentation methods, all these methods used the same liver CT image dataset, which was LiTS, and the comparison results are shown in Tables 6 and 7. Limited by the length of this paper, we can only discuss the top three algorithms reported in the LiTS benchmark,21 whose authors are Li et al., respectively, and more details about other algorithms can be obtained from Ref. [21]. Li’s algorithm, ranked first, received 0.686 Dice value for liver tumor segmentation and 0.961 Dice value for liver segmentation. Li used cascaded U‐Net architecture to segment the liver and liver tumor, and weighted cross‐entropy was used as loss function during the training; furthermore, Li used residual connections by implementing a so‐called DenseNet architecture consisting of dense blocks in which a feature map takes the outputs of all previous feature maps as an input via a residual connection giving another boost to the information flow through the network and mitigating the vanishing gradient problem. Chlebus's algorithm, ranked second, received 0.676 Dice value for liver tumor segmentation and 0.96 Dice value for liver segmentation. Chlebus firstly used a small 3D network as the final network in a cascaded infrastructure to fuse the segmentation results of various previous networks into a final segmentation mask, then he trained three different U‐Net derived networks on resampled axial, sagittal, and coronal slices, respectively, for liver segmentation and combines them via the aforementioned small 3D network. This allows each network to view tumors and learn distinguishing features along a different coordinate axis and then combine its knowledge with the other networks to yield a more holistic multi‐axes aware classifier. Yuan’s algorithm, ranked third, received 0.657 Dice value for liver tumor segmentation and 0.963 Dice value for liver segmentation. Yuan firstly augmented the dataset by elastic deformation, and also used cascaded U‐Net architecture with stacks of image slices along the z‐axis as input, which was called 2.5D architecture in the report, and Jaccard was used as loss function during the training.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0016-p2",
+          "reference_ids": [],
+          "en": "Compared with other liver and liver tumor segmentation algorithms, the Dice of our method ranked first in terms of liver and liver tumor segmentation; however, the Hausdorff distance of the segmentation results of our method was larger, indicating that there were some mis‐segmentation voxels, which needed to be improved.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0017",
+      "title": "DISCUSSION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0017-p1",
+          "reference_ids": [],
+          "en": "In this paper, we used TDP‐CNN to automatically segment liver and liver tumor from 3D abdominal CT images. Compared with previous liver and liver tumor segmentation algorithms, the biggest differences of our method were that TDP‐CNN had dual path and each path focused on individual image size and resolution and captured global and local features, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0017-p2",
+          "reference_ids": [
+            "acm212784-tbl-0002",
+            "acm212784-tbl-0002",
+            "acm212784-fig-0011"
+          ],
+          "en": "It is essential to compare the performance of dual path multiscale CNN with that of single‐path CNN, to clearly show the advantages of our method over the single‐path CNN. In the process of comparison, we built a single‐path CNN, whose architecture was the same as one of the two paths from TDP‐CNN, as shown in Table 2, and we named this single‐path CNN as “Local.” It can be clearly seen that the number of parameters from TDP‐CNN is two times more than that of Local, therefore, to make the comparison fair, we built another single‐path CNN, which also had eight layers and the same kernel size as shown in Table 2, but the number of feature maps in each layer was twice larger than that of Local, and we named this single‐path CNN as “Local+.” We trained all the three CNN 700 epochs, and the training loss is shown in Fig. 11, which indicated that our dual path multiscale CNN outperformed the other two single‐path CNN. Although the number of parameters from Local+ was two times more than that of Local, Local+ did not show an obvious advantage over Local, which means that the enhancement of the segmentation performance of our method benefits from the network architecture, not from the number of parameters.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0017-p3",
+          "reference_ids": [
+            "acm212784-bib-0021"
+          ],
+          "en": "Looking through all the algorithms reported in the MICCAI 2017 LiTS benchmark,21 most of the liver and liver tumor segmentation algorithms are based on deep learning, which benefits from vigorous development of deep learning on medical image processing and computer‐aided diagnosis in recent years. And U‐Net and VGG‐Net are the most used network structures. However, no algorithms specially designed a complete 3D convolution neural network or directly dealt with 3D medical image data, because the 3D operations of convolution and pooling are time‐consuming on training and require high resources from the computer station. Instead, some algorithms used a small 3D network to optimize the results from the previous 2D network or 2.5D network architecture to capture more characteristics from liver and liver tumor. And these algorithms, which partially used the 3D network, performed the top three in the liver and liver tumor competition; this result may indicate the feasibility and usefulness of 3D network architecture. In our method, we further utilized the 3D convolution neural network, and specially designed a complete 3D network architecture. To balance the segmentation performance and computational resource requirements, we used the dual path multiscale 3D network architecture, in which one‐path captured liver and liver tumor global features from bigger scale and smaller resolution and the other path captured the local features from smaller scale and bigger resolution, 3D medical image data were directly input into the network for training and testing. Our network can extract features from 3D images to the greatest extent, and reduce the computational resource requirements as much as possible.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0017-p4",
+          "reference_ids": [],
+          "en": "Both our method and other algorithms from MICCAI 2017 competition had better liver segmentation results than liver tumor segmentation, which may be caused that human liver always has a relatively fixed shape but liver tumor's size and shape are diversified in size and type. Therefore, it may be more effective than if we specially design the liver tumor segmentation algorithm based on the size and type of the tumor.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm212784-sec-0017-p5",
+          "reference_ids": [],
+          "en": "Our method can accurately segment large liver tumor, but performed comparatively worse for small liver tumors, which is defined as a 3D size less than 500 voxels. The diameter of small liver tumor is only a few voxels, and the size of the whole liver image is 512 × 512; therefore, segmenting small structures in such a big background is a very difficult task. Besides, image noise and artifacts are also another influence on the task. This problem was also recognized by the algorithms in MICCAI 2017 challenge; some corresponding methods were developed, but still cannot get high Dice value. Therefore, more studies are needed in the future to improve the small liver tumor segmentation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0018",
+      "title": "CONCLUSION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0018-p1",
+          "reference_ids": [],
+          "en": "This paper proposed a TDP‐CNN architecture based on deep learning, which can be used to segment liver and liver tumor from the 3D abdominal CT images. The special design for 3D medical image data can make TDP‐CNN balance the segmentation performance and the requirement of computational resources. Compared with other liver and liver tumor segmentation algorithms, our method directly used 3D image data in the whole TDP‐CNN architecture, instead of 2.5D image data or small 3D network. Experiments showed that our method had Dice value 0.965 for liver segmentation and Dice value 0.689 for liver tumor segmentation. These quantitative metrics indicate that our method can accurately segment liver and liver tumor from 3D abdominal CT images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0020",
+      "title": "CONFLICT OF INTERESTS",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0020-p1",
+          "reference_ids": [],
+          "en": "The authors declared that they have no conflict of interest to this work. We declare that we do not have any commercial or associative interest that represents a conflict of interest in connection with the work submitted.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-sec-0019",
+      "title": "ACKNOWLEDGMENT",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm212784-sec-0019-p1",
+          "reference_ids": [],
+          "en": "This study was supported by the National Natural Science Foundation of China (NSFC, grant number 61101057, 61601213 and 61973058).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm212784-bibl-0001",
+      "title": "REFERENCES",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm212784-bibl-0001_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "acm212784-tbl-0006",
+      "label": "Table 6",
+      "caption": "Comparison of liver segmentation between our method and others.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Group",
+          "Dice",
+          "Hausdorff distance",
+          "ASSD"
+        ],
+        [
+          "Our method",
+          "0.965",
+          "29.162",
+          "0.197"
+        ],
+        [
+          "Yuan et al.",
+          "0.963",
+          "23.847",
+          "1.104"
+        ],
+        [
+          "Li et al.",
+          "0.961",
+          "29.411",
+          "1.692"
+        ],
+        [
+          "Chlebus et al.",
+          "0.96",
+          "24.499",
+          "1.15"
+        ],
+        [
+          "Ben‐Cohen et",
+          "0.96",
+          "24.45",
+          "1.13"
+        ],
+        [
+          "LP777",
+          "0.96",
+          "31.225",
+          "1.51"
+        ],
+        [
+          "Wu et al.",
+          "0.959",
+          "28.229",
+          "1.311"
+        ],
+        [
+          "jrwin",
+          "0.958",
+          "27.732",
+          "1.36"
+        ],
+        [
+          "Wang et al.",
+          "0.958",
+          "32.933",
+          "1.367"
+        ],
+        [
+          "MICDIIR",
+          "0.956",
+          "35.653",
+          "1.847"
+        ],
+        [
+          "Vorontsov et al.",
+          "0.951",
+          "29.769",
+          "1.785"
+        ],
+        [
+          "Kaluva et al.",
+          "0.95",
+          "32.71",
+          "1.88"
+        ],
+        [
+          "Roth et al.",
+          "0.95",
+          "31.93",
+          "1.89"
+        ],
+        [
+          "huni1115",
+          "0.946",
+          "31.84",
+          "1.869"
+        ],
+        [
+          "Han",
+          "0.94",
+          "51.22",
+          "2.89"
+        ],
+        [
+          "Lipkova et al.",
+          "0.94",
+          "186.25",
+          "3.54"
+        ],
+        [
+          "mbb",
+          "0.938",
+          "90.245",
+          "2.9"
+        ],
+        [
+          "Bi et al.",
+          "0.934",
+          "321.71",
+          "258.598"
+        ],
+        [
+          "Micro",
+          "0.932",
+          "33.588",
+          "2.182"
+        ],
+        [
+          "MIP HQU",
+          "0.93",
+          "29.27",
+          "2.16"
+        ],
+        [
+          "szm0219",
+          "0.93",
+          "61.894",
+          "3.974"
+        ],
+        [
+          "jinqi",
+          "0.924",
+          "123.332",
+          "5.104"
+        ],
+        [
+          "mahendrakhened",
+          "0.912",
+          "45.928",
+          "6.465"
+        ],
+        [
+          "jkan",
+          "0.906",
+          "63.232",
+          "3.367"
+        ],
+        [
+          "Piraud et al.",
+          "0.767",
+          "326.334",
+          "37.45"
+        ],
+        [
+          "QiaoTian",
+          "0.05",
+          "90.47",
+          "31.56"
+        ],
+        [
+          "Ma et al.",
+          "0.041",
+          "8240.644",
+          "8231.318"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0006\" position=\"float\" xml:lang=\"en\"><label>Table 6</label><caption><p>Comparison of liver segmentation between our method and others.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Group</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Dice</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Hausdorff distance</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">ASSD</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Our method</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.965</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">29.162</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.197</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Yuan et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.963</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">23.847</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.104</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Li et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.961</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">29.411</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.692</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Chlebus et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.96</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">24.499</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.15</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Ben‐Cohen et</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.96</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">24.45</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.13</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">LP777</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.96</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">31.225</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.51</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wu et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.959</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">28.229</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.311</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">jrwin</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.958</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">27.732</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.36</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wang et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.958</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">32.933</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.367</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">MICDIIR</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.956</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">35.653</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.847</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Vorontsov et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.951</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">29.769</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.785</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Kaluva et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.95</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">32.71</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.88</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Roth et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.95</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">31.93</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.89</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">huni1115</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.946</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">31.84</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.869</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Han</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.94</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">51.22</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">2.89</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Lipkova et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.94</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">186.25</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">3.54</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">mbb</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.938</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">90.245</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">2.9</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Bi et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.934</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">321.71</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">258.598</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Micro</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.932</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">33.588</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">2.182</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">MIP HQU</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.93</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">29.27</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">2.16</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">szm0219</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.93</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">61.894</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">3.974</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">jinqi</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.924</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">123.332</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">5.104</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">mahendrakhened</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.912</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">45.928</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.465</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">jkan</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.906</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">63.232</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">3.367</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Piraud et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.767</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">326.334</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">37.45</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">QiaoTian</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.05</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">90.47</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">31.56</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Ma et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.041</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8240.644</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8231.318</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0007",
+      "label": "Table 7",
+      "caption": "Comparison of liver tumor segmentation between our method and others.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Group",
+          "Dice",
+          "Hausdorff distance",
+          "ASSD"
+        ],
+        [
+          "Our method",
+          "0.689",
+          "7.69",
+          "1.07"
+        ],
+        [
+          "Li et al.",
+          "0.686",
+          "6.055",
+          "1.073"
+        ],
+        [
+          "Chlebus et al.",
+          "0.676",
+          "7.322",
+          "1.143"
+        ],
+        [
+          "Vorontsov et al.",
+          "0.661",
+          "6.317",
+          "1.075"
+        ],
+        [
+          "Yuan et al.",
+          "0.657",
+          "6.269",
+          "1.151"
+        ],
+        [
+          "Ma et al.",
+          "0.655",
+          "9.363",
+          "1.607"
+        ],
+        [
+          "Bi et al.",
+          "0.645",
+          "6.472",
+          "1.006"
+        ],
+        [
+          "Kaluva et al.",
+          "0.64",
+          "7.25",
+          "1.04"
+        ],
+        [
+          "Han",
+          "0.63",
+          "7.21",
+          "1.05"
+        ],
+        [
+          "Wang et al.",
+          "0.625",
+          "6.983",
+          "1.26"
+        ],
+        [
+          "Wu et al.",
+          "0.624",
+          "7.783",
+          "1.232"
+        ],
+        [
+          "Ben‐Cohen et al.",
+          "0.62",
+          "8.06",
+          "1.29"
+        ],
+        [
+          "LP777",
+          "0.62",
+          "6.716",
+          "1.388"
+        ],
+        [
+          "Micro",
+          "0.613",
+          "10.087",
+          "1.759"
+        ],
+        [
+          "Njrwin",
+          "0.613",
+          "7.649",
+          "1.164"
+        ],
+        [
+          "mbb",
+          "0.586",
+          "8.079",
+          "1.649"
+        ],
+        [
+          "szm0219",
+          "0.585",
+          "7.408",
+          "1.222"
+        ],
+        [
+          "MICDIIR",
+          "0.582",
+          "7.723",
+          "1.588"
+        ],
+        [
+          "Roth et al.",
+          "0.57",
+          "6.81",
+          "0.95"
+        ],
+        [
+          "jkan",
+          "0.567",
+          "7.23",
+          "1.159"
+        ],
+        [
+          "huni1115",
+          "0.496",
+          "9.03",
+          "1.342"
+        ],
+        [
+          "mahendrakhened",
+          "0.492",
+          "7.515",
+          "1.441"
+        ],
+        [
+          "Lipkova et al.",
+          "0.48",
+          "8.64",
+          "1.33"
+        ],
+        [
+          "jinqi",
+          "0.471",
+          "14.588",
+          "2.465"
+        ],
+        [
+          "MIP HQU",
+          "0.47",
+          "7.84",
+          "1.09"
+        ],
+        [
+          "Piraud et al.",
+          "0.445",
+          "8.391",
+          "1.464"
+        ],
+        [
+          "QiaoTian",
+          "0.25",
+          "11.72",
+          "1.62"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0007\" position=\"float\" xml:lang=\"en\"><label>Table 7</label><caption><p>Comparison of liver tumor segmentation between our method and others.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Group</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Dice</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Hausdorff distance</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">ASSD</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Our method</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.689</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.69</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.07</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Li et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.686</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.055</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.073</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Chlebus et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.676</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.322</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.143</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Vorontsov et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.661</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.317</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.075</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Yuan et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.657</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.269</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.151</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Ma et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.655</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">9.363</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.607</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Bi et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.645</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.472</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.006</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Kaluva et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.64</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.25</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.04</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Han</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.63</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.21</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.05</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wang et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.625</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.983</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.26</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Wu et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.624</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.783</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.232</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Ben‐Cohen et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.62</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8.06</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.29</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">LP777</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.62</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.716</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.388</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Micro</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.613</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">10.087</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.759</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Njrwin</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.613</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.649</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.164</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">mbb</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.586</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8.079</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.649</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">szm0219</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.585</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.408</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.222</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">MICDIIR</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.582</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.723</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.588</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Roth et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.57</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">6.81</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.95</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">jkan</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.567</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.23</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.159</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">huni1115</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.496</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">9.03</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.342</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">mahendrakhened</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.492</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.515</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.441</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Lipkova et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.48</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8.64</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.33</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">jinqi</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.471</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">14.588</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">2.465</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">MIP HQU</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.47</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">7.84</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.09</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Piraud et al.</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.445</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">8.391</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.464</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">QiaoTian</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.25</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">11.72</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">1.62</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0002",
+      "label": "Table 2",
+      "caption": "Network parameters of the local path and global path in three‐dimensional dual path‐convolutional neural network.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "conv_1",
+          "conv_2",
+          "conv_3",
+          "conv_4"
+        ],
+        [
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs"
+        ],
+        [
+          "3 × 3 × 3",
+          "30",
+          "3 × 3 × 3",
+          "30",
+          "3 × 3 × 3",
+          "40",
+          "3 × 3 × 3",
+          "40"
+        ],
+        [
+          "conv_5",
+          "conv_6",
+          "conv_7",
+          "conv_8"
+        ],
+        [
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs",
+          "Kernel",
+          "FMs"
+        ],
+        [
+          "3 × 3 × 3",
+          "40",
+          "3 × 3 × 3",
+          "40",
+          "3 × 3 × 3",
+          "50",
+          "3 × 3 × 3",
+          "50"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0002\" position=\"float\" xml:lang=\"en\"><label>Table 2</label><caption><p>Network parameters of the local path and global path in three‐dimensional dual path‐convolutional neural network.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_1</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_2</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_3</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_4</th></tr><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">30</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">30</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">40</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">40</td></tr></tbody></table><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_5</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_6</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_7</th><th align=\"left\" colspan=\"2\" style=\"border-bottom:solid 1px #000000\" valign=\"top\" rowspan=\"1\">conv_8</th></tr><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Kernel</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">FMs</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">40</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">40</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3 × 3 × 3</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">50</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0003",
+      "label": "Table 3",
+      "caption": "Parameters during the training of three‐dimensional dual path‐convolutional neural network.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Parameter",
+          "Set value"
+        ],
+        [
+          "Input image block size",
+          "43 × 43 × 43"
+        ],
+        [
+          "Global path downsampling factor",
+          "3"
+        ],
+        [
+          "Initial learning rate",
+          "0.001"
+        ],
+        [
+          "RMS_decay",
+          "0.9"
+        ],
+        [
+          "RMS_momentum",
+          "0.6"
+        ],
+        [
+          "RMS_epsilon",
+          "0.0001"
+        ],
+        [
+          "L1 Regularization coefficient",
+          "0.00001"
+        ],
+        [
+          "L2 Regularization coefficient",
+          "0.0001"
+        ],
+        [
+          "Dropout",
+          "0.5"
+        ],
+        [
+          "Batch_size",
+          "10"
+        ],
+        [
+          "Epoch",
+          "2000"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0003\" position=\"float\" xml:lang=\"en\"><label>Table 3</label><caption><p>Parameters during the training of three‐dimensional dual path‐convolutional neural network.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Parameter</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Set value</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Input image block size</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">43 × 43 × 43</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Global path downsampling factor</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">3</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Initial learning rate</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.001</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">RMS_decay</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.9</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">RMS_momentum</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.6</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">RMS_epsilon</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.0001</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">L1 Regularization coefficient</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.00001</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">L2 Regularization coefficient</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.0001</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Dropout</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.5</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Batch_size</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">10</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Epoch</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">2000</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0001",
+      "label": "Table 1",
+      "caption": "Experimental environment of our method.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Environment",
+          "Configuration"
+        ],
+        [
+          "GPU",
+          "NVIDIA GeForce GTX 1080"
+        ],
+        [
+          "Memory capacity",
+          "8 GB"
+        ],
+        [
+          "CPU",
+          "Intel Core i5‐7500 @3.4 GHz"
+        ],
+        [
+          "Memory Capacity",
+          "16 GB"
+        ],
+        [
+          "Hard drive capacity",
+          "1 TB"
+        ],
+        [
+          "Operating system",
+          "Ubuntu 16.04"
+        ],
+        [
+          "Software tools",
+          "Python 2.7; tensorflow 1.8; matlab 2015b"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0001\" position=\"float\" xml:lang=\"en\"><label>Table 1</label><caption><p>Experimental environment of our method.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Environment</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Configuration</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">GPU</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">NVIDIA GeForce GTX 1080</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Memory capacity</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">8 GB</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">CPU</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Intel Core i5‐7500 @3.4 GHz</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Memory Capacity</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">16 GB</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Hard drive capacity</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1 TB</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Operating system</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Ubuntu 16.04</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Software tools</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">Python 2.7; tensorflow 1.8; matlab 2015b</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0004",
+      "label": "Table 4",
+      "caption": "Quantitative metrics of liver and liver tumors segmentation results.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Dice",
+          "Hausdorff distance",
+          "Average distance"
+        ],
+        [
+          "Liver segmentation",
+          "0.946",
+          "89.257",
+          "0.81"
+        ],
+        [
+          "Tumor segmentation",
+          "0.688",
+          "65.384",
+          "4.005"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0004\" position=\"float\" xml:lang=\"en\"><label>Table 4</label><caption><p>Quantitative metrics of liver and liver tumors segmentation results.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> </th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Dice</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Hausdorff distance</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Average distance</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Liver segmentation</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.946</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">89.257</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">0.81</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Tumor segmentation</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.688</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">65.384</td><td align=\"center\" rowspan=\"1\" colspan=\"1\">4.005</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm212784-tbl-0005",
+      "label": "Table 5",
+      "caption": "After optimizing the segmentation result of three‐dimensional dual path‐convolutional neural network using the fully connected conditional random field, quantitative indicators statistics of segmentation results of liver and liver tumors.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "",
+          "Dice",
+          "Hausdorff distance",
+          "Average distance"
+        ],
+        [
+          "Liver segmentation",
+          "0.965",
+          "29.162",
+          "0.197"
+        ],
+        [
+          "Tumor segmentation",
+          "0.689",
+          "7.69",
+          "1.982"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm212784-tbl-0005\" position=\"float\" xml:lang=\"en\"><label>Table 5</label><caption><p>After optimizing the segmentation result of three‐dimensional dual path‐convolutional neural network using the fully connected conditional random field, quantitative indicators statistics of segmentation results of liver and liver tumors.</p></caption><table frame=\"hsides\" rules=\"groups\"><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><col style=\"border-right:solid 1px #000000\" span=\"1\" /><thead valign=\"top\"><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> </th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Dice</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Hausdorff distance</th><th align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">Average distance</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Liver segmentation</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.965</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">29.162</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.197</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Tumor segmentation</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.689</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">7.69</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">1.982</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "acm212784-fig-0001",
+      "label": "Figure 1",
+      "caption": "Flow chart of our method.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g001.jpg",
+        "ACM2-21-144-g001.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0002",
+      "label": "Figure 2",
+      "caption": "Schematic of three‐dimensional dual path‐convolutional neural network (TDP‐CNN) model, there were two paths in the model, one for local and the other for global, the architecture of both paths were totally the same. In each path, there were eight blocks, and all the blocks had the same architecture, which was composed of a 3 × 3 × 3 3D convolution layer, a batch normalization layer, and a PReLu layer. And residual connections were employed between block 2 and block 4, between block 4 and block 6, and between block 6 and block 8. And the end of two paths, the feature maps were fused and input into the fully connected layers and softmax layers to get the final classification results.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g002.jpg",
+        "ACM2-21-144-g002.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0003",
+      "label": "Figure 3",
+      "caption": "Simplified schematic three‐dimensional dual path‐convolutional neural network.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g003.jpg",
+        "ACM2-21-144-g003.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0004",
+      "label": "Figure 4",
+      "caption": "Influence of different three‐dimensional image block sizes on local path segmentation performance. (a) Comparison of dice and (b) comparison of sensitivity.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g004.jpg",
+        "ACM2-21-144-g004.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0005",
+      "label": "Figure 5",
+      "caption": "Sampling method of three‐dimensional image segment in the local path and global path; the red region represents the sample segment in the local path and the blue region represents the sample block in the global path.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g005.jpg",
+        "ACM2-21-144-g005.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0006",
+      "label": "Figure 6",
+      "caption": "Loss function in the training.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g006.jpg",
+        "ACM2-21-144-g006.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0007",
+      "label": "Figure 7",
+      "caption": "Ternary and probabilistic images of three‐dimensional dual path‐convolutional neural network liver and liver tumor segmentation results, crosshair indicated the 3D voxel in the liver. (a) Sample with small liver tumor, (b) Sample with a relatively large and connected liver tumor, and (c) Sample with a medium and unconnected liver tumor.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g007.jpg",
+        "ACM2-21-144-g007.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0008",
+      "label": "Figure 8",
+      "caption": "For all the 25 test samples, the percentage of liver voxels and liver tumor voxels in the whole computed tomography sequence, (a) Percentage of liver voxel and (b) Percentage of tumor voxel.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g008.jpg",
+        "ACM2-21-144-g008.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0009",
+      "label": "Figure 9",
+      "caption": "After optimizing the segmentation result of three‐dimensional dual path‐convolutional neural network (TDP‐CNN) by the FC‐CRF, the Hausdorff distance of liver and liver tumors is greatly reduced. Black bars mean using only TDP‐CNN to get the segmentation result, red bars mean using TDP‐CNN and fully connected‐conditional random fields to get the segmentation result. (a) Comparison of Hausdorff Distance for liver segmentation ad (b) Comparison of Hausdorff Distance for liver tumor segmentation.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g009.jpg",
+        "ACM2-21-144-g009.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0010",
+      "label": "Figure 10",
+      "caption": "Segmentation results of liver and liver tumors using three‐dimensional dual path‐convolutional neural network (TDP‐CNN) and fully connected‐conditional random fields. (a) Sample with a small region of tumor, (b) Sample with a big region of tumor, and (c) Sample with multiple regions of tumor.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g010.jpg",
+        "ACM2-21-144-g010.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm212784-fig-0011",
+      "label": "Figure 11",
+      "caption": "The comparison of segmentation performance between our dual path convolutional neural network (CNN) two sing‐path CNN, which are Local and Local+.",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-21-144-g011.jpg",
+        "ACM2-21-144-g011.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "acm212784-disp-0001",
+      "text": "(1)Hi,j=12πσ2e-(i-k-1)2+(j-k-1)22σ2",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0001\"><label>(1)</label><ns0:math id=\"nlm-math-1\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi>H</ns0:mi><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:msub><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mi>π</ns0:mi><ns0:msup><ns0:mi>σ</ns0:mi><ns0:mn>2</ns0:mn></ns0:msup></ns0:mrow></ns0:mfrac><ns0:msup><ns0:mi>e</ns0:mi><ns0:mrow><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:mrow><ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>i</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup><ns0:mo>+</ns0:mo><ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>j</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>k</ns0:mi><ns0:mo>-</ns0:mo><ns0:mn>1</ns0:mn><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mn>2</ns0:mn></ns0:msup></ns0:mrow><ns0:mrow><ns0:mn>2</ns0:mn><ns0:msup><ns0:mi>σ</ns0:mi><ns0:mn>2</ns0:mn></ns0:msup></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:msup></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0002",
+      "text": "(2)Rlx,y,z=Rl-1x,y,z+klx,y,z-1×∏i=1l-1six,y,z",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0002\"><label>(2)</label><ns0:math id=\"nlm-math-2\" display=\"block\"><ns0:mrow><ns0:msubsup><ns0:mi>R</ns0:mi><ns0:mi>l</ns0:mi><ns0:mfenced close=\"}\" open=\"{\" separators=\"\"><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>z</ns0:mi></ns0:mrow></ns0:mfenced></ns0:msubsup><ns0:mo>=</ns0:mo><ns0:msubsup><ns0:mi>R</ns0:mi><ns0:mrow><ns0:mi>l</ns0:mi><ns0:mo>-</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mfenced close=\"}\" open=\"{\" separators=\"\"><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>z</ns0:mi></ns0:mrow></ns0:mfenced></ns0:msubsup><ns0:mo>+</ns0:mo><ns0:mfenced close=\")\" open=\"(\" separators=\"\"><ns0:mrow><ns0:msubsup><ns0:mi>k</ns0:mi><ns0:mi>l</ns0:mi><ns0:mfenced close=\"}\" open=\"{\" separators=\"\"><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>z</ns0:mi></ns0:mrow></ns0:mfenced></ns0:msubsup><ns0:mo>-</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow></ns0:mfenced><ns0:mo>×</ns0:mo><ns0:munderover><ns0:mo movablelimits=\"false\">∏</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mrow><ns0:mi>l</ns0:mi><ns0:mo>-</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow></ns0:munderover><ns0:msubsup><ns0:mi>s</ns0:mi><ns0:mi>i</ns0:mi><ns0:mfenced close=\"}\" open=\"{\" separators=\"\"><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>y</ns0:mi><ns0:mo>,</ns0:mo><ns0:mi>z</ns0:mi></ns0:mrow></ns0:mfenced></ns0:msubsup></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0003",
+      "text": "(3)P(X|I)=1Z(I)exp(-E(X|I))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0003\"><label>(3)</label><ns0:math id=\"nlm-math-4\" display=\"block\"><ns0:mrow><ns0:mi>P</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mtext>X|I</ns0:mtext><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mrow><ns0:mi>Z</ns0:mi><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi mathvariant=\"normal\">I</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mfrac><ns0:mi>exp</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mo>-</ns0:mo><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi mathvariant=\"normal\">X</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">I</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mspace width=\"1.0pt\" /></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0004",
+      "text": "(4)x∗=argmaxx∈LNP(x|I)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0004\"><label>(4)</label><ns0:math id=\"nlm-math-6\" display=\"block\"><ns0:mrow><ns0:msup><ns0:mi>x</ns0:mi><ns0:mo>∗</ns0:mo></ns0:msup><ns0:mo>=</ns0:mo><ns0:mo>arg</ns0:mo><ns0:munder><ns0:mo movablelimits=\"true\">max</ns0:mo><ns0:mrow><ns0:mi>x</ns0:mi><ns0:mo>∈</ns0:mo><ns0:msup><ns0:mi>L</ns0:mi><ns0:mi>N</ns0:mi></ns0:msup></ns0:mrow></ns0:munder><ns0:mi>P</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>x</ns0:mi><ns0:mo stretchy=\"false\">|</ns0:mo><ns0:mi mathvariant=\"normal\">I</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0005",
+      "text": "(5)E(X|I)=∑iΨμ(xi)+∑i<jΨp(xi,xj)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0005\"><label>(5)</label><ns0:math id=\"nlm-math-7\" display=\"block\"><ns0:mrow><ns0:mi>E</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mtext>X|I</ns0:mtext><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo movablelimits=\"false\">∑</ns0:mo><ns0:mi>i</ns0:mi></ns0:munder><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"normal\">Ψ</ns0:mi><ns0:mi>μ</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:munder><ns0:mo movablelimits=\"false\">∑</ns0:mo><ns0:mrow><ns0:mi>i</ns0:mi><ns0:mo>&lt;</ns0:mo><ns0:mi>j</ns0:mi></ns0:mrow></ns0:munder><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"normal\">Ψ</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0006",
+      "text": "(6)Ψp(xi,xj)=μ(xi,xj)∑m=1Kω(m)k(m)(fi,fj)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0006\"><label>(6)</label><ns0:math id=\"nlm-math-13\" display=\"block\"><ns0:mrow><ns0:msub><ns0:mi mathvariant=\"normal\">Ψ</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mi>μ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>x</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:munderover><ns0:mo movablelimits=\"false\">∑</ns0:mo><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>K</ns0:mi></ns0:munderover><ns0:mrow><ns0:msup><ns0:mi>ω</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>m</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>m</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0007",
+      "text": "(7)k(m)(fi,fj)=exp-12(fi,fj)TΛ(m)(fi-fj)",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0007\"><label>(7)</label><ns0:math id=\"nlm-math-15\" display=\"block\"><ns0:mrow><ns0:msup><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>m</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mi>exp</ns0:mi><ns0:mfenced close=\")\" open=\"(\" separators=\"\"><ns0:mrow><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mn>2</ns0:mn></ns0:mfrac><ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mi mathvariant=\"normal\">T</ns0:mi></ns0:msup><ns0:msup><ns0:mi mathvariant=\"normal\">Λ</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>m</ns0:mi><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0008",
+      "text": "(8)k(fi,fj)=ω1exp-pi-pj22θα2-Ii-Ij22θβ2+ω(2)exp-pi-pj22θγ2",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0008\"><label>(8)</label><ns0:math id=\"nlm-math-21\" display=\"block\"><ns0:mrow><ns0:mi>k</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi mathvariant=\"normal\">f</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:msup><ns0:mi>ω</ns0:mi><ns0:mfenced close=\")\" open=\"(\"><ns0:mn>1</ns0:mn></ns0:mfenced></ns0:msup><ns0:mi>exp</ns0:mi><ns0:mfenced close=\")\" open=\"(\" separators=\"\"><ns0:mrow><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:msup><ns0:mfenced close=\"|\" open=\"|\" separators=\"\"><ns0:mrow><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:mrow></ns0:mfenced><ns0:mn>2</ns0:mn></ns0:msup><ns0:mrow><ns0:mn>2</ns0:mn><ns0:msubsup><ns0:mi>θ</ns0:mi><ns0:mi>α</ns0:mi><ns0:mn>2</ns0:mn></ns0:msubsup></ns0:mrow></ns0:mfrac><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:msup><ns0:mfenced close=\"|\" open=\"|\" separators=\"\"><ns0:mrow><ns0:msub><ns0:mi>I</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>I</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:mrow></ns0:mfenced><ns0:mn>2</ns0:mn></ns0:msup><ns0:mrow><ns0:mn>2</ns0:mn><ns0:msubsup><ns0:mi>θ</ns0:mi><ns0:mi>β</ns0:mi><ns0:mn>2</ns0:mn></ns0:msubsup></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mfenced><ns0:mo>+</ns0:mo><ns0:msup><ns0:mi>ω</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mn>2</ns0:mn><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:msup><ns0:mi>exp</ns0:mi><ns0:mfenced close=\")\" open=\"(\" separators=\"\"><ns0:mrow><ns0:mo>-</ns0:mo><ns0:mfrac><ns0:msup><ns0:mfenced close=\"|\" open=\"|\" separators=\"\"><ns0:mrow><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>i</ns0:mi></ns0:msub><ns0:mo>-</ns0:mo><ns0:msub><ns0:mi>p</ns0:mi><ns0:mi>j</ns0:mi></ns0:msub></ns0:mrow></ns0:mfenced><ns0:mn>2</ns0:mn></ns0:msup><ns0:mrow><ns0:mn>2</ns0:mn><ns0:msubsup><ns0:mi>θ</ns0:mi><ns0:mi>γ</ns0:mi><ns0:mn>2</ns0:mn></ns0:msubsup></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0009",
+      "text": "(9)Dice=2TP2TP+FP+FN",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0009\"><label>(9)</label><ns0:math id=\"nlm-math-22\" display=\"block\"><ns0:mrow><ns0:mtext>Dice</ns0:mtext><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mtext>TP</ns0:mtext></ns0:mrow><ns0:mrow><ns0:mn>2</ns0:mn><ns0:mtext>TP</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FP</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FN</ns0:mtext></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0010",
+      "text": "(10)Sensitivity=TPTP+FN",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0010\"><label>(10)</label><ns0:math id=\"nlm-math-23\" display=\"block\"><ns0:mrow><ns0:mtext>Sensitivit</ns0:mtext><ns0:mi mathvariant=\"normal\">y</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mtext>TP</ns0:mtext><ns0:mrow><ns0:mtext>TP</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FN</ns0:mtext></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0011",
+      "text": "(11)Specificity=TNTN+FP",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0011\"><label>(11)</label><ns0:math id=\"nlm-math-24\" display=\"block\"><ns0:mrow><ns0:mtext>Specificit</ns0:mtext><ns0:mi mathvariant=\"normal\">y</ns0:mi><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mtext>TN</ns0:mtext><ns0:mrow><ns0:mtext>TN</ns0:mtext><ns0:mo>+</ns0:mo><ns0:mtext>FP</ns0:mtext></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0012",
+      "text": "(12)HD(sg,sp)=max(h(sg,sp),h(sp,sg))",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0012\"><label>(12)</label><ns0:math id=\"nlm-math-27\" display=\"block\"><ns0:mrow><ns0:mtext>HD</ns0:mtext><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mo movablelimits=\"true\">max</ns0:mo><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:mi>h</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>,</ns0:mo><ns0:mi>h</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0013",
+      "text": "(13)h(sg,sp)=maxa∈sgminb∈spa-b",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0013\"><label>(13)</label><ns0:math id=\"nlm-math-29\" display=\"block\"><ns0:mrow><ns0:mi>h</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:munder><ns0:mo movablelimits=\"false\">max</ns0:mo><ns0:mrow><ns0:mi>a</ns0:mi><ns0:mo>∈</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub></ns0:mrow></ns0:munder><ns0:mspace width=\"0.277778em\" /><ns0:munder><ns0:mo movablelimits=\"false\">min</ns0:mo><ns0:mrow><ns0:mi>b</ns0:mi><ns0:mo>∈</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub></ns0:mrow></ns0:munder><ns0:mfenced close=\"∥\" open=\"∥\" separators=\"\"><ns0:mrow><ns0:mi>a</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>b</ns0:mi></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0014",
+      "text": "(14)ASSD(sg,sp)=d(sg,sp)+d(sp,sg)N1+N2",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0014\"><label>(14)</label><ns0:math id=\"nlm-math-30\" display=\"block\"><ns0:mrow><ns0:mtext>ASSD</ns0:mtext><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>+</ns0:mo><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow></ns0:mrow><ns0:mrow><ns0:msub><ns0:mi>N</ns0:mi><ns0:mn>1</ns0:mn></ns0:msub><ns0:mo>+</ns0:mo><ns0:msub><ns0:mi>N</ns0:mi><ns0:mn>2</ns0:mn></ns0:msub></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm212784-disp-0015",
+      "text": "(15)d(sg,sp)=1N∑a∈sgminb∈spa-b",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm212784-disp-0015\"><label>(15)</label><ns0:math id=\"nlm-math-37\" display=\"block\"><ns0:mrow><ns0:mi>d</ns0:mi><ns0:mrow><ns0:mo stretchy=\"false\">(</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub><ns0:mo>,</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub><ns0:mo stretchy=\"false\">)</ns0:mo></ns0:mrow><ns0:mo>=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>N</ns0:mi></ns0:mfrac><ns0:munder><ns0:mo movablelimits=\"false\">∑</ns0:mo><ns0:mrow><ns0:mi>a</ns0:mi><ns0:mo>∈</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>g</ns0:mi></ns0:msub></ns0:mrow></ns0:munder><ns0:mrow><ns0:munder><ns0:mo movablelimits=\"false\">min</ns0:mo><ns0:mrow><ns0:mi>b</ns0:mi><ns0:mo>∈</ns0:mo><ns0:msub><ns0:mi>s</ns0:mi><ns0:mi>p</ns0:mi></ns0:msub></ns0:mrow></ns0:munder><ns0:mfenced close=\"∥\" open=\"∥\" separators=\"\"><ns0:mrow><ns0:mi>a</ns0:mi><ns0:mo>-</ns0:mo><ns0:mi>b</ns0:mi></ns0:mrow></ns0:mfenced></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "acm212784-bib-0001",
+      "text": "1. Chen Guoyong, Zhang Jiabin, Sun Jianjun, et al. Revisiting partial hepatectomy of large hepatocellular carcinoma in older patients. Sci Rep. 2018;8:14505.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0002",
+      "text": "2. Baâzaoui A, Barhoumi W, Ahmed A, et al. Semi‐automated segmentation of single and multiple tumors in liver CT images using entropy‐based fuzzy region growing. IRBM. 2017;38:98–100.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0003",
+      "text": "3. Fekry Abd‐Elaziz O, Sharaf Sayed M, Ibrahim Abdullah M. Liver Tumors Segmentation from Abdominal CT Images using Region Growing and Morphological Processing. International Conference on Engineering and Technology; 2014:19–20.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0004",
+      "text": "4. Beichel R, Bornik A, Bauer C, et al. Liver segmentation in contrast enhanced CT data using graph cuts and interactive 3D segmentation refinement methods. Med Phys. 2012;39:1361–1373.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0005",
+      "text": "5. Chen X, Udupa JK, Bagci U, et al. Medical image segmentation by combining graph cuts and oriented active appearance models. IEEE Trans Image Process. 2012;21:2035–2046.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0006",
+      "text": "6. Boykov YY, Jolly M‐P. Interactive graph cuts for optimal boundary & region segmentation of objects in N‐D images. 8th IEEE Int Conf Comput Vis (ICCV); 2001;105–112.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0007",
+      "text": "7. Li BN, Chui CK, Chang S, et al. A new unified level set method for semi‐automatic liver tumor segmentation on contrastenhanced CT images. Expert Syst Appl. 2012;39:9661–9668.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0008",
+      "text": "8. Yinchun Z. Level set image segmentation based on rough set and new energy formula. Acta Automatica Sinica. 2015;41:1913–1925.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0009",
+      "text": "9. Li X, Chen H, Qi X, et al. H‐DenseUNet: hybrid densely connected UNet for liver and tumor segmentation from CT volumes. IEEE Trans Med Imaging. 2017;99:1–13.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0010",
+      "text": "10. Dou Q, Chen H, Jin Y, et al. 3D deeply supervised network for automatic liver segmentation from CT volumes. Med Image Comput Comput‐Assist Intervent; 2016:149–157.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0011",
+      "text": "11. Christa PF, Ettlingera F, Gruna F, et al. Automatic liver and tumor segmentation of CT and MRI volumes using cascaded fully convolutional neural Networks. Medical Image Computing and Computer‐Assisted Intervention; 2016:415–423.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0012",
+      "text": "12. Ronneberger Olaf, PhilippFischer Thomas Brox. U‐Net: Convolutional Networks for Biomedical Image Segmentation. Medical Image Computing and Computer‐Assisted Intervention; 2015:234–241.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0013",
+      "text": "13. Han X.Automatic Liver Lesion Segmentation Using a Deep Convolutional Neural Network Method, arXiv preprint arXiv:170407239; 2017.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0014",
+      "text": "14. Sun Changjian, ShuxuGuo HuimaoZhang, et al. Automatic segmentation of liver tumors from multiphasecontrast‐enhanced CT images based on FCNs. Artif Intell Med. 2017;83:58–66.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0015",
+      "text": "15. Ben‐Cohen A, Diamant I, Klang E, et al. Fully convolutional network for liver segmentation and lesions detection. Deep Learning and Data Labeling for Medical Applications; 2016;77–85.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0016",
+      "text": "16. Krahenbuhl P, Koltun V. Efficient inference in fully connected crfs with gaussian edge potentials. Conference and Workshop on Neural Information Processing Systems;2011:109–117.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0017",
+      "text": "17. Zhuqiang L, Ruifei Z, Fang G. Hyperspectral remote sensing image classification based on three‐dimensional convolution neural network combined with conditional random field optimization. Acta Optica Sinica. 2018;38:404–413.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0018",
+      "text": "18. Heimann T, van Ginneken B, Styner MA, et al. Comparison and evaluation of methods for liver segmentation from CT datasets. IEEE Trans Med Imaging. 2009;28:1251–1265.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0019",
+      "text": "19. Chang H‐H, Zhuang AH, Valentino DJ, et al. Performance measure characterization for evaluating neuroimage segmentation algorithms. NeuroImage. 2009;47:122–135.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0020",
+      "text": "20. Taha AA, Hanbury A. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Med Imaging. 2015;15:29–57.",
+      "doi": []
+    },
+    {
+      "id": "acm212784-bib-0021",
+      "text": "21. Bilic P, Christ PF, Vorontsov E, Chlebbus G, et al.The Liver Tumor Segmentation Benchmark (LiTS), publish online: https://arxiv.org/abs/1901.04056",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Meng L, Tian Y, Bu S.",
+  "journal": "J Appl Clin Med Phys",
+  "year": "2020",
+  "pmid": "31793212",
+  "pmcid": "PMC6964770",
+  "doi": "10.1002/acm2.12784",
+  "source": {
+    "retrieved_at": "2026-11-14T17:04:24.243507+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6964770/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6964770.xml"
+}

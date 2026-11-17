@@ -1,0 +1,48 @@
+name: Check hosted application
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements-web.txt
+            requirements-research.txt
+      - name: Install application dependencies
+        run: python -m pip install --only-binary=:all: -r requirements-web.txt httpx==0.28.1
+      - name: Build application and check Python syntax
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          python _tools/build_release.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          for folder in ('tools', '_tools', 'code', 'tests'):
+              for path in Path(folder).glob('*.py'):
+                  ast.parse(path.read_text(encoding='utf-8-sig'), filename=str(path))
+          PY
+      - name: Test website account and private workspace flows
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
+        run: |
+          python -m unittest discover -s tests -p 'test_web*.py' -v
+          python -m unittest discover -s tests -p 'test_publication_library.py' -v
+          python tests/test_final_statistics.py
+      - name: Validate Compose and Caddy configuration
+        run: |
+          docker compose --env-file deploy/env.example config --quiet
+          docker run --rm -e HELIX_DOMAIN=cognispect.tech -e ACME_EMAIL=operator@example.org -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.10.2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Build production image
+        run: docker compose --env-file deploy/env.example build app

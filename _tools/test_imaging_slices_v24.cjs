@@ -1,0 +1,7 @@
+const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),old=JSON.parse(fs.readFileSync(path.join(root,'assets/imaging/manifest.json')));
+assert.ok(fs.existsSync(path.join(root,'assets/imaging/v24/manifest.json')),'single-slice image resources must be available');
+const next=JSON.parse(fs.readFileSync(path.join(root,'assets/imaging/v24/manifest.json')));
+let slices=0;
+for(const d of next.datasets){const original=old.datasets.find(x=>x.id===d.id);for(const key of ['width','height','spacing','directions','origin','sourceSliceStart','slices','dtype'])assert.deepEqual(d[key],original[key],d.id+' '+key+' must preserve original image coordinates');for(const item of d.chunks){assert.equal(item.count,1,'opening one slice must not download four');const source=original.chunks.find(x=>item.start>=x.start&&item.start<x.start+x.count);const raw=zlib.gunzipSync(fs.readFileSync(path.join(root,source.url))),size=d.width*d.height*4,start=(item.start-source.start)*size;const actual=zlib.gunzipSync(fs.readFileSync(path.join(root,item.url)));assert.equal(Buffer.compare(actual,raw.subarray(start,start+size)),0,d.id+' slice '+item.start+' must preserve every original pixel');slices++;}}
+console.log(JSON.stringify({checks:['single-slice-resources','all-pixels-identical','physical-coordinates-identical'],slices}));

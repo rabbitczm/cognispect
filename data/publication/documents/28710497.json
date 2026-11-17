@@ -1,0 +1,1484 @@
+{
+  "key": "28710497",
+  "body_available": true,
+  "title": "Deep Learning based Radiomics (DLR) and its usage in noninvasive IDH1 prediction for low grade glioma",
+  "source_url": "https://europepmc.org/articles/PMC5511238",
+  "license": {
+    "text": "https://creativecommons.org/licenses/by/4.0/ Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Zeju Li",
+    "Yuanyuan Wang",
+    "Jinhua Yu",
+    "Yi Guo",
+    "Wei Cao"
+  ],
+  "copyright": {
+    "statement": "© The Author(s) 2017",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "1",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2017",
+        "month": "7",
+        "day": "14"
+      },
+      {
+        "type": "collection",
+        "year": "2017",
+        "month": "",
+        "day": ""
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "Sec1",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par2",
+          "reference_ids": [
+            "CR1",
+            "CR2",
+            "CR3",
+            "CR4",
+            "CR5",
+            "CR6",
+            "CR7"
+          ],
+          "en": "Radiomics is an emerging method that uses a series of qualitative and quantitative analyses of high-throughput image features to obtain predictive or prognostic information from medical images1. Recently, radiomics methods have been used to analyze various medical images and have provided information related to patient outcomes, tumor phenotypes and the gene-protein signatures of different diseases. For instance, Aerts et al. presented a radiomics method to decode tumor phenotypes of both lung cancer and head-and-neck cancer based on computed tomography (CT) data2. That study showed that it is possible to improve cancer diagnosis and treatment by using routinely collected medical images. The features described in that study were divided into four groups: intensity, shape, texture and wavelet features. Then, the features with the best performance in each group were combined to establish the radiomics model. Kumar et al. summarized and demonstrated the processes and challenges of radiomics3 with non-small-cell lung cancer (NSCLC). They proposed an NSCLC classification model that uses radiomics features. More recently, Vallieres et al. evaluated the lung metastasis risk of soft-tissue sarcomas (STSs) with a radiomics model4. Several non-textural features and texture features were extracted from the tumor regions in multiple medical scans. Their research showed that a combination of features extracted from positron emission computed tomography (PET) and magnetic resonance (MR) images could provide good metastasis estimation. Indeed, certain features in MR images were reported to exhibit characteristics associated with clinical diagnosis5. Gutman et al. analyzed the association between visual features of MR images and genetic alterations, gene expression and patient survival of glioblastoma (GBM)6. Visually Accessible Rembrandt Image (VASARI) features of the tumor regions from MR images were used in their study, and the results demonstrated a significant association between contrast-enhanced tumors and the Verhaak gene expression classification. A series of analyses of GBM was conducted by Gavaert et al.7. Gavaert et al. generated computational image features of necrosis, enhancements and edema regions of interests (ROIs). Their results showed that a certain image features correlated with molecular subgroups.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par3",
+          "reference_ids": [
+            "CR3"
+          ],
+          "en": "Normally, the process of radiomics analysis includes image acquisition, image segmentation, feature extraction, feature selection and informatics analyses3. There are three basic problems with existing radiomics sequencing methods. First, the image segmentation step usually relies on manual delineation. This process is both time-consuming and subject to inter- or intra-segmentation variation. Second, even if the image segmentation is accurate, there is no standard evaluation method for image feature extraction. Different image features will lead to different analysis results. Because it is difficult to verify the accuracy and reproducibility of image features, extra errors may be introduced due to the miscalculation of image features. Last, but not least, current radiomics methods often characterize medical images by using several groups of image features, including intensity, shape, texture and wavelets. Although many such image features can be calculated, it is not possible for all these imaging characteristics of segmented areas to be included in the predesigned features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par4",
+          "reference_ids": [],
+          "en": "To overcome the shortcomings of radiomics methods, we developed a more advanced method, called deep learning-based radiomics (DLR). DLR obtains radiomics features by normalizing the information from a deep neural network designed for image segmentation. The main assumption of DLR is that once the image has been segmented accurately by the deep neural network, all the information about the segmented region will have already been installed in the network. Unlike current radiomics methods, in DLR, the high-throughput image features are directly extracted from the deep neural network. Because DLR does not involve extra feature extraction operations, no extra errors will be introduced into the radiomics analysis because of feature calculations. The effectiveness of features is related only to the quality of segmentation. If the tumor has been segmented precisely, the accuracy and effectiveness of the image features can be guaranteed.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par5",
+          "reference_ids": [
+            "CR8",
+            "CR9",
+            "CR10",
+            "CR11",
+            "CR12"
+          ],
+          "en": "In the proposed DLR, a convolutional neural network (CNN) is used. CNN is a representative method used for deep learning, and it has been successfully applied to the field of image segmentation8. Recently, many groups have used CNN for the segmentation of medical images, and it has provided better results than traditional methods9. In glioma segmentation based on MR images, most of the CNN methods were proposed for high-grade gliomas10, 11. Compared with high-grade gliomas, low-grade gliomas are smaller and have lower contrast with the surrounding tissues12. Existing CNN structures would not work well for segmentation of low-grade gliomas. A major architecture adjustment of CNN is therefore essential for both image segmentation and feature extraction. To address the challenging characteristics of low-grade gliomas, we used a modified CNN architecture with 6 convolutional layers and a fully connected layer with 4096 neurons for segmentation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par6",
+          "reference_ids": [
+            "CR13",
+            "CR14",
+            "CR15"
+          ],
+          "en": "With the more accurate segmentation results obtained by CNN, more information can be extracted. Unlike traditional calculated features, CNN features preserve a great deal of the global spatial information using the operations of convolutional kernels for the entire image13. Indeed, CNN features have shown better performance than traditionally calculated features in many domains, such as scene recognition, domain adaptation and fine-grained recognition14. More recently, the features in a CNN showed promising results for texture attribute recognition, and CNN outperformed traditional approaches by more than 10%15. In DLR, CNN features are extracted from the last convolutional layer. A Fisher vector is used to normalize the network information from MR imaging slices of different sizes; 16,384 high-throughput image features were generated from the CNN for each case.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par7",
+          "reference_ids": [
+            "CR16",
+            "CR17",
+            "CR18",
+            "CR20",
+            "CR21",
+            "CR22",
+            "CR23"
+          ],
+          "en": "The performance of the proposed DLR was validated by using it to predict the isocitrate dehydrogenase 1 (IDH1) statuses of low-grade gliomas16, 17. Since the introduction of the concept of molecular diagnosis for glioma, which is the most common malignant brain tumor, large-scale genomics data are now available18–20. In the latest version of the WHO 201621, molecular diagnosis and pathological diagnosis were integrated for central nervous system tumors, including glioma. Among all the molecular biomarkers, the IDH1 gene is the most important because of its unique diagnostic and predictive value. IDH1 mutation status accounts for more than 50% of the predictive value in low-grade glioma22. The treatment regimen varies greatly in low-grade glioma according to IDH1 status23. Therefore, accurate prediction of IDH1 mutation status via noninvasive methods has been widely explored. Here, we used DLR to determine IDH1 mutation status in a low-grade glioma cohort composed of 151 patients. We demonstrate that DLR is a useful and accurate tool for predicting IDH1 mutation status in low-grade gliomas.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec2",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec3",
+      "title": "Participants",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par8",
+          "reference_ids": [
+            "Tab1",
+            "CR24"
+          ],
+          "en": "A cohort of 151 cases was selected from the image bank of the Department of Neurosurgery, Huashan Hospital. All patients enrolled in this study were diagnosed with grade II glioma. The diagnoses of low-grade glioma were re-confirmed independently by 2 pathologists for each case, and the IDH1 mutation statuses were confirmed by Sanger sequencing. Detailed information about the enrolled patients is summarized in Table 1. The cases were divided into two cohorts. The first cohort, consisting of 119 cases with both T2 flair and T1 contrast images, was used to test the DLR performance based on multiple MR imaging modalities. The second cohort, consisting of 110 cases with T2 flair images, was used to compare the IDH1 prediction performance between DLR and the normal radiomics approach. The second cohort was used in our previous radiomics study for the same purpose24.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec4",
+      "title": "Tumor segmentation results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par9",
+          "reference_ids": [
+            "Fig1",
+            "MOESM1"
+          ],
+          "en": "The tumor segmentation results are shown in Fig. 1. The evaluation indexes are explained in the Supplementary methods section, and the results of different CNN structures are presented in Supplementary Table 1. As expected, the network was able to segment the tumor regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par10",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "The results in Fig. 1(a) show that increasing the network depth or increasing the number of neurons in the fully connected layers led to more precise segmentation results. Ultimately, using a deeper network structure and employing more neurons in the fully connected layers at the same time led to the best overall segmentation results. Further performance improvements were achieved by combining multiple modal MR images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par11",
+          "reference_ids": [
+            "Fig1"
+          ],
+          "en": "We present three typical segmentation results of CNNs trained with single-modality and multi-modality images in Fig. 1(b). As shown in the pictures, the CNN provided correct segmentation results for the tumor regions. The false recognition of other brain structures was reduced (in cases one and three), and the tumor region was recognized more accurately (in case two).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec5",
+      "title": "Prediction results for IDH1 using DLR",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par12",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "To better understand the features extracted by DLR, we analyzed the selected features from multiple MR imaging modalities. In general, the CNN features represented the characteristics of the responses of deep filter banks in the last convolutional layer. The dimension of CNN features was normalized using their distribution statistics with regard to 64 Gaussian kernels. Detailed information of the selected CNN features is presented in Supplementary Figure 1. The majority of the features were only related to a few Gaussian kernels. In other words, there are many correspondences among the features that showed significant responses to IDH1 status. On the other side, several filter banks show great responses to IDH1 status.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par13",
+          "reference_ids": [
+            "Fig2",
+            "Fig2"
+          ],
+          "en": "An example that illustrates our method is shown in Fig. 2. Two typical IDH1 mutation and wild-type cases were used as examples. The ROIs were entered into the network, and CNN features from the last convolutional layers were extracted and encoded by a Fisher vector. Of all the 16,384 CNN features, no. 13,751 and no. 13,768 were the two most significant in their response to IDH1 status (with F-scores of 0.3501 and 0.3561, respectively). The two features corresponded to the first order statistics of the no. 36 kernel of the no. 107 deep filter response and the second order statistics of the no. 28 kernel of the no. 107 deep filter response. We visualized the feature maps of the no. 107 filter for the two cases in Fig. 2. Surprisingly, although the inputs of the two types of tumor were similar, the outputs from the no. 107 filter response were almost entirely different.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par14",
+          "reference_ids": [],
+          "en": "Next, the first order statistics of the no. 36 kernel and the second order statistics of the no. 28 kernel were calculated; these refer to the designs of the no. 13,751 and no. 13,768 features. The characteristics of the filter response were reflected in the two parameters. As the second order statistics of the no. 28 kernel show, the no. 107 filter response of the wild-type tumor was more internally complicated and had more texture information. As the first order statistics of the no. 36 kernel show, the no. 107 filter response of the mutation-bearing tumors had lower intensity and was more gathered around the no. 36 kernel (the no. 36 kernel had a mean value of −0.1352 and a variance of 0.0055). Thus, the prediction based on CNN features clearly provided good results. Indeed, the two types of tumors have significantly different responses in deep filter banks.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par15",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "To make the analysis more comprehensive, we show the feature maps from the no. 107 filter in Supplementary Figure 2. The feature maps of IDH1 mutant gliomas showed a more uniform distribution. By contrast, the internal textures of the feature maps of the wild-type gliomas were more complex, and the response regions were more irregular. However, these differences were not obvious in the original MR images.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec6",
+      "title": "Comparison with normal radiomics methods",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par16",
+          "reference_ids": [
+            "CR24",
+            "CR24",
+            "Tab2",
+            "Fig3",
+            "MOESM1",
+            "CR24"
+          ],
+          "en": "In our previous study24, we used normal radiomics based on calculated features to estimate the IDH1 status of the second cohort used in this current study. In this study24, we extracted 671 image features from the segmented images. To evaluate the CNN features in the radiomics analysis, we used the same cohort and analysis process, but we replaced the 671 features with 16,384 CNN features. The evaluation parameters of the prediction results are shown in Table 2(a). A comparison of the receiver operating characteristic (ROC) curves is presented in Fig. 3(a). The features used are summarized in Supplementary Table 2. The results show a great improvement as a result of using the CNN features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par17",
+          "reference_ids": [
+            "Tab2",
+            "Fig3"
+          ],
+          "en": "The modified CNN architecture was able to provide joint information of multiple modalities for the DLR analysis. The performance of multiple modalities was evaluated using the dataset of the first cohort with both T2 flair images and T1 contrast images. Two evaluation methods were used: leave-one-out cross-validation and validation based on time of diagnosis. The evaluation parameters of the prediction results based on leave-one-out cross-validation are shown in Table 2(b), and a comparison of the ROC curves is presented in Fig. 3(b).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par18",
+          "reference_ids": [
+            "MOESM1"
+          ],
+          "en": "The results showed that DLR provided better prediction results by using multi-modal images rather than single-modal images. Moreover, further feature selection would improve the predictive ability of this model. The performance of further feature selection is shown in Supplementary Figure 3.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par19",
+          "reference_ids": [
+            "Tab2"
+          ],
+          "en": "Another experiment was carried out to validate our method. Eighty-five patients diagnosed before 2015 (63 mutations and 22 wild type) were used as a training set, and 34 patients diagnosed after 2015 (26 mutations and 8 wild type) were used as the validation set. The same features of multi-modal DLR with further feature selection were used for IDH1 status prediction. The results were similar to those obtained with leave-one-out cross-validation, as shown in Table 2(c).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec7",
+      "title": "DLR performance with CNN features with different layers",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par20",
+          "reference_ids": [
+            "Fig1",
+            "Tab3",
+            "MOESM1"
+          ],
+          "en": "As shown in Fig. 1, the CNN architecture that we designed demonstrated better performance than previous methods for tumor segmentation. We demonstrated the importance of deepening the network structure by comparing prediction results using CNN features from different layers. The prediction results are summarized in Table 3. The numbers of features used for prediction in each case are summarized in Supplementary Table 2. As shown in the table, the overall prediction results improved when the network was built deeper. However, when we proceeded to the fully connected layers, no further improvement was achieved.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par21",
+          "reference_ids": [
+            "Fig4",
+            "CR13",
+            "MOESM1"
+          ],
+          "en": "Next, we illustrated the importance of building a high-performance CNN with feature maps obtained from different depths of the network. Features maps were the output planes of different deep convolutional kernels and could be thought of as the responses of the local feature extractors. Feature maps of the four most significant filter banks of each convolutional layer are presented in Fig. 4. These feature maps are the responses of the CNN to the same two cases. Normally, feature maps are thought to provide more detailed information as the network becomes deeper13. In the lower convolutional layers, the CNN only acquires intensity and shape information from the tumor, and most filter banks do not show distinct responses to different disease phenotypes. As the CNN structure becomes deeper and the number of network parameters increases, the features become more difficult to describe. However, we can see from the figure that the feature maps of the deeper layers have more information about the details and internal textures. The mutation cases and wild-type cases can be distinguished in various ways. To demonstrate the ability of DLR to differentiate between phenotypes, we present a boxplot of the ten most significant features in Supplementary Figure 4.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec8",
+      "title": "Operation time",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par22",
+          "reference_ids": [],
+          "en": "All of our computations were carried out using an NVIDIA Quadro 600 GPU on an Intel Xeon E5620 2.40 GHz machine. It took 38 hours to train the tumor recognition CNN. Eighteen minutes were required per case for the tumor segmentation, and 40–80 seconds per case were needed for CNN feature extraction, depending on the tumor size. Approximately 2 seconds were used for the encoding of the Fisher vector.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec9",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par23",
+          "reference_ids": [
+            "CR25"
+          ],
+          "en": "A modified CNN architecture designed for low-grade glioma segmentation was introduced in this study. Compared to previous neural networks, the proposed CNN was built with more convolutional layers and more neurons in the fully connected layers. Increasing the depth of the network and adding parameters enabled the CNN to make more adjustments to the input images and improved the learning ability of the CNN. For these reasons, we were able to obtain more accurate segmentation results and better tumor identification using the CNN. Similar to CNN methods that process natural images in three-channel RGB25, we used multi-modal MR images as inputs for the CNN. CNN structures based on multiple imaging modalities obtained more information. More image information helped the CNN to better detect the tumor regions. Therefore, incorrect segmentation for non-tumor regions was reduced, and the identification of tumor regions was precise.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par24",
+          "reference_ids": [
+            "CR26"
+          ],
+          "en": "Radiomics has become a popular method to extract prognostic information from medical images that is not visible to the human eye. Many radiomics features can be analyzed using medical images. As topical issues, radiomics methods have already been widely adopted for the noninvasive analysis of genetic and clinical information in different medical fields. The success of radiomics is based on the idea that medical images can provide much information about the internal state, which could be related to disease characteristics and may help in treating and understanding disease26. Radiomics can be used to obtain information by extracting a tremendous number of features from lesion areas. Although radiomics methods have made substantial progress, the features were designed without a special purpose in mind. The features used for different diseases are similar, and fewer than hundreds of features can be used, including intensity, shape, texture, wavelets and other descriptive features. The clinical characteristics may not be obvious in the images, and it is difficult and time-consuming to design a suite of related features. However, it is clearly difficult to tell whether the modeled radiomics features are related to a given problem. Traditional radiomics methods cannot guarantee that the features describe the pattern completely, and they cannot guarantee that the selected features are the best features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par25",
+          "reference_ids": [],
+          "en": "The CNN features used in this study, unlike the features used in normal radiomics methods, were extracted directly from the networks. The CNNs were specifically trained on the given training data, and they were able to segment the tumor region automatically. The outstanding tumor recognition ability of the CNN inspired us to test whether more information about the disease could be extracted from the CNN structures. Indeed, we showed that the CNN features could better predict IDH1 status. We can summarize the superiority of DLR in three main improvements. First, the DLR can provide automatic segmentation results based on multi-modal images, and it can avoid the additional errors caused by subsequent feature extraction. We succeeded in simplifying the radiomics process into a more elegant procedure by directly extracting features from the network and avoiding difficulties in designing features. The process of DLR, including lesion area segmentation, can thus be fully automatic. This automation makes the DLR more robust and useful for the prediction of disease phenotypes. Second, the high-performance object recognition of the CNN was utilized. DLR can make full use of the image information within and near the tumor regions. CNN features were extracted directly from the network, and the most distinct deep filter responses were found. The strong connection between the deep information and IDH1 statuses benefited from the outstanding tumor recognition ability of the CNN. CNN structures with stronger tumor recognition ability, such as CNN structures based on multiple imaging modalities, could provide more value relevance information and lead to better discrimination of IDH1 statues. Third, the CNN can be specifically designed for the problem at hand, which means that CNN features can provide unique characteristics for particular images. The network was trained using medical images that needed to be processed. Therefore, the CNN learned a large number of general and unique features from the datasets, which would be impossible when using radiomics features or manually specified features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par26",
+          "reference_ids": [
+            "CR13"
+          ],
+          "en": "In this study, information was extracted from the last convolutional layers. We were inspired to do this based on the idea that information from the deeper layers is more robust. The changes in details, such as shifting and scaling in the input images, would have an effect on the feature maps of lower layers but not on the deep layers13. This effect was illustrated by an experiment in this study. On the one hand, the nuanced differences between categories were highlighted by the abstract feature maps from the deep layers. These features were hard to depict, and they might correspond to the differences between disease phenotypes that are not visible to the human eye. They could help the classifier obtain more accurate prediction results. On the other hand, discrimination did not evolve any more by extracting features from the fully connected layers. The reason for this result is because the CNN features were too compressed in the fully connected layers, and the partial information reflecting the characteristics of disease phenotypes was lost.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par27",
+          "reference_ids": [
+            "CR27",
+            "CR24",
+            "CR18",
+            "CR28",
+            "CR29",
+            "CR30",
+            "CR31",
+            "CR32"
+          ],
+          "en": "Despite the diagnostic significance of glioma according to the new version the WHO criterion, the IDH1 mutation status was used to tailor personalized treatment regimens, including surgical extent and chemo-sensitivity. Patients with IDH1 mutations tend to have a positive prognosis. Currently, the prognosis evaluation of glioma is mainly decided by extensive histologic and genetic evaluation. Preoperative noninvasive prediction of IDH1 status could help guide treatment decisions in some cases, but it remains a challenge. Several noninvasive methods to predict IDH1 mutation status have been explored and reported during the last few years. Of these methods, MR imaging-oriented computational analysis is considered the most convenient and cost-effective. Two major methods have been proposed based on routine MR imaging or magnetic resonance spectroscopy (MRS). The first method is called image analysis, and it is based on routine clinical MR imaging scans. Yamashita et al. reported that tumor necrosis area and tumor blood flow are useful for predicting IDH1 mutation status27. A total of 66 patients with GBM were included in their study. IDH1 prediction results with area under the operating characteristic curve (AUC) values of 87.3% and 77.2% were obtained using the features of relative tumor blood flow and necrosis area, respectively. However, their method lacks an overall evaluation of the tumor regions, and the specific cutoff parameters in their research might be not applicable to other datasets. Recently, radiomics introduced another approach for the noninvasive prediction of IDH1 status. Our group also examined the possibility of predicting IDH1 mutation status using a radiomics method24. We carried out a preliminary classification prediction of IDH1 mutation statuses with T2 flair images of 110 patients with low-grade gliomas. Using 671 radiomics features describing the intensity, shape, texture and wavelet characteristics of the tumor regions, we obtained an accuracy of 80% and an AUC of 86%. Compared to IDH1 prediction methods based on image analysis, DLR combines the steps of image segmentation and feature extraction, and it efficiently avoids error propagation and could provide features with more comprehensive representation of the tumor regions that are relevant to the tumor molecular phenotype. Therefore, DLR outperforms other methods for IDH1 mutation prediction. Alternatively, the second method involves detecting metabolic changes caused by IDH1 mutation using MRS technology. When a tumor harbors an IDH1 mutation, it produces 2-hydroxyglutarate (2-HG), which is reflected in the MRS results18, 28. Several studies have reported ways to detect 2-HG by MRS using dedicated research scanners under certain conditions29, 30. Verma et al. developed two-dimensional localized correlated spectroscopy (2D L-COSY) at 7 tesla for the detection of 2-HG30. Nine patients were enrolled in their study. The results showed that 2-HG was detected in the IDH1-mutant gliomas but was absent in IDH1 wild-type gliomas. Lombardi et al. predicted the presence of IDH1 mutations based on 2-HG concentrations in the plasma and urine of 84 patients31. These methods provided an accuracy of 70%, a sensitivity of 63% and a specificity of 76% when the cutoff ratio of 2-HG was set to 19. De la Fuente et al. developed an MR imaging protocol to integrate 2-HG-MRS into routine imaging and validated the performance using 89 patients32. The results showed that 2-HG is closely linked to MRS voxel volume, with sensitivity values ranging from 8% for small tumors (<3.4 mL) to 91% for larger tumors (>8 mL). The main drawback of these 2-HG-based methods is that there are too many requirements for image acquisition, making it difficult to use in routine MR imaging processes32. Compared to IDH1 prediction methods based on measuring 2-HG, DLR can provide better results and relies only on the routine MR imaging modality. Our method can be applied to routinely collected MR imaging data instead of requiring additional samples or specific imaging parameters. Thus, it may be more practical to implement and more economical. One possible shortcoming of DLR may be encountered when processing data from different medical centers or data collected using different machines. Our CNN was built using MR images collected with the same parameters, but images with different imaging parameters might not be accurately identified by the settled network. This problem could be overcome by image normalization or fine-tuning using the new dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par28",
+          "reference_ids": [],
+          "en": "In medical imaging applications, our method is able to noninvasively predict IDH1 mutation status with high accuracy by using routinely collected MR image modalities. In the future, we anticipate that DLR can be widely used in other cases where radiomics has been applied. Noninvasive prediction of other important glioma biomarkers, such as 1p19q and TERT, will be considered for future work. Prediction of survival time for GBM is also being considered as a future application of DLR. Our method can help related research obtain more specified features and greatly improve performance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec10",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec11",
+      "title": "MR image data acquisition",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par29",
+          "reference_ids": [],
+          "en": "All images were acquired using a 3 Tesla Siemens Trio scanner (Siemens, Erlangen, Germany). 3D T2 flair images were acquired using the following scan parameters: TR = 9000 ms, TE = 99 ms, TI = 2501 ms, flip angle = 150°, slice thickness = 2 mm and pixel spacing = 0.4688 mm. In addition, a high resolution, T1 contrast 3D images were acquired (TR = 1900 ms, TE = 2.93 ms, TI = 900 ms, flip angle = 9°, slice thickness = 1 mm and pixel spacing = 0.4883 mm). This experiment was approved by the Ethics Committee of Huashan Hospital, and informed consent was obtained from every patient. All experiments were carried out in accordance with relevant guidelines and regulations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par30",
+          "reference_ids": [
+            "CR33"
+          ],
+          "en": "For each case, polymerase chain reaction (PCR) and subsequent sequencing analysis were performed as described previously33.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec12",
+      "title": "DLR: Deep Learning-based Radiomics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par31",
+          "reference_ids": [
+            "Fig5"
+          ],
+          "en": "An overview of DLR is shown in Fig. 5. Important concepts are described later.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec13",
+      "title": "Data pre-processing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par32",
+          "reference_ids": [
+            "CR34",
+            "CR35"
+          ],
+          "en": "All T1 contrast MR images were first registered to the T2 flair MR images using Statistical Parametric Mapping (SPM)34. Then, Brainsuite35 was used to remove the skull and scalp from the brain MR images and correct the bias field for the MR images, leading to better recognition for the CNN. After that, the tumor regions were manually labeled by two experienced neurosurgeons. The manual segmentation results were used as ground truth in the CNN training phase.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec14",
+      "title": "Tumor segmentation by deep learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par33",
+          "reference_ids": [
+            "CR10",
+            "CR12"
+          ],
+          "en": "The structure of the CNN was mainly based on a previous study10. The selected method was used to participate in the Brain Tumor Segmentation Challenge (BRATS)12 and ranked first place and second place in BRATS 2013 and BRATS 2015, respectively.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par34",
+          "reference_ids": [],
+          "en": "The task of tumor region recognition was transformed into pixel-wise classification in the fashion of CNN. Taking into account the lack of brain MR image resolution in the coronal and sagittal planes, we considered using two-dimensional information for tumor recognition from the axial view. During the training phase, 33 × 33 pixel patches were extracted from the MR images. The mean gray levels of the patches in one channel were removed, and the gray values and variance were normalized. Normalized patches were input into the network with the category of the center points for training. However, the proportion of tumors in the images was very small. To better identify the tumor region, we used an unbalanced selection strategy, such that approximately 40% of the patches in the input contained tumor regions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par35",
+          "reference_ids": [],
+          "en": "The convolutional kernels were convolved over the image to obtain the local features and global features of the images at the same time. The weights of the convolutional kernels were adapted by back-propagation in every training process. Therefore, the networks were adjusted to the characteristics of the input data. Stochastic gradient descent (SGD) was used as the parameter back-propagation algorithm.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par36",
+          "reference_ids": [
+            "Fig5",
+            "MOESM1"
+          ],
+          "en": "When applying the structure to our dataset, we built it deeper and included more neurons in the fully connected layers. Detailed information about the structure used in our study is shown in Fig. 5 and Supplementary Table 3. Two convolutional layers were added, and the parameters in the fully connected layers were increased from 256 to 4096 to obtain more precise segmentation results. Rectified linear units (ReLU) were chosen as the activation function, and they were set following every convolutional layer. Additionally, dropout layers were applied after every fully connected layer. To ensure the accuracy and effectiveness of the image features, we selected network structures with 6 convolutional kernels and fully connected layers with 4096 neurons for subsequent processing.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par37",
+          "reference_ids": [],
+          "en": "Typically, full images were used as direct input to the network to obtain the segmentation results in the test phase. The same pre-processing parameters from the training phase were used, including the mean gray value, normalized gray value and variance. Bicubic interpolation was used for the up-sampling of network output to make up for the dimensional changes produced by the pooling process. After obtaining the segmentation results of the CNN output, we corrected the segmentation results by post-processing using several morphology methods. The largest connectivity region of each slice was first chosen as the candidate region. Then, the selected tumor regions were smoothed by a box filter with a 3-dimensional convolution kernel.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec15",
+      "title": "Selection of deep filter responses",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par38",
+          "reference_ids": [],
+          "en": "After confirming that the network was able to identify tumor regions, we added tumor region images to the network. To fully examine the tumor responses in the network, we used 10 images with different scales for each tumor slice, and the scale ratios ranged from 0.5 to 2.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par39",
+          "reference_ids": [
+            "CR36",
+            "CR37"
+          ],
+          "en": "The CNN was taken as an image filter, and the features of the tumor regions were generated from the feature maps from the last convolutional layer. However, features chosen from the network had different dimensions for different cases and lacked statistical characteristics. To overcome these difficulties, we introduced an improved Fisher vector encoding36 for feature normalization and description. The Fisher vector was summarized in a vectorial statistic for a number of local feature descriptors by constructing a visual word dictionary obtained with Gaussian Mixture Models (GMM)37. Multi-scale information regarding the tumor regions was seamlessly incorporated by the description of the Fisher vector. In our study, a GMM with 64 Gaussian components was obtained based on the training data. Then, feature maps of all slices from a single case were stretched into a one-dimensional vector for each deep filter, and these were pooled into a Fisher vector representation with 64 Gaussian components. The pooled descriptors represented the first order and second order statistics of each of the 64 Gaussian components of each of the 128 deep filters, resulting in descriptors with 16k-dimensions (128 × 64 × 2). The calculations for the Fisher vector are described in the supplementary methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par40",
+          "reference_ids": [],
+          "en": "In this study, 30 patients were used to obtain the encoder of the generated CNN features for both cohorts, separately. After that, the CNN features were extracted from all of the images and encoded with a Fisher vector to obtain a 16,384-dimensional feature set for each patient. The DLR model based on multiple modalities was built and tested on the first cohort. The DLR based on a single modality was built using the second cohort and was tested on both cohorts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec16",
+      "title": "Feature selection and classification",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par41",
+          "reference_ids": [
+            "CR38"
+          ],
+          "en": "To evaluate the ability of the CNN to recognize tumors, we assessed the tumor segmentation results of the CNN. The Dice Similar Coefficient (DSC), Positive Predictive Value (PPV) and sensitivity38 were calculated for the CNN tumor recognition results, with manual segmentation as the ground truth.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par42",
+          "reference_ids": [
+            "CR39"
+          ],
+          "en": "To select features associated with IDH1 mutation status, we included several feature selection methods in our method. Student’s t-test was applied to all of the extracted features to identify the features with significant power according to the criterion that a p-value < 0.05 indicated statistical significance. In addition, feature selection based on F-score39 was used for further pre-processing to remove irrelevant and redundant features.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par43",
+          "reference_ids": [
+            "CR40"
+          ],
+          "en": "In our study, a support vector machine (SVM) was chosen as a classifier. SVM shows good robustness and high precision, and it has been used by other studies for cancer analysis40. The linear kernel was chosen for the SVM in this study, and the box constraint c was set as 1.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "Par44",
+          "reference_ids": [],
+          "en": "Several indexes were calculated in this study to evaluate the predictive performance of our model. Parameters, including ROC curves, AUC, accuracy (ACC), sensitivity (SENS), specificity (SPEC), PPV, negative predictive value (NPV) and Matthew’s correlation coefficient (MCC), were calculated and presented as the prediction results. The detailed calculations for these parameters can be found in the supplementary methods.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec17",
+      "title": "Dividing training data and test data",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par45",
+          "reference_ids": [],
+          "en": "The CNN was trained using the first cohort with 119 cases and multi-modal MR images. Sixty cases from the first cohort were selected as the training data, and the remaining 59 cases were used as test data. Leave-one-out cross-validation was used for IDH1 prediction. An experiment was carried out for validation using another division of the cases. Eighty-five cases diagnosed before 2015 were chosen as the training data, and 34 cases diagnosed after 2015 were used as the test data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "Sec18",
+      "title": "Data Availability",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par46",
+          "reference_ids": [],
+          "en": "The datasets generated during and/or analysed during the current study are available from the corresponding author on reasonable request.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "section-20",
+      "title": "Electronic supplementary material",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "Sec19",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-22",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "section-22-p1",
+          "reference_ids": [],
+          "en": "Electronic supplementary material",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-22-p2",
+          "reference_ids": [],
+          "en": "Supplementary information accompanies this paper at doi:10.1038/s41598-017-05848-2",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-22-p3",
+          "reference_ids": [],
+          "en": "Publisher's note: Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-22-p4",
+          "reference_ids": [],
+          "en": "This work was supported by the National Basic Research Program of China (2015CB755500), the National Natural Science Foundation of China (11474071). We thank Dr. Zhifeng Shi a﻿nd Dr. Liang Chen for providing clinical guidance and tumor segmentation results.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "section-22-p5",
+          "reference_ids": [],
+          "en": "Zeju Li, Yuanyuan Wang, Jinhua Yu and Yi Guo conceived of the project, analyzed the data and wrote the paper. Wei Cao provided expert guidance about deep learning and reviewed the manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "FPar1",
+      "title": "Competing Interests",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "Par47",
+          "reference_ids": [],
+          "en": "The authors declare that they have no competing interests.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "Tab1",
+      "label": "Table 1",
+      "caption": "Characteristics of patients in all datasets, first cohort and second cohort.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Parameters",
+          "Total Cases",
+          "IDH1 Mutation Status",
+          "p-value"
+        ],
+        [
+          "Mutation",
+          "Wild Type"
+        ],
+        [
+          "All the dataset"
+        ],
+        [
+          "Number of samples",
+          "151",
+          "112",
+          "39",
+          ""
+        ],
+        [
+          "Sex"
+        ],
+        [
+          "Male",
+          "81(54.6%)",
+          "58(51.8%)",
+          "23(59.0%)",
+          "0.44"
+        ],
+        [
+          "Female",
+          "70(46.4%)",
+          "54(48.2%)",
+          "16(41.0%)"
+        ],
+        [
+          "Age (years)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "40.7 ± 10.8",
+          "38.7 ± 10.7",
+          "43.5 ± 12.1",
+          "0.03"
+        ],
+        [
+          "Tumor volume (cubic centimeters)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "68.1 ± 47.4",
+          "69.0 ± 48.0",
+          "65.8 ± 46.8",
+          "0.843"
+        ],
+        [
+          "Histopathological diagnosis"
+        ],
+        [
+          "Astrocytoma",
+          "81(54.6%)",
+          "54(48.2%)",
+          "27(39.2%)",
+          "0.01"
+        ],
+        [
+          "Oligodendroglioma",
+          "31(20.5%)",
+          "27(24.1%)",
+          "4(10.2%)"
+        ],
+        [
+          "Oligoastrocytoma",
+          "39(25.8%)",
+          "31(27.7%)",
+          "8(20.5%)"
+        ],
+        [
+          "First cohort"
+        ],
+        [
+          "Number of samples",
+          "119",
+          "89",
+          "30",
+          ""
+        ],
+        [
+          "Sex"
+        ],
+        [
+          "Male",
+          "67(56.3%)",
+          "48(54.0%)",
+          "19(63.3%)",
+          "0.37"
+        ],
+        [
+          "Female",
+          "52(43.7%)",
+          "41(46.1%)",
+          "11(36.7%)"
+        ],
+        [
+          "Age (years)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "39.6 ± 10.2",
+          "37.9 ± 8.9",
+          "44.2 ± 11.7",
+          "0.03"
+        ],
+        [
+          "Tumor volume (cubic centimeters)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "68.3 ± 57.4",
+          "66.7 ± 55.6",
+          "73.1 ± 63.0",
+          "0.146"
+        ],
+        [
+          "Histopathological diagnosis"
+        ],
+        [
+          "Astrocytoma",
+          "69(58.0%)",
+          "47(52.8%)",
+          "22(73.3%)",
+          "0.03"
+        ],
+        [
+          "Oligodendroglioma",
+          "24(20.2%)",
+          "21(23.6%)",
+          "3(10.0%)"
+        ],
+        [
+          "Oligoastrocytoma",
+          "26(21.8%)",
+          "21(23.6%)",
+          "5(16.7%)"
+        ],
+        [
+          "Diagnosis time"
+        ],
+        [
+          "Before 2015",
+          "85(71.4%)",
+          "63(70.8%)",
+          "22(73.3%)",
+          "0.79"
+        ],
+        [
+          "After 2015",
+          "34(28.6%)",
+          "26(29.2%)",
+          "8(26.7%)"
+        ],
+        [
+          "Second cohort"
+        ],
+        [
+          "Number of samples",
+          "110",
+          "76",
+          "34",
+          ""
+        ],
+        [
+          "Sex"
+        ],
+        [
+          "Male",
+          "54(49.1%)",
+          "33(43.4%)",
+          "21(61.7%)",
+          "0.08"
+        ],
+        [
+          "Female",
+          "56(50.9%)",
+          "43(56.6%)",
+          "13(38.2%)"
+        ],
+        [
+          "Age (years)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "40.3 ± 11.3",
+          "39.0 ± 10.7",
+          "43.4 ± 12.7",
+          "0.06"
+        ],
+        [
+          "Tumor volume (cubic centimeters)"
+        ],
+        [
+          "Mean ± standard deviation",
+          "68.1 ± 57.9",
+          "74.3 ± 62.5",
+          "54.3 ± 43.8",
+          "0.06"
+        ],
+        [
+          "Histopathological diagnosis"
+        ],
+        [
+          "Astrocytoma",
+          "55(50.0%)",
+          "31(40.8%)",
+          "24(70.6%)﻿",
+          "0.01"
+        ],
+        [
+          "Oligodendroglioma",
+          "21(19.1%)",
+          "18(23.7%)",
+          "3(8.8%)"
+        ],
+        [
+          "Oligoastrocytoma",
+          "34(30.9%)",
+          "27(35.5%)",
+          "7(20.6%)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab1\" position=\"float\" orientation=\"portrait\"><label>Table 1</label><caption><p>Characteristics of patients in all datasets, first cohort and second cohort.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th rowspan=\"2\" colspan=\"1\">Parameters</th><th rowspan=\"2\" colspan=\"1\">Total Cases</th><th colspan=\"2\" rowspan=\"1\">IDH1 Mutation Status</th><th rowspan=\"2\" colspan=\"1\">p-value</th></tr><tr><th colspan=\"1\" rowspan=\"1\">Mutation</th><th colspan=\"1\" rowspan=\"1\">Wild Type</th></tr></thead><tbody><tr><td colspan=\"5\" rowspan=\"1\">\n<bold><italic toggle=\"yes\">All the dataset</italic></bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Number of samples</td><td colspan=\"1\" rowspan=\"1\">151</td><td colspan=\"1\" rowspan=\"1\">112</td><td colspan=\"1\" rowspan=\"1\">39</td><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Sex</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Male</td><td colspan=\"1\" rowspan=\"1\">81(54.6%)</td><td colspan=\"1\" rowspan=\"1\">58(51.8%)</td><td colspan=\"1\" rowspan=\"1\">23(59.0%)</td><td rowspan=\"2\" colspan=\"1\">0.44</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Female</td><td colspan=\"1\" rowspan=\"1\">70(46.4%)</td><td colspan=\"1\" rowspan=\"1\">54(48.2%)</td><td colspan=\"1\" rowspan=\"1\">16(41.0%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Age (years)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">40.7 ± 10.8</td><td colspan=\"1\" rowspan=\"1\">38.7 ± 10.7</td><td colspan=\"1\" rowspan=\"1\">43.5 ± 12.1</td><td colspan=\"1\" rowspan=\"1\">0.03</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Tumor volume (cubic centimeters)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">68.1 ± 47.4</td><td colspan=\"1\" rowspan=\"1\">69.0 ± 48.0</td><td colspan=\"1\" rowspan=\"1\">65.8 ± 46.8</td><td colspan=\"1\" rowspan=\"1\">0.843</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Histopathological diagnosis</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Astrocytoma</td><td colspan=\"1\" rowspan=\"1\">81(54.6%)</td><td colspan=\"1\" rowspan=\"1\">54(48.2%)</td><td colspan=\"1\" rowspan=\"1\">27(39.2%)</td><td rowspan=\"3\" colspan=\"1\">0.01</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligodendroglioma</td><td colspan=\"1\" rowspan=\"1\">31(20.5%)</td><td colspan=\"1\" rowspan=\"1\">27(24.1%)</td><td colspan=\"1\" rowspan=\"1\">4(10.2%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligoastrocytoma</td><td colspan=\"1\" rowspan=\"1\">39(25.8%)</td><td colspan=\"1\" rowspan=\"1\">31(27.7%)</td><td colspan=\"1\" rowspan=\"1\">8(20.5%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold><italic toggle=\"yes\">First cohort</italic></bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Number of samples</td><td colspan=\"1\" rowspan=\"1\">119</td><td colspan=\"1\" rowspan=\"1\">89</td><td colspan=\"1\" rowspan=\"1\">30</td><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Sex</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Male</td><td colspan=\"1\" rowspan=\"1\">67(56.3%)</td><td colspan=\"1\" rowspan=\"1\">48(54.0%)</td><td colspan=\"1\" rowspan=\"1\">19(63.3%)</td><td rowspan=\"2\" colspan=\"1\">0.37</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Female</td><td colspan=\"1\" rowspan=\"1\">52(43.7%)</td><td colspan=\"1\" rowspan=\"1\">41(46.1%)</td><td colspan=\"1\" rowspan=\"1\">11(36.7%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Age (years)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">39.6 ± 10.2</td><td colspan=\"1\" rowspan=\"1\">37.9 ± 8.9</td><td colspan=\"1\" rowspan=\"1\">44.2 ± 11.7</td><td colspan=\"1\" rowspan=\"1\">0.03</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Tumor volume (cubic centimeters)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">68.3 ± 57.4</td><td colspan=\"1\" rowspan=\"1\">66.7 ± 55.6</td><td colspan=\"1\" rowspan=\"1\">73.1 ± 63.0</td><td colspan=\"1\" rowspan=\"1\">0.146</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Histopathological diagnosis</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Astrocytoma</td><td colspan=\"1\" rowspan=\"1\">69(58.0%)</td><td colspan=\"1\" rowspan=\"1\">47(52.8%)</td><td colspan=\"1\" rowspan=\"1\">22(73.3%)</td><td rowspan=\"3\" colspan=\"1\">0.03</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligodendroglioma</td><td colspan=\"1\" rowspan=\"1\">24(20.2%)</td><td colspan=\"1\" rowspan=\"1\">21(23.6%)</td><td colspan=\"1\" rowspan=\"1\">3(10.0%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligoastrocytoma</td><td colspan=\"1\" rowspan=\"1\">26(21.8%)</td><td colspan=\"1\" rowspan=\"1\">21(23.6%)</td><td colspan=\"1\" rowspan=\"1\">5(16.7%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Diagnosis time</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Before 2015</td><td colspan=\"1\" rowspan=\"1\">85(71.4%)</td><td colspan=\"1\" rowspan=\"1\">63(70.8%)</td><td colspan=\"1\" rowspan=\"1\">22(73.3%)</td><td rowspan=\"2\" colspan=\"1\">0.79</td></tr><tr><td colspan=\"1\" rowspan=\"1\">After 2015</td><td colspan=\"1\" rowspan=\"1\">34(28.6%)</td><td colspan=\"1\" rowspan=\"1\">26(29.2%)</td><td colspan=\"1\" rowspan=\"1\">8(26.7%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold><italic toggle=\"yes\">Second cohort</italic></bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Number of samples</td><td colspan=\"1\" rowspan=\"1\">110</td><td colspan=\"1\" rowspan=\"1\">76</td><td colspan=\"1\" rowspan=\"1\">34</td><td colspan=\"1\" rowspan=\"1\" /></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Sex</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Male</td><td colspan=\"1\" rowspan=\"1\">54(49.1%)</td><td colspan=\"1\" rowspan=\"1\">33(43.4%)</td><td colspan=\"1\" rowspan=\"1\">21(61.7%)</td><td rowspan=\"2\" colspan=\"1\">0.08</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Female</td><td colspan=\"1\" rowspan=\"1\">56(50.9%)</td><td colspan=\"1\" rowspan=\"1\">43(56.6%)</td><td colspan=\"1\" rowspan=\"1\">13(38.2%)</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Age (years)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">40.3 ± 11.3</td><td colspan=\"1\" rowspan=\"1\">39.0 ± 10.7</td><td colspan=\"1\" rowspan=\"1\">43.4 ± 12.7</td><td colspan=\"1\" rowspan=\"1\">0.06</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Tumor volume (cubic centimeters)</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Mean ± standard deviation</td><td colspan=\"1\" rowspan=\"1\">68.1 ± 57.9</td><td colspan=\"1\" rowspan=\"1\">74.3 ± 62.5</td><td colspan=\"1\" rowspan=\"1\">54.3 ± 43.8</td><td colspan=\"1\" rowspan=\"1\">0.06</td></tr><tr><td colspan=\"5\" rowspan=\"1\">\n<bold>Histopathological diagnosis</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Astrocytoma</td><td colspan=\"1\" rowspan=\"1\">55(50.0%)</td><td colspan=\"1\" rowspan=\"1\">31(40.8%)</td><td colspan=\"1\" rowspan=\"1\">24(70.6%)﻿</td><td rowspan=\"3\" colspan=\"1\">0.01</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligodendroglioma</td><td colspan=\"1\" rowspan=\"1\">21(19.1%)</td><td colspan=\"1\" rowspan=\"1\">18(23.7%)</td><td colspan=\"1\" rowspan=\"1\">3(8.8%)</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Oligoastrocytoma</td><td colspan=\"1\" rowspan=\"1\">34(30.9%)</td><td colspan=\"1\" rowspan=\"1\">27(35.5%)</td><td colspan=\"1\" rowspan=\"1\">7(20.6%)</td></tr></tbody></table></table-wrap>\n"
+    },
+    {
+      "id": "Tab2",
+      "label": "Table 2",
+      "caption": "Prediction results of different cohorts using different methods.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Dataset",
+          "Methods",
+          "AUC",
+          "ACC",
+          "SENS",
+          "SPEC",
+          "PPV",
+          "NPV",
+          "MCC"
+        ],
+        [
+          "(a) Normal Radiomics vs. DLR (single modality: T2 flair)"
+        ],
+        [
+          "Second cohort with leave-one-out cross-validation",
+          "Radiomics24",
+          "0.8572",
+          "0.8000",
+          "0.8289",
+          "0.7353",
+          "0.8750",
+          "0.6579",
+          "0.5483"
+        ],
+        [
+          "DLR",
+          "0.9207",
+          "0.8636",
+          "0.9342",
+          "0.7059",
+          "0.8765",
+          "0.8276",
+          "0.6713"
+        ],
+        [
+          "(b) DLR based on single modality vs. multiple modality"
+        ],
+        [
+          "First cohort with leave-one-out cross-validation",
+          "DLR with single modality",
+          "0.8045",
+          "0.8235",
+          "0.9326",
+          "0.5000",
+          "0.8469",
+          "0.7143",
+          "0.4927"
+        ],
+        [
+          "DLR with multiple modality",
+          "0.9157",
+          "0.8655",
+          "0.9438",
+          "0.6333",
+          "0.8842",
+          "0.7917",
+          "0.6246"
+        ],
+        [
+          "DLR with multiple modality improved by further feature selection",
+          "0.9521",
+          "0.9244",
+          "0.9438",
+          "0.8667",
+          "0.9545",
+          "0.8387",
+          "0.8018"
+        ],
+        [
+          "(C) Divided test set based on diagnosis time"
+        ],
+        [
+          "First cohort with divided test set",
+          "DLR with multiple modality",
+          "0.9615",
+          "0.9118",
+          "0.9231",
+          "0.8750",
+          "0.9600",
+          "0.7778",
+          "0.7673"
+        ]
+      ],
+      "footnotes": "(a) Comparison of IDH1 prediction results between radiomics and DLR using T2 flair modal MR images of the first cohort by leave-one-out cross-validation SVM. (b) Prediction results of IDH1 using multi-modal MR images of the second cohort by leave-one-out cross-validation SVM and (c) validation on a divided test set. The data set was divided according to the diagnosis time.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab2\" position=\"float\" orientation=\"portrait\"><label>Table 2</label><caption><p>Prediction results of different cohorts using different methods.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Dataset</th><th colspan=\"1\" rowspan=\"1\">Methods</th><th colspan=\"1\" rowspan=\"1\">AUC</th><th colspan=\"1\" rowspan=\"1\">ACC</th><th colspan=\"1\" rowspan=\"1\">SENS</th><th colspan=\"1\" rowspan=\"1\">SPEC</th><th colspan=\"1\" rowspan=\"1\">PPV</th><th colspan=\"1\" rowspan=\"1\">NPV</th><th colspan=\"1\" rowspan=\"1\">MCC</th></tr></thead><tbody><tr><td colspan=\"9\" rowspan=\"1\">\n<bold>(a) Normal Radiomics vs. DLR (single modality: T2 flair)</bold>\n</td></tr><tr><td rowspan=\"2\" colspan=\"1\">Second cohort with leave-one-out cross-validation</td><td colspan=\"1\" rowspan=\"1\">Radiomics<sup><xref ref-type=\"bibr\" rid=\"CR24\">24</xref></sup>\n</td><td colspan=\"1\" rowspan=\"1\">0.8572</td><td colspan=\"1\" rowspan=\"1\">0.8000</td><td colspan=\"1\" rowspan=\"1\">0.8289</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.7353</bold>\n</td><td colspan=\"1\" rowspan=\"1\">0.8750</td><td colspan=\"1\" rowspan=\"1\">0.6579</td><td colspan=\"1\" rowspan=\"1\">0.5483</td></tr><tr><td colspan=\"1\" rowspan=\"1\">DLR</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9207</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8636</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9342</bold>\n</td><td colspan=\"1\" rowspan=\"1\">0.7059</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8765</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8276</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.6713</bold>\n</td></tr><tr><td colspan=\"9\" rowspan=\"1\">\n<bold>(b) DLR based on single modality vs. multiple modality</bold>\n</td></tr><tr><td rowspan=\"3\" colspan=\"1\">First cohort with leave-one-out cross-validation</td><td colspan=\"1\" rowspan=\"1\">DLR with single modality</td><td colspan=\"1\" rowspan=\"1\">0.8045</td><td colspan=\"1\" rowspan=\"1\">0.8235</td><td colspan=\"1\" rowspan=\"1\">0.9326</td><td colspan=\"1\" rowspan=\"1\">0.5000</td><td colspan=\"1\" rowspan=\"1\">0.8469</td><td colspan=\"1\" rowspan=\"1\">0.7143</td><td colspan=\"1\" rowspan=\"1\">0.4927</td></tr><tr><td colspan=\"1\" rowspan=\"1\">DLR with multiple modality</td><td colspan=\"1\" rowspan=\"1\">0.9157</td><td colspan=\"1\" rowspan=\"1\">0.8655</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9438</bold>\n</td><td colspan=\"1\" rowspan=\"1\">0.6333</td><td colspan=\"1\" rowspan=\"1\">0.8842</td><td colspan=\"1\" rowspan=\"1\">0.7917</td><td colspan=\"1\" rowspan=\"1\">0.6246</td></tr><tr><td colspan=\"1\" rowspan=\"1\">DLR with multiple modality improved by further feature selection</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9521</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9244</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9438</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8667</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9545</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8387</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8018</bold>\n</td></tr><tr><td colspan=\"9\" rowspan=\"1\">\n<bold>(C) Divided test set based on diagnosis time</bold>\n</td></tr><tr><td colspan=\"1\" rowspan=\"1\">First cohort with divided test set</td><td colspan=\"1\" rowspan=\"1\">DLR with multiple modality</td><td colspan=\"1\" rowspan=\"1\">0.9615</td><td colspan=\"1\" rowspan=\"1\">0.9118</td><td colspan=\"1\" rowspan=\"1\">0.9231</td><td colspan=\"1\" rowspan=\"1\">0.8750</td><td colspan=\"1\" rowspan=\"1\">0.9600</td><td colspan=\"1\" rowspan=\"1\">0.7778</td><td colspan=\"1\" rowspan=\"1\">0.7673</td></tr></tbody></table><table-wrap-foot><p>(a) Comparison of IDH1 prediction results between radiomics and DLR using T2 flair modal MR images of the first cohort by leave-one-out cross-validation SVM. (b) Prediction results of IDH1 using multi-modal MR images of the second cohort by leave-one-out cross-validation SVM and (c) validation on a divided test set. The data set was divided according to the diagnosis time.</p></table-wrap-foot></table-wrap>\n"
+    },
+    {
+      "id": "Tab3",
+      "label": "Table 3",
+      "caption": "Comparison of IDH1 prediction results using CNN features from different layers.",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Methods",
+          "AUC",
+          "ACC",
+          "SENS",
+          "SPEC",
+          "PPV",
+          "NPV",
+          "MCC"
+        ],
+        [
+          "Conv.1",
+          "0.6165",
+          "0.5630",
+          "0.5393",
+          "0.6333",
+          "0.8136",
+          "0.3167",
+          "0.1499"
+        ],
+        [
+          "Conv.2",
+          "0.7109",
+          "0.6387",
+          "0.6404",
+          "0.6333",
+          "0.8382",
+          "0.3725",
+          "0.2402"
+        ],
+        [
+          "Conv.3",
+          "0.8858",
+          "0.8403",
+          "0.9213",
+          "0.6000",
+          "0.8723",
+          "0.7200",
+          "0.5557"
+        ],
+        [
+          "Conv.4",
+          "0.8734",
+          "0.7899",
+          "0.8876",
+          "0.5000",
+          "0.8404",
+          "0.6000",
+          "0.4132"
+        ],
+        [
+          "Conv.5",
+          "0.9004",
+          "0.8571",
+          "0.9101",
+          "0.7000",
+          "0.9000",
+          "0.7241",
+          "0.6171"
+        ],
+        [
+          "Fc.7",
+          "0.8614",
+          "0.8319",
+          "0.9326",
+          "0.5333",
+          "0.8557",
+          "0.7273",
+          "0.5212"
+        ],
+        [
+          "Fc.8",
+          "0.7524",
+          "0.7647",
+          "0.8876",
+          "0.4000",
+          "0.8144",
+          "0.5455",
+          "0.3217"
+        ],
+        [
+          "Conv.6",
+          "0.9157",
+          "0.8655",
+          "0.9438",
+          "0.6333",
+          "0.8842",
+          "0.7917",
+          "0.6246"
+        ]
+      ],
+      "footnotes": "Conv. means the convolutional layers, and fc. represents the fully connected layers. The same post-processing was applied in each situation.",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"Tab3\" position=\"float\" orientation=\"portrait\"><label>Table 3</label><caption><p>Comparison of IDH1 prediction results using CNN features from different layers.</p></caption><table frame=\"hsides\" rules=\"groups\"><thead><tr><th colspan=\"1\" rowspan=\"1\">Methods</th><th colspan=\"1\" rowspan=\"1\">AUC</th><th colspan=\"1\" rowspan=\"1\">ACC</th><th colspan=\"1\" rowspan=\"1\">SENS</th><th colspan=\"1\" rowspan=\"1\">SPEC</th><th colspan=\"1\" rowspan=\"1\">PPV</th><th colspan=\"1\" rowspan=\"1\">NPV</th><th colspan=\"1\" rowspan=\"1\">MCC</th></tr></thead><tbody><tr><td colspan=\"1\" rowspan=\"1\">Conv.1</td><td colspan=\"1\" rowspan=\"1\">0.6165</td><td colspan=\"1\" rowspan=\"1\">0.5630</td><td colspan=\"1\" rowspan=\"1\">0.5393</td><td colspan=\"1\" rowspan=\"1\">0.6333</td><td colspan=\"1\" rowspan=\"1\">0.8136</td><td colspan=\"1\" rowspan=\"1\">0.3167</td><td colspan=\"1\" rowspan=\"1\">0.1499</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conv.2</td><td colspan=\"1\" rowspan=\"1\">0.7109</td><td colspan=\"1\" rowspan=\"1\">0.6387</td><td colspan=\"1\" rowspan=\"1\">0.6404</td><td colspan=\"1\" rowspan=\"1\">0.6333</td><td colspan=\"1\" rowspan=\"1\">0.8382</td><td colspan=\"1\" rowspan=\"1\">0.3725</td><td colspan=\"1\" rowspan=\"1\">0.2402</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conv.3</td><td colspan=\"1\" rowspan=\"1\">0.8858</td><td colspan=\"1\" rowspan=\"1\">0.8403</td><td colspan=\"1\" rowspan=\"1\">0.9213</td><td colspan=\"1\" rowspan=\"1\">0.6000</td><td colspan=\"1\" rowspan=\"1\">0.8723</td><td colspan=\"1\" rowspan=\"1\">0.7200</td><td colspan=\"1\" rowspan=\"1\">0.5557</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conv.4</td><td colspan=\"1\" rowspan=\"1\">0.8734</td><td colspan=\"1\" rowspan=\"1\">0.7899</td><td colspan=\"1\" rowspan=\"1\">0.8876</td><td colspan=\"1\" rowspan=\"1\">0.5000</td><td colspan=\"1\" rowspan=\"1\">0.8404</td><td colspan=\"1\" rowspan=\"1\">0.6000</td><td colspan=\"1\" rowspan=\"1\">0.4132</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conv.5</td><td colspan=\"1\" rowspan=\"1\">0.9004</td><td colspan=\"1\" rowspan=\"1\">0.8571</td><td colspan=\"1\" rowspan=\"1\">0.9101</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.7000</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9000</bold>\n</td><td colspan=\"1\" rowspan=\"1\">0.7241</td><td colspan=\"1\" rowspan=\"1\">0.6171</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fc.7</td><td colspan=\"1\" rowspan=\"1\">0.8614</td><td colspan=\"1\" rowspan=\"1\">0.8319</td><td colspan=\"1\" rowspan=\"1\">0.9326</td><td colspan=\"1\" rowspan=\"1\">0.5333</td><td colspan=\"1\" rowspan=\"1\">0.8557</td><td colspan=\"1\" rowspan=\"1\">0.7273</td><td colspan=\"1\" rowspan=\"1\">0.5212</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fc.8</td><td colspan=\"1\" rowspan=\"1\">0.7524</td><td colspan=\"1\" rowspan=\"1\">0.7647</td><td colspan=\"1\" rowspan=\"1\">0.8876</td><td colspan=\"1\" rowspan=\"1\">0.4000</td><td colspan=\"1\" rowspan=\"1\">0.8144</td><td colspan=\"1\" rowspan=\"1\">0.5455</td><td colspan=\"1\" rowspan=\"1\">0.3217</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conv.6</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9157</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.8655</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.9438</bold>\n</td><td colspan=\"1\" rowspan=\"1\">0.6333</td><td colspan=\"1\" rowspan=\"1\">0.8842</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.7917</bold>\n</td><td colspan=\"1\" rowspan=\"1\">\n<bold>0.6246</bold>\n</td></tr></tbody></table><table-wrap-foot><p>Conv. means the convolutional layers, and fc. represents the fully connected layers. The same post-processing was applied in each situation.</p></table-wrap-foot></table-wrap>\n"
+    }
+  ],
+  "figures": [
+    {
+      "id": "Fig1",
+      "label": "Figure 1",
+      "caption": "Tumor segmentation results for single-modal images and multi-modal images using different network structures. (a) Comparison between the indexes of different segmentation results of different CNNs. Conv. indicates the number of convolutional layers in the CNN structures, and fc. indicates the number of neurons in the fully connected layers in the CNN structures. (b) Three typical cases with segmentation results for the CNN with 6 convolutional layers and fully connected layers with 4096 neurons.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2017_5848_Fig1_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig2",
+      "label": "Figure 2",
+      "caption": "CNN features from the last convolutional layers. (a) An example of specific CNN features. Deep filter responses showed noticeable differences between wild-type and mutant IDH1, and the Fisher vectors could successfully represent the differences.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2017_5848_Fig2_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig3",
+      "label": "Figure 3",
+      "caption": "ROC curves of the prediction results. (a) ROC curves of the radiomics features and DLR of the second cohort with single-modal images. (b) ROC curves of DLR of the first cohort with multiple modal images are shown on the right.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2017_5848_Fig3_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig4",
+      "label": "Figure 4",
+      "caption": "Feature maps of CNN features from different convolutional layers. The four most significant filter banks of different layers were selected. As shown in the figures, feature maps of deeper layers represented more detailed characteristics.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2017_5848_Fig4_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "Fig5",
+      "label": "Figure 5",
+      "caption": "An overview of our DLR. Our approach included two selection steps. The first step is to recognize the tumor regions in the MR images based on a state-of-the-art CNN structure. In the second step, deep filter responses were extracted from the last convolutional layer through Fisher vector encoding. Then, the prediction results were evaluated by a leave-one-out cross-validation SVM.",
+      "caption_zh": "",
+      "graphics": [
+        "41598_2017_5848_Fig5_HTML.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "CR1",
+      "text": "1.BourgierCRadiomics: definition and clinical developmentCancer Radiotherapie20151953253710.1016/j.canrad.2015.06.00826344440",
+      "doi": [
+        "10.1016/j.canrad.2015.06.008"
+      ]
+    },
+    {
+      "id": "CR2",
+      "text": "2.AertsHJWLDecoding tumour phenotype by noninvasive imaging using a quantitative radiomics approachNature communications2014540062489240610.1038/ncomms5006PMC4059926",
+      "doi": [
+        "10.1038/ncomms5006"
+      ]
+    },
+    {
+      "id": "CR3",
+      "text": "3.KumarVRadiomics: the process and the challengesMagnetic Resonance Imaging2012301234124810.1016/j.mri.2012.06.01022898692PMC3563280",
+      "doi": [
+        "10.1016/j.mri.2012.06.010"
+      ]
+    },
+    {
+      "id": "CR4",
+      "text": "4.VallieresMA radiomics model from joint FDG-PET and MRI texture features for the prediction of lung metastases in soft-tissue sarcomas of the extremitiesPhysicis in Medicine & Biology2015605471549610.1088/0031-9155/60/14/547126119045",
+      "doi": [
+        "10.1088/0031-9155/60/14/5471"
+      ]
+    },
+    {
+      "id": "CR5",
+      "text": "5.VignatiATexture features on T2-weighted magnetic resonance imaging: new potential biomarkers for cancer aggressivenessPhysics in Medicine and Biology2015602685270110.1088/0031-9155/60/7/268525768265",
+      "doi": [
+        "10.1088/0031-9155/60/7/2685"
+      ]
+    },
+    {
+      "id": "CR6",
+      "text": "6.GutmanDAMR imaging predictors of molecular profile and survival: multi-institutional study of the TCGA glioblastoma data setRadiology201326756056910.1148/radiol.1312011823392431PMC3632807",
+      "doi": [
+        "10.1148/radiol.13120118"
+      ]
+    },
+    {
+      "id": "CR7",
+      "text": "7.GavaertOGlioblastoma multiforme: exploratory radiogenomic analysis by using quantitative image featuresRadiology201427316817410.1148/radiol.1413173124827998PMC4263772",
+      "doi": [
+        "10.1148/radiol.14131731"
+      ]
+    },
+    {
+      "id": "CR8",
+      "text": "8.Krizhevsky, A., Sutskever, I. & Hinton, G. E. ImageNet classification with deep convolutional neural networks. In Proceedings of the 25th International Conference on Advances in Neural Information Processing Systems (NIPS’12), (2012).",
+      "doi": []
+    },
+    {
+      "id": "CR9",
+      "text": "9.ShinHCDeep convolutional neural networks for computer-aided detection: CNN architectures, dataset characteristics and transfer learningIEEE Transaction on Medical Imaging2016351285129810.1109/TMI.2016.2528162PMC489061626886976",
+      "doi": [
+        "10.1109/TMI.2016.2528162"
+      ]
+    },
+    {
+      "id": "CR10",
+      "text": "10.PereiraSBrain tumor segmentation using convolutional neural networks in MRI imagesIEEE Transaction on Medical Imaging2016351240125110.1109/TMI.2016.253846526960222",
+      "doi": [
+        "10.1109/TMI.2016.2538465"
+      ]
+    },
+    {
+      "id": "CR11",
+      "text": "11.HavaeiMBrain tumor segmentation with deep neural networksMedical Image Analysis201635183110.1016/j.media.2016.05.00427310171",
+      "doi": [
+        "10.1016/j.media.2016.05.004"
+      ]
+    },
+    {
+      "id": "CR12",
+      "text": "12.MenzeBThe multimodal brain tumor image segmentation benchmark (BRATS)IEEE Transaction on Medical Imaging2015341993202410.1109/TMI.2014.2377694PMC483312225494501",
+      "doi": [
+        "10.1109/TMI.2014.2377694"
+      ]
+    },
+    {
+      "id": "CR13",
+      "text": "13.Zeiler, M. D. & Fergus, R. Visualizing and understanding convolutional networks. InProceedings of 15th European Conference on Computer Vision (ECCV’ 14), 818–833 (2014).",
+      "doi": []
+    },
+    {
+      "id": "CR14",
+      "text": "14.DonahueJDeCAF: A Deep Convolutional Activation Feature for Generic Visual RecognitionComputer Science201350815830",
+      "doi": []
+    },
+    {
+      "id": "CR15",
+      "text": "15.Cimpoi, M., Maji, S. & Vedaldi, A. Deep filter banks for texture recognition and segmentation. In Proceedings of 33th IEEE International Conference on Computer Vision and Pattern Recognition (CVPR’15), 3828–3836 (2015).",
+      "doi": []
+    },
+    {
+      "id": "CR16",
+      "text": "16.FurnariFBMalignant astrocytic glioma: genetics, biology, and paths to treatmentGenes and Development2007212683271010.1101/gad.159670717974913",
+      "doi": [
+        "10.1101/gad.1596707"
+      ]
+    },
+    {
+      "id": "CR17",
+      "text": "17.LouisDNWHO classification of tumors of the central nervous systemActa Neuropathol20071149710910.1007/s00401-007-0243-417618441PMC1929165",
+      "doi": [
+        "10.1007/s00401-007-0243-4"
+      ]
+    },
+    {
+      "id": "CR18",
+      "text": "18.CohenAHolmenSColmanHIDH1 and IDH2 mutations in gliomasThe New England Journal of Medicine200936076577310.1056/NEJMoa080871019228619PMC2820383",
+      "doi": [
+        "10.1056/NEJMoa0808710"
+      ]
+    },
+    {
+      "id": "CR19",
+      "text": "19.VanMJAdjuvant procarbazine, lomustine, and vincristine chemotherapy in newly diagnosed anaplastic oligodendroglioma: long-term follow-up of EORTC brain tumor group study 26951Journal of Clinical Oncology2013313443502307123710.1200/JCO.2012.43.2229",
+      "doi": [
+        "10.1200/JCO.2012.43.2229"
+      ]
+    },
+    {
+      "id": "CR20",
+      "text": "20.ZhaoSMGlioma-derived mutations in IDH1 dominantly inhibit IDH1 catalytic activity and induce HIF-1alphaScience200932426126510.1126/science.117094419359588PMC3251015",
+      "doi": [
+        "10.1126/science.1170944"
+      ]
+    },
+    {
+      "id": "CR21",
+      "text": "21.HoshideRJandialR2016 World Health Organization Classification of Central Nervous System Tumors: An Era of Molecular BiologyWorld Neurosurgery20169456156210.1016/j.wneu.2016.07.08227476688",
+      "doi": [
+        "10.1016/j.wneu.2016.07.082"
+      ]
+    },
+    {
+      "id": "CR22",
+      "text": "22.BrantDJComprehensive, integrative genomic analysis of diffuse lower-grade gliomasThe New England Journal of Medicine20153722481249810.1056/NEJMoa140212126061751PMC4530011",
+      "doi": [
+        "10.1056/NEJMoa1402121"
+      ]
+    },
+    {
+      "id": "CR23",
+      "text": "23.WangKRadiological features combined with IDH1 statuses for predicting the survival outcome of glioblastoma patientsNeuro-Oncology20161858959710.1093/neuonc/nov23926409566PMC4799681",
+      "doi": [
+        "10.1093/neuonc/nov239"
+      ]
+    },
+    {
+      "id": "CR24",
+      "text": "24.Yu, J. et al. Noninvasive IDH1 mutation estimation based on quantitative radiomics approach for grade II glioma. European Radiology27, 3509–3522 (2017).10.1007/s00330-016-4653-328004160",
+      "doi": [
+        "10.1007/s00330-016-4653-3"
+      ]
+    },
+    {
+      "id": "CR25",
+      "text": "25.LecunYBengioYHintonGDeep learningNature201552143644410.1038/nature1453926017442",
+      "doi": [
+        "10.1038/nature14539"
+      ]
+    },
+    {
+      "id": "CR26",
+      "text": "26.GilliesRJRadiomics: images are more than pictures, they are dataRadiology201527811510.1148/radiol.2015151169PMC473415726579733",
+      "doi": [
+        "10.1148/radiol.2015151169"
+      ]
+    },
+    {
+      "id": "CR27",
+      "text": "27.YamashitaKMR imaging-based analysis of glioblastoma multiforme: estimation of idh1 mutation statusAmerican Journal of Neuroradiology201637586510.3174/ajnr.A449126405082PMC7960195",
+      "doi": [
+        "10.3174/ajnr.A4491"
+      ]
+    },
+    {
+      "id": "CR28",
+      "text": "28.YenKECancer-associated IDH mutations: biomarker and therapeutic opportunitiesOncogene2010296409641710.1038/onc.2010.44420972461",
+      "doi": [
+        "10.1038/onc.2010.444"
+      ]
+    },
+    {
+      "id": "CR29",
+      "text": "29.AndronesiOCDetection of 2-Hydroxyglutarate in IDH-mutated glioma patients by in vivo spectral-editing and 2D correlation magnetic resonance spectroscopyScience Translational Medicine20124116ra410.1126/scitranslmed.300269322238332PMC3720836",
+      "doi": [
+        "10.1126/scitranslmed.3002693"
+      ]
+    },
+    {
+      "id": "CR30",
+      "text": "30.VermaGNon-invasive detection of 2-hydroxyglutarate in IDH-mutated gliomas using two-dimensional localized correlation spectroscopy (2D L-COSY) at 7 TeslaJournal of Translational Medicine2016141810.1186/s12967-015-0757-927659543PMC5034563",
+      "doi": [
+        "10.1186/s12967-015-0757-9"
+      ]
+    },
+    {
+      "id": "CR31",
+      "text": "31.LombardiGDiagnostic value of plasma and urinary 2-hydroxyglutarate to identify patients with isocitrate dehydrogenase-mutated gliomaThe Oncologist20152056256710.1634/theoncologist.2014-026625862748PMC4425377",
+      "doi": [
+        "10.1634/theoncologist.2014-0266"
+      ]
+    },
+    {
+      "id": "CR32",
+      "text": "32.de la FuenteMIIntegration of 2-hydroxyglutarate-proton magnetic resonance spectroscopy into clinical practice for disease monitoring in isocitrate dehydrogenase-mutant gliomaNeuro-Oncology20151828329010.1093/neuonc/nov30726691210PMC4724186",
+      "doi": [
+        "10.1093/neuonc/nov307"
+      ]
+    },
+    {
+      "id": "CR33",
+      "text": "33.ChanAKYTERT promoter mutations contribute to subset prognostication of lower-grade gliomasModern Pathology20142817718610.1038/modpathol.2014.9425081751",
+      "doi": [
+        "10.1038/modpathol.2014.94"
+      ]
+    },
+    {
+      "id": "CR34",
+      "text": "34.Penny, W. et al. Statistical Parametric Mapping: The Analysis of Functional Brain Images (SPM). http://www.fil.ion.ucl.ac.uk/spm/ (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR35",
+      "text": "35.Shattuck, D. et al. BrainSuite. http://brainsuite.org/ (2017).",
+      "doi": []
+    },
+    {
+      "id": "CR36",
+      "text": "36.Perronnin, F., Sanchez, J. & Mensink, T. Improving the fisher kernel for large-scale image classification. In Proceedings of 11th European Conference on Computer Vision (ECCV’ 10), 119–133 (2010).",
+      "doi": []
+    },
+    {
+      "id": "CR37",
+      "text": "37.Zhang, X. et al. Picking deep filter responses for fine-grained image recognition. In Proceedings of 34th IEEE International Conference on Computer Vision and Pattern Recognition (CVPR’16), (2016).",
+      "doi": []
+    },
+    {
+      "id": "CR38",
+      "text": "38.DiceLRMeasures of the amount of ecologic association between speciesEcology19452629730210.2307/1932409",
+      "doi": [
+        "10.2307/1932409"
+      ]
+    },
+    {
+      "id": "CR39",
+      "text": "39.ChenFLLiFCCombination of feature selection approaches with SVM in credit scoringExpert systems with applications2010374902490910.1016/j.eswa.2009.12.025",
+      "doi": [
+        "10.1016/j.eswa.2009.12.025"
+      ]
+    },
+    {
+      "id": "CR40",
+      "text": "40.FureyTSSupport vector machine classification and validation of cancer tissue samples using microarray expression dataBioinformatics20001690691410.1093/bioinformatics/16.10.90611120680",
+      "doi": [
+        "10.1093/bioinformatics/16.10.906"
+      ]
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Li Z, Wang Y, Yu J, Guo Y, Cao W.",
+  "journal": "Sci Rep",
+  "year": "2017",
+  "pmid": "28710497",
+  "pmcid": "PMC5511238",
+  "doi": "10.1038/s41598-017-05848-2",
+  "source": {
+    "retrieved_at": "2026-11-14T17:22:55.885238+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5511238/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC5511238.xml"
+}

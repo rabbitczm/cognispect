@@ -1,0 +1,58 @@
+name: helix
+
+services:
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    init: true
+    environment:
+      HELIX_DATA_DIR: /data
+      PUBLIC_URL: ${PUBLIC_URL:?Set PUBLIC_URL in deploy/.env}
+      HELIX_RATE_LIMIT: ${HELIX_RATE_LIMIT:-1}
+      HELIX_MAX_UPLOAD_MB: ${HELIX_MAX_UPLOAD_MB:-30}
+      HELIX_COMPUTE_CONCURRENCY: ${HELIX_COMPUTE_CONCURRENCY:-2}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_TLS: ${SMTP_TLS:-starttls}
+    volumes:
+      - ${HELIX_DATA_PATH:-/srv/helix/data}:/data
+      - ${HELIX_BACKUP_PATH:-/srv/helix/backups}:/backups
+    expose:
+      - "8000"
+    mem_limit: 3g
+    cpus: 1.75
+    stop_grace_period: 45s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    environment:
+      HELIX_DOMAIN: ${HELIX_DOMAIN:?Set HELIX_DOMAIN in deploy/.env}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in deploy/.env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./assets:/srv/helix/assets:ro
+      - ${HELIX_CADDY_DATA_PATH:-/srv/helix/caddy/data}:/data
+      - ${HELIX_CADDY_CONFIG_PATH:-/srv/helix/caddy/config}:/config
+    depends_on:
+      - app
+    mem_limit: 192m
+    cpus: 0.25
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

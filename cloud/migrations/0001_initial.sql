@@ -1,0 +1,57 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS users (
+ id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'user',
+ active INTEGER NOT NULL DEFAULT 1, verified INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sessions (
+ token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ expires INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS login_codes (
+ email TEXT PRIMARY KEY, code_hash TEXT NOT NULL, expires INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS claims (
+ token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ role TEXT NOT NULL, target_email TEXT, expires INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS workspaces (
+ user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, revision INTEGER NOT NULL, data TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS invites (
+ code_hash TEXT PRIMARY KEY, created_by TEXT, created_at INTEGER NOT NULL, expires INTEGER NOT NULL,
+ max_uses INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS submissions (
+ id TEXT PRIMARY KEY, owner TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ payload TEXT NOT NULL, published TEXT, status TEXT NOT NULL, review_note TEXT NOT NULL DEFAULT '',
+ created TEXT NOT NULL, updated TEXT NOT NULL, reviewer TEXT
+);
+CREATE TABLE IF NOT EXISTS guides (
+ key TEXT PRIMARY KEY, draft TEXT NOT NULL, published TEXT, status TEXT NOT NULL,
+ note TEXT NOT NULL DEFAULT '', editor TEXT, updated TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS articles (
+ key TEXT PRIMARY KEY, payload TEXT NOT NULL, removed INTEGER NOT NULL DEFAULT 0, editor TEXT, updated TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS reviews (
+ key TEXT PRIMARY KEY, status TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', updated TEXT NOT NULL, reviewer TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS visibility (
+ kind TEXT NOT NULL, item_key TEXT NOT NULL, visible INTEGER NOT NULL,
+ PRIMARY KEY(kind,item_key)
+);
+CREATE TABLE IF NOT EXISTS site_settings (
+ id INTEGER PRIMARY KEY CHECK(id=1), draft TEXT NOT NULL, published TEXT NOT NULL,
+ previous TEXT, admin_limit INTEGER
+);
+CREATE TABLE IF NOT EXISTS staff_invites (
+ email TEXT PRIMARY KEY, role TEXT NOT NULL, token_hash TEXT NOT NULL, created_by TEXT NOT NULL, expires INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS user_pdfs (
+ id TEXT PRIMARY KEY, owner TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ object_key TEXT NOT NULL UNIQUE, metadata TEXT NOT NULL, created TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires);
+CREATE INDEX IF NOT EXISTS submission_owner ON submissions(owner,updated);
+CREATE INDEX IF NOT EXISTS submission_status ON submissions(status,updated);
+CREATE INDEX IF NOT EXISTS pdf_owner ON user_pdfs(owner,created);

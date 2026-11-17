@@ -1,0 +1,981 @@
+{
+  "key": "31693124",
+  "body_available": true,
+  "title": "Attention-Based Deep Neural Networks for Detection of Cancerous and Precancerous Esophagus Tissue on Histopathological Slides",
+  "source_url": "https://europepmc.org/articles/PMC6865275",
+  "license": {
+    "text": "Open Access: This is an open access article distributed under the terms of the CC-BY License.",
+    "urls": [
+      "http://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Naofumi Tomita",
+    "Behnaz Abdollahi",
+    "Jason Wei",
+    "Bing Ren",
+    "Arief Suriawinata",
+    "Saeed Hassanpour"
+  ],
+  "copyright": {
+    "statement": "",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "2",
+    "publication_dates": [
+      {
+        "type": "epub",
+        "year": "2019",
+        "month": "11",
+        "day": "01"
+      },
+      {
+        "type": "collection",
+        "year": "2019",
+        "month": "11",
+        "day": "01"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "S7",
+      "title": "Introduction",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P17",
+          "reference_ids": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5",
+            "R6",
+            "R10",
+            "R11",
+            "R12"
+          ],
+          "en": "Barrett esophagus (BE) is a transformation of the normal squamous epithelium of the esophagus into metaplastic columnar epithelium.1 Barrett esophagus is important because it predisposes patients to the increased risk of adenocarcinoma of the esophagus and gastroesophageal junction.2,3 Compared with the general population, patients with BE have a 30 to 125 times higher risk of cancer.4 The mean 5-year survival rate for esophageal adenocarcinoma (EAC) is less than 15% in the United States.5 Furthermore, the incidence of EAC in the United States increased dramatically over 3 decades.6–10 Histological diagnosis of BE requires the identification of metaplastic columnar epithelium with goblet cells (ie, intestinal metaplasia).11 Evaluating the development of the premalignant and malignant neoplasm in BE shows a moderate interobserver variability, with a mean κ coefficient of less than 0.50 even among subspecialized gastrointestinal pathologists.12",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P18",
+          "reference_ids": [],
+          "en": "In digital pathology, tissue slides are scanned as high-resolution images. High resolution is necessary because each slide contains thousands of cells, for which the cellular structures must be visible to allow the identification of regions of the tissue with diseases or lesions. The size of lesions is often relatively small, and most of the tissue areas in a given slide are normal. Even for highly trained pathologists, localizing the decisive regions of interest (ROIs) containing lesions for the classification of the whole slide is time-consuming and prone to miss an ROI.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P19",
+          "reference_ids": [
+            "R13",
+            "R23"
+          ],
+          "en": "In recent years, deep learning has made considerable advances in classifying microscopy images. The most common approach in this domain involves a sliding window model for cropped-image classification, followed by statistical methods of aggregation for whole-slide inference.13–23 In the sliding window approach, pathologists annotate bounding boxes (ie, ROIs) on whole slides to train a classifier on small cropped images, typically in sizes ranging from 200 × 200 pixels to 500 × 500 pixels. For evaluating a whole slide, this cropped-image classifier is applied to extracted windows from the image, and then a heuristic, often developed in conjunction with a domain-expert pathologist, is used to determine how the distribution of cropped-image classification scores translates into a whole-slide diagnosis.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P20",
+          "reference_ids": [],
+          "en": "The sliding window approach has several limitations, however. First, given that cropped-image classifiers are needed, all images in the training set must be annotated by pathologists with bounding boxes around each ROI. Second, developing a heuristic for aggregating cropped-image classifications, which requires pathologist insight, is dependent on the nature of the classification task and is not widely scalable. Third, cropped images are classified independently of their neighbors, and whole-slide classification does not consider correlations between neighboring windows. To overcome these limitations in this study, we developed an attention mechanism that mines the ROI from high-resolution slides without explicit supervision.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P21",
+          "reference_ids": [
+            "R24",
+            "R25",
+            "R24",
+            "R26",
+            "R29",
+            "R29",
+            "R26",
+            "R28"
+          ],
+          "en": "Our work was inspired by attention models applied to regular-image analysis tasks, especially image captioning.24,25 Attention mechanisms are described as a part of the prediction module that sequentially selects subsets of input to be processed.24 Although this definition is not applicable to nonsequential tasks, the essence of attention mechanisms can be restructured for neural networks to generate a dynamic representation of features by weighting them to capture a holistic context of input. Unlike hard attention, in which an ROI is selected by a stochastic sampling process, soft attention generates a nondiscrete attention map that pays fractional attention to each region and produces better gradient flow and thus is easier to optimize. Recent advancement of soft attention enabled end-to-end training on convolutional neural network models.26–29 For example, spatial transformer networks capture high-level information from inputs to derive affine transformation parameters, which are subsequently applied to spatial invariant input for a convolutional neural network.29 For semantic segmentation tasks, the attention mechanism is applied to learn multiscale features.26 Residual attention networks use soft attention masks to extract features in different granularities.28",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P67",
+          "reference_ids": [
+            "R27",
+            "R30",
+            "R31",
+            "R32",
+            "R33",
+            "R30"
+          ],
+          "en": "For analyzing images in detail, a top-down, recurrent attention, convolutional neural network has been proposed.27 To put our work into perspective, that proposed model is based on the soft attention mechanism in feature space but is designed for the classification of high-resolution images that are not typically encountered in the field of computer vision. The attention mechanism has several applications in the medical domain, such as using soft attention to generate masks around lesion areas on computed tomography images30 and using recurrent attention models fused with reinforcement learning to locate lung nodules31 or enlarged hearts32 in chest radiography images. In pathology, recorded navigation of pathologists has been used as attention maps to detect carcinoma.33 Soft attention has been deployed in 2 parallel networks for the classification of thorax disease.30 Although we drew inspiration from this earlier work, our proposed attention-based model is different in that it provides a novel framework to directly reuse extracted features in a single attention network.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P22",
+          "reference_ids": [
+            "R34"
+          ],
+          "en": "In this study, we developed a model that uses a convolutional attention-based mechanism to classify microscopy images. This attention-based model has 3 major advantages over the existing sliding window method. First, our model dynamically identifies ROIs in a high-resolution image and makes a whole-slide classification based on the analysis of only selected regions. This process is analogous to how pathologists examine slides under the microscope. Second, our proposed model is trainable end to end with only tissue-level labels. All components of the model are optimized through backpropagation. Unlike the sliding window approach, the model does not need bounding box annotations for ROIs or pathologist insight for heuristic development. Third, our model has a flexible architecture with regard to input size for images. Inspired by fully convolutional network philosophy,34 the model’s grid-based attention module uses a 3-dimensional (3-D) convolution operation that does not require a fixed-size input grid. The input size can be any rectangular shape that fits in the memory of graphic processing units, which all modern deep learning frameworks use to accelerate computations.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S8",
+      "title": "Methods",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "S9",
+      "title": "Data Set",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P23",
+          "reference_ids": [
+            "R35",
+            "R36"
+          ],
+          "en": "For this diagnostic study, whole-slide images were collected from patients who underwent endoscopic esophagus and gastroesophageal junction mucosal biopsy between January 1, 2016, and December 31, 2018, at Dartmouth-Hitchcock Medical Center, a tertiary academic medical center in Lebanon, New Hampshire. The use of data collected for this study was approved by the Dartmouth Institutional Review Board, which waived the requirement of informed consent as the collected data were deidentified. The study is in compliance with the Declaration of Helsinki on Ethical Principles for Medical Research Involving Human Subjects.35 In addition, the study followed the Standards for Reporting of Diagnostic Accuracy (STARD) reporting guidelines.36",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P24",
+          "reference_ids": [],
+          "en": "A scanner (Aperio AT2; Leica Biosystems Inc) was used to digitize hematoxylin-eosin–stained whole-slide images at 20× magnification. Scanning with 20× magnification is routinely performed in the clinical workflow for faster scanning throughput and efficient file size. We had a total of 180 whole-slide images, of which 116 (64.4%) were used as the training set and 64 (35.6%) were used as the testing set. Of the training set, 23 whole-slide images (19.8%) were reserved for validation. These whole-slide images can cover multiple pieces of tissue. Therefore, the whole-slide images were separated into 379 high-resolution images later in the preprocessing step, with each image covering a single piece of tissue.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P25",
+          "reference_ids": [
+            "SD1"
+          ],
+          "en": "To determine labels for whole-slide images and to train the existing state-of-the-art sliding window approach as the baseline, 2 of our expert pathologists from the Department of Pathology and Laboratory Medicine at Dartmouth-Hitchcock Medical Center (A.S., B.R.) annotated bounding boxes around lesions in these images (eMethods 1 in the Supplement). We considered these labels as the reference standard, as any disagreements in annotation were resolved through further discussion among our senior domain-expert pathologist annotators. These bounding boxes were not needed in training the proposed attention-based model.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P26",
+          "reference_ids": [
+            "R37"
+          ],
+          "en": "This study used categories of esophageal dysplasia and carcinoma based on the Vienna classification system.37 The normal class included normal squamous epithelium, normal squamous and columnar junctional epithelium, and normal columnar epithelium. Barrett esophagus negative for dysplasia was included in the BE-no-dysplasia class. Barrett esophagus is defined by columnar epithelium with goblet cells (intestinal metaplasia) and preservation of orderly glandular architecture of the columnar epithelium with surface maturation. The BE-with-dysplasia class included low-grade dysplasia (noninvasive low-grade neoplasia) and high-grade dysplasia (noninvasive high-grade neoplasia). Columnar epithelium with low-grade dysplasia is characterized by nuclear pseudostratification, mild to moderate nuclear hyperchromasia and irregularity, and the cytologic atypia extending to the surface epithelium. High-grade dysplasia demonstrated marked cytologic atypia, including loss of polarity, severe nuclear enlargement and hyperchromasia, numerous mitotic figures, and architectural abnormalities such as lateral budding, branching, and villous formation as well as variation in the size and shape of crypts.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P27",
+          "reference_ids": [],
+          "en": "In contrast to the Vienna classification system, we merged BE with low-grade dysplasia and high-grade classes into 1 class owing to the low number of collected samples for each class. The adenocarcinoma class included invasive carcinoma (intramucosal carcinoma and submucosal carcinoma and beyond) and high-grade dysplasia suggestive of invasive carcinoma. Cases in the adenocarcinoma class may present the following features: single-cell infiltration, sharply angulated glands, small glands in a back-to-back pattern, confluent glands, cribriform or solid growth, ulceration occurring within high-grade dysplasia, dilated dysplastic glands with necrotic debris, or dysplastic glands undermining squamous epithelium.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "Two-Step Method and Testing",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P28",
+          "reference_ids": [
+            "F1",
+            "F1",
+            "F1",
+            "F1",
+            "SD1"
+          ],
+          "en": "The proposed attention-based model has 2 steps, which are shown in Figure 1. The first step is the extraction of grid-based features from the high-resolution image, at which point each grid cell in the whole slide is analyzed to generate a feature map (Figure 1A and B). The second step is the application of the attention mechanism on the extracted features for slide classification (Figure 1C). The feature extractor is jointly optimized across all the grid cells with the attention module in an end-to-end fashion. In the end-to-end training pipeline, the cross-entropy loss over all classes is computed on class predictions. The loss is backpropagated to optimize all parameters in the network without any manual adjustment for attention modules. The model does not need bounding box annotations around ROIs, and all optimization is done to only the labels at the tissue level. Further details of the model architecture of the grid-based feature extraction and attention-based classification are provided in eMethods 2 in the Supplement.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P29",
+          "reference_ids": [
+            "R22"
+          ],
+          "en": "To evaluate the attention-based classification model for high-resolution microscopy images, we applied the steps to high-resolution scanned slides of tissues endoscopically removed from patients who were at risk for esophageal cancer. We compared the performance results of the proposed model with those of the state-of-the-art sliding window approach.22",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P30",
+          "reference_ids": [
+            "SD1",
+            "SD1"
+          ],
+          "en": "For preprocessing, we removed the white background from the slides and extracted only regions of the images that contained tissue. eFigure 1A in the Supplement shows a typical whole-slide image from the data set. These whole-slide images can cover multiple pieces of tissue, so we separated them into subimages with each covering only a single piece of tissue. The median (interquartile range) width of the tissues was 4500 (3000–6500) pixels and the median (interquartile range) height was 5500 (4000–7500) pixels. Every tissue image was given an overall label based on the labels of its lesions. If multiple lesions with different classes were present, we used the class with the highest risk as the corresponding label, as that lesion would have the highest implication clinically. If no abnormal lesions were found in an image, it was assigned to the normal class. After this preprocessing step, each image was assigned to 1 of 4 classes: normal, BE-nodysplasia, BE-with-dysplasia, and adenocarcinoma (eFigure 1B in the Supplement).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P31",
+          "reference_ids": [
+            "T1"
+          ],
+          "en": "The data set included 379 images after preprocessing. One-third of the data set was reserved for testing. To avoid possible data leakage, we placed all tissues extracted from 1 whole-slide image into the same set of images when the training and testing sets were split. The Table summarizes the results of the testing set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S11",
+      "title": "Sliding Window Approach as Baseline",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P32",
+          "reference_ids": [
+            "R22",
+            "R38"
+          ],
+          "en": "To compare the proposed model with previous methods for high-resolution image analysis, we implemented the current state-of-the-art sliding window approach22 as a baseline. For this method, we used the annotated bounding box labels to generate small, cropped images of 224 × 224 pixel size for training a cropped-image classifier. For preprocessing, we normalized the color channels and performed standard data augmentation, including color jittering, random flips, and rotations. For training, we initialized ResNet-18 with MSRA (Microsoft Research Asia) initialization.38 We optimized the model with a cross-entropy loss function for 100 epochs, using standard weight regularization techniques and learning rate decay. We trained the cropped-image classifier to predict the class of any given window on a high-resolution image. For whole-slide inference, we performed a grid search of the validation set for optimal thresholds to filter noise. Then, our 2 pathologists (A.S., B.R.) were consulted to develop heuristics for aggregating cropped-image predictions. We chose the thresholds and heuristics that performed the best on the validation set and applied those to the whole-slide images in the testing set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S12",
+      "title": "Attention-Based Model",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P33",
+          "reference_ids": [
+            "R39",
+            "R38",
+            "R40",
+            "R41"
+          ],
+          "en": "We implemented the attention-based model as described. Given the size of features extracted from the ResNet-18 model, we used 512 × 3 × 3, 3-D convolutional filters in the attention module, with implicit zero padding of 0 for depth, 1 for height, and 1 for width dimensions. We used 64 of these filters to increase the robustness of the attention module, as patterns in the feature space are likely too complex to be recognized and attended by a single filter. To avoid overfitting and encourage each filter to capture different patterns, we regularized the attention module by applying dropout39 with P = .50 after concatenating all of the feature vectors. We initialized the entire network with MSRA initialization for convolutional filters,38 unit weight and zero bias for batch normalizations,40 and Glorot initialization for fully connected layers.41 Only the cross-entropy loss against class labels was used in training. Other information, such as the location of bounding boxes, was not given to the network as guidance to optimal attention maps. The model identified such ROIs automatically.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P34",
+          "reference_ids": [
+            "R42"
+          ],
+          "en": "We initialized the feature extraction network with weights pretrained on the ImageNet data set.42 Input for the network was extracted grid cells of 492 × 492 pixels that were resized to 224 × 224 pixels. We normalized the input values by the mean (SD) of pixel values computed over all tissues in the training set. In training, the last fully connected layer of the network was removed, and all residual blocks except for the last one were frozen, serving as a regularization mechanism.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P35",
+          "reference_ids": [
+            "R43",
+            "R44",
+            "R45"
+          ],
+          "en": "We trained the entire network on large, high-resolution images. For data augmentation, we applied random rotation and random scaling, with a scaling factor between 0.8 and 1.2 during training. We used the Adam optimizer with an initial learning rate of 1 × 10−3, decaying by 0.95 after each epoch, and reset the learning rate to 1 × 10−4 every 50 epochs in a total of 200 epochs, similar to the cyclical learning rate.43,44 We set the mini-batch size to 2 to maximize the use of memory on the graphic processing unit (Nvidia Titan Xp; NVIDIA Corporation). The model was implemented in PyTorch.45 At testing, the network took a mean 0.34 seconds to analyze a high-resolution image.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S13",
+      "title": "Statistical Analysis",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P36",
+          "reference_ids": [],
+          "en": "Data were analyzed in October 2018. For quantitative evaluation, 4 standard metrics were used for classification under a 1-vs-rest strategy: accuracy, recall, precision, and F1 score. To estimate 95% CIs, bootstrapping was used for all metrics. The 2-tailed McNemar-Bowker test was used, and α = .05 was considered statistically significant. Statistical analysis was carried out with SciPy, version 1.0.0 (SciPy developers).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S14",
+      "title": "Results",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P37",
+          "reference_ids": [
+            "SD1"
+          ],
+          "en": "The data set contained a total of 379 histological images, of which 195 (51.5%) were in the normal class, 80 (21.1%) were in the BE-no-dysplasia class, 46 (12.1%) were in the BE-with-dysplasia class, and 58 (15.3%) were in the adenocarcinoma class. Of the independent testing set of 123 images, 58 (47.2%) normal, 30 (24.4%) BE-no-dysplasia, 14 (11.4%) BE-with-dysplasia, and 21 (17.1%) adenocarcinoma images were used to evaluate trained models and to analyze the classification performance from both quantitative and qualitative aspects. The eTable in the Supplement provides a detailed description of the data set.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P38",
+          "reference_ids": [],
+          "en": "The classification results on the testing set are summarized in the Table. Compared with the sliding window baseline, the proposed model achieved better accuracy and F1 score in all classes. Especially for F1 score, which is the harmonic mean of precision and recall, the attention-based model outperformed the sliding window approach by at least 8% for each class: 0.68 (95% CI, 0.61–0.75) vs 0.61 (95% CI, 0.53–0.68) for the normal class, 0.72 (95% CI, 0.63–0.80) vs 0.58 (95% CI, 0.45–0.69) for the BE-no-dysplasia class, 0.30 (95% CI, 0.11–0.48) vs 0.22 (95% CI, 0.11–0.33) for the BE-with-dysplasia class, and 0.67 (95% CI, 0.54–0.77) vs 0.58 (95% CI, 0.44–0.70) for the adenocarcinoma class. However, this outperformance was not statistically significant at the α = .05 level with the McNemar-Bowker test.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P39",
+          "reference_ids": [],
+          "en": "Results of the attention-based model had the following sensitivities for recall: 0.69 (95% CI, 0.61–0.77) for the normal class, 0.77 (95% CI, 0.66–0.87) for the BE-no-dysplasia class, 0.21 (95% CI, 0.07–0.38) for the BE-with-dysplasia class, and 0.71 (95% CI, 0.57–0.85) for the adenocarcinoma class. The specificities under this model were as follows: 0.71 (95% CI, 0.62–0.79) for the normal class, 0.88 (95% CI, 0.83–0.93) for the BE-no-dysplasia class, 0.97 (95% CI, 0.94–0.99) for the BE-with-dysplasia class, and 0.91 (95% CI, 0.87–0.95) for the adenocarcinoma class. Classification accuracies of the proposed model were 0.85 (95% CI, 0.81–0.90) for the BE-no-dysplasia class, 0.89 (95% CI, 0.84–0.92) for the BE-with-dysplasia class, and 0.88 (95% CI, 0.84–0.92) for the adenocarcinoma class. The proposed model achieved a mean accuracy of 0.83 (95% CI, 0.80–0.86).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P40",
+          "reference_ids": [
+            "F2",
+            "F3"
+          ],
+          "en": "Our quantitative analysis showed the proposed model’s good performance as follows: 0.68 (95% CI, 0.61–0.75) for the normal class, 0.72 (95% CI, 0.63–0.80) for the BE-no-dysplasia class, and 0.67 (95% CI, 0.54–0.77) for the adenocarcinoma class. Both the attention-based and the sliding window models, however, did not perform as well in identifying the images of BE-with-dysplasia class: 0.30 (95% CI, 0.11–0.48) for the attention-based model and 0.22 (95% CI, 0.11–0.33) for the sliding window approach. As shown in the confusion matrix in Figure 2, most samples of BE-with-dysplasia images that were misclassified by the attention-based model were predicted as normal tissue. This prediction was likely associated with the BE-with-dysplasia class being the least frequent category in the data set, representing only 11% of the images. For further comparison, see the receiver operating characteristic curves of both models for each class plotted in Figure 3. The attention-based model was trained without ROI annotations yet achieved compelling area under the receiver operating characteristic curve values for each class.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P41",
+          "reference_ids": [
+            "F4",
+            "F4",
+            "F4",
+            "F4",
+            "F4",
+            "R46",
+            "SD1"
+          ],
+          "en": "The attention maps generated for all of the testing images were visualized to verify the attention mechanism in the proposed model. Characteristic examples for the adenocarcinoma class are presented in Figure 4. The distributions of the attention weights across different classes indicate that the attention module looks for specific features in the adenocarcinoma class (Figure 4D). For images without the target features, the attention weights are low for all regions (Figure 4A and B). In Figure 4C, the attention map is shown to be clinically on target and focused on specific regions in which BE with dysplasia progresses to adenocarcinoma as neoplastic epithelia begin to invade the muscularis mucosae.46 eFigure 2 in the Supplement provides more examples.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S15",
+      "title": "Discussion",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P42",
+          "reference_ids": [],
+          "en": "Results of this diagnostic study demonstrated the ability of attention-based deep learning architecture to detect BE or EAC. The attention-based model’s classification performance on the data set was higher than that of the state-of-the-art sliding window approach. This finding is important because the proposed model needs only reference labels per tissue, whereas the existing sliding window method requires bounding box annotations for each ROI in a tissue. The higher precision in the BE-no-dysplasia and adenocarcinoma classes (ie, lower false-positives in identifying abnormality) achieved by the baseline approach may be associated with heuristic rules developed in consultation with pathologists. The rules, however, were not perfect and thus showed low recall (ie, higher false-negatives). Although both methods used a ResNet-18 model for feature extraction, the attention mechanism of the proposed model further directed the information flow and forced the network to identify local features useful for classification.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P43",
+          "reference_ids": [],
+          "en": "The proposed model is directly applicable to high-resolution images without resizing owing to its flexible input design. Because of the time and resources required for annotating microscopy images, having fewer requirements for these annotations would facilitate image analysis research and development. Specifically, tissue-level annotations for training the proposed architecture can potentially be retrieved through searching the pathological reports associated with microscopy images. The proposed model is potentially applicable to histological images of diseases for which training data are scarce or bounding box annotations are not available. To our knowledge, the model is the first to automate the detection of BE and EAC on histopathological slides using a deep learning approach.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S16",
+      "title": "Limitations",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P44",
+          "reference_ids": [],
+          "en": "This study has some limitations. First, all experiments were conducted on slides collected from a single medical center and scanned with the same equipment. Second, the data set was relatively small compared with conventional data sets in deep learning; in particular, the number of slides of BE with dysplasia was small even after consolidating the classes of BE with low-grade dysplasia and high-grade dysplasia, resulting in lower performance for that class. To evaluate the robustness and generalizability of the proposed model, further verification with different classification tasks and larger data sets from various institutions is required and should be pursued in future research.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P45",
+          "reference_ids": [],
+          "en": "Third, even with the proposed method, which was built to analyze entire tissue regions, current graphic processing units do not have enough memory capacity to process very large images. For such slides, we can divide the tissue area into manageable subtissue images. Alternatively, the feature extractor, which is the largest source of memory consumption in the proposed approach, can be optimized to address this issue. The ResNet-18 architecture used in the attention-based model achieved high performance with a relatively low number of parameters. There is, however, room for further reduction of parameters while maintaining high performance, which we intend to pursue in future studies.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "S17",
+      "title": "Conclusions",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P46",
+          "reference_ids": [],
+          "en": "In this diagnostic study, we developed an attention-based model for high-resolution microscopy image analysis. Analogous to how pathologists examine slides under the microscope, the model uses weighted features from the entire slide to classify microscopy images. Results showed that the model marginally outperformed the current sliding window approach on a data set of esophagus tissue with 4 classes (normal, BE-no-dysplasia, BE-with-dysplasia, and adenocarcinoma). Previous methods for analyzing microscopy images were limited by bounding box annotations and unscalable heuristics. The model presented here was trained end to end with labels only at the tissue level, thus removing the need for high-cost data annotation and creating new opportunities for applying deep learning in digital pathology.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "SM1",
+      "title": "Supplementary Material",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "section-14",
+      "title": "Back",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "P52",
+          "reference_ids": [],
+          "en": "This research was supported in part by grants R01LM012837 and P20GM104416 from the National Institutes of Health.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P53",
+          "reference_ids": [],
+          "en": "Role of the Funder/Sponsor: The funder had no role in the design and conduct of the study; collection, management, analysis, and interpretation of the data; preparation, review, or approval of the manuscript; and decision to submit the manuscript for publication.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "P54",
+          "reference_ids": [],
+          "en": "Conflict of Interest Disclosures: Mr Tomita and Dr Hassanpour reported holding a pending patent to System and Method for Attention-Based Classification of High-Resolution Microscopy Images. No other disclosures were reported.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "id": "T1",
+      "label": "Table.",
+      "caption": "Classification Results for the Testing Seta",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Metric",
+          "Sliding Window Approach Performance (95% CI)b",
+          "Attention-Based Model Performance (95% CI)"
+        ],
+        [
+          "Normal class"
+        ],
+        [
+          "Accuracy",
+          "0.63 (0.56–0.69)",
+          "0.70 (0.64–0.76)"
+        ],
+        [
+          "Recall",
+          "0.62 (0.53–0.71)",
+          "0.69 (0.61–0.77)"
+        ],
+        [
+          "Precision",
+          "0.60 (0.51–0.69)",
+          "0.68 (0.59–0.76)"
+        ],
+        [
+          "Specificity",
+          "0.63 (0.57–0.72)",
+          "0.71 (0.62–0.79)"
+        ],
+        [
+          "F1 score",
+          "0.61 (0.53–0.68)",
+          "0.68 (0.61–0.75)"
+        ],
+        [
+          "BE-no-dysplasia class"
+        ],
+        [
+          "Accuracy",
+          "0.85 (0.80–0.89)",
+          "0.85 (0.81–0.90)"
+        ],
+        [
+          "Recall",
+          "0.43 (0.31–0.56)",
+          "0.77 (0.66–0.87)"
+        ],
+        [
+          "Precision",
+          "0.87 (0.73–0.97)",
+          "0.68 (0.57–0.78)"
+        ],
+        [
+          "Specificity",
+          "0.98 (0.95–1.00)",
+          "0.88 (0.83–0.93)"
+        ],
+        [
+          "F1 score",
+          "0.58 (0.45–0.69)",
+          "0.72 (0.63–0.80)"
+        ],
+        [
+          "BE-with-dysplasia class"
+        ],
+        [
+          "Accuracy",
+          "0.72 (0.66–0.77)",
+          "0.89 (0.84–0.92)"
+        ],
+        [
+          "Recall",
+          "0.36 (0.18–0.54)",
+          "0.21 (0.07–0.38)"
+        ],
+        [
+          "Precision",
+          "0.16 (0.08–0.26)",
+          "0.50 (0.20–0.80)"
+        ],
+        [
+          "Specificity",
+          "0.76 (0.70–0.82)",
+          "0.97 (0.94–0.99)"
+        ],
+        [
+          "F1 score",
+          "0.22 (0.11–0.33)",
+          "0.30 (0.11–0.48)"
+        ],
+        [
+          "Adenocarcinoma class"
+        ],
+        [
+          "Accuracy",
+          "0.87 (0.83–0.91)",
+          "0.88 (0.84–0.92)"
+        ],
+        [
+          "Recall",
+          "0.52 (0.37–0.68)",
+          "0.71 (0.57–0.85)"
+        ],
+        [
+          "Precision",
+          "0.65 (0.48–0.80)",
+          "0.63 (0.49–0.76)"
+        ],
+        [
+          "Specificity",
+          "0.94 (0.90–0.98)",
+          "0.91 (0.87–0.95)"
+        ],
+        [
+          "F1 score",
+          "0.58 (0.44–0.70)",
+          "0.67 (0.54–0.77)"
+        ],
+        [
+          "Mean"
+        ],
+        [
+          "Accuracy",
+          "0.76 (0.73–0.80)",
+          "0.83 (0.80–0.86)"
+        ],
+        [
+          "Recall",
+          "0.48 (0.41–0.56)",
+          "0.60 (0.53–0.66)"
+        ],
+        [
+          "Precision",
+          "0.57 (0.51–0.63)",
+          "0.62 (0.53–0.71)"
+        ],
+        [
+          "F1 score",
+          "0.50 (0.43–0.56)",
+          "0.59 (0.52–0.66)"
+        ]
+      ],
+      "footnotes": "Abbreviation: BE, Barrett esophagus.aThe proposed attention-based model′s performance was assessed on the basis of accuracy, recall, precision, specificity, and F1 score. Results were rounded to 2 decimal places. The model outperformed the sliding window baseline in both accuracy and F1 score for all classes.bThe sliding window approach is explained in Wei et al.22",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"T1\" position=\"float\" orientation=\"portrait\"><label>Table.</label><caption><p id=\"P59\">Classification Results for the Testing Set<sup><xref rid=\"TFN2\" ref-type=\"table-fn\">a</xref></sup></p></caption><table frame=\"hsides\" rules=\"rows\"><colgroup span=\"1\"><col align=\"left\" valign=\"middle\" span=\"1\" /><col align=\"left\" valign=\"middle\" span=\"1\" /><col align=\"left\" valign=\"middle\" span=\"1\" /></colgroup><thead><tr><th align=\"left\" valign=\"bottom\" rowspan=\"1\" colspan=\"1\">Metric</th><th align=\"left\" valign=\"bottom\" rowspan=\"1\" colspan=\"1\">Sliding Window Approach Performance (95% CI)<sup><xref rid=\"TFN3\" ref-type=\"table-fn\">b</xref></sup></th><th align=\"left\" valign=\"bottom\" rowspan=\"1\" colspan=\"1\">Attention-Based Model Performance (95% CI)</th></tr></thead><tbody><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\">Normal class</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Accuracy</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.63 (0.56–0.69)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.70 (0.64–0.76)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Recall</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.62 (0.53–0.71)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.69 (0.61–0.77)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Precision</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.60 (0.51–0.69)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.68 (0.59–0.76)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Specificity</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.63 (0.57–0.72)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.71 (0.62–0.79)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> F1 score</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.61 (0.53–0.68)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.68 (0.61–0.75)</td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\">BE-no-dysplasia class</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Accuracy</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.85 (0.80–0.89)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.85 (0.81–0.90)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Recall</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.43 (0.31–0.56)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.77 (0.66–0.87)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Precision</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.87 (0.73–0.97)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.68 (0.57–0.78)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Specificity</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.98 (0.95–1.00)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.88 (0.83–0.93)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> F1 score</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.58 (0.45–0.69)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.72 (0.63–0.80)</td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\">BE-with-dysplasia class</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Accuracy</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.72 (0.66–0.77)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.89 (0.84–0.92)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Recall</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.36 (0.18–0.54)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.21 (0.07–0.38)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Precision</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.16 (0.08–0.26)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.50 (0.20–0.80)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Specificity</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.76 (0.70–0.82)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.97 (0.94–0.99)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> F1 score</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.22 (0.11–0.33)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.30 (0.11–0.48)</td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\">Adenocarcinoma class</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Accuracy</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.87 (0.83–0.91)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.88 (0.84–0.92)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Recall</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.52 (0.37–0.68)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.71 (0.57–0.85)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Precision</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.65 (0.48–0.80)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.63 (0.49–0.76)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Specificity</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.94 (0.90–0.98)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.91 (0.87–0.95)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> F1 score</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.58 (0.44–0.70)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.67 (0.54–0.77)</td></tr><tr><td colspan=\"3\" align=\"left\" valign=\"top\" rowspan=\"1\">Mean</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Accuracy</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.76 (0.73–0.80)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.83 (0.80–0.86)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Recall</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.48 (0.41–0.56)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.60 (0.53–0.66)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> Precision</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.57 (0.51–0.63)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.62 (0.53–0.71)</td></tr><tr><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\"> F1 score</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.50 (0.43–0.56)</td><td align=\"left\" valign=\"top\" rowspan=\"1\" colspan=\"1\">0.59 (0.52–0.66)</td></tr></tbody></table><table-wrap-foot><fn id=\"TFN1\"><p id=\"P60\">Abbreviation: BE, Barrett esophagus.</p></fn><fn id=\"TFN2\"><label>a</label><p id=\"P61\">The proposed attention-based model′s performance was assessed on the basis of accuracy, recall, precision, specificity, and F1 score. Results were rounded to 2 decimal places. The model outperformed the sliding window baseline in both accuracy and F1 score for all classes.</p></fn><fn id=\"TFN3\"><label>b</label><p id=\"P62\">The sliding window approach is explained in Wei et al.<sup><xref rid=\"R22\" ref-type=\"bibr\">22</xref></sup></p></fn></table-wrap-foot></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "F1",
+      "label": "Figure 1.",
+      "caption": "Overview of Proposed Attention-Based ModelA, An input image is divided into r × c grid cells (dividing lines are shown only for visualization). B, Features extracted from each grid cell build a grid-based feature map tensor U. C, Learnable 3-dimensional convolutional filters of size k × d × d (where d denotes the height and width of the convolutional filters) are applied on U feature map to generate an attention map α, which operates as the weights for an affine combination of feature vectors in U. The α represents a 2-dimensional attention map whose size is r in height and c in width; CNN, convolutional neural network; r and c, the number of rows and columns of input tissue grid; U, a tensor of features extracted from each grid cell, and its size is r in height, c in width, and k in depth; and z, a vector of features representing a whole-input image.",
+      "caption_zh": "",
+      "graphics": [
+        "nihms-1061075-f0001.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F2",
+      "label": "Figure 2.",
+      "caption": "Confusion Matrix for Pathologist Diagnoses and Model PredictionsThe confusion matrix for different histological classes related to esophageal cancer compares the classification agreement of the attention-based model with pathologist consensus. BE indicates Barrett esophagus.",
+      "caption_zh": "",
+      "graphics": [
+        "nihms-1061075-f0002.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F3",
+      "label": "Figure 3.",
+      "caption": "Performance Curves for the Sliding Window Approach and the Attention-Based ModelReceiver operating characteristic curves for the sliding window approach (A) and the proposed attention-based method (B) show the true-positive rate (y-axis) and the false-positive rate (x-axis) at various decision threshold levels for each diagnostic class. AUC indicates area under the receiver operating characteristic curve; BE, Barrett esophagus.",
+      "caption_zh": "",
+      "graphics": [
+        "nihms-1061075-f0003.jpg"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "F4",
+      "label": "Figure 4.",
+      "caption": "Visualization of Attention Maps Attending Adenocarcinoma Class FeaturesExamples of attention maps are generated by an attention module that is optimized for the features of the adenocarcinoma class. The left column shows whole-slide images from the testing set, whereas the right column shows attention maps of the selected attention module for input images from 4 classes: normal (A), Barrett esophagus (BE) no dysplasia (B), BE with dysplasia (C), and adenocarcinoma (D). Higher attention weight is denoted by white, and lower weight is denoted by black. For visualization purposes, each map is normalized so that its maximum value is 1. The accuracy of attended regions for the adenocarcinoma class images is verified qualitatively by 2 expert pathologists. In contrast, the attention module is inattentive to lower-risk-class images.",
+      "caption_zh": "",
+      "graphics": [
+        "nihms-1061075-f0004.jpg"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [],
+  "references": [
+    {
+      "id": "R1",
+      "text": "1.HaggittRC. Barrett’s esophagus, dysplasia, and adenocarcinoma. Hum Pathol. 1994;25(10):982–993. doi:10.1016/0046-8177(94)90057-47927321",
+      "doi": [
+        "10.1016/0046-8177(94)90057-4"
+      ]
+    },
+    {
+      "id": "R2",
+      "text": "2.WildCP, HardieLJ. Reflux, Barrett’s oesophagus and adenocarcinoma: burning questions. Nat Rev Cancer. 2003;3(9):676–684. doi:10.1038/nrc116612951586",
+      "doi": [
+        "10.1038/nrc1166"
+      ]
+    },
+    {
+      "id": "R3",
+      "text": "3.ConioM, FilibertiR, BlanchiS, ; Gruppo Operativo per lo Studio delle Precancerosi Esofagee (GOSPE). Risk factors for Barrett’s esophagus: a case-control study. Int J Cancer. 2002;97(2):225–229. doi:10.1002/ijc.158311774268",
+      "doi": [
+        "10.1002/ijc.1583"
+      ]
+    },
+    {
+      "id": "R4",
+      "text": "4.SteinHJ, SiewertJR. Barrett’s esophagus: pathogenesis, epidemiology, functional abnormalities, malignant degeneration, and surgical management. Dysphagia. 1993;8(3):276–288. doi:10.1007/BF013545518359051",
+      "doi": [
+        "10.1007/BF01354551"
+      ]
+    },
+    {
+      "id": "R5",
+      "text": "5.PolednakAP. Trends in survival for both histologic types of esophageal cancer in US surveillance, epidemiology and end results areas. Int J Cancer. 2003;105(1):98–100. doi:10.1002/ijc.1102912672037",
+      "doi": [
+        "10.1002/ijc.11029"
+      ]
+    },
+    {
+      "id": "R6",
+      "text": "6.BollschweilerE, WolfgartenE, GutschowC, HölscherAH. Demographic variations in the rising incidence of esophageal adenocarcinoma in white males. Cancer. 2001;92(3):549–555. doi:10.1002/1097-0142(20010801)92:3<549::AID-CNCR1354>3.0.CO;2-L11505399",
+      "doi": [
+        "10.1002/1097-0142(20010801)92:3<549::AID-CNCR1354>3.0.CO;2-L"
+      ]
+    },
+    {
+      "id": "R7",
+      "text": "7.BlotWJ. Esophageal cancer trends and risk factors. Semin Oncol. 1994;21(4):403–410.8042037",
+      "doi": []
+    },
+    {
+      "id": "R8",
+      "text": "8.DalyJM, KarnellLH, MenckHR. National Cancer Data Base report on esophageal carcinoma. Cancer. 1996;78 (8):1820–1828. doi:10.1002/(SICI)1097-0142(19961015)78:8<1820::AID-CNCR25>3.0.CO;2-Z8859198",
+      "doi": [
+        "10.1002/(SICI)1097-0142(19961015)78:8<1820::AID-CNCR25>3.0.CO;2-Z"
+      ]
+    },
+    {
+      "id": "R9",
+      "text": "9.BrownLM, DevesaSS. Epidemiologic trends in esophageal and gastric cancer in the United States. Surg Oncol Clin N Am. 2002;11(2):235–256. doi:10.1016/S1055-3207(02)00002-912424848",
+      "doi": [
+        "10.1016/S1055-3207(02)00002-9"
+      ]
+    },
+    {
+      "id": "R10",
+      "text": "10.EdgrenG, AdamiH-O, WeiderpassE, NyrénO. A global assessment of the oesophageal adenocarcinoma epidemic. Gut. 2013;62(10):1406–1414. doi:10.1136/gutjnl-2012-30241222917659",
+      "doi": [
+        "10.1136/gutjnl-2012-302412"
+      ]
+    },
+    {
+      "id": "R11",
+      "text": "11.PaullA, TrierJS, DaltonMD, CampRC, LoebP, GoyalRK. The histologic spectrum of Barrett’s esophagus. N Engl J Med. 1976;295(9):476–480. doi:10.1056/NEJM197608262950904940579",
+      "doi": [
+        "10.1056/NEJM197608262950904"
+      ]
+    },
+    {
+      "id": "R12",
+      "text": "12.CocoDP, GoldblumJR, HornickJL, Interobserver variability in the diagnosis of crypt dysplasia in Barrett esophagus. Am J Surg Pathol. 2011;35(1):45–54. doi:10.1097/PAS.0b013e3181ffdd1421164286",
+      "doi": [
+        "10.1097/PAS.0b013e3181ffdd14"
+      ]
+    },
+    {
+      "id": "R13",
+      "text": "13.KorbarB, OlofsonAM, MiraflorAP, Looking under the hood: deep neural network visualization to interpret whole-slide image analysis outcomes for colorectal polyps In: 2017 IEEE Conference on Computer Vision and Pattern Recognition Workshops (CVPRW). Piscataway, NJ: IEEE; 2017:821–827. http://openaccess.thecvf.com/content_cvpr_2017_workshops/w8/papers/Korbar_Looking_Under_the_CVPR_2017_paper.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R14",
+      "text": "14.HouL, SamarasD, KurcTM, Patch-based convolutional neural network for whole slide tissue image classification In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. Piscataway, NJ: IEEE; 2016:2424–2433. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Hou_Patch-Based_Convolutional_Neural_CVPR_2016_paper.pdf. Accessed October 3, 2019.10.1109/CVPR.2016.266PMC508527027795661",
+      "doi": [
+        "10.1109/CVPR.2016.266"
+      ]
+    },
+    {
+      "id": "R15",
+      "text": "15.CosattoE, LaquerreP-F, MalonC, Automated gastric cancer diagnosis on h&e-stained sections; training a classifier on a large scale with multiple instance machine learning. Medical Imaging 2013 In: Proceedings Volume 8676, Medical Imaging 2013: Digital Pathology. Lake Buena Vista, FL: SPIE Medical Imaging; 2013 http://malon.info/papers/spiemidp13-gastric-mil.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R16",
+      "text": "16.SahaM, ChakrabortyC, RacoceanuD. Efficient deep learning model for mitosis detection using breast histopathology images. Comput Med Imaging Graph. 2018;64:29–40. doi:10.1016/j.compmedimag.2017.12.00129409716",
+      "doi": [
+        "10.1016/j.compmedimag.2017.12.001"
+      ]
+    },
+    {
+      "id": "R17",
+      "text": "17.KomuraD, IshikawaS. Machine learning methods for histopathological image analysis. Comput Struct Biotechnol J. 2018;16:34–42. doi:10.1016/j.csbj.2018.01.00130275936PMC6158771",
+      "doi": [
+        "10.1016/j.csbj.2018.01.001"
+      ]
+    },
+    {
+      "id": "R18",
+      "text": "18.XuJ, LuoX, WangG, GilmoreH, MadabhushiA. A Deep Convolutional Neural Network for segmenting and classifying epithelial and stromal regions in histopathological images. Neurocomputing. 2016;191:214–223. doi:10.1016/j.neucom.2016.01.03428154470PMC5283391",
+      "doi": [
+        "10.1016/j.neucom.2016.01.034"
+      ]
+    },
+    {
+      "id": "R19",
+      "text": "19.CoudrayN, OcampoPS, SakellaropoulosT, Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning. Nat Med. 2018;24(10):1559–1567. doi:10.1038/s41591-018-0177-530224757PMC9847512",
+      "doi": [
+        "10.1038/s41591-018-0177-5"
+      ]
+    },
+    {
+      "id": "R20",
+      "text": "20.LiuY, GadepalliK, NorouziM, Detecting cancer metastases on gigapixel pathology images. arXiv. Preprint posted 3 3, 2017 Revised March 8, 2017.",
+      "doi": []
+    },
+    {
+      "id": "R21",
+      "text": "21.WeiJW, WeiJW, JacksonCR, RenB, SuriawinataAA, HassanpourS. Automated detection of celiac disease on duodenal biopsy slides: a deep learning approach. J Pathol Inform. 2019;10(1):7–7. doi:10.4103/jpi.jpi_87_1830984467PMC6437784",
+      "doi": [
+        "10.4103/jpi.jpi_87_18"
+      ]
+    },
+    {
+      "id": "R22",
+      "text": "22.WeiJW, TafeLJ, LinnikYA, VaickusLJ, TomitaN, HassanpourS. Pathologist-level classification of histologic patterns on resected lung adenocarcinoma slides with deep neural networks. Sci Rep. 2019;9(1):3358. doi:10.1038/s41598-019-40041-730833650PMC6399447",
+      "doi": [
+        "10.1038/s41598-019-40041-7"
+      ]
+    },
+    {
+      "id": "R23",
+      "text": "23.KorbarB, OlofsonAM, MiraflorAP, Deep learning for classification of colorectal polyps on whole-slide images. J Pathol Inform. 2017;8:30. doi:10.4103/jpi.jpi_34_1728828201PMC5545773",
+      "doi": [
+        "10.4103/jpi.jpi_34_17"
+      ]
+    },
+    {
+      "id": "R24",
+      "text": "24.XuK, BaJ, KirosR, Show, attend and tell: neural image caption generation with visual attention. In: Proceedings of the 32nd International Conference on Machine Learning; Lille, France. JMLR. 2015;37:2048–2057. http://proceedings.mlr.press/v37/xuc15.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R25",
+      "text": "25.YouQ, JinH, WangZ, FangC, LuoJ. Image captioning with semantic attention In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. Piscataway, NJ: IEEE; 2016:4651–4659. http://openaccess.thecvf.com/content_cvpr_2016/papers/You_Image_Captioning_With_CVPR_2016_paper.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R26",
+      "text": "26.ChenL-C, YangY, WangJ, XuW, YuilleAL. Attention to scale: scale-aware semantic image segmentation In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. Piscataway, NJ: IEEE; 2016:3640–3649. http://openaccess.thecvf.com/content_cvpr_2016/papers/Chen_Attention_to_Scale_CVPR_2016_paper.pdf. Accessed October 3, 2019",
+      "doi": []
+    },
+    {
+      "id": "R27",
+      "text": "27.FuJ, ZhengH, MeiT. Look closer to see better: recurrent attention convolutional neural network for fine-grained image recognition In: 2017 IEEE Conference on Computer Vision and Pattern Recognition Workshops (CVPRW). Piscataway, NJ: IEEE; 2017;2:4476–4484. http://openaccess.thecvf.com/content_cvpr_2017/papers/Fu_Look_Closer_to_CVPR_2017_paper.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R28",
+      "text": "28.WangF, JiangM, QianC, Residual attention network for image classification. arXiv. Preprint posted 4 23, 2017.",
+      "doi": []
+    },
+    {
+      "id": "R29",
+      "text": "29.JaderbergM, SimonyanK, ZissermanA. Spatial transformer networks. Adv Neural Inf Process Syst. 2015;28: 2017–2025. https://pdfs.semanticscholar.org/84f1/3b5dedcbb84401a85abd1267c0f3e6c71d2a.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R30",
+      "text": "30.GuanQ, HuangY, ZhongZ, ZhengZ, ZhengL, YangY. Diagnose like a radiologist: attention guided convolutional neural network for thorax disease classification. arXiv. Preprint posted 1 30, 2018.",
+      "doi": []
+    },
+    {
+      "id": "R31",
+      "text": "31.PesceE, YpsilantisP-P, WitheyS, BakewellR, GohV, MontanaG. Learning to detect chest radiographs containing lung nodules using visual attention networks. arXiv. Preprint posted 12 4, 2017.10.1016/j.media.2018.12.00730660946",
+      "doi": [
+        "10.1016/j.media.2018.12.007"
+      ]
+    },
+    {
+      "id": "R32",
+      "text": "32.YpsilantisP-P, MontanaG. Learning what to look in chest X-rays with a recurrent visual attention model. arXiv. Preprint posted 1 23, 2017.",
+      "doi": []
+    },
+    {
+      "id": "R33",
+      "text": "33.CorredorG, WhitneyJ, AriasV, MadabhushiA, RomeroE. Training a cell-level classifier for detecting basal-cell carcinoma by combining human visual attention maps with low-level handcrafted features. J Med Imaging (Bellingham). 2017;4(2):021105. doi:10.1117/1.JMI.4.2.02110528382314PMC5363808",
+      "doi": [
+        "10.1117/1.JMI.4.2.021105"
+      ]
+    },
+    {
+      "id": "R34",
+      "text": "34.LongJ, ShelhamerE, DarrellT. Fully convolutional networks for semantic segmentation In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. Piscataway, NJ: IEEE; 2015:3431–3440. https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf. Accessed October 3, 2019",
+      "doi": []
+    },
+    {
+      "id": "R35",
+      "text": "35.World Medical Association. World Medical Association Declaration of Helsinki: ethical principles for medical research involving human subjects. JAMA. 2013;310(20):2191–2194. doi:10.1001/jama.2013.28105324141714",
+      "doi": [
+        "10.1001/jama.2013.281053"
+      ]
+    },
+    {
+      "id": "R36",
+      "text": "36.BossuytPM, ReitsmaJB, BrunsDE, ; STARD Group. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. Radiology. 2015;277(3):826–832. doi:10.1148/radiol.201515151626509226",
+      "doi": [
+        "10.1148/radiol.2015151516"
+      ]
+    },
+    {
+      "id": "R37",
+      "text": "37.SchlemperRJ, RiddellRH, KatoY, The Vienna classification of gastrointestinal epithelial neoplasia. Gut. 2000;47(2):251–255. doi:10.1136/gut.47.2.25110896917PMC1728018",
+      "doi": [
+        "10.1136/gut.47.2.251"
+      ]
+    },
+    {
+      "id": "R38",
+      "text": "38.HeK, ZhangX, RenS, SunJ. Delving deep into rectifiers: surpassing human-level performance on imagenet classification In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. Piscataway, NJ: IEEE; 2015:1026–1034. https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R39",
+      "text": "39.SrivastavaN, HintonG, KrizhevskyA, SutskeverI, SalakhutdinovR. Dropout: a simple way to prevent neural networks from overfitting. JMLR. 2014;15(1):1929–1958. https://pdfs.semanticscholar.org/6c8b/30f63f265c32e26d999aa1fef5286b8308ad.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R40",
+      "text": "40.IoffeS, SzegedyC. Batch normalization: accelerating deep network training by reducing internal covariate shift. arXiv. Preprint posted 2 11, 2015 Revised March 2, 2015.",
+      "doi": []
+    },
+    {
+      "id": "R41",
+      "text": "41.GlorotX, BengioY. Understanding the difficulty of training deep feedforward neural networks. In: Proceedings of the 13th International Conference on Artificial Intelligence and Statistics; Sardinia, Italy. JMLR. 2010;9:249–256. http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.207.2059&rep=rep1&type=pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R42",
+      "text": "42.KrizhevskyA, SutskeverI, HintonGE. Imagenet classification with deep convolutional neural networks. Adv Neural Inf Process Syst. 2012;25:1097–1105. http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R43",
+      "text": "43.SmithLN. Cyclical learning rates for training neural networks In: 2017 IEEE Winter Conference on Applications of Computer Vision (WACV). Piscataway, NJ: IEEE; 2017:464–472. https://www.nrl.navy.mil/itd/aic/sites/www.nrl.navy.mil.itd.aic/files/pdfs/CLR%20%28Smith%203-23-17%29.pdf. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R44",
+      "text": "44.LoshchilovI, HutterF. Sgdr: stochastic gradient descent with warm restarts Paper presented at: 2017 Fifth International Conference on Learning Representations; 4 24–26, 2017; Toulon, France.",
+      "doi": []
+    },
+    {
+      "id": "R45",
+      "text": "45.PaszkeA, GrossS, ChintalaS, ChananG. PyTorch. https://pytorch.org/. Accessed October 3, 2019.",
+      "doi": []
+    },
+    {
+      "id": "R46",
+      "text": "46.OdzeRD, GoldblumJR. Odze and Goldblum Surgical Pathology of the GI Tract, Liver, Biliary Tract and Pancreas. 3rd ed. Philadelphia, PA: Saunders Elsevier; 2014.",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Tomita N, Abdollahi B, Wei J, Ren B, Suriawinata A, Hassanpour S.",
+  "journal": "JAMA Netw Open",
+  "year": "2019",
+  "pmid": "31693124",
+  "pmcid": "PMC6865275",
+  "doi": "10.1001/jamanetworkopen.2019.14645",
+  "source": {
+    "retrieved_at": "2026-11-14T17:01:33.091175+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6865275/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC6865275.xml"
+}

@@ -1,0 +1,14 @@
+var TranslateUI=(()=>{
+ 'use strict';
+ let key='',engine='builtin',service=null;
+ async function identity(){if(!service){const r=await fetch('/api/translation/status');service=await r.json();if(!r.ok){service=null;throw Error('翻译服务状态暂未读取完成');}}return {...service,engine,...(engine==='deepl'?{provider:'DeepL',model:'DeepL'}:{})};}
+ function settings(){return `<section class="glass panel" style="padding:16px;margin:16px 0"><h2>医学翻译</h2><p>网站翻译结合论文完整摘要与医学术语表，登录后可直接使用。</p><div class="work-field"><label for="translationEngine">翻译服务</label><select id="translationEngine"><option value="builtin"${engine==='builtin'?' selected':''}>网站医学翻译 · 无需个人密钥</option><option value="deepl"${engine==='deepl'?' selected':''}>个人 DeepL 服务</option></select></div><details${engine==='deepl'?' open':''}><summary>个人 DeepL 配置</summary><div class="work-field"><label for="translationKey">DeepL API 密钥</label><input id="translationKey" type="password" autocomplete="off" placeholder="仅选择 DeepL 时需要"></div><button class="btn ghost" id="translationSave">应用到当前会话</button><a href="https://developers.deepl.com/api-reference/translate" target="_blank" rel="noopener">服务文档 ↗</a></details><p id="translationStatus" role="status"></p></section>`;}
+ function bind(){const button=document.querySelector('#translationSave');if(button)button.onclick=()=>{key=document.querySelector('#translationKey').value.trim();document.querySelector('#translationKey').value='';document.querySelector('#translationStatus').textContent=key?'DeepL 已配置':'请输入 DeepL 密钥';};const select=document.querySelector('#translationEngine');if(select)select.onchange=()=>{engine=select.value;};identity().then(d=>{const status=document.querySelector('#translationStatus');if(status)status.textContent=d.configured?'网站翻译已连接，结合全文摘要上下文':'网站翻译暂未连接';}).catch(()=>{});}
+ async function translate(segments,context='',target='ZH',details={}){
+  if(!WebAccount.requireLogin())throw Error('登录后可使用实时翻译');
+  const response=await fetch('/api/translation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...details,engine,key:engine==='deepl'?key:'',segments,context,target})}),data=await response.json();
+  if(!response.ok)throw Error(data.error||'翻译未完成');return data;
+ }
+ async function translateSelection(container,output){const root=document.querySelector(container),box=document.querySelector(output),selection=getSelection(),text=selection?.toString().trim();if(!text||!root.contains(selection.anchorNode)){box.textContent='请先在正文中选择文字';return;}box.textContent='正在结合上下文翻译…';try{const target=/[\u4e00-\u9fff]/.test(text)?'EN':'ZH',result=await translate([{id:'selection',text}],root.textContent,target);box.textContent=result.segments[0][target==='ZH'?'zh':'en'];}catch(err){box.textContent=err.message;}}
+ return {settings,bind,translate,translateSelection,identity};
+})();

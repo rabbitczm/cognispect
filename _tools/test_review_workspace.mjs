@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const source=fs.existsSync('_lib/review_workspace.js')?fs.readFileSync('_lib/review_workspace.js','utf8'):'';
+const context=vm.createContext({console,document:{querySelector:()=>null},globalThis:{},setTimeout,clearTimeout,setInterval,clearInterval});
+vm.runInContext(source,context);
+assert.ok(context.ReviewWorkspace,'阅读工作区应提供可挂载的笔记与审阅工具');
+const html=context.ReviewWorkspace.decorate('<div><aside class="reader-sidebar"><section id="readerPaired">对照</section><section class="glass reader-notes"><h2>论文笔记</h2><textarea id="readerNote"></textarea></section></aside></div>');
+assert.match(html,/data-rw-tab="notes"/);
+assert.match(html,/data-rw-tab="annotations"/);
+assert.match(html,/data-rw-tab="summary"/);
+assert.match(html,/readerNote/,'已有笔记编辑器保留');
+const diff=context.ReviewWorkspace.diff('原始方法\n样本 20 例','修改方法\n样本 20 例');
+assert.match(diff,/<del>原始方法<\/del>/);
+assert.match(diff,/<ins>修改方法<\/ins>/);
+assert.doesNotMatch(context.ReviewWorkspace.diff('安全','<script>文字</script>'),/<script>/,'修订内容作为文本显示');
+console.log('review panels and revision comparison passed');

@@ -1,0 +1,1013 @@
+{
+  "key": "36546583",
+  "body_available": true,
+  "title": "3D deep convolution neural network for radiation pneumonitis prediction following stereotactic body radiotherapy",
+  "source_url": "https://europepmc.org/articles/PMC10018674",
+  "license": {
+    "text": "This is an open access article under the terms of the http://creativecommons.org/licenses/by/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.",
+    "urls": [
+      "https://creativecommons.org/licenses/by/4.0/"
+    ],
+    "eligibility": "eligible",
+    "share_alike": false,
+    "evidence": "Official JATS article permissions"
+  },
+  "authors": [
+    "Rishabh Kapoor",
+    "William Sleeman",
+    "Jatinder Palta",
+    "Elisabeth Weiss"
+  ],
+  "copyright": {
+    "statement": "© 2022 The Authors. Journal of Applied Clinical Medical Physics published by Wiley Periodicals, LLC on behalf of The American Association of Physicists in Medicine.",
+    "year": "",
+    "holder": ""
+  },
+  "source_version": {
+    "article_version": "",
+    "publication_dates": [
+      {
+        "type": "",
+        "year": "2022",
+        "month": "12",
+        "day": "22"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "acm213875-sec-0010",
+      "title": "INTRODUCTION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0010-p1",
+          "reference_ids": [
+            "acm213875-bib-0001",
+            "acm213875-bib-0002",
+            "acm213875-bib-0003",
+            "acm213875-bib-0004",
+            "acm213875-bib-0005",
+            "acm213875-bib-0003",
+            "acm213875-bib-0006"
+          ],
+          "en": "Stereotactic body radiotherapy (SBRT) is the standard of care for medically inoperable patients with early‐stage NSCLC resulting in excellent local control and typically low treatment‐related morbidity. 1 , 2 Among the most common complications observed with SBRT are radiation pneumonitis (RP) and pulmonary fibrosis. Due to the smaller treatment volumes, the incidence of RP is less than in locally advanced lung cancers and is generally observed in ≤10% of patients after up to 6 months from treatment completion. 3 Despite its lower incidence, RP is a serious side effect with potentially lethal outcomes in this population with typically severely compromised lung function. Radiographic signs of RP are observed with CT images that indicate ground‐glass opacities and patchy or confluent consolidations in the lung tissue. 4 These imaging characteristics are seen within 3–6 months post‐treatment. 5 The diagnosis of RP is often subjective and is typically based on clinical evaluation and radiological findings. While several risk factors associated with RP have been identified, such as dose‐ and volume‐dependent factors 3 or interstitial lung disease, 6 the prediction of the individual RP risk is difficult and complex.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0010-p2",
+          "reference_ids": [
+            "acm213875-bib-0007",
+            "acm213875-bib-0008",
+            "acm213875-bib-0009",
+            "acm213875-bib-0010",
+            "acm213875-bib-0011",
+            "acm213875-bib-0012"
+          ],
+          "en": "Various studies have been performed to assess lung density changes on CT as a metric of parenchymal lung changes after conventional radiotherapy (RT) and SBRT. Dose‐dependent increases in regional lung density with conventional RT 7 and SBRT 8 , 9 were identified, but no quantitative correlation has been established for predicting RP. Furthermore, for several pneumonitis patients, no major lung density changes have been observed. 10 Studies have also shown the average increase in lung density is related to the percent reduction in pulmonary function tests indicating functional lung changes. 11 Lung density changes, location of the tumor (upper vs. lower lobe), total lung volume, and radiation field design are some of the attributes that contribute to radiation‐induced toxicities. 12 There is a need for multiple higher‐order pattern recognition metrics and techniques that can capture and model the intricacies of these toxicity patterns.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0010-p3",
+          "reference_ids": [
+            "acm213875-bib-0013",
+            "acm213875-bib-0014",
+            "acm213875-bib-0015",
+            "acm213875-bib-0016",
+            "acm213875-bib-0017"
+          ],
+          "en": "Deep learning approaches have shown great promise in the medical imaging domain with image‐recognition tasks where intricate biological interactions are extracted more effectively without defining these features manually. As opposed to the subjective visual assessment of images by trained physicians and extracting engineered features such as radiomics, these deep learning methods automatically identify and quantitatively evaluate complex patterns in the dataset and select the most robust features. Deep learning methods have performed better than their traditional statistical counterparts in many imaging tasks such as multimodality image registration, 13 automatic contouring, 14 and survival analysis. 15 Convolutional neural networks (CNNs) are a class of deep learning methods that combine different sizes of imaging filters with a network of neurons through a series of interconnected linear and non‐linear layers. As part of the training, the CNN image filters learn high‐ and low‐level imaging features, eventually making predictions on the desired outputs. Li et al. first applied a 3D CNN model for the evaluation of treatment response in locally advanced esophageal squamous cell carcinoma. 16 Ibragimov et al. applied CNNs to 3D dose distributions of the rectum surface for toxicity predictions. 17 With a few exceptions, most of these studies lack generalization of their models and results due to insufficient data – under 100 patients. Many of these studies have used 2D data for their efforts or alternatively, used 3D datasets with a limited volume in and around the tumor region only. It is important to note that none of these methods have been utilized as a part of the clinical routine yet. Since there are very few published and shared 3D CNN models that have been trained on medical or general images, there are no medical‐to‐medical transfer learning approaches being applied to solve similar imaging classification problems until now.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0010-p4",
+          "reference_ids": [],
+          "en": "In this study, we investigate 3D CNNs with the input of radiographic and dosimetric characteristics in the lung tumor and surrounding lung volume to predict the likelihood of RP for NSCLC patients treated with SBRT. Reliable prediction of pneumonitis risk may guide individualized treatment approaches and reduce pulmonary toxicity. We designed an analytical setup with a dataset of NSCLC patients imaged before radiotherapy (pre‐treatment imaging), and 3 and 6 months after treatment (post‐treatment imaging), to discover the prognostic power of CNNs as a binary RP classification problem.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0020",
+      "title": "METHODS",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm213875-sec-0030",
+      "title": "Dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0030-p1",
+          "reference_ids": [
+            "acm213875-tbl-0001"
+          ],
+          "en": "This study includes a total of 193 primary lung cancer patients treated with SBRT from 2008 to 2020 at our facility. Following approval by the institutional review committee, clinical data, radiographic images, and dose distribution matrices were extracted from the medical record, PACS, and the treatment planning system to create a database for analysis. Only patients who had a follow‐up visit with CT scans at 3 and 6 months were included in this study. Table 1 details the clinical and dose prescription characteristics of the patients included in this study. The internal gross tumor volume (iGTV) was delineated on the maximum intensity projection (MIP) images from the 4D CT (Brilliance Big Bore, Philips, Amsterdam, Netherlands) dataset, or on a single‐phase image and propagated over all phases of the 4D CT. For patients treated in breath hold, an iGTV was created based on 3 repeat breath‐hold CTs. The pixel spacing for these images is 0.98–1.37 mm with a slice thickness of 3 mm, in‐plane matrix size of 512 × 512 acquired with 120–140 kVP. The planning target volume (PTV) was generated by adding an expansion margin of typically 5 mm. The dose covering 95% of the PTV volume was 102.5 ± 4.2% of the prescription dose. Image‐guidance using cone beam CT was applied to align the target daily prior to treatment delivery. RP was clinically evaluated at 3‐ and 6‐month follow‐up visits based on clinical symptoms and radiographic findings.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0040",
+      "title": "Imaging and treatment planning dataset",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0040-p1",
+          "reference_ids": [],
+          "en": "The pre‐treatment images used for treatment planning comprised of either an end inspiration CT scan for patients treated with breath hold or the 30% phase or average image set of a 4D CT scan. Post‐treatment imaging was performed with comfortable inspiration breath hold on diagnostic CT scanners at 3‐ and 6‐month intervals after the completion of the radiation treatment. These CT scans were acquired typically with end inspiration scanning techniques. All thoracic CT scans for follow‐up visits were acquired on either GE or Siemens CT scanners and reconstructed with sharp kernels. A total of 579 3D CT images and 193 dose datasets were analyzed during this study.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0050",
+      "title": "Image registration",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0050-p1",
+          "reference_ids": [
+            "acm213875-fig-0001"
+          ],
+          "en": "To account for changes in the anatomy between the CT scans used at treatment planning (pre‐treatment) and follow‐up, deformable image registration was performed. These radiographic changes were due to post‐treatment volume loss, distortion, fibrosis, and tumor regression and had an impact on the overall lung architecture. Because follow‐up images were high‐quality images and essentially free of artifacts, follow‐up CTs could be registered directly to planning CTs (either inspiration BH or average images from 4D CTs). The follow‐up CT scans were first rigidly registered to the baseline CT scan used for treatment planning. This step aligned the two 3D datasets slice by slice using a clinically utilized image registration software (MIM Maestro version 7.0). Visual inspection of the automatic rigid registration was performed with manual adjustments to the translation and rotation parameters using a box‐shaped mask to align the spine and vertebral structures. In the next step, the deformable registration algorithm from MIM Maestro was utilized. To avoid the algorithm to perform non‐physiological and non‐realistic deformations, radiographic lung changes and PTV regions of the follow‐up CT and planning CT were given a value of −250 HU prior to the registration for the algorithm to avoid overfitting to small anatomical discrepancies. The corresponding 120 cm3 regions on longitudinal image sets were co‐registered to minimize potential differences in the alignment of patient anatomy while preserving radiographic lung changes due to radiotherapy All registrations were individually verified based on the overlay of the two image sets and matching the regions of interest (ROIs) such as lung tissue, PTV, chest wall, airways, trachea, etc. The rigid and deformable registrations were repeatedly performed until a visually acceptable solution was found for each dataset (Figure 1). In the final step, the radiotherapy 3D dose distribution (RT Dose) and contours (RT Structure Set) were mapped onto the follow‐up CT scans. All datasets including the registered CT, RT Dose, RT Plan (for planning dataset only), and RT Structure Set were exported in DICOM format and stored in a folder.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0060",
+      "title": "Data preprocessing for deep learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0060-p1",
+          "reference_ids": [
+            "acm213875-bib-0003"
+          ],
+          "en": "All imaging, RT Dose and RT Structure Set files were imported in a custom‐built software coded in python v3.7.13. All datasets were resampled into isotropic voxels of unit dimensions to ensure comparability, where 1‐unit voxel is equal to 1 mm. 3 These interpolations were carried out using the nearest neighbor interpolation methods for images, dose, and contour datasets. Using the full 3D tumor and lung volume contours from the RT Structure Sets, both the center of mass and the bounding box of the PTV was computed. Using this center of mass and bounding box, 3D isotropic patches of size 120 × 120 × 120 were extracted from the imaging and dose datasets. These 3D patch extractions were manually verified and shifted in three dimensions to maximize the capture of the lung and PTV volume within the patch size. The 3D dose patches for each dataset were overlaid on the imaging patches to visually verify image‐dose registrations. The imaging patches were normalized to a 0–1 range using the upper and lower HU bounds (−1024 to 2048). The dose patches were normalized to a 0–1 range using 0–60 Gy dose range and any value greater than 60 Gy was normalized to 1. The high‐density regions outside the lung volume such as bone tissue were patched out of the input samples since these tend to be non‐informative and can potentially confound the deep learning models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0060-p2",
+          "reference_ids": [
+            "acm213875-bib-0018",
+            "acm213875-bib-0019",
+            "acm213875-fig-0002"
+          ],
+          "en": "Due to the fact that there is a class imbalance in our dataset where the number of patients (154 patients or 79.8%) who did not indicate radiation pneumonitis toxicity (no RP) greatly outnumber the patients who showed pneumonitis symptoms (26 patients – grade 1 [13%] [RP1], 13 patients – grade > = 2 [6.5%] [RP2]), data augmentation techniques were applied to randomly oversample 18 the patches with the minority class (RP1 and RP2), yielding the training size of 1182 input samples. This technique created new input samples for training without actually altering the visual characteristics of the images. These augmentations included random flipping of the 3D image and dose patches along the left‐right and superior‐inferior axes, random translations ± 10 voxels in three‐dimensional space, and random rotations of 5, 7, and 10 degrees along the longitudinal axes. These class‐specific perturbations were applied to the initial test set to make our DL models robust and to reduce bias and generalization errors. These basic data augmentation techniques have been the most popular approach for recent medical imaging research. 19 With the help of these augmentation and oversampling techniques, we created an equal number of image and dose samples for the three classes used in the prediction models. This technique may also help with overfitting as it produces new patches with similar properties as the original data but also fills previously unoccupied feature space. Furthermore, similar image augmentation techniques were utilized in real‐time during training for the purpose of avoiding overfitting and making the models generalizable. The total input samples were defined in an 80:20 ratio in training and testing input samples. The testing samples were not exposed to the training process. The training input samples were further split in an 80:20 ratio between the final training and validation set. The split was stratified by the three prediction classes, which ensured that an equal percentage of data is taken from each class for training. Figure 2 shows the study design. The models were trained on the training dataset and used to predict the test dataset to evaluate the model performance. Once the model was trained and validated, we tested the model with the testing input samples (unseen by the model during training).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0070",
+      "title": "Deep learning",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0070-p1",
+          "reference_ids": [],
+          "en": "Traditionally, deep learning for medical imaging datasets has been confined to 2D CNNs where predictions are made on a per slice basis in two‐dimensional space, and then final predictions are obtained through highest probability, voting, or other methods based on the prediction results from all slices in the dataset. These methods work fine with 2D medical images such as computed radiography (CRs) and x‐rays. With three‐dimensional images, the algorithm loses the contextual information of the shape, size, and texture of the lesions, tumor, and organs between the slices of images, and hence the prediction performance is low. We used the 3D CNN models for this study which are very much like 2D CNNs except that it uses 3D convolution and max pooling layers.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0070-p2",
+          "reference_ids": [
+            "acm213875-bib-0020",
+            "acm213875-bib-0021",
+            "acm213875-bib-0022",
+            "acm213875-bib-0023",
+            "acm213875-fig-0003",
+            "acm213875-fig-0003",
+            "acm213875-fig-0003",
+            "acm213875-fig-0003",
+            "acm213875-bib-0024"
+          ],
+          "en": "For our study, we modified the published 2D CNN models, namely DenseNet‐121 and ResNet‐50. 20 , 21 These models use deeper neural networks which are generally more difficult to train. These models have the residual learning framework to ease the training of networks that are substantially deeper than those used with basic general 2D images such as VGG‐16 22 etc. Using substantially deeper networks has been shown to be more accurate and more efficient to train if they contain shorter connections between the layers that are closer to the input and closer to the output layer. 23 For our models, we modified the 2D convolution kernels of the 2D basic blocks to a 3D convolution kernel and built a 3D basic block. The basic architecture (Figure 3a) and structure (Figure 3b) of the DenseNet‐121 and ResNet‐50 (Figure 3c) were unchanged. With modification of the 3D basic blocks, we built 3D DenseNet‐121 and 3D ResNet‐50 models. With traditional deep learning models, there is a tendency for the prediction accuracy to decrease as the depth of the layers increases beyond a certain number. This problem was solved by passing features from the lower layers to the higher layers thus eliminating the vanishing gradient problem. Here all the features learned by the first few layers can be utilized throughout all the subsequent layers thus reducing the number of trainable parameters (Figure 3a). The ResNet‐50 model is built to train deeper CNNs by creating shortcuts (skip connections) between the front and back layers. DenseNet‐121 is built with the same concept but it establishes dense connections of all the previous and subsequent layers. It has been reported that DenseNet achieves comparable performance to ResNet‐50 with fewer parameters and less computation costs. 24",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0070-p3",
+          "reference_ids": [
+            "acm213875-bib-0025"
+          ],
+          "en": "The input channels for these models were the 120 × 120 × 120 cube image patches and the same sized 3D dose patch as an additional input channel and the output were either three classes (No RP, RP1, RP2) or two classes (No RP, Yes RP) with the purpose to perform binary classification of these input patches. Since we were performing a binary classification task, the output layer of the network is a dense layer whose activation function is sigmoid, and the output values range between 0 and 1. Since CNN models are typically trained with millions of image sets and due to be unavailability of such a dataset for our study, we utilized the publicly available lung image database consortium (LIDC) and Image database resource initiative (IDRI) 25 data set to shallowly train our CNN models. These datasets are being utilized to train CNN models for lung nodule detection and are comprised of 1000 lung CT images. We trained our model for 20 epochs with a binary classification output layer with the purpose to initialize the convolution filter within our model to recognize the presence of the lung lesion in the input datasets. The IDRI dataset was utilized to initialize and pre‐train the model weights before utilizing the model for actual training with our CT and dose datasets. Training details are as follows: we used the gradient‐based stochastic optimizer called Adam with a learning rate of 0.001 with a decay rate of 0.96 and decay step of 1 × 104, a batch size of 4, and trained both models for 100 epochs with a total of 11.3 M trainable parameters for DenseNet‐121 and 46.2 M trainable parameters for ResNet‐50 models. In order to avoid overfitting, we utilized early stopping techniques where the training monitored the loss function and stopped training with a patience value (the number of epochs to wait before early stop if no progress on the validation set) of 10. Our model was trained multiple times with an early stopping value of 2–20. We observed that a stopping value of more than 10 showed that the model loss was constant, and accuracy was showing minor three decimal places improvements indicating overfitting. We also included batch normalization layers in order to improve convergence and generalization in the models. TensorFlow 2.8 was used to train and test the CNN. Google's web‐based coding note called Collaboratory, or Collab, was used to execute code on Google's cloud‐based NVIDIA Tesla P100 GPU servers with 25.46GB available memory size.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0080",
+      "title": "Visual explanation of convolution neural network predictions: Explainable AI – integrated gradients",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0080-p1",
+          "reference_ids": [
+            "acm213875-bib-0026"
+          ],
+          "en": "Explainable AI is a research field in machine learning interpretability techniques whose aim is to understand machine learning model predictions and explain them in human understandable terms to build trust with stakeholders. In computer vision, a saliency map is an image that can be in the form of a heat map that shows each input voxel's unique quality with the goal to represent the image and the predictions from the DL models into something that is more meaningful and easier to analyze. These heat maps predominately help explain how a model made its decision on a particular dataset although these explanations are not guaranteed to make sense to human experts and these explanations are also not considered to follow any known rules or decision trees that are traditionally used for image classification algorithms. These heat map techniques do not make the CNN model interpretable where accuracy and human understandable relationships could be derived between the inputs and the output of the CNN models. Our purpose with using these saliency heat map techniques was to qualitatively review the model and gather more insights into model predictions. This is clearly a developmental goal where we are testing if these maps can be usefully created for our 3D datasets and understand the general areas in the image where the network is focused to make the predictions. Explainability and interpretability of the deep learning model is a topic of research 26 and with this work, we are trying to use industry‐standard techniques that have been successfully utilized to highlight areas in real‐world non‐medical photographic images for CNN model predictions. Here we are briefly describing the integrated gradient (IG) methods that are used to localize and highlight important ROIs for a particular category within an input image set with the purpose to explain the CNN model predictions. The feature attribution heat maps help to highlight frequently missed features in the 3D imaging datasets thus complementing human judgment by physicians with accurately grading the dataset.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0090",
+      "title": "Integrated gradients (IG)",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0090-p1",
+          "reference_ids": [
+            "acm213875-bib-0027",
+            "acm213875-bib-0028"
+          ],
+          "en": "To visualize the highlighted map of the most important features in an input image set with respect to predictions made, we utilized the integrated gradient method (IG). 27 The computation of gradients of the model output with respect to the input features provides an analog for feature importance. IG 28 uses the gradient information of a target class flowing back into the last convolution layer to form visual heat maps from the CNN‐based DL models. This method provides pixel‐based maps that measure the contribution of each pixel in the input image to a predicted pneumonitis class. The contributions are measured relative to a baseline image, which is intended to provide no information to the model. For this study, we used a black image as the baseline. We verified that our trained algorithm predicted no prediction for this baseline. For each 3D image‐set, we generated a path of 100 steps, in which each step was interpolated between the blank baseline image‐set and the target image‐set. For each output pneumonitis class, we summed model gradients over each pixel and took the absolute value. We then surfaced the heatmap for the pneumonitis class with the highest score.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0100",
+      "title": "Evaluation metrics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0100-p1",
+          "reference_ids": [],
+          "en": "The dataset used in this work is highly imbalanced with a smaller number of samples with an RP status than the non‐RP status. The metrics used to evaluate the performance of these models need to be agnostic to the data imbalance. Since we are evaluating a multi‐class problem, we have used the macro‐averaged metrics instead micro‐averaged ones. The overall performance of a multi‐class classifier is commonly obtained by taking an average of individual class performances. The advantage of using these metrics is that micro‐average assigns equal weight to each sample (or instance), whereas macro‐average assigns equal weight to each type (or class), and with highly imbalanced datasets, reporting micro‐averaged performance would be misleading because the class with fewer samples (i.e., rare class) are given less importance than the class with more samples. With macro‐averaged metrics, equal importance is given to all classes irrespective of the number of samples in each class.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p2",
+          "reference_ids": [],
+          "en": "The expressions for the macro‐averaged metrics are as follows.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p3",
+          "reference_ids": [],
+          "en": "TP (true positive): when the model predicted as positive, and the ground truth is positive (e.g., an ‘RP1’ sample is identified as ‘RP1’ by the model).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p4",
+          "reference_ids": [],
+          "en": "TN (true negative): when the model predicts as negative, and the ground truth is negative (e.g., an ‘RP1’ sample is not identified as a ‘No RP’ sample by the model).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p5",
+          "reference_ids": [],
+          "en": "FP (false positive) (Type I error): when the model predicted as positive, but ground truth is negative (e.g., the model predicts the sample to the ‘RP1’ class, but the ground truth is false).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p6",
+          "reference_ids": [],
+          "en": "FN (false negative) (Type II error): when the model predicted as negative, but the ground truth is positive (e.g., the model does not predict the sample to the ‘RP1’ class, but the ground truth is true).",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p7",
+          "reference_ids": [],
+          "en": "Accuracy is the proportion of correct predictions over the total number of samples. Recall (sensitivity) is defined by calculating the total predicted positives out of the total number of actual positives. Precision (positive predictive value) is defined by calculating the total number of actual positive samples out of predicted positive samples. F1 score is the harmonic average of the precision and recall values and is a widely used evaluation measure for a classification problem.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0100-p8",
+          "reference_ids": [],
+          "en": "We also used the confusion matrices to assess the model performance. The correct/incorrect number of predictions are shown by the count values which are further divided in individual classes. A confusion matrix contains information about the model's confusion in predicting between classes and performance of a model. The performance of the models was also assessed via the areas under the receiver operating characteristic curve (AUCs). Finally, the AUCs of the two models (DenseNet‐121 and ResNet‐50) were compared by the Mann–Whitney U test with the Bonferroni correction. Two‐sided p < 0.05 were considered to indicate statistical significance.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0110",
+      "title": "RESULTS",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm213875-sec-0120",
+      "title": "Clinical characteristics",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0120-p1",
+          "reference_ids": [
+            "acm213875-tbl-0001",
+            "acm213875-bib-0029",
+            "acm213875-tbl-0001"
+          ],
+          "en": "The patients’ clinical and dosimetric characteristics are provided in Table 1. The patients had follow‐up visits with the treating radiation oncologist 3 months following the completion of radiation treatment and subsequently every 3 months thereafter. Clinical RP was evaluated and scored by the treating oncologists as part of the patient's assessments according to the common terminology toxicity criteria (CTCAE) version 5. 29 Our cohort is quite homogeneous (95% have stage I–IIA, there are no major variations is performance status, 93% were treated with BED ≥100 (as generally recommended). We do not expect to find any imbalance in our dataset based on this homogeneity. The only factors that vary and might influence RP risk are PTV size and dose, both of which are already inherently included in the models. Patients with higher stages had either oligometastatic disease with a small primary lung cancer and isolated metastases outside the chest or had lung cancers in separate lobes where one of the tumors was resected. Fractionation schedules were selected based on tumor size and location. P‐values are computed from the chi‐square test of independence to determine the significant association between the specific variable listed in Table 1 and RP status. Since none of the p‐value are less than 0.05, we fail to reject the null hypothesis. This means we do not have sufficient evidence to say that there is an association between the clinical characteristics and RP status.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0130",
+      "title": "Prediction performance of the 3D DenseNet‐121 model",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0130-p1",
+          "reference_ids": [
+            "acm213875-fig-0004",
+            "acm213875-tbl-0002",
+            "acm213875-fig-0004",
+            "acm213875-fig-0004",
+            "acm213875-tbl-0002",
+            "acm213875-fig-0005",
+            "acm213875-fig-0005",
+            "acm213875-bib-0030",
+            "acm213875-bib-0031"
+          ],
+          "en": "In assessing the ability of CNN models to quantify radiographic traits and characteristics of the lung and tumor region, we performed an analysis based on the test dataset that was never exposed or seen by the model during training. In this section, we present the results and prediction evaluation of our models. Here we made two copies each for the 3D DenseNet‐121 and ResNet‐50 models, the first two models were trained to predict three classes (No RP [RP0], RP Grade 1 [RP1], RP Grade > = 2 [RP2]) and the next two models were trained to predict two classes (No RP, Yes RP [including all grades]). All models were trained with 80% of pre‐treatment and follow‐up CT datasets with the 3D dose patches and tested using the unseen remaining 20% of the dataset. All models were independently trained, validated, and tested. Figure 4 shows the confusion matrix and ROC and true positive rate versus false positive rate (precision vs. recall) curves for the 3D DenseNet‐121 and ResNet‐50 models for the three‐class prediction. For three class prediction, the DenseNet‐121 model had an AUCmacro = 0.91 and F1 scoremacro = 0.81, whereas the ResNet‐50 model had an AUCmacro = 0.72 and F1 scoremacro = 0.54 (Table 2). Mann–Whitney U test performed for pair‐wise comparison of AUCs among the two model types had a p‐value of 0.017 indicating that the three‐class DenseNet‐121 showed significantly better performance than the ResNet‐50 model. Figure 4 shows the confusion matrix, ROC, and true positive rate versus false positive rate (precision vs. recall) curves for the 3D DenseNet‐121 and ResNet‐50 models. The test dataset contains 116 data samples, 91 of which are ‘RP0’ samples, 17 were ‘RP1’ samples and 8 were ‘RP2’ samples. From the confusion matrix shown in Figure 4, the DenseNet‐121 model can accurately identify 84 ‘RP0’, 14 ‘RP1’, and 8 ‘RP2’ samples for three class predictions. In total, this model could accurately identify a total of 103 data samples (88%). The ResNet‐50 model could accurately identify a total of 83 data samples (72%). For two class prediction, the DenseNet‐121 model had an AUCmacro = 0.84 and F1 scoremacro = 0.77, whereas the ResNet‐50 model had an AUCmacro = 0.71 and F1 scoremacro = 0.68 (Table 2). Mann–Whitney U test performed for pair‐wise comparison of AUCs among the two model types had a p‐value of 0.527. Figure 5 shows the confusion matrix, ROC, and true positive rate versus false positive rate (precision vs. recall) curves for the 3D DenseNet‐121 and ResNet‐50 model. The test dataset contains 116 data samples, 91 of which are ‘No RP’ samples and 25 of which are ‘Yes RP’ samples. From the confusion matrix shown in Figure 5, the DenseNet‐121 model can accurately identify 80 ‘No RP’ and 17 ‘Yes RP1’ samples. In total, this model could accurately identify a total of 97 data samples (83%). The ResNet‐50 model could accurately identify a total of 89 data samples (77%). Since these models showed higher accuracy than prediction models that utilize dose volume histogram and dose function histogram 30 based prediction models (AUC = 0.73) using support vector machine techniques, logistic regression classifiers 31 (AUC values 0.64–0.75), we are confident in the DenseNet‐121 model's ability to accurately assess whether a patient would have RP or not, even when predicting new, unseen patients.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0140",
+      "title": "Localization evaluation",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0140-p1",
+          "reference_ids": [
+            "acm213875-fig-0006",
+            "acm213875-fig-0006"
+          ],
+          "en": "We also analyzed the 3D DenseNet‐121 model built to predict the three classes by rendering the IG heat maps that provide information on the importance of each region and voxel relative to the final prediction class. The IG map can help understand how the model scores the input data with learned features (e.g., dose distribution pattern, imaging features) from different regions of the input. Generally, regions of the IG map with bright regions correspond to regions whose learned features are more important for RP prediction. We observed that the network highlighted the regions of the tumor and its interface with the parenchyma or pleura regions of the lung which shows that these regions are critical for the model in discriminating toxicity from non‐toxicities. Based on our qualitative analysis of thirty RP1 + RP2 patient cases, these heat maps agreed with the tumor and dose regions and their surrounding voxels and also included some voxels outside the tumor or dose regions, as shown in Figure. 6. Relatively higher density regions that included the tumor and the surrounding regions had the most contributions to the predictions. In some patients, the heat maps showed a rather focused area, whereas in other patient cases, these heat maps were rather widespread covering large parts of the lung. None of these models aim at providing physiological modeling using the tissue type characteristics of the tumor and lung structure and are using the information present in the image textures and patterns to pick out unique traits and attributes that are used in the eventual classification. As such, while showing the high dose and tumor area as important for RP prediction is reasonable from the clinical perspective, identification of other lung areas as relevant for RP through the IG process cannot be reasonably verified based on the current understanding of RP development. Examples of the IG heat maps are shown in Figure 6 for five patient cases who had grade 2 RP.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0150",
+      "title": "DISCUSSION",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0150-p1",
+          "reference_ids": [],
+          "en": "This is one of the first studies to predict post‐SBRT pneumonitis using a comparatively large CT dataset. We demonstrated the ability of CNN models to significantly stratify patients into none versus grade 1 versus grade 2 or higher clinical RP groups. We chose imaging and dose datasets for patients with early‐stage lung cancer since these datasets are in general much cleaner (no pneumonia, atelectasis, or other pathologic changes) than images of patients with larger tumors. Also, radiation dose distributions are more localized and conformal, and post‐RT changes are easily identifiable. Despite its low incidence, RP is a serious side effect with potentially lethal outcomes in this population with typically severely compromised lung function. Often patients are already on supplemental oxygen or on oral steroids before treatment. RP grade 2 or higher, even if not lethal, can lead to further impairment of a patient's lung function, requiring initiation of oxygen supplement, reduced mobility, loss of work, need to go on disability, or limited ability to do activities of daily living.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p2",
+          "reference_ids": [
+            "acm213875-bib-0032",
+            "acm213875-bib-0033",
+            "acm213875-bib-0034",
+            "acm213875-bib-0035",
+            "acm213875-bib-0036"
+          ],
+          "en": "This study applies a common deep learning approach used in non‐medical applications such as predicting image features from millions of 2D images to the medical imaging domain. Very few deep learning studies to date have explored stratification based on outcome parameters, with most studies exploring tasks such as image segmentation 32 or malignancy detection. 33 One of the many advantages of deep learning approaches is the automation of feature extraction whereas the traditional radiomics approaches have relied on complex manual feature extraction and selection techniques using shallower neural networks such as support vector machines and random forest algorithms. 34 One of the major drawbacks of this approach is the dependence on the manually extracted engineered features where certain fine and minuscule imaging patterns may be neglected or missed and hence be unavailable for the machine learning models to be utilized for prediction purposes. The deep learning inputs are comprised of 3D voxel cubes that allow the network to consider not only the tumor volume but also the surrounding regions that, according to our study, appear to have high predictive power. More recently, deep learning approaches have become popular and are used as the de‐facto standard for machine learning on medical images. 35 , 36",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p3",
+          "reference_ids": [],
+          "en": "Since our data is highly imbalanced (No RP vs. Yes RP), accuracy may not be the right measure to evaluate the performance of the models since they are based on how many samples, both positively and negatively, were correctly classified. Higher accuracy scores can be obtained by correctly classifying all the samples from the majority (No RP) class. Though class balancing approaches and data augmentation techniques have been utilized on the training dataset, the AUC and F1 scores on the test dataset were calculated by taking the harmonic mean between the precision and recall values. This provides a good measure to evaluate the model performance with imbalanced test datasets. In this study, we built 3D DenseNet and ResNet‐50 models of three (No RP, RP1, RP2) and two (No RP, Yes RP) classes as outputs. The Dense‐Net‐121 models performed better than the ResNet‐50 models with statistically significant results for the 3‐class prediction model. This could be due to the DenseNet‐121 model architecture where dense connections are established between all previous and subsequent layers and features learned in the top layers (e.g., ground glass opacity within the lung or consolidation changes in the lung parenchyma, etc.) with coarse convolution layers would also contribute to the eventual decision making for this classification. The three‐class prediction AUCmacro (0.91) was better than the two‐class prediction (0.84) for the DenseNet‐121 model. With ML approaches, the assumption is that effects of radiotherapy on ‐in our case ‐ lung tissue are complex and not deterministically defined. Useful models depend on the quality of input data to produce reasonable predictions. One thought is therefore that models learn better from well‐characterized feature classes that show obvious differences (by differentiating between RP1 and RP2), as opposed to creating a mixed feature class of RP1 and RP2 together. There could also be other factors that are inherently related to RP0, 1, and 2 that we are not aware of which nonetheless can lead to a clearer differentiation between RP0, 1, and 2 as opposed to RP0 versus RP1 and 2 combined. On the other hand, we cannot exclude that the number of samples from one of the two minority classes (RP1 or RP2) when concatenated might be randomly oversampled more than the other class. This would create more samples of one of the RP1 or RP2 classes in the combined Yes RP class used for the two class prediction models. This would be the reason why the two class models with mixed feature class of RP1 and RP2 would have a lower AUC than the three‐class model since the model would learn features for the class that has more input samples and not learn features for both classes in a balanced manner.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p4",
+          "reference_ids": [
+            "acm213875-bib-0017",
+            "acm213875-bib-0035",
+            "acm213875-bib-0036",
+            "acm213875-bib-0037",
+            "acm213875-bib-0038",
+            "acm213875-bib-0039"
+          ],
+          "en": "Our results using the images and dose patches as model inputs are consistent with published literature on deep learning‐based models for radiotherapy toxicity predictions. Ibragimov et al. 17 reported that the AUC for a CNN‐based prediction model for hepatobiliary toxicities with liver SBRT cases was 0.79. They also reported that combining the CNNs with the 3D dose patched increased the AUC to 0.85. Zhen et al. 35 also reported an AUC of 0.89 for the CNN models trained using transfer learning from a pre‐trained VGG16 model to predict rectum toxicities in cervical cancer radiotherapy. Su et al. 36 investigated the use of an artificial neural network model with three fully connected feed‐forward networks using CT images of 142 patients treated with three‐dimensional conformal radiotherapy and achieved an AUC of 0.85. Others have used Support Vector Machines (SVM) 37 (AUC = 0.72) or logistic regression 38 , 39 (AUC = 0.68) for these prediction models.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p5",
+          "reference_ids": [
+            "acm213875-bib-0035",
+            "acm213875-bib-0040"
+          ],
+          "en": "We also attempted to identify salient regions within the input 3D image dataset via an IG technique that provided important details of the tumor surrounding volume in the patient RP stratification. Based on our visual evaluation of IG maps with thirty patients (fifteen each for No RP and Yes RP) samples cases, these techniques appeared to indicate the significance of the tumor and the surrounding tissue in the prediction of lung injury for patients. We also found that voxels outside the tumor regions have contributed to the model predictions. Clinical verification of these findings is not possible based on the current understanding of the RP development process. Zhen et al. 35 published deep learning models for the prediction of rectal toxicity. The saliency maps from this study indicated that the highly discriminative region for the predictions was the upper region of the rectum. It is more difficult to assess the predictions with IG in lung cancer patients than in rectum due to the much larger variability of anatomical topography in lung tumors. The clinical decision‐making based on these IG heat maps is challenging due to the fact that the highlighted regions seem to vary across various patient cases and are quite limited in their ability to explain the model behavior to clinical experts. Saporta et al. 40 also found that the saliency methods for localization perform worse than expert localization across multiple analyses and many important pathologies. They also reported that when these maps are used in clinical practice, they can introduce well‐documented biases and erode the trust in model predictions, even when the model predictions are correct, thus limiting clinical applicability. Therefore, it is important that before these models are utilized in the clinical domain, they should be made more interpretable where detailed clinical interpretation of model predictions can be utilized to explain the salient features per output layers that are extracted and used for such toxicity predictions. We plan to build such interpretable models in our future work. At this point, while the findings on IG heat maps cannot be completely explained, showing the feasibility of generating IG maps and documenting the importance of the tumor and high dose area on these maps is promising.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p6",
+          "reference_ids": [],
+          "en": "One aspect we investigated was to study and build models learning from the temporal dimensions of these imaging datasets. There are recurrent neural networks (RNNs) that have the capacity to repeatedly learn based on previously remembered information for a time series‐based dataset and then apply that to the current dataset. The long short‐term memory‐based models are one type of RNN that is very commonly used to deal with time‐series based 2D datasets. Our challenge with such models has been the lack of multiple (more than 5) time points within our dataset. These techniques work well with video‐based datasets that have 20–30 2D frames at a minimum for the model to gather spatial and temporal changes in the image shape and appearance. We believe that once we have a sufficient number of follow‐up imaging datasets acquired on a consistent time‐series basis, we should be able to build a model that can quantify the subtle image changes over time and provide more meaningful clinical insights into radiological changes in lungs after radiation treatments.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p7",
+          "reference_ids": [],
+          "en": "Another weakness of this study is the limited‐size dataset compared to non‐medical applications. The dataset lacked more samples per region of tumor location for the algorithm to make generalizable predictions. Due to the heterogeneity, size, shape and location of the tumor regions, predicting the response to radiotherapy can be a difficult task. As a rule of thumb, deep learning models are usually trained using tens of thousands of samples. Although we have already observed good prediction with our moderate‐size cohort for the 3‐class model, these models can potentially benefit from a larger cohort of datasets with imaging studies at each follow‐up interval. Based on the experience from this study, as part of our future work, we, therefore, plan to also include locally advanced lung cancer patients which will in turn increase our sample size and variability of tumor morphology and dose distributions, but also increase the relative number of RP cases. This strategy will be good for CNN training because it will help balance the input training datasets.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p8",
+          "reference_ids": [
+            "acm213875-bib-0041"
+          ],
+          "en": "In order to gather more data, data sharing must be encouraged between multiple treating institutions. However, multi‐institutional collaborations based on centrally shared patient data face privacy and ownership challenges. There are federated learning approaches 41 that utilize novel concepts of model learning leveraging where none of the available data at an institution is shared but only the model learning is shared. These types of collaborative learning approaches use the same model to train on the dataset locally without sharing any dataset (with or without patient information) to a central repository but only sharing their model updates to the central repository. The aggregation central server receives model updates from multiple institutions and combines the model weights and then sends the consensus model to all collaborating institutions for use and/or further training. Some of the challenges with these approaches are enforcing uniformity in model architecture, utilizing standard computational processes, and providing adequate techniques for data quality and benchmarking before updating the input model weights on the central aggregation servers. However, this can be one of the methods for deep learning models to be trained with large datasets from multiple institutions.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p9",
+          "reference_ids": [
+            "acm213875-bib-0042"
+          ],
+          "en": "Other than the limitations with the size of the dataset, it should be noted that the deep learning algorithms and their working mechanisms remain a black box. Of course, it is useful to have the imaging features automatically extracted based on the image patterns and textures, but there are problems with the implementation of these algorithms in clinical practice because physicians are not able to gather a clear understanding of how to intuitively interpret the results obtained by such models. Thus, one of the biggest challenges with deep learning approaches is determining the reasoning behind why and where certain characteristics in the input images have a positive or negative effect on the eventual predictions. Additionally, not having a balanced dataset with an equal number of RP and non‐RP patients does not help the training process where the model is seeing a greater number of non‐RP cases and learning very little about the RP cases' image patterns and features in order to provide generalizable predictions. With our study, we have balanced out the dataset by utilizing data augmentation techniques such as translation, rotation, etc. of the RP and non‐RP images before the training process. There are other oversampling techniques such as synthetic minority oversampling techniques (SMOTE) 42 which generates new samples using the combination of nearby examples of the same class. These techniques are not guaranteed to generate realistic‐looking images or ones that are medically reasonable. We plan to study these techniques to make them applicable to medical imaging datasets and implement them in our future work.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        },
+        {
+          "id": "acm213875-sec-0150-p10",
+          "reference_ids": [],
+          "en": "In conclusion, we proposed a deep learning network to predict RP based on CT imaging scans and radiation treatment dose information. We demonstrated the model's ability to stratify patients in non‐radiation pneumonitis, grade 1 and grade 2, and higher pneumonitis groups. Consequently, we looked at regions in the input images that provide the most important information to guide the model with these predictions, thus narrowing the gap between computer science techniques used for pattern recognition and precision medicine. The clinical meaning of ROIs that are identified as important for the development of RP from these models needs further investigation.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0160",
+      "title": "AUTHOR CONTRIBUTIONS",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0160-p1",
+          "reference_ids": [],
+          "en": "All authors have collectively contributed in data collection, analysis, preparation and editing of this manuscript.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0180",
+      "title": "CONFLICT OF INTEREST",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0180-p1",
+          "reference_ids": [],
+          "en": "Dr. Elisabeth Weiss receives funding from NIH, is a member of Canon Medical Systems Speakers' bureau and receives royalties from UpToDate.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-sec-0170",
+      "title": "ACKNOWLEDGMENTS",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "acm213875-sec-0170-p1",
+          "reference_ids": [],
+          "en": "We thank Dr. Rebecca Mahon for establishing the imaging database and Dr. Nuzhat Jan for help with collecting the clinical data.",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "notes1",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": [
+        {
+          "id": "notes1-p1",
+          "reference_ids": [],
+          "en": "Kapoor R, Sleeman W, Palta J, Weiss E. 3D deep convolution neural network for radiation pneumonitis prediction following stereotactic body radiotherapy. J Appl Clin Med Phys. 2023;24:e13875. 10.1002/acm2.13875",
+          "zh": "",
+          "translation_status": "missing",
+          "review_status": "not_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "acm213875-bibl-0001",
+      "title": "REFERENCES",
+      "title_zh": "",
+      "paragraphs": []
+    },
+    {
+      "id": "acm213875-bibl-0001_sec2",
+      "title": "Section",
+      "title_zh": "",
+      "paragraphs": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "acm213875-tbl-0001",
+      "label": "TABLE 1",
+      "caption": "Patient characteristics and treatment regimen",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Clinical characteristics",
+          "P‐value"
+        ],
+        [
+          "Staging (no of patient)",
+          "IA (n = 147) IB (n = 27) IIA (n = 10) IIB (n = 2) IIIA (n = 3) IV (n = 4)",
+          "0.58"
+        ],
+        [
+          "Gender",
+          "Male (n = 99) Female (n = 94)",
+          "0.22"
+        ],
+        [
+          "Median age (range)",
+          "69.2 ± 10.4 years",
+          "0.54"
+        ],
+        [
+          "Karnofsky score (%)",
+          "80 ± 10",
+          "0.90"
+        ],
+        [
+          "PTV volume",
+          "36.05 ± 29.6 cc",
+          "0.17"
+        ],
+        [
+          "Prescription dose (Gy)/fractions (no of patients)",
+          "48 Gy/4 (n = 142) 50 Gy/5 (n = 26) 40 Gy/5 (n = 12) 60 Gy/5 (n = 6) 60 Gy/8 (n = 5) 45 Gy/5 (n = 2)",
+          "0.11"
+        ],
+        [
+          "RP status (number of patients)",
+          "No RP [RP0] (n = 154) RP Grade 1 [RP1] (n = 26) RP Grade > = 2 [RP2] (n = 13)"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm213875-tbl-0001\" position=\"float\"><label>TABLE 1</label><caption><p>Patient characteristics and treatment regimen</p></caption><table frame=\"hsides\" rules=\"groups\"><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><thead><tr style=\"border-bottom:solid 1px #000000\"><th colspan=\"2\" style=\"border-bottom:solid 1px #000000\" align=\"left\" rowspan=\"1\">Clinical characteristics</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic>P</italic>‐value</th></tr></thead><tbody><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Staging (no of patient)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<p>IA (<italic>n</italic> = 147)</p>\n<p>IB (<italic>n</italic> = 27)</p>\n<p>IIA (<italic>n</italic> = 10)</p>\n<p>IIB (<italic>n</italic> = 2)</p>\n<p>IIIA (<italic>n</italic> = 3)</p>\n<p>IV (<italic>n</italic> = 4)</p>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.58</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Gender</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<p>Male (<italic>n</italic> = 99)</p>\n<p>Female (<italic>n</italic> = 94)</p>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.22</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Median age (range)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">69.2 ± 10.4 years</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.54</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Karnofsky score (%)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">80 ± 10</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.90</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">PTV volume</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">36.05 ± 29.6 cc</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.17</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">Prescription dose (Gy)/fractions (no of patients)</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">\n<p>48 Gy/4 (<italic>n</italic> = 142)</p>\n<p>50 Gy/5 (<italic>n</italic> = 26)</p>\n<p>40 Gy/5 (<italic>n</italic> = 12)</p>\n<p>60 Gy/5 (<italic>n</italic> = 6)</p>\n<p>60 Gy/8 (<italic>n</italic> = 5)</p>\n<p>45 Gy/5 (<italic>n</italic> = 2)</p>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.11</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">RP status (number of patients)</td><td colspan=\"2\" align=\"left\" rowspan=\"1\">\n<p>No RP [RP0] (<italic>n</italic> = 154)</p>\n<p>RP Grade 1 [RP1] (<italic>n</italic> = 26)</p>\n<p>RP Grade &gt; = 2 [RP2] (<italic>n</italic> = 13)</p>\n</td></tr></tbody></table></table-wrap>"
+    },
+    {
+      "id": "acm213875-tbl-0002",
+      "label": "TABLE 2",
+      "caption": "Macro‐averaged precision, recall, F1 score, and overall accuracy for the four models based on the test cohort (not seen or trained on the model) and training cohorts",
+      "caption_zh": "",
+      "rows": [
+        [
+          "Training dataset",
+          "Prediction classes",
+          "Testing dataset",
+          "Model",
+          "Precisionmacro",
+          "Recallmacro",
+          "F1 scoremacro",
+          "Accuracy",
+          "AUCmacro",
+          "P‐value"
+        ],
+        [
+          "Pre‐treatment and follow‐up dataset [80% split]",
+          "Three class prediction",
+          "Test cohort (20% split)",
+          "DenseNet‐121",
+          "0.84",
+          "0.78",
+          "0.81",
+          "0.89",
+          "0.91",
+          "0.017"
+        ],
+        [
+          "ResNet‐50",
+          "0.57",
+          "0.59",
+          "0.54",
+          "0.72",
+          "0.72"
+        ],
+        [
+          "Two class prediction",
+          "Test cohort (20% split)",
+          "DenseNet‐121",
+          "0.76",
+          "0.78",
+          "0.77",
+          "0.84",
+          "0.84",
+          "0.527"
+        ],
+        [
+          "ResNet‐50",
+          "0.67",
+          "0.69",
+          "0.68",
+          "0.77",
+          "0.71"
+        ]
+      ],
+      "footnotes": "",
+      "translation_status": "missing",
+      "xml": "<table-wrap id=\"acm213875-tbl-0002\" position=\"float\"><label>TABLE 2</label><caption><p>Macro‐averaged precision, recall, F1 score, and overall accuracy for the four models based on the test cohort (not seen or trained on the model) and training cohorts</p></caption><table frame=\"hsides\" rules=\"groups\"><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><col align=\"left\" span=\"1\" /><thead><tr style=\"border-bottom:solid 1px #000000\"><th align=\"left\" rowspan=\"1\" colspan=\"1\">Training dataset</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Prediction classes</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Testing dataset</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Model</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Precision<sub>macro</sub>\n</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Recall<sub>macro</sub>\n</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">F1 score<sub>macro</sub>\n</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">Accuracy</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">AUC<sub>macro</sub>\n</th><th align=\"left\" rowspan=\"1\" colspan=\"1\">\n<italic>P</italic>‐value</th></tr></thead><tbody><tr><td rowspan=\"4\" align=\"left\" colspan=\"1\">Pre‐treatment and follow‐up dataset [80% split]</td><td rowspan=\"2\" align=\"left\" colspan=\"1\">Three class prediction</td><td rowspan=\"2\" align=\"left\" colspan=\"1\">\n<p>Test cohort (20% split)</p>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">DenseNet‐121</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.84</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.78</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.81</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.89</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.91</td><td rowspan=\"2\" align=\"left\" colspan=\"1\">0.017</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">ResNet‐50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.57</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.59</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.54</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.72</td></tr><tr><td rowspan=\"2\" align=\"left\" colspan=\"1\">Two class prediction</td><td rowspan=\"2\" align=\"left\" colspan=\"1\">\n<p>Test cohort (20% split)</p>\n</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">DenseNet‐121</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.76</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.78</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.77</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.84</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.84</td><td rowspan=\"2\" align=\"left\" colspan=\"1\">0.527</td></tr><tr><td align=\"left\" rowspan=\"1\" colspan=\"1\">ResNet‐50</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.67</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.69</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.68</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.77</td><td align=\"left\" rowspan=\"1\" colspan=\"1\">0.71</td></tr></tbody></table></table-wrap>"
+    }
+  ],
+  "figures": [
+    {
+      "id": "acm213875-fig-0001",
+      "label": "FIGURE 1",
+      "caption": "Example of image registration. (a) Baseline pre‐treatment (used for treatment planning) CT scan (coronal section) with the PTV (red) and isodose lines. (b.1) 3‐month follow‐up CT scan. (b.2) Rigid registration with pre‐treatment CT scan and 3 month follow‐CT scan. (b.3) Deformable registration with pre‐treatment CT scan and 3‐month follow‐up CT scan with PTV volume and isodose curves. (c.1) 6‐month follow‐up CT scan. (c.2) Rigid registration with pre‐treatment CT scan and 6 month follow‐CT scan. (c.3) Deformable registration with pre‐treatment CT scan and 6‐month follow‐up CT scan with PTV volume and isodose curves",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g001.jpg",
+        "ACM2-24-e13875-g001.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm213875-fig-0002",
+      "label": "FIGURE 2",
+      "caption": "The study design of the proposed model for radiation pneumonitis (RP) prediction classification",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g003.jpg",
+        "ACM2-24-e13875-g003.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm213875-fig-0003",
+      "label": "FIGURE 3",
+      "caption": "(a) DenseNet 121 – 3D architecture: A deep DenseNet with four dense blocks. The transition layers in between the successive dense blocks are responsible to change the feature‐map sizes via convolution and pooling operations. This architecture has 121 layers with interconnected layers in a feed forward fashion to ensure maximum information flow between layers in the network. (b) The connections between the 121‐layer blocks of the DenseNet‐121 CNN network where there are direct connections from any layer to all subsequent layers. The connection between different layer blocks increases variation in the input of subsequent layers via feature reuse and improves efficiency. With this architecture the vanishing gradient and loss problems are resolved since each layer has direct access to the gradients from the loss function and the original input signal, leading to an implicit deep supervision. (c) ResNet‐50 – 3D architecture: A residual network of 50 parameter layers where the subtraction of features is learned from the input of that layer by using shortcut connections which is shown as curved arrow",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g002.jpg",
+        "ACM2-24-e13875-g002.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm213875-fig-0004",
+      "label": "FIGURE 4",
+      "caption": "Evaluation of the 3D Dense‐121 versus ResNet‐50 model trained with 3D image + 3D dose patches from the pre‐treatment and follow‐up datasets. (a) Confusion matrix for three class prediction with the 20% sample set (test set) that was not seen or trained on the DenseNet‐121 model. (b) Confusion matrix for the ResNet‐50. Darker color cells demonstrate more accurate predictions, and the diagonal shows the labels predicted correctly. (c) Prognostic power (ROC) and true positive rate versus false positive rate curves derived from the test set for Dense‐121 model. (d) Same chart for the ResNet‐50 model",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g005.jpg",
+        "ACM2-24-e13875-g005.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm213875-fig-0005",
+      "label": "FIGURE 5",
+      "caption": "Evaluation of the 3D Dense‐121 versus ResNet‐50 model trained with 3D image + 3D dose patches for the two‐class prediction",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g006.jpg",
+        "ACM2-24-e13875-g006.gif"
+      ],
+      "translation_status": "missing"
+    },
+    {
+      "id": "acm213875-fig-0006",
+      "label": "FIGURE 6",
+      "caption": "Visual display of the most important areas of the input 3D dataset that have the most contributions to maximize the outputs of the final prediction layer used to predict a RP case. The rows represent five different patient samples (axial slice) that encompass the PTV volume. The first column displays the integrated gradient (IG) heat maps. Bright (white) regions represent positive gradients, and dark (black) regions show negative gradients. The second column represents the CT patch annotated dose maps (displayed as heat map) and contours of voxel regions that are in top 50% of IG maps",
+      "caption_zh": "",
+      "graphics": [
+        "ACM2-24-e13875-g004.jpg",
+        "ACM2-24-e13875-g004.gif"
+      ],
+      "translation_status": "missing"
+    }
+  ],
+  "formulas": [
+    {
+      "id": "acm213875-disp-0001",
+      "text": "(1)Precisonmacro=1N∑c=1NTPcTPc+FPc",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm213875-disp-0001\"><label>(1)</label><ns0:math id=\"jats-math-1\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:mi>P</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>s</ns0:mi><ns0:mi>o</ns0:mi><ns0:msub><ns0:mi>n</ns0:mi><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>o</ns0:mi></ns0:mrow></ns0:msub><ns0:mo linebreak=\"badbreak\">=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>N</ns0:mi></ns0:mfrac><ns0:mspace width=\"0.28em\" /><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfrac><ns0:mrow><ns0:mi>T</ns0:mi><ns0:msub><ns0:mi>P</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow><ns0:mrow><ns0:mi>T</ns0:mi><ns0:msub><ns0:mi>P</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>F</ns0:mi><ns0:msub><ns0:mi>P</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm213875-disp-0002",
+      "text": "(2)Recallmacro=1N∑c=1NTPcTPc+FNc",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm213875-disp-0002\"><label>(2)</label><ns0:math id=\"jats-math-2\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:mi>R</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>l</ns0:mi><ns0:msub><ns0:mi>l</ns0:mi><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>o</ns0:mi></ns0:mrow></ns0:msub><ns0:mo linebreak=\"badbreak\">=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>N</ns0:mi></ns0:mfrac><ns0:mspace width=\"0.28em\" /><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mfrac><ns0:mrow><ns0:mi>T</ns0:mi><ns0:msub><ns0:mi>P</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow><ns0:mrow><ns0:mi>T</ns0:mi><ns0:msub><ns0:mi>P</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>F</ns0:mi><ns0:msub><ns0:mi>N</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm213875-disp-0003",
+      "text": "(3)F1Scoremacro=1N∑c=1N2.Precisionc−RecallcPrecisionc+Recallc",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm213875-disp-0003\"><label>(3)</label><ns0:math id=\"jats-math-3\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:msub><ns0:mi>F</ns0:mi><ns0:mn>1</ns0:mn></ns0:msub><ns0:mspace width=\"0.33em\" /><ns0:mi>S</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>o</ns0:mi><ns0:mi>r</ns0:mi><ns0:msub><ns0:mi>e</ns0:mi><ns0:mrow><ns0:mi>m</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>o</ns0:mi></ns0:mrow></ns0:msub><ns0:mo linebreak=\"badbreak\">=</ns0:mo><ns0:mfrac><ns0:mn>1</ns0:mn><ns0:mi>N</ns0:mi></ns0:mfrac><ns0:mspace width=\"0.28em\" /><ns0:munderover><ns0:mo>∑</ns0:mo><ns0:mrow><ns0:mi>c</ns0:mi><ns0:mo>=</ns0:mo><ns0:mn>1</ns0:mn></ns0:mrow><ns0:mi>N</ns0:mi></ns0:munderover><ns0:mn>2</ns0:mn><ns0:mo>.</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mi>P</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>s</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>o</ns0:mi><ns0:msub><ns0:mi>n</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>−</ns0:mo><ns0:mi>R</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>l</ns0:mi><ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow><ns0:mrow><ns0:mi>P</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>s</ns0:mi><ns0:mi>i</ns0:mi><ns0:mi>o</ns0:mi><ns0:msub><ns0:mi>n</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub><ns0:mo>+</ns0:mo><ns0:mi>R</ns0:mi><ns0:mi>e</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>l</ns0:mi><ns0:msub><ns0:mi>l</ns0:mi><ns0:mi>c</ns0:mi></ns0:msub></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    },
+    {
+      "id": "acm213875-disp-0004",
+      "text": "(4)Accuracy=TP+TNTP+TN+FP+FN",
+      "xml": "<disp-formula xmlns:ns0=\"http://www.w3.org/1998/Math/MathML\" id=\"acm213875-disp-0004\"><label>(4)</label><ns0:math id=\"jats-math-4\" display=\"block\"><ns0:mrow><ns0:mrow><ns0:mi>A</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>u</ns0:mi><ns0:mi>r</ns0:mi><ns0:mi>a</ns0:mi><ns0:mi>c</ns0:mi><ns0:mi>y</ns0:mi><ns0:mo linebreak=\"badbreak\">=</ns0:mo><ns0:mfrac><ns0:mrow><ns0:mi>T</ns0:mi><ns0:mi>P</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>T</ns0:mi><ns0:mi>N</ns0:mi></ns0:mrow><ns0:mrow><ns0:mi>T</ns0:mi><ns0:mi>P</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>T</ns0:mi><ns0:mi>N</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>F</ns0:mi><ns0:mi>P</ns0:mi><ns0:mo>+</ns0:mo><ns0:mi>F</ns0:mi><ns0:mi>N</ns0:mi></ns0:mrow></ns0:mfrac></ns0:mrow></ns0:mrow></ns0:math></disp-formula>"
+    }
+  ],
+  "references": [
+    {
+      "id": "acm213875-bib-0001",
+      "text": "1. Weiss E, Deng X, Mukhopadhyay N, Jan N. Effects of the recurrence pattern on patient survival following SABR for stage I lung cancer. Acta Oncol. 2020;59(4):427‐433. 10.1080/0284186X.2019.1711172",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0002",
+      "text": "2. Timmerman R, Paulus R, Galvin J, et al. Stereotactic body radiation therapy for inoperable early stage lung cancer. JAMA. 2010;303(11):1070‐1076. 10.1001/jama.2010.261",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0003",
+      "text": "3. Zhao J, Yorke ED, Li L, Kavanagh BD, et al. Simple factors associated with radiation‐induced lung toxicity after stereotactic body radiation therapy of the thorax: a pooled analysis of 88 studies. Int J Radiat Oncol Biol Phys. 2016;95(5):1357‐1366. 10.1016/j.ijrobp.2016.03.024",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0004",
+      "text": "4. Guckenberger M, Heilman K, Wulf J, et al. Pulmonary injury and tumor response after stereotactic body radiotherapy (SBRT): results of a serial follow‐up CT study. Radiother Oncol. 2007;85(3):435‐442. 10.1016/j.radonc.2007.10.044",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0005",
+      "text": "5. Trovo M, Linda A, El Naqa I, Javidan‐Nejad C, Bradley J. Early and late lung radiographic injury following stereotactic body radiation therapy (SBRT). Lung Cancer. 2010;69(1):77‐85. 10.1016/j.lungcan.2009.09.006",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0006",
+      "text": "6. Chen H, Senan S, Nossent EJ, et al. Treatment‐related toxicity in patients with early‐stage non‐small cell lung cancer and coexisting interstitial lung disease: a systematic review. Int J Radiat Oncol Biol Phys. 2017;98(3):622‐631. 10.1016/j.ijrobp.2017.03.010",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0007",
+      "text": "7. Ma J, Zhang J, Zhou S, et al. Regional lung density changes after radiation therapy for tumors in and around thorax. Int J Radiat Oncol Biol Phys. 2010;76(1):116‐122. 10.1016/j.ijrobp.2009.01.025",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0008",
+      "text": "8. Palma DA, van Sörnsen de Koste J, Verbakel WF, Vincent A, Senan S. Lung density changes after stereotactic radiotherapy: a quantitative analysis in 50 patients. Int J Radiat Oncol Biol Phys. 2011;81(4):974‐978. 10.1016/j.ijrobp.2010.07.025",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0009",
+      "text": "9. Mahon RN, Kalman NS, Hugo GD, Jan N, Weiss E. Lung density changes following SBRT: association with lung dose and clinical pneumonitis. Int J Radiat Oncol Biol Phys. 2019;105(1):E794‐E795.",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0010",
+      "text": "10. Palma DA, Senan S, Haasbeek CJ, et al. Radiological and clinical pneumonitis after stereotactic lung radiotherapy: a matched analysis of three‐dimensional conformal and volumetric‐modulated arc therapy techniques. Int J Radiat Oncol Biol Phys. 2011;80(2):506‐513. 10.1016/j.ijrobp.2010.02.032",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0011",
+      "text": "11. Ma J, Zhang J, Zhou S, et al. Association between RT‐induced changes in lung tissue density and global lung function. Int J Radiat Oncol Biol Phys. 2009;74(3):781‐789. 10.1016/j.ijrobp.2008.08.053",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0012",
+      "text": "12. Liang B, Yan H, Tian Y, et al. Dosiomics: extracting 3D spatial features from dose distribution to predict incidence of radiation pneumonitis. Front Oncol. 2019;9:269. 10.3389/fonc.2019.00269",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0013",
+      "text": "13. Yang X, Kwitt R, Styner M, Niethammer M. Quicksilver: fast predictive image registration – A deep learning approach. Neuroimage. 2017;158:378‐396. 10.1016/j.neuroimage.2017.07.008",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0014",
+      "text": "14. Hague C, McPartlin A, Lee LW, et al. An evaluation of MR based deep learning auto‐contouring for planning head and neck radiotherapy. Radiother Oncol. 2021;158:112‐117. 10.1016/j.radonc.2021.02.018",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0015",
+      "text": "15. Kim DW, Lee S, Kwon S, et al. Deep learning‐based survival prediction of oral cancer patients. Sci Rep. 2019;9(1):6994. 10.1038/s41598-019-43372-7",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0016",
+      "text": "16. Li X, Gao H, Zhu J, et al, 3D deep learning model for the pretreatment evaluation of treatment response in locally advanced TESCC: a prospective study. Int J Radiat Oncol Biol Phys. 2021;111(4):926‐935. 10.1016/j.ijrobp.2021.06.033",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0017",
+      "text": "17. Ibragimov B, Toesca D, Chang D, et al. Development of deep neural network for individualized hepatobiliary toxicity prediction after liver SBRT. Med Phys. 2018;45(10):4763‐4774. 10.1002/mp.13122",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0018",
+      "text": "18. Shorten C, Khoshgoftaar TM. A survey on image data augmentation for deep learning. J Big Data. 2019;6:1‐48. 10.1186/s40537-019-0197-0",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0019",
+      "text": "19. Chlap P, Min H, Vandenberg N, et al. A review of medical image data augmentation techniques for deep learning applications. J Med Imaging Radiat Oncol. 2021;65(5):545‐563. 10.1111/1754-9485.13261",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0020",
+      "text": "20. Huang G, Liu Z, Pleiss G, Van Der Maaten L, Weinberger K. Convolutional networks with dense connectivity. IEEE Trans Pattern Anal Mach Intell. 2022;44(12):8704‐8716. 10.1109/TPAMI.2019.2918284",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0021",
+      "text": "21. He K, Zhang X, Ren S, Sun J, “Deep residual learning for image recognition” 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) IEEE; 2016; pp. 770‐778. 10.1109/CVPR.2016.90",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0022",
+      "text": "22. Simonyan K, Zisserman A. Very deep convolutional networks for large‐scale image recognition. 2014; https://arxiv.org/abs/1409.1556",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0023",
+      "text": "23. Zhang MJ, Lu QC, Li DX, Kim JH, Wang J. A full convolutional network based on DenseNet for remote sensing scene classification. Math Biosci Eng. 2019;16(5):3345‐3367. 10.3934/mbe.2019167",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0024",
+      "text": "24. Huang G, Liu Z, Weinberger KQ. Densely connected convolutional networks. 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR). 2017:2261‐2269.",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0025",
+      "text": "25. Armato SG 3rd, McLennan G, Bidaut L. The lung image database consortium (LIDC) and image database resource initiative (IDRI): a completed reference database of lung nodules on CT scans. Med Phys. 2011;38(2):915‐931. 10.1118/1.3528204",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0026",
+      "text": "26. Rudin C. Stop explaining black‐box machine learning models for high stakes decisions and use interpretable models instead. Nat Mach Intell. 2019;1(5):206‐2015.",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0027",
+      "text": "27. Sundararajan M, Taly A, Yan Q. Axiomatic attribution for deep networks. International conference on machine learning. PMLR. 2017;3319‐3328.",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0028",
+      "text": "28. Simonyan K, Vedaldi A, Zisserman A, “Deep inside convolutional networks: visualising image classification models and saliency maps.” 2013; https://arxiv.org/abs/1312.6034",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0029",
+      "text": "29. Atkinson TM, Ryan SJ, Bennett AV, et al. The association between clinician‐based common terminology criteria for adverse events (CTCAE) and patient‐reported outcomes (PRO): a systematic review. Support Care Cancer. 2016;24(8):3669‐3676. 10.1007/s00520-016-3297-9",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0030",
+      "text": "30. Moran A, Daly ME, Yip SS, Yamamoto T. Radiomics‐based assessment of radiation‐induced lung injury after stereotactic body radiotherapy. Clin Lung Cancer. 2017;18:e425‐31. 10.1016/j.cllc.2017.05.014",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0031",
+      "text": "31. Katsuta Y, Kadoya N, Mouri S, et al. Prediction of radiation pneumonitis with machine learning using 4D‐CT based dose‐function features. J Radiat Res. 2022;63(1):71‐79. 10.1093/jrr/rrab097",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0032",
+      "text": "32. Hesamian MH, Jia W, He X, Kennedy P. Deep learning techniques for medical image segmentation: achievements and challenges. J Digit Imaging. 2019;32(4):582‐596. 10.1007/s10278-019-00227-x",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0033",
+      "text": "33. Avanzo M, Stancanello J, Pirrone G, Sartor G. Radiomics and deep learning in lung cancer. Strahlenther Onkol. 2020;196(10):879‐887. 10.1007/s00066-020-01625-9",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0034",
+      "text": "34. Koçak B, Durmaz EŞ, Ateş E, Kılıçkesmez Ö. Radiomics with artificial intelligence: a practical guide for beginners. Diagn Interv Radiol. 2019;25(6):485‐495. 10.5152/dir.2019.19321",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0035",
+      "text": "35. Zhen X, Chen J, Zhong Z, et al. Deep convolutional neural network with transfer learning for rectum toxicity prediction in cervical cancer radiotherapy: a feasibility study. Phys Med Biol. 2017;62(21):8246‐8263. 10.1088/1361-6560/aa8d09",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0036",
+      "text": "36. Su M, Miften M, Whiddon C, et al. An artificial neural network for predicting the incidence of radiation pneumonitis. Med Phys. 2005;32:318‐325. 10.1118/1.1835611",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0037",
+      "text": "37. Das SK, Chen S, Deasy JO, et al. Combining multiple models to generate consensus: application to radiation‐induced pneumonitis prediction. Med Phys. 2008;35:5098‐5109. 10.1118/1.29",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0038",
+      "text": "38. Krafft SP, Rao A, Stingo F, et al. The utility of quantitative CT radiomics features for improved prediction of radiation pneumonitis. Med Phys. 2018;45:5317‐5324. 10.1002/mp.13150",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0039",
+      "text": "39. Isaksson LJ, Pepa M, Zaffaroni M, et al. Machine learning‐based models for prediction of toxicity outcomes in radiotherapy. Front Oncol. 2020;10:790. 10.3389/fonc.2020.00790",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0040",
+      "text": "40. Saporta A, Gui X, Agrawal A, Rajpurkar P. Benchmarking saliency methods for chest X‐ray interpretation. Nature Machine Intelligence. 2022;4(10): 10.1101/2021.02.28.21252634",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0041",
+      "text": "41. Sheller MJ, Edwards B, Reina GA, et al. Federated learning in medicine: facilitating multi‐institutional collaborations without sharing patient data. Sci Rep. 2020;10(1):12598. 10.1038/s41598-020-69250-1",
+      "doi": []
+    },
+    {
+      "id": "acm213875-bib-0042",
+      "text": "42. Nakamura M, Kajiwara Y, Otsuka A, Kimura H. LVQ‐SMOTE – Learning Vector Quantization based Synthetic Minority Over‐sampling Technique for biomedical data. BioData Min. 2013;6(1):16. 10.1186/1756-0381-6-16",
+      "doi": []
+    }
+  ],
+  "translation_status": "missing",
+  "review_status": "not_reviewed",
+  "publication_status": "draft",
+  "public": false,
+  "author_string": "Kapoor R, Sleeman W, Palta J, Weiss E.",
+  "journal": "J Appl Clin Med Phys",
+  "year": "2023",
+  "pmid": "36546583",
+  "pmcid": "PMC10018674",
+  "doi": "10.1002/acm2.13875",
+  "source": {
+    "retrieved_at": "2026-11-14T17:05:14.763538+00:00",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10018674/fullTextXML",
+    "status": 200,
+    "etag": null,
+    "last_modified": null,
+    "content_type": "application/xml"
+  },
+  "source_xml": "data/publication/sources/PMC10018674.xml"
+}
