@@ -40,7 +40,7 @@ def build_demo(site,export_local=True):
     (demo/'library.json').write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
     html=(site/'__private_assets/site/main.bin').read_text(encoding='utf-8')
     html=html.replace('<head>','<head><script src="/demo/adapter.js"></script><link rel="stylesheet" href="/demo/demo.css"><meta name="robots" content="noindex,nofollow">',1)
-    html=re.sub(r'<title>.*?</title>','<title>知镜｜比赛演示版</title>',html,count=1)
+    html=re.sub(r'<title>.*?</title>','<title>知镜｜离线演示版</title>',html,count=1)
     html=html.replace("if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))","if(false)")
     (demo/'index.html').write_text(html,encoding='utf-8')
     anatomy=ROOT/'assets/anatomy'
@@ -60,10 +60,10 @@ def build_demo(site,export_local=True):
         shutil.copy2(shutil.which('node'),runtime/'node.exe')
         shutil.copy2(ROOT/'data/demo-v28/node-LICENSE.txt',runtime/'LICENSE.txt')
         shutil.copy2(ROOT/'data/demo-v28/server.cjs',local/'server.cjs')
-        (local/'index.html').write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/demo/"><a href="/demo/">打开知镜比赛演示版</a>',encoding='utf-8')
+        (local/'index.html').write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/demo/"><a href="/demo/">打开知镜离线演示版</a>',encoding='utf-8')
         (local/'启动知镜演示.ps1').write_text("$ErrorActionPreference='Stop'\n$env:TEMP=Join-Path $PSScriptRoot 'temp'\n$env:TMP=$env:TEMP\nNew-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null\nSet-Location -LiteralPath $PSScriptRoot\n& (Join-Path $PSScriptRoot 'runtime/node.exe') (Join-Path $PSScriptRoot 'server.cjs')\n",encoding='utf-8-sig')
         (local/'打开演示.cmd').write_text('@echo off\r\npowershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0启动知镜演示.ps1"\r\n',encoding='utf-8')
-        (local/'使用说明.md').write_text('# 知镜比赛演示版\n\n双击“打开演示.cmd”，浏览器进入 http://127.0.0.1:8778/demo/ 。所有页面、模型、公开影像和计算依赖已在本目录，可断开外网使用，无需另装 Python 或 Node.js。保留启动窗口。整个目录可以复制到其他 Windows 电脑使用。\n\n本包包含 '+str(len(docs))+' 篇明确公开的固定文献、原男女图谱、公开影像 ROI、统计与数学本地计算。AI 示例来自此前实际模型验收并明确标注，不会发起实时 AI 请求。\n\n演示版不连接正式账号、上传、审批或云端笔记；这些操作请返回 https://cognispect.tech/ 。本包不包含真实账号、私人文件、会话令牌或服务密钥。\n\n随包 Node.js 运行时的许可保存在 runtime/LICENSE.txt；模型与影像来源许可保留在原始资源中。\n',encoding='utf-8')
+        (local/'使用说明.md').write_text('# 知镜离线演示版\n\n双击“打开演示.cmd”，浏览器进入 http://127.0.0.1:8778/demo/ 。所有页面、模型、公开影像和计算依赖已在本目录，可断开外网使用，无需另装 Python 或 Node.js。保留启动窗口。整个目录可以复制到其他 Windows 电脑使用。\n\n本包包含 '+str(len(docs))+' 篇明确公开的固定文献、原男女图谱、公开影像 ROI、统计与数学本地计算。AI 示例来自此前实际模型验收并明确标注，不会发起实时 AI 请求。\n\n演示版不连接正式账号、上传、审批或云端笔记；这些操作请返回 https://cognispect.tech/ 。本包不包含真实账号、私人文件、会话令牌或服务密钥。\n\n随包 Node.js 运行时的许可保存在 runtime/LICENSE.txt；模型与影像来源许可保留在原始资源中。\n',encoding='utf-8')
         report['local']=str(local)
     files=[p for p in demo.rglob('*') if p.is_file()]
     report.update(publicFiles=len(files),publicBytes=sum(p.stat().st_size for p in files),largestPublicAsset=max(p.stat().st_size for p in files))
