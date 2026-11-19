@@ -38,18 +38,18 @@ var ResearchUI=(()=>{
     return `<div class="qatext">${answer}</div>`;
   }
   const reader=()=>ReaderUI.render();
-  const reviewStore='helix.reviews.v16';
+  const reviewStore='helix.reviews.v16',guestReviewStore='helix.guest.reviews.v16',guestReviewActiveStore='helix.guest.review.active.v16';
   const reviewKey=paper=>String(paper?.id||paper?.title||'draft').trim().toLowerCase();
-  function reviewLibrary(){return JSON.parse(PersonalStore.getItem(reviewStore)||'{}');}
+  function reviewLibrary(){return JSON.parse((PersonalStore.user?PersonalStore.getItem(reviewStore):localStorage.getItem(guestReviewStore))||'{}');}
   function blankReview(paper={id:'',title:''}){return {design:'strobe',paper:{...paper},scope:{},byDesign:{},memo:''};}
   function readReviewDraft(){
     if(ui.reviewDraft)return ui.reviewDraft;
     let library=reviewLibrary();
     if(!Object.keys(library).length){const old=JSON.parse(PersonalStore.getItem('helix.review.v12')||'null');if(old){library[reviewKey(old.paper)]=old;PersonalStore.setItem(reviewStore,JSON.stringify(library));}}
-    const key=PersonalStore.getItem('helix.review.active.v16')||Object.keys(library)[0]||'draft';
+    const key=(PersonalStore.user?PersonalStore.getItem('helix.review.active.v16'):localStorage.getItem(guestReviewActiveStore))||Object.keys(library)[0]||'draft';
     ui.reviewStorageKey=key;ui.reviewDraft=library[key]||blankReview();ui.reviewDesign=ui.reviewDraft.design||'strobe';return ui.reviewDraft;
   }
-  function saveReviewDraft(){const library=reviewLibrary(),key=ui.reviewStorageKey||reviewKey(ui.reviewDraft.paper);library[key]=ui.reviewDraft;PersonalStore.setItem(reviewStore,JSON.stringify(library));PersonalStore.setItem('helix.review.active.v16',key);}
+  function saveReviewDraft(){const library=reviewLibrary(),key=ui.reviewStorageKey||reviewKey(ui.reviewDraft.paper);library[key]=ui.reviewDraft;if(PersonalStore.user){PersonalStore.setItem(reviewStore,JSON.stringify(library));PersonalStore.setItem('helix.review.active.v16',key);}else{localStorage.setItem(guestReviewStore,JSON.stringify(library));localStorage.setItem(guestReviewActiveStore,key);}}
   function flowSvg(){return `<svg class="science-flow" viewBox="0 0 660 126" role="img" aria-label="研究流程：问题、标注、特征、验证、复盘"><path d="M43 64 H610" stroke="currentColor" stroke-opacity=".3" stroke-width="2"/><path d="M70 64 H595" stroke="currentColor" stroke-width="2" stroke-dasharray="4 10" style="animation:flowLine 8s linear infinite"/>${['问题','标注','特征','验证','复盘'].map((t,i)=>`<circle cx="${70+i*130}" cy="64" r="21" fill="var(--surface2)" stroke="currentColor" stroke-opacity=".45"/><text x="${70+i*130}" y="70" text-anchor="middle" fill="var(--tx)" font-size="12">${t}</text>`).join('')}</svg>`;}
   function stats(){return `<div class="work-page stats-workspace">${head('统计与绘图','','数据分析')}<div class="stats-columns">
     <section class="glass stats-data-panel"><div class="stats-data-head"><h2>数据与分析</h2><button class="textlink" id="statsExample">载入示例</button></div>

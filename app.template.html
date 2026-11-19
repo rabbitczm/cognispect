@@ -1837,9 +1837,18 @@ function renderNav(){
     `<div class="doc-line" data-open="${d.key}"><span class="num">[${d.n}]</span><span class="nm">${d.authors.split(",")[0]} ${d.year}</span></div>`).join("");
 }
 
+$("#navList").addEventListener("click",event=>{
+  const item=event.target.closest("[data-jump]");
+  if(item)goto(item.dataset.jump);
+});
+$("#navDocs").addEventListener("click",event=>{
+  const item=event.target.closest("[data-open]");
+  if(item)openEvidence(item.dataset.open);
+});
+
 let lastRenderedStep=null;
 function renderMain(){
-  if(document.activeElement?.dataset.composing==='true')return;
+  if(lastRenderedStep===state.step&&document.activeElement?.dataset.composing==='true')return;
   if(!LibraryUI.started){$('#main').innerHTML='<section class="site-load" role="status">正在连接文献与工作区，浏览器计算工具即将就绪。</section>';return;}
   if(!STEPS[state.step])state.step='search';
   UpgradeUI.dispose();
@@ -1851,8 +1860,8 @@ function renderMain(){
   if(!WebAccount.allowedPage(state.step)){ $("#main").innerHTML=WebAccount.gate();WebAccount.bind();return;}
   $("#main").innerHTML=STEPS[state.step].render();
   $("#main").scrollTop=pageScroll[state.step]||0;
-  $("#main").classList.remove('page-transition');
-  if(lastRenderedStep!==state.step)requestAnimationFrame(()=>$('#main').classList.add('page-transition'));
+  if(lastRenderedStep!==state.step&&!matchMedia('(prefers-reduced-motion: reduce)').matches)
+    $("#main").firstElementChild?.animate([{opacity:.72},{opacity:1}],{duration:160,easing:'ease-out'});
   lastRenderedStep=state.step;
   bindMain();
   FinalUI.bind();
@@ -1982,17 +1991,23 @@ function goto(k,fromHistory=false){
   if(state.step==='assist'&&k!=='assist')ResearchUI.leave();
   state.step=k;
   if(!fromHistory&&location.hash!=='#'+k)history.pushState({step:k},'',location.pathname+location.search+'#'+k);
-  document.body.classList.remove("nav-open");
-  renderNav(); renderMain();
+  FinalUI.closeMobileNav();
+  $("#navList").querySelectorAll("[data-jump]").forEach(item=>{
+    const active=item.dataset.jump===state.step;
+    item.classList.toggle("on",active);
+    if(active)item.setAttribute("aria-current","page");
+    else item.removeAttribute("aria-current");
+  });
+  renderMain();
   if(k==='search'&&SRCH.scope==='mine')MyPapers.load();
 }
 window.addEventListener('popstate',()=>goto(location.hash.slice(1)||'search',true));
 
 function bindMain(){
-  document.querySelectorAll("[data-jump]").forEach(el=>{
+  $("#main").querySelectorAll("[data-jump]").forEach(el=>{
     el.onclick=()=>goto(el.dataset.jump);
   });
-  document.querySelectorAll("[data-open]").forEach(el=>{
+  $("#main").querySelectorAll("[data-open]").forEach(el=>{
     el.onclick=()=>openEvidence(el.dataset.open);
   });
 

@@ -8,6 +8,7 @@ var FinalUI=(()=>{
   $('#navToggle').setAttribute('aria-expanded',String(visible));
   $('#navScrim').hidden=!document.body.classList.contains('nav-open');
  }
+ function closeMobileNav(){if(innerWidth<981&&document.body.classList.contains('nav-open'))nav(false);}
  $('#navToggle').onclick=()=>nav(innerWidth<981?!document.body.classList.contains('nav-open'):document.body.classList.contains('nav-collapsed'));
  $('#navScrim').onclick=()=>nav(false);
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){nav(innerWidth>=981&&!document.body.classList.contains('nav-collapsed'));if(ResearchUI.state.filterOpen){ResearchUI.state.filterOpen=false;if(state.step==='search')renderMain();}}});
@@ -20,5 +21,5 @@ var FinalUI=(()=>{
   $('#searchFilterClose')?.addEventListener('click',toggle);
   $('#searchCollections')?.addEventListener('click',()=>{ResearchUI.state.filterOpen=true;renderMain();$('#clipBox')?.scrollIntoView({block:'nearest'});});
  }
- return {bind};
+ return {bind,closeMobileNav};
 })();

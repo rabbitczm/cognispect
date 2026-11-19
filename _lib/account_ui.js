@@ -42,7 +42,7 @@ var PersonalStore=(()=>{
 
 var WebAccount=(()=>{
  'use strict';
- const e=value=>esc(String(value??'')),$=s=>document.querySelector(s),publicPages=new Set(['intro','search','reader','res','anatomy','papers']);
+ const e=value=>esc(String(value??'')),$=s=>document.querySelector(s),publicPages=new Set(['intro','search','reader','res','anatomy','papers','review']);
  const cloud=window.ZHIJING_RUNTIME==='cloud';
  let smtp=false;
  function requireLogin(){if(PersonalStore.user)return true;open();return false;}
